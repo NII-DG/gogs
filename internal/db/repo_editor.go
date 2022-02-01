@@ -523,7 +523,7 @@ func (repo *Repository) UploadRepoFiles(doer *User, opts UploadRepoFileOptions) 
 		return fmt.Errorf("git push origin %s: %v", opts.NewBranch, err)
 	}
 
-	if err := annexUpload(localPath, "ipfs"); err != nil { // Copy new files
+	if err := annexUpload(localPath, "origin"); err != nil { // Copy new files
 		return fmt.Errorf("annex copy %s: %v", localPath, err)
 	}
 	annexUninit(localPath) // Uninitialise annex to prepare for deletion

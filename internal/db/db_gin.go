@@ -103,22 +103,12 @@ func annexUninit(path string) {
 	}
 }
 
-/**
-UPDATE : 2022/02/01
-AUTHOR : dai.tsukioka
-*/
 func annexSetup(path string) {
 	log.Trace("Running annex add (with filesize filter) in '%s'", path)
 
 	// Initialise annex in case it's a new repository
 	if msg, err := annex.Init(path); err != nil {
 		log.Error(2, "Annex init failed: %v (%s)", err, msg)
-		return
-	}
-
-	//Setting initremote ipfs
-	if msg, err := setRemoteIPFS(path); err != nil {
-		log.Error(2, "Annex initremote ipfs failed: %v (%s)", err, msg)
 		return
 	}
 
@@ -144,19 +134,6 @@ func annexSetup(path string) {
 	}
 }
 
-/**
-UPDATE : 2022/02/01
-AUTHOR : dai.tsukioka
-NOTE : Setting initremote ipfs
-*/
-func setRemoteIPFS(path string) ([]byte, error) {
-	cmd := git.NewCommand("annex", "initremote")
-	cmd.AddArgs("ipfs", "type=external", "externaltype=ipfs", "encryption=none")
-	cmd.AddEnvs("PATH=/usr/local/ipfs")
-	msg, err := cmd.RunInDir(path)
-	return msg, err
-}
-
 func annexAdd(repoPath string, all bool, files ...string) error {
 	cmd := git.NewCommand("annex", "add")
 	if all {
@@ -166,25 +143,17 @@ func annexAdd(repoPath string, all bool, files ...string) error {
 	return err
 }
 
-/**
-UPDATE : 2022/02/01
-AUTHOR : dai.tsukioka
-NOTE : methods : [sync and copy] locations are invert
-*/
 func annexUpload(repoPath, remote string) error {
-
-	log.Trace("Uploading annexed data to ipfs")
+	log.Trace("Synchronising annex info")
+	if msg, err := git.NewCommand("annex", "sync").RunInDir(repoPath); err != nil {
+		log.Error(2, "git-annex sync failed: %v (%s)", err, msg)
+	}
+	log.Trace("Uploading annexed data")
 	cmd := git.NewCommand("annex", "copy", fmt.Sprintf("--to=%s", remote), "--all")
 	if msg, err := cmd.RunInDir(repoPath); err != nil {
 		log.Error(2, "git-annex copy failed: %v (%s)", err, msg)
 		return fmt.Errorf("git annex copy [%s]", repoPath)
 	}
-
-	log.Trace("Synchronising annex info")
-	if msg, err := git.NewCommand("annex", "sync").RunInDir(repoPath); err != nil {
-		log.Error(2, "git-annex sync failed: %v (%s)", err, msg)
-	}
-
 	return nil
 }
 
