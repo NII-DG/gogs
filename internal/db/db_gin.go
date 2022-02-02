@@ -113,6 +113,7 @@ func annexSetup(path string) {
 
 	// Initialise annex in case it's a new repository
 	if msg, err := annex.Init(path); err != nil {
+		logv2.Error("Error 16 : Annex init failed: %v (%s)", err, msg)
 		log.Error(2, "Annex init failed: %v (%s)", err, msg)
 		return
 	}
@@ -177,7 +178,7 @@ NOTE : methods : [sync and copy] locations are invert
 */
 func annexUpload(repoPath, remote string) error {
 	//ipfsへ実データをコピーする。
-	log.Trace("Uploading annexed data to ipfs")
+	log.Info("Uploading annexed data to ipfs : %v", repoPath)
 	cmd := git.NewCommand("annex", "copy", fmt.Sprintf("--to=%s", remote))
 	cmd.AddEnvs("PATH=/usr/local/ipfs")
 	if msg, err := cmd.RunInDir(repoPath); err != nil {
@@ -186,7 +187,7 @@ func annexUpload(repoPath, remote string) error {
 		return fmt.Errorf("git annex copy [%s]", repoPath)
 	}
 	//リモートと同期（メタデータを更新）
-	log.Trace("Synchronising annex info")
+	log.Info("Synchronising annex info : %v", repoPath)
 	if msg, err := git.NewCommand("annex", "sync").RunInDir(repoPath); err != nil {
 		logv2.Error("Error 13 : git-annex sync failed: %v (%s)", err, msg)
 		log.Error(2, "git-annex sync failed: %v (%s)", err, msg)
