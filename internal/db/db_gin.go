@@ -120,13 +120,6 @@ func annexSetup(path string) {
 	}
 	logv2.Info("Info 3 : Annex init Success: %v (%s)", err, msg)
 
-	//Setting initremote ipfs
-	if msg, err := setRemoteIPFS(path); err != nil {
-		logv2.Error("Error 14 : Annex initremote ipfs failed: %v (%s)", err, msg)
-		log.Error(2, "Annex initremote ipfs failed: %v (%s)", err, msg)
-		return
-	}
-
 	// Upgrade to v8 in case the directory was here before and wasn't cleaned up properly
 	if msg, err := annex.Upgrade(path); err != nil {
 		log.Error(2, "Annex upgrade failed: %v (%s)", err, msg)
@@ -135,17 +128,27 @@ func annexSetup(path string) {
 
 	// Enable addunlocked for annex v8
 	if msg, err := annex.SetAddUnlocked(path); err != nil {
+		logv2.Error("Error 14 :Failed to set 'addunlocked' annex option: %v (%s)", err, msg)
 		log.Error(2, "Failed to set 'addunlocked' annex option: %v (%s)", err, msg)
 	}
 
 	// Set MD5 as default backend
 	if msg, err := annex.MD5(path); err != nil {
+		logv2.Error("Error 14 :Failed to set default backend to 'MD5': %v (%s)", err, msg)
 		log.Error(2, "Failed to set default backend to 'MD5': %v (%s)", err, msg)
 	}
 
 	// Set size filter in config
 	if msg, err := annex.SetAnnexSizeFilter(path, conf.Repository.Upload.AnnexFileMinSize*annex.MEGABYTE); err != nil {
+		logv2.Error("Error 14 :Failed to set size filter for annex: %v (%s)", err, msg)
 		log.Error(2, "Failed to set size filter for annex: %v (%s)", err, msg)
+	}
+
+	//Setting initremote ipfs
+	if msg, err := setRemoteIPFS(path); err != nil {
+		logv2.Error("Error 14 : Annex initremote ipfs failed: %v (%s)", err, msg)
+		log.Error(2, "Annex initremote ipfs failed: %v (%s)", err, msg)
+		return
 	}
 }
 
