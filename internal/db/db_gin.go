@@ -156,7 +156,7 @@ func setRemoteIPFS(path string) ([]byte, error) {
 	cmd.AddArgs("ipfs", "type=external", "externaltype=ipfs", "encryption=none")
 	cmd.AddEnvs("PATH=/usr/local/ipfs")
 	msg, err := cmd.RunInDir(path)
-	logv2.Error("Error 15 : err(msg): %v (%s)", err, msg)
+	logv2.Error("Error 15 : err(msg): %v (%s) path : %s", err, msg, path)
 	return msg, err
 }
 
@@ -165,7 +165,8 @@ func annexAdd(repoPath string, all bool, files ...string) error {
 	if all {
 		cmd.AddArgs(".")
 	}
-	_, err := cmd.AddArgs(files...).RunInDir(repoPath)
+	msg, err := cmd.AddArgs(files...).RunInDir(repoPath)
+	logv2.Info("Info 1 : AnnexAdd msg: %v (%s)", err, msg)
 	return err
 }
 
