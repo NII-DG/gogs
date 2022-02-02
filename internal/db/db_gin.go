@@ -174,7 +174,7 @@ NOTE : methods : [sync and copy] locations are invert
 func annexUpload(repoPath, remote string) error {
 	//ipfsへ実データをコピーする。
 	log.Trace("Uploading annexed data to ipfs")
-	cmd := git.NewCommand("annex", "copy", fmt.Sprintf("--to=%s", remote), "--all")
+	cmd := git.NewCommand("annex", "copy", fmt.Sprintf("--to=%s", remote))
 	if msg, err := cmd.RunInDir(repoPath); err != nil {
 		log.Error(2, "git-annex copy failed: %v (%s)", err, msg)
 		return fmt.Errorf("git annex copy [%s]", repoPath)

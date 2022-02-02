@@ -28,6 +28,8 @@ import (
 	"github.com/ivis-yoshida/gogs/internal/osutil"
 	"github.com/ivis-yoshida/gogs/internal/process"
 	"github.com/ivis-yoshida/gogs/internal/tool"
+
+	log "unknwon.dev/clog/v2"
 )
 
 const (
@@ -452,12 +454,15 @@ func isRepositoryGitPath(path string) bool {
 }
 
 func (repo *Repository) UploadRepoFiles(doer *User, opts UploadRepoFileOptions) (err error) {
+
 	if len(opts.Files) == 0 {
+		log.Error("Error 1: %v", len(opts.Files))
 		return nil
 	}
 
 	uploads, err := GetUploadsByUUIDs(opts.Files)
 	if err != nil {
+		log.Error("Error 2:get uploads by UUIDs[%v]: %v", opts.Files, err)
 		return fmt.Errorf("get uploads by UUIDs[%v]: %v", opts.Files, err)
 	}
 
@@ -465,13 +470,16 @@ func (repo *Repository) UploadRepoFiles(doer *User, opts UploadRepoFileOptions) 
 	defer repoWorkingPool.CheckOut(com.ToStr(repo.ID))
 
 	if err = repo.DiscardLocalRepoBranchChanges(opts.OldBranch); err != nil {
+		log.Error("Error 3 : discard local repo branch[%s] changes: %v", opts.OldBranch, err)
 		return fmt.Errorf("discard local repo branch[%s] changes: %v", opts.OldBranch, err)
 	} else if err = repo.UpdateLocalCopyBranch(opts.OldBranch); err != nil {
+		log.Error("Error 4 : update local copy branch[%s]: %v", opts.OldBranch, err)
 		return fmt.Errorf("update local copy branch[%s]: %v", opts.OldBranch, err)
 	}
 
 	if opts.OldBranch != opts.NewBranch {
 		if err = repo.CheckoutNewBranch(opts.OldBranch, opts.NewBranch); err != nil {
+			log.Error("Error 5 : checkout new branch[%s] from old branch[%s]: %v", opts.NewBranch, opts.OldBranch, err)
 			return fmt.Errorf("checkout new branch[%s] from old branch[%s]: %v", opts.NewBranch, opts.OldBranch, err)
 		}
 	}
@@ -479,6 +487,7 @@ func (repo *Repository) UploadRepoFiles(doer *User, opts UploadRepoFileOptions) 
 	localPath := repo.LocalCopyPath()
 	dirPath := path.Join(localPath, opts.TreePath)
 	if err = os.MkdirAll(dirPath, os.ModePerm); err != nil {
+		log.Error("Error 6 : : %v", err)
 		return err
 	}
 
@@ -497,17 +506,21 @@ func (repo *Repository) UploadRepoFiles(doer *User, opts UploadRepoFileOptions) 
 		targetPath := path.Join(dirPath, upload.Name)
 		// GIN: Create subdirectory for dirtree uploads
 		if err = os.MkdirAll(filepath.Dir(targetPath), os.ModePerm); err != nil {
+			log.Error("Error 7 : mkdir: %v", err)
 			return fmt.Errorf("mkdir: %v", err)
 		}
 		if err = com.Copy(tmpPath, targetPath); err != nil {
+			log.Error("Error 8 :copy: %v", err)
 			return fmt.Errorf("copy: %v", err)
 		}
 	}
 
 	annexSetup(localPath) // Initialise annex and set configuration (with add filter for filesizes)
 	if err = annexAdd(localPath, true); err != nil {
+		log.Error("Error 9 : git annex add: %v", err)
 		return fmt.Errorf("git annex add: %v", err)
 	} else if err = git.RepoCommit(localPath, doer.NewGitSig(), opts.Message); err != nil {
+		log.Error("Error 10 : commit changes on %q: %v", localPath, err)
 		return fmt.Errorf("commit changes on %q: %v", localPath, err)
 	}
 
@@ -520,10 +533,12 @@ func (repo *Repository) UploadRepoFiles(doer *User, opts UploadRepoFileOptions) 
 		RepoPath:  repo.RepoPath(),
 	})
 	if err = git.RepoPush(localPath, "origin", opts.NewBranch, git.PushOptions{Envs: envs}); err != nil {
+		log.Error("Error 11 : git push origin %s: %v", opts.NewBranch, err)
 		return fmt.Errorf("git push origin %s: %v", opts.NewBranch, err)
 	}
 
 	if err := annexUpload(localPath, "ipfs"); err != nil { // Copy new files
+		log.Error("Error 11 : annex copy %s: %v", localPath, err)
 		return fmt.Errorf("annex copy %s: %v", localPath, err)
 	}
 	annexUninit(localPath) // Uninitialise annex to prepare for deletion
