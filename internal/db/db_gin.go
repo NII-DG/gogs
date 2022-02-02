@@ -109,7 +109,7 @@ UPDATE : 2022/02/01
 AUTHOR : dai.tsukioka
 */
 func annexSetup(path string) {
-	log.Trace("Running annex add (with filesize filter) in '%s'", path)
+	log.Info("Running annex add (with filesize filter) in '%s'", path)
 
 	// Initialise annex in case it's a new repository
 	if msg, err := annex.Init(path); err != nil {

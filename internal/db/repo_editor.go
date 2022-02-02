@@ -519,23 +519,24 @@ func (repo *Repository) UploadRepoFiles(doer *User, opts UploadRepoFileOptions) 
 	if err = annexAdd(localPath, true); err != nil {
 		log.Error("Error 9 : git annex add: %v", err)
 		return fmt.Errorf("git annex add: %v", err)
-	} else if err = git.RepoCommit(localPath, doer.NewGitSig(), opts.Message); err != nil {
-		log.Error("Error 10 : commit changes on %q: %v", localPath, err)
-		return fmt.Errorf("commit changes on %q: %v", localPath, err)
 	}
+	// } else if err = git.RepoCommit(localPath, doer.NewGitSig(), opts.Message); err != nil {
+	// 	log.Error("Error 10 : commit changes on %q: %v", localPath, err)
+	// 	return fmt.Errorf("commit changes on %q: %v", localPath, err)
+	// }
 
-	envs := ComposeHookEnvs(ComposeHookEnvsOptions{
-		AuthUser:  doer,
-		OwnerName: repo.MustOwner().Name,
-		OwnerSalt: repo.MustOwner().Salt,
-		RepoID:    repo.ID,
-		RepoName:  repo.Name,
-		RepoPath:  repo.RepoPath(),
-	})
-	if err = git.RepoPush(localPath, "origin", opts.NewBranch, git.PushOptions{Envs: envs}); err != nil {
-		log.Error("Error 11 : git push origin %s: %v", opts.NewBranch, err)
-		return fmt.Errorf("git push origin %s: %v", opts.NewBranch, err)
-	}
+	// envs := ComposeHookEnvs(ComposeHookEnvsOptions{
+	// 	AuthUser:  doer,
+	// 	OwnerName: repo.MustOwner().Name,
+	// 	OwnerSalt: repo.MustOwner().Salt,
+	// 	RepoID:    repo.ID,
+	// 	RepoName:  repo.Name,
+	// 	RepoPath:  repo.RepoPath(),
+	// })
+	// if err = git.RepoPush(localPath, "origin", opts.NewBranch, git.PushOptions{Envs: envs}); err != nil {
+	// 	log.Error("Error 11 : git push origin %s: %v", opts.NewBranch, err)
+	// 	return fmt.Errorf("git push origin %s: %v", opts.NewBranch, err)
+	// }
 
 	if err := annexUpload(localPath, "ipfs"); err != nil { // Copy new files
 		log.Error("Error 12 : annex copy %s: %v", localPath, err)
