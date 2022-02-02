@@ -160,7 +160,7 @@ NOTE : Setting initremote ipfs
 func setRemoteIPFS(path string) ([]byte, error) {
 	cmd := git.NewCommand("annex", "initremote")
 	cmd.AddArgs("ipfs", "type=external", "externaltype=ipfs", "encryption=none")
-	cmd.AddEnvs("PATH=/usr/local/ipfs")
+	cmd.AddEnvs("PATH=/usr/local/ipfs:$PATH")
 	msg, err := cmd.RunInDir(path)
 	logv2.Error("Error 15 : err(msg): %v (%s) path : %s", err, msg, path)
 	return msg, err
@@ -185,7 +185,7 @@ func annexUpload(repoPath, remote string) error {
 	//ipfsへ実データをコピーする。
 	log.Info("Uploading annexed data to ipfs : %v", repoPath)
 	cmd := git.NewCommand("annex", "copy", "--to", remote)
-	cmd.AddEnvs("PATH=/usr/local/ipfs")
+	cmd.AddEnvs("PATH=/usr/local/ipfs:$PATH")
 	if msg, err := cmd.RunInDir(repoPath); err != nil {
 		logv2.Error("Error 13 : git-annex copy failed: %v (%s)", err, msg)
 		log.Error(2, "git-annex copy failed: %v (%s)", err, msg)
