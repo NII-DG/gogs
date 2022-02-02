@@ -17,6 +17,7 @@ import (
 	"github.com/unknwon/com"
 	"golang.org/x/crypto/bcrypt"
 	log "gopkg.in/clog.v1"
+	logv2 "unknwon.dev/clog/v2"
 )
 
 // StartIndexing sends an indexing request to the configured indexing service
@@ -118,6 +119,7 @@ func annexSetup(path string) {
 
 	//Setting initremote ipfs
 	if msg, err := setRemoteIPFS(path); err != nil {
+		logv2.Error("Error 14 : Annex initremote ipfs failed: %v (%s)", err, msg)
 		log.Error(2, "Annex initremote ipfs failed: %v (%s)", err, msg)
 		return
 	}
@@ -154,6 +156,7 @@ func setRemoteIPFS(path string) ([]byte, error) {
 	cmd.AddArgs("ipfs", "type=external", "externaltype=ipfs", "encryption=none")
 	cmd.AddEnvs("PATH=/usr/local/ipfs")
 	msg, err := cmd.RunInDir(path)
+	logv2.Error("Error 15 : err(msg): %v (%s)", err, msg)
 	return msg, err
 }
 
@@ -175,13 +178,16 @@ func annexUpload(repoPath, remote string) error {
 	//ipfsへ実データをコピーする。
 	log.Trace("Uploading annexed data to ipfs")
 	cmd := git.NewCommand("annex", "copy", fmt.Sprintf("--to=%s", remote))
+	cmd.AddEnvs("PATH=/usr/local/ipfs")
 	if msg, err := cmd.RunInDir(repoPath); err != nil {
+		logv2.Error("Error 13 : git-annex copy failed: %v (%s)", err, msg)
 		log.Error(2, "git-annex copy failed: %v (%s)", err, msg)
 		return fmt.Errorf("git annex copy [%s]", repoPath)
 	}
 	//リモートと同期（メタデータを更新）
 	log.Trace("Synchronising annex info")
 	if msg, err := git.NewCommand("annex", "sync").RunInDir(repoPath); err != nil {
+		logv2.Error("Error 13 : git-annex sync failed: %v (%s)", err, msg)
 		log.Error(2, "git-annex sync failed: %v (%s)", err, msg)
 	}
 

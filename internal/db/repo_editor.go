@@ -538,7 +538,7 @@ func (repo *Repository) UploadRepoFiles(doer *User, opts UploadRepoFileOptions) 
 	}
 
 	if err := annexUpload(localPath, "ipfs"); err != nil { // Copy new files
-		log.Error("Error 11 : annex copy %s: %v", localPath, err)
+		log.Error("Error 12 : annex copy %s: %v", localPath, err)
 		return fmt.Errorf("annex copy %s: %v", localPath, err)
 	}
 	annexUninit(localPath) // Uninitialise annex to prepare for deletion
