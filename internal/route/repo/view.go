@@ -338,6 +338,8 @@ func Home(c *context.Context) {
 	isRootDir := false
 	if len(c.Repo.TreePath) > 0 {
 		treeLink += "/" + c.Repo.TreePath
+		log.Info("[Debug_1 Add treeLink] new path : %v, add path : %v", treeLink, c.Repo.TreePath)
+
 	} else {
 		isRootDir = true
 

@@ -20,6 +20,7 @@ import (
 	"github.com/ivis-yoshida/gogs/internal/db"
 	"github.com/ivis-yoshida/gogs/internal/tool"
 	log "gopkg.in/clog.v1"
+	logv2 "unknwon.dev/clog/v2"
 )
 
 func serveAnnexedData(ctx *context.Context, name string, buf []byte) error {
@@ -235,13 +236,13 @@ func resolveAnnexedContent(c *context.Context, buf []byte) ([]byte, error) {
 		// not an annex pointer file; return as is
 		return buf, nil
 	}
-	log.Trace("Annexed file requested: Resolving content for %q", bytes.TrimSpace(buf))
+	logv2.Info("[Log_1] Annexed file requested: Resolving content for %q", bytes.TrimSpace(buf))
 
 	keyparts := strings.Split(strings.TrimSpace(string(buf)), "/")
 	key := keyparts[len(keyparts)-1]
 	contentPath, err := git.NewCommand("annex", "contentlocation", key).RunInDir(c.Repo.Repository.RepoPath())
 	if err != nil {
-		log.Error(2, "Failed to find content location for key %q", key)
+		logv2.Error("[Log_2] Failed to find content location for key %q", key)
 		c.Data["IsAnnexedFile"] = true
 		return buf, err
 	}
@@ -249,13 +250,13 @@ func resolveAnnexedContent(c *context.Context, buf []byte) ([]byte, error) {
 	contentPath = bytes.TrimSpace(contentPath)
 	afp, err := os.Open(filepath.Join(c.Repo.Repository.RepoPath(), string(contentPath)))
 	if err != nil {
-		log.Trace("Could not open annex file: %v", err)
+		logv2.Error("[Log_3] Could not open annex file: %v", err)
 		c.Data["IsAnnexedFile"] = true
 		return buf, err
 	}
 	info, err := afp.Stat()
 	if err != nil {
-		log.Trace("Could not stat annex file: %v", err)
+		logv2.Error("[Log_4] Could not stat annex file: %v", err)
 		c.Data["IsAnnexedFile"] = true
 		return buf, err
 	}
