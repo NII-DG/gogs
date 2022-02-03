@@ -407,6 +407,7 @@ func DeleteUploads(uploads ...*Upload) (err error) {
 
 	for _, upload := range uploads {
 		localPath := upload.LocalPath()
+		log.Info("[DELETE upload.LocalPath] %v", localPath)
 		if !osutil.IsFile(localPath) {
 			continue
 		}
