@@ -250,8 +250,15 @@ func resolveAnnexedContent(c *context.Context, buf []byte) ([]byte, error) {
 	} else {
 		logv2.Info("[git annes whereis Info] msg : %s", msg)
 	}
+
+	logv2.Info("[Log_1] Annexed file requested: Resolving content for %q", bytes.TrimSpace(buf))
+
+	keyparts := strings.Split(strings.TrimSpace(string(buf)), "/")
+	key := keyparts[len(keyparts)-1]
+	logv2.Info("[Log_1_1] key :  %s, RepoPath : %v ", key, repoPath)
+
 	//ipfsからオブジェクトを取得
-	if msg, err := git.NewCommand("annex", "copy", "--from", "ipfs").RunInDir(repoPath); err != nil {
+	if msg, err := git.NewCommand("annex", "copy", "--from", "ipfs", "--key", key).RunInDir(repoPath); err != nil {
 		logv2.Error("[Failure copy dataObject from ipfs] err : %v, repoPath : %v", err, repoPath)
 	} else {
 		logv2.Info("[Success copy dataObject from ipfs] msg : %s, repoPath : %v", msg, repoPath)
@@ -263,12 +270,6 @@ func resolveAnnexedContent(c *context.Context, buf []byte) ([]byte, error) {
 	} else {
 		logv2.Info("[git annes whereis Info] msg : %s", msg)
 	}
-
-	logv2.Info("[Log_1] Annexed file requested: Resolving content for %q", bytes.TrimSpace(buf))
-
-	keyparts := strings.Split(strings.TrimSpace(string(buf)), "/")
-	key := keyparts[len(keyparts)-1]
-	logv2.Info("[Log_1_1] key :  %s, RepoPath : %v ", key, repoPath)
 
 	contentPath, err := git.NewCommand("annex", "contentlocation", key).RunInDir(repoPath)
 	if err != nil {
