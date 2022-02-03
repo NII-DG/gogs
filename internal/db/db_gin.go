@@ -137,9 +137,10 @@ func annexSetup(path string) {
 	}
 
 	// Set size filter in config
-	if msg, err := annex.SetAnnexSizeFilter(path, conf.Repository.Upload.AnnexFileMinSize*annex.MEGABYTE); err != nil {
-		logv2.Error("Failed to set size filter for annex: %v (%s)", err, msg)
-	}
+	//large fileのサイズを定義する（不要）
+	// if msg, err := annex.SetAnnexSizeFilter(path, conf.Repository.Upload.AnnexFileMinSize*annex.MEGABYTE); err != nil {
+	// 	logv2.Error("Failed to set size filter for annex: %v (%s)", err, msg)
+	// }
 
 	//Setting initremote ipfs
 	if msg, err := setRemoteIPFS(path); err != nil {
@@ -183,7 +184,7 @@ func annexUpload(repoPath, remote string) error {
 	if msg, err := cmd.RunInDir(repoPath); err != nil {
 		return fmt.Errorf("[Failure git annex copy to %v] err : %v ,fromPath : %v", remote, err, repoPath)
 	} else {
-		logv2.Info("[Success copy to ipfs] msg : %v, fromPath : %v", msg, repoPath)
+		logv2.Info("[Success copy to ipfs] msg : %s, fromPath : %v", msg, repoPath)
 	}
 
 	//IPFSの所在確認（デバック用）
