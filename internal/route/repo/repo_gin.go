@@ -240,6 +240,8 @@ func resolveAnnexedContent(c *context.Context, buf []byte) ([]byte, error) {
 
 	keyparts := strings.Split(strings.TrimSpace(string(buf)), "/")
 	key := keyparts[len(keyparts)-1]
+	logv2.Info("[Log_1_1] key :  %s, RepoPath : %v ", key, c.Repo.Repository.RepoPath())
+
 	contentPath, err := git.NewCommand("annex", "contentlocation", key).RunInDir(c.Repo.Repository.RepoPath())
 	if err != nil {
 		logv2.Error("[Log_2] Failed to find content location for key %q", key)
