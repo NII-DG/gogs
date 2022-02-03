@@ -244,12 +244,13 @@ func resolveAnnexedContent(c *context.Context, buf []byte) ([]byte, error) {
 
 	contentPath, err := git.NewCommand("annex", "contentlocation", key).RunInDir(c.Repo.Repository.RepoPath())
 	if err != nil {
-		logv2.Error("[Log_2] Failed to find content location for key %q", key)
+		logv2.Error("[Log_2] Failed to find content location for key %q, err : %v", key, err)
 		c.Data["IsAnnexedFile"] = true
 		return buf, err
 	}
 	// always trim space from output for git command
 	contentPath = bytes.TrimSpace(contentPath)
+	///home/ivis/gogs-repositories/user1/demo2.git +
 	afp, err := os.Open(filepath.Join(c.Repo.Repository.RepoPath(), string(contentPath)))
 	if err != nil {
 		logv2.Error("[Log_3] Could not open annex file: %v", err)
