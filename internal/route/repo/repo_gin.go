@@ -236,13 +236,27 @@ func resolveAnnexedContent(c *context.Context, buf []byte) ([]byte, error) {
 		// not an annex pointer file; return as is
 		return buf, nil
 	}
+	repoPath := c.Repo.Repository.RepoPath()
+	//ベアレポジトリをIPFSへ連携
+	if msg, err := git.NewCommand("annex", "enableremote", "ipfs").RunInDir(repoPath); err != nil {
+		logv2.Error("[Failure enable remote(ipfs)] err : %v, repoPath : %v", err, repoPath)
+	} else {
+		logv2.Info("[Success enable remote(ipfs)] msg : %s, repoPath : %v", msg, repoPath)
+	}
+	//ipfsからオブジェクトを取得
+	if msg, err := git.NewCommand("annex", "copy", "--from", "ipfs").RunInDir(repoPath); err != nil {
+		logv2.Error("[Failure copy dataObject from ipfs] err : %v, repoPath : %v", err, repoPath)
+	} else {
+		logv2.Info("[Success copy dataObject from ipfs] msg : %s, repoPath : %v", msg, repoPath)
+	}
+
 	logv2.Info("[Log_1] Annexed file requested: Resolving content for %q", bytes.TrimSpace(buf))
 
 	keyparts := strings.Split(strings.TrimSpace(string(buf)), "/")
 	key := keyparts[len(keyparts)-1]
-	logv2.Info("[Log_1_1] key :  %s, RepoPath : %v ", key, c.Repo.Repository.RepoPath())
+	logv2.Info("[Log_1_1] key :  %s, RepoPath : %v ", key, repoPath)
 
-	contentPath, err := git.NewCommand("annex", "contentlocation", key).RunInDir(c.Repo.Repository.RepoPath())
+	contentPath, err := git.NewCommand("annex", "contentlocation", key).RunInDir(repoPath)
 	if err != nil {
 		logv2.Error("[Log_2] Failed to find content location for key %q, err : %v", key, err)
 		c.Data["IsAnnexedFile"] = true
@@ -250,8 +264,9 @@ func resolveAnnexedContent(c *context.Context, buf []byte) ([]byte, error) {
 	}
 	// always trim space from output for git command
 	contentPath = bytes.TrimSpace(contentPath)
+	logv2.Info("[ContentPath] %s", contentPath)
 	///home/ivis/gogs-repositories/user1/demo2.git +
-	afp, err := os.Open(filepath.Join(c.Repo.Repository.RepoPath(), string(contentPath)))
+	afp, err := os.Open(filepath.Join(repoPath, string(contentPath)))
 	if err != nil {
 		logv2.Error("[Log_3] Could not open annex file: %v", err)
 		c.Data["IsAnnexedFile"] = true
