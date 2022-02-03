@@ -243,11 +243,25 @@ func resolveAnnexedContent(c *context.Context, buf []byte) ([]byte, error) {
 	} else {
 		logv2.Info("[Success enable remote(ipfs)] msg : %s, repoPath : %v", msg, repoPath)
 	}
+	//IPFSの所在確認（デバック用）
+	logv2.Info("[git annex whereis] path : %v", repoPath)
+	if msg, err := git.NewCommand("annex", "whereis").RunInDir(repoPath); err != nil {
+		logv2.Error("[git annex whereis Error] err : %v", err)
+	} else {
+		logv2.Info("[git annes whereis Info] msg : %s", msg)
+	}
 	//ipfsからオブジェクトを取得
 	if msg, err := git.NewCommand("annex", "copy", "--from", "ipfs").RunInDir(repoPath); err != nil {
 		logv2.Error("[Failure copy dataObject from ipfs] err : %v, repoPath : %v", err, repoPath)
 	} else {
 		logv2.Info("[Success copy dataObject from ipfs] msg : %s, repoPath : %v", msg, repoPath)
+	}
+	//IPFSの所在確認（デバック用）
+	logv2.Info("[git annex whereis] path : %v", repoPath)
+	if msg, err := git.NewCommand("annex", "whereis").RunInDir(repoPath); err != nil {
+		logv2.Error("[git annex whereis Error] err : %v", err)
+	} else {
+		logv2.Info("[git annes whereis Info] msg : %s", msg)
 	}
 
 	logv2.Info("[Log_1] Annexed file requested: Resolving content for %q", bytes.TrimSpace(buf))
@@ -284,6 +298,8 @@ func resolveAnnexedContent(c *context.Context, buf []byte) ([]byte, error) {
 	annexBuf = annexBuf[:n]
 	c.Data["FileSize"] = info.Size()
 	log.Trace("Annexed file size: %d B", info.Size())
+	//repopath + /annex を削除する。
+	//gogs-repositories/user1/demo4.git/annex
 	return annexBuf, nil
 }
 
