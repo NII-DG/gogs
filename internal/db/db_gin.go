@@ -109,16 +109,16 @@ UPDATE : 2022/02/01
 AUTHOR : dai.tsukioka
 */
 func annexSetup(path string) {
-	log.Info("info 2 : Running annex add (with filesize filter) in '%s'", path)
+	logv2.Info("Running annex add (with filesize filter) in '%s'", path)
 
 	// Initialise annex in case it's a new repository
-	msg, err := annex.Init(path)
-	if err != nil {
-		logv2.Error("Error 16 : Annex init failed: %v (%s)", err, msg)
-		log.Error(2, "Annex init failed: %v (%s)", err, msg)
+
+	if msg, err := annex.Init(path); err != nil {
+		logv2.Error("[Annex init failed] err : %v, msg : %s", err, msg)
 		return
+	} else {
+		logv2.Info("[Annex init Success] err : %v, msg : %s", err, msg)
 	}
-	logv2.Info("Info 3 : Annex init Success: %v (%s)", err, msg)
 
 	// Upgrade to v8 in case the directory was here before and wasn't cleaned up properly
 	if msg, err := annex.Upgrade(path); err != nil {
@@ -128,25 +128,21 @@ func annexSetup(path string) {
 
 	// Enable addunlocked for annex v8
 	if msg, err := annex.SetAddUnlocked(path); err != nil {
-		logv2.Error("Error 14 :Failed to set 'addunlocked' annex option: %v (%s)", err, msg)
-		log.Error(2, "Failed to set 'addunlocked' annex option: %v (%s)", err, msg)
+		logv2.Error("Failed to set 'addunlocked' annex option: %v (%s)", err, msg)
 	}
 
 	// Set MD5 as default backend
 	if msg, err := annex.MD5(path); err != nil {
-		logv2.Error("Error 14 :Failed to set default backend to 'MD5': %v (%s)", err, msg)
-		log.Error(2, "Failed to set default backend to 'MD5': %v (%s)", err, msg)
+		logv2.Error("Failed to set default backend to 'MD5': %v (%s)", err, msg)
 	}
 
 	// Set size filter in config
 	if msg, err := annex.SetAnnexSizeFilter(path, conf.Repository.Upload.AnnexFileMinSize*annex.MEGABYTE); err != nil {
-		logv2.Error("Error 14 :Failed to set size filter for annex: %v (%s)", err, msg)
-		log.Error(2, "Failed to set size filter for annex: %v (%s)", err, msg)
+		logv2.Error("Failed to set size filter for annex: %v (%s)", err, msg)
 	}
 
 	//Setting initremote ipfs
 	if msg, err := setRemoteIPFS(path); err != nil {
-		logv2.Error("Error 14 : Annex initremote ipfs failed: %v (%s)", err, msg)
 		log.Error(2, "Annex initremote ipfs failed: %v (%s)", err, msg)
 		return
 	}
@@ -161,7 +157,7 @@ func setRemoteIPFS(path string) ([]byte, error) {
 	cmd := git.NewCommand("annex", "initremote")
 	cmd.AddArgs("ipfs", "type=external", "externaltype=ipfs", "encryption=none")
 	msg, err := cmd.RunInDir(path)
-	logv2.Error("Error 15 : err(msg): %v (%s) path : %s", err, msg, path)
+	logv2.Info("[Initremoto IPFS] path : %v, msg : %v, error : %s", path, msg, err)
 	return msg, err
 }
 
@@ -171,7 +167,7 @@ func annexAdd(repoPath string, all bool, files ...string) error {
 		cmd.AddArgs(".")
 	}
 	msg, err := cmd.AddArgs(files...).RunInDir(repoPath)
-	logv2.Info("Info 1 : AnnexAdd msg: %v (%s)", err, msg)
+	logv2.Info("[AnnexAdd] msg : %s, err : %v", msg, err)
 	return err
 }
 
@@ -182,20 +178,29 @@ NOTE : methods : [sync and copy] locations are invert
 */
 func annexUpload(repoPath, remote string) error {
 	//ipfsへ実データをコピーする。
-	log.Info("Uploading annexed data to ipfs : %v", repoPath)
+	logv2.Info("[Uploading annexed data to %v] path : %v", remote, repoPath)
 	cmd := git.NewCommand("annex", "copy", "--to", remote)
 	if msg, err := cmd.RunInDir(repoPath); err != nil {
-		logv2.Error("Error 13 : git-annex copy failed: %v (%s)", err, msg)
-		log.Error(2, "git-annex copy failed: %v (%s)", err, msg)
-		return fmt.Errorf("git annex copy [%s]", repoPath)
+		return fmt.Errorf("[Failure git annex copy to %v] err : %v ,fromPath : %v", remote, err, repoPath)
+	} else {
+		logv2.Info("[Success copy to ipfs] msg : %v, fromPath : %v", msg, repoPath)
 	}
+
+	//IPFSの所在確認（デバック用）
+	logv2.Info("[git annex whereis] path : %v", repoPath)
+	if msg, err := git.NewCommand("annex", "whereis").RunInDir(repoPath); err != nil {
+		logv2.Error("[git annex whereis Error] err : %v", err)
+	} else {
+		logv2.Info("[git annes whereis Info] msg : %s", msg)
+	}
+
 	//リモートと同期（メタデータを更新）
 	log.Info("Synchronising annex info : %v", repoPath)
 	if msg, err := git.NewCommand("annex", "sync").RunInDir(repoPath); err != nil {
-		logv2.Error("Error 13 : git-annex sync failed: %v (%s)", err, msg)
-		log.Error(2, "git-annex sync failed: %v (%s)", err, msg)
+		logv2.Error("[Failure git-annex sync] err : %v, msg : %s", err, msg)
+	} else {
+		logv2.Info("[Success git-annex sync] msg : %s", msg)
 	}
-
 	return nil
 }
 
