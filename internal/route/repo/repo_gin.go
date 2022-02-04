@@ -299,7 +299,7 @@ func resolveAnnexedContent(c *context.Context, buf []byte) ([]byte, error) {
 	annexBuf = annexBuf[:n]
 	c.Data["FileSize"] = info.Size()
 	log.Trace("Annexed file size: %d B", info.Size())
-	//repopath + /annex を削除する。
+	//メモ：repopath + /annex を削除する。
 	//gogs-repositories/user1/demo4.git/annex
 	return annexBuf, nil
 }
