@@ -8,7 +8,7 @@ function initCommentPreviewTab($form) {
   $tabMenu.find(".item").tab();
   $tabMenu
     .find('.item[data-tab="' + $tabMenu.data("preview") + '"]')
-    .click(function() {
+    .click(function () {
       var $this = $(this);
       $.post(
         $this.data("url"),
@@ -22,13 +22,13 @@ function initCommentPreviewTab($form) {
             )
             .val()
         },
-        function(data) {
+        function (data) {
           var $previewPanel = $form.find(
             '.tab.segment[data-tab="' + $tabMenu.data("preview") + '"]'
           );
           $previewPanel.html(data);
           emojify.run($previewPanel[0]);
-          $("pre code", $previewPanel[0]).each(function(i, block) {
+          $("pre code", $previewPanel[0]).each(function (i, block) {
             hljs.highlightBlock(block);
           });
         }
@@ -48,7 +48,7 @@ function initEditPreviewTab($form) {
   );
   if ($previewTab.length) {
     previewFileModes = $previewTab.data("preview-file-modes").split(",");
-    $previewTab.click(function() {
+    $previewTab.click(function () {
       var $this = $(this);
       $.post(
         $this.data("url"),
@@ -61,13 +61,13 @@ function initEditPreviewTab($form) {
             )
             .val()
         },
-        function(data) {
+        function (data) {
           var $previewPanel = $form.find(
             '.tab.segment[data-tab="' + $tabMenu.data("preview") + '"]'
           );
           $previewPanel.html(data);
           emojify.run($previewPanel[0]);
-          $("pre code", $previewPanel[0]).each(function(i, block) {
+          $("pre code", $previewPanel[0]).each(function (i, block) {
             hljs.highlightBlock(block);
           });
         }
@@ -81,7 +81,7 @@ function initEditDiffTab($form) {
   $tabMenu.find(".item").tab();
   $tabMenu
     .find('.item[data-tab="' + $tabMenu.data("diff") + '"]')
-    .click(function() {
+    .click(function () {
       var $this = $(this);
       $.post(
         $this.data("url"),
@@ -93,7 +93,7 @@ function initEditDiffTab($form) {
             )
             .val()
         },
-        function(data) {
+        function (data) {
           var $diffPreviewPanel = $form.find(
             '.tab.segment[data-tab="' + $tabMenu.data("diff") + '"]'
           );
@@ -138,10 +138,10 @@ function initCommentForm() {
   // This should be added directly to HTML but somehow just get empty <span> on this page.
   $labelMenu
     .find(".item:not(.no-select) .octicon:not(.octicon-check)")
-    .each(function() {
+    .each(function () {
       $(this).html("&nbsp;");
     });
-  $labelMenu.find(".item:not(.no-select)").click(function() {
+  $labelMenu.find(".item:not(.no-select)").click(function () {
     if ($(this).hasClass("checked")) {
       $(this).removeClass("checked");
       $(this)
@@ -174,7 +174,7 @@ function initCommentForm() {
     $(this)
       .parent()
       .find(".item")
-      .each(function() {
+      .each(function () {
         if ($(this).hasClass("checked")) {
           labelIds += $(this).data("id") + ",";
           $($(this).data("id-selector")).removeClass("hide");
@@ -194,7 +194,7 @@ function initCommentForm() {
     ).val(labelIds);
     return false;
   });
-  $labelMenu.find(".no-select.item").click(function() {
+  $labelMenu.find(".no-select.item").click(function () {
     if (hasLabelUpdateAction) {
       updateIssueMeta($labelMenu.data("update-url"), "clear", "");
     }
@@ -202,7 +202,7 @@ function initCommentForm() {
     $(this)
       .parent()
       .find(".item")
-      .each(function() {
+      .each(function () {
         $(this).removeClass("checked");
         $(this)
           .find(".octicon")
@@ -210,7 +210,7 @@ function initCommentForm() {
           .html("&nbsp;");
       });
 
-    $list.find(".item").each(function() {
+    $list.find(".item").each(function () {
       $(this).addClass("hide");
     });
     $noSelect.removeClass("hide");
@@ -226,11 +226,11 @@ function initCommentForm() {
     var $list = $(".ui" + select_id + ".list");
     var hasUpdateAction = $menu.data("action") == "update";
 
-    $menu.find(".item:not(.no-select)").click(function() {
+    $menu.find(".item:not(.no-select)").click(function () {
       $(this)
         .parent()
         .find(".item")
-        .each(function() {
+        .each(function () {
           $(this).removeClass("selected active");
         });
 
@@ -244,10 +244,10 @@ function initCommentForm() {
             .find(".selected")
             .html(
               '<a class="item" href=' +
-                $(this).data("href") +
-                ">" +
-                $(this).text() +
-                "</a>"
+              $(this).data("href") +
+              ">" +
+              $(this).text() +
+              "</a>"
             );
           break;
         case "#assignee_id":
@@ -255,23 +255,23 @@ function initCommentForm() {
             .find(".selected")
             .html(
               '<a class="item" href=' +
-                $(this).data("href") +
-                ">" +
-                '<img class="ui avatar image" src=' +
-                $(this).data("avatar") +
-                ">" +
-                $(this).text() +
-                "</a>"
+              $(this).data("href") +
+              ">" +
+              '<img class="ui avatar image" src=' +
+              $(this).data("avatar") +
+              ">" +
+              $(this).text() +
+              "</a>"
             );
       }
       $(".ui" + select_id + ".list .no-select").addClass("hide");
       $(input_id).val($(this).data("id"));
     });
-    $menu.find(".no-select.item").click(function() {
+    $menu.find(".no-select.item").click(function () {
       $(this)
         .parent()
         .find(".item:not(.no-select)")
-        .each(function() {
+        .each(function () {
           $(this).removeClass("selected active");
         });
 
@@ -299,7 +299,7 @@ function initRepository() {
     var $dropdown = $(selector);
     $dropdown.dropdown({
       fullTextSearch: true,
-      onChange: function(text, value, $choice) {
+      onChange: function (text, value, $choice) {
         window.location.href = $choice.data("url");
         console.log($choice.data("url"));
       },
@@ -314,7 +314,7 @@ function initRepository() {
   ) {
     initFilterSearchDropdown(".choose.reference .dropdown");
 
-    $(".reference.column").click(function() {
+    $(".reference.column").click(function () {
       $(".choose.reference .scrolling.menu").css("display", "none");
       $(".choose.reference .text").removeClass("black");
       $($(this).data("target")).css("display", "block");
@@ -332,7 +332,7 @@ function initRepository() {
 
   // Options
   if ($(".repository.settings.options").length > 0) {
-    $("#repo_name").keyup(function() {
+    $("#repo_name").keyup(function () {
       var $prompt = $("#repo-name-change-prompt");
       if (
         $(this)
@@ -354,7 +354,7 @@ function initRepository() {
   // Branches
   if ($(".repository.settings.branches").length > 0) {
     initFilterSearchDropdown(".protected-branches .dropdown");
-    $(".enable-protection, .enable-whitelist").change(function() {
+    $(".enable-protection, .enable-whitelist").change(function () {
       if (this.checked) {
         $($(this).data("target")).removeClass("disabled");
       } else {
@@ -367,22 +367,22 @@ function initRepository() {
   if ($(".repository.labels").length > 0) {
     // Create label
     var $newLabelPanel = $(".new-label.segment");
-    $(".new-label.button").click(function() {
+    $(".new-label.button").click(function () {
       $newLabelPanel.show();
     });
-    $(".new-label.segment .cancel").click(function() {
+    $(".new-label.segment .cancel").click(function () {
       $newLabelPanel.hide();
     });
 
-    $(".color-picker").each(function() {
+    $(".color-picker").each(function () {
       $(this).minicolors();
     });
-    $(".precolors .color").click(function() {
+    $(".precolors .color").click(function () {
       var color_hex = $(this).data("color-hex");
       $(".color-picker").val(color_hex);
       $(".minicolors-swatch-color").css("background-color", color_hex);
     });
-    $(".edit-label-button").click(function() {
+    $(".edit-label-button").click(function () {
       $("#label-modal-id").val($(this).data("id"));
       $(".edit-label .new-label-input").val($(this).data("title"));
       $(".edit-label .color-picker").val($(this).data("color"));
@@ -392,7 +392,7 @@ function initRepository() {
       );
       $(".edit-label.modal")
         .modal({
-          onApprove: function() {
+          onApprove: function () {
             $(".edit-label.form").submit();
           }
         })
@@ -412,11 +412,11 @@ function initRepository() {
       timepicker: false,
       startDate: $datepicker.data("start-date"),
       formatDate: "Y-m-d",
-      onSelectDate: function(ct) {
+      onSelectDate: function (ct) {
         $("#deadline").val(ct.dateFormat("Y-m-d"));
       }
     });
-    $("#clear-date").click(function() {
+    $("#clear-date").click(function () {
       $("#deadline").val("");
       return false;
     });
@@ -427,7 +427,7 @@ function initRepository() {
     // Edit issue title
     var $issueTitle = $("#issue-title");
     var $editInput = $("#edit-title-input").find("input");
-    var editTitleToggle = function() {
+    var editTitleToggle = function () {
       $issueTitle.toggle();
       $(".not-in-edit").toggle();
       $("#edit-title-input").toggle();
@@ -439,7 +439,7 @@ function initRepository() {
     $("#cancel-edit-title").click(editTitleToggle);
     $("#save-edit-title")
       .click(editTitleToggle)
-      .click(function() {
+      .click(function () {
         if (
           $editInput.val().length == 0 ||
           $editInput.val() == $issueTitle.text()
@@ -454,7 +454,7 @@ function initRepository() {
             _csrf: csrf,
             title: $editInput.val()
           },
-          function(data) {
+          function (data) {
             $editInput.val(data.title);
             $issueTitle.text(data.title);
           }
@@ -463,7 +463,7 @@ function initRepository() {
       });
 
     // Edit issue or comment content
-    $(".edit-content").click(function() {
+    $(".edit-content").click(function () {
       var $segment = $(this)
         .parent()
         .parent()
@@ -499,11 +499,11 @@ function initRepository() {
 
         initCommentPreviewTab($editContentForm);
 
-        $editContentZone.find(".cancel.button").click(function() {
+        $editContentZone.find(".cancel.button").click(function () {
           $renderContent.show();
           $editContentZone.hide();
         });
-        $editContentZone.find(".save.button").click(function() {
+        $editContentZone.find(".save.button").click(function () {
           $renderContent.show();
           $editContentZone.hide();
 
@@ -514,13 +514,13 @@ function initRepository() {
               content: $textarea.val(),
               context: $editContentZone.data("context")
             },
-            function(data) {
+            function (data) {
               if (data.length == 0) {
                 $renderContent.html($("#no-content").html());
               } else {
                 $renderContent.html(data.content);
                 emojify.run($renderContent[0]);
-                $("pre code", $renderContent[0]).each(function(i, block) {
+                $("pre code", $renderContent[0]).each(function (i, block) {
                   hljs.highlightBlock(block);
                 });
               }
@@ -542,12 +542,12 @@ function initRepository() {
     });
 
     // Delete comment
-    $(".delete-comment").click(function() {
+    $(".delete-comment").click(function () {
       var $this = $(this);
       if (confirm($this.data("locale"))) {
         $.post($this.data("url"), {
           _csrf: csrf
-        }).done(function() {
+        }).done(function () {
           $("#" + $this.data("comment-id")).remove();
         });
       }
@@ -556,14 +556,14 @@ function initRepository() {
 
     // Change status
     var $statusButton = $("#status-button");
-    $("#comment-form .edit_area").keyup(function() {
+    $("#comment-form .edit_area").keyup(function () {
       if ($(this).val().length == 0) {
         $statusButton.text($statusButton.data("status"));
       } else {
         $statusButton.text($statusButton.data("status-and-comment"));
       }
     });
-    $statusButton.click(function() {
+    $statusButton.click(function () {
       $("#status").val($statusButton.data("status-val"));
       $("#comment-form").submit();
     });
@@ -573,7 +573,7 @@ function initRepository() {
   if ($(".repository.diff").length > 0) {
     var $counter = $(".diff-counter");
     if ($counter.length >= 1) {
-      $counter.each(function(i, item) {
+      $counter.each(function (i, item) {
         var $item = $(item);
         var addLine = $item.find("span[data-line].add").data("line");
         var delLine = $item.find("span[data-line].del").data("line");
@@ -584,14 +584,14 @@ function initRepository() {
       });
     }
 
-    $(".diff-file-box .lines-num").click(function() {
+    $(".diff-file-box .lines-num").click(function () {
       if ($(this).attr("id")) {
         window.location.href = "#" + $(this).attr("id");
       }
     });
 
     $(window)
-      .on("hashchange", function(e) {
+      .on("hashchange", function (e) {
         $(".diff-file-box .lines-code.active").removeClass("active");
         var m = window.location.hash.match(/^#diff-.+$/);
         if (m) {
@@ -604,7 +604,7 @@ function initRepository() {
   }
 
   // Quick start and repository home
-  $("#repo-clone-ssh").click(function() {
+  $("#repo-clone-ssh").click(function () {
     $(".clone-url").text($(this).data("link"));
     $("#repo-clone-url").val($(this).data("link"));
     $(this).addClass("blue");
@@ -612,7 +612,7 @@ function initRepository() {
     $("#repo-clone-gin").removeClass("blue"); // Custom GIN code
     localStorage.setItem("repo-clone-protocol", "ssh");
   });
-  $("#repo-clone-https").click(function() {
+  $("#repo-clone-https").click(function () {
     $(".clone-url").text($(this).data("link"));
     $("#repo-clone-url").val($(this).data("link"));
     $(this).addClass("blue");
@@ -629,7 +629,7 @@ function initRepository() {
     $("#repo-clone-https").removeClass("blue");
     localStorage.setItem("repo-clone-protocol", "gin");
   });
-  $("#repo-clone-url").click(function() {
+  $("#repo-clone-url").click(function () {
     $(this).select();
   });
 
@@ -638,7 +638,7 @@ function initRepository() {
     initFilterSearchDropdown(".choose.branch .dropdown");
   }
   if ($(".repository.view.pull").length > 0) {
-    $(".comment.merge.box input[name=merge_style]").change(function() {
+    $(".comment.merge.box input[name=merge_style]").change(function () {
       if ($(this).val() === "create_merge_commit") {
         $(".commit.description.field").show();
       } else {
@@ -662,9 +662,9 @@ function initWikiForm() {
       autoDownloadFontAwesome: false,
       element: $editArea[0],
       forceSync: true,
-      previewRender: function(plainText, preview) {
+      previewRender: function (plainText, preview) {
         // Async method
-        setTimeout(function() {
+        setTimeout(function () {
           // FIXME: still send render request when return back to edit mode
           $.post(
             $editArea.data("url"),
@@ -674,7 +674,7 @@ function initWikiForm() {
               context: $editArea.data("context"),
               text: plainText
             },
-            function(data) {
+            function (data) {
               preview.innerHTML = '<div class="markdown">' + data + "</div>";
               emojify.run($(".editor-preview")[0]);
             }
@@ -723,14 +723,14 @@ var simpleMDEditor;
 var codeMirrorEditor;
 
 // For IE
-String.prototype.endsWith = function(pattern) {
+String.prototype.endsWith = function (pattern) {
   var d = this.length - pattern.length;
   return d >= 0 && this.lastIndexOf(pattern) === d;
 };
 
 // Adding function to get the cursor position in a text field to jQuery object.
-(function($, undefined) {
-  $.fn.getCursorPosition = function() {
+(function ($, undefined) {
+  $.fn.getCursorPosition = function () {
     var el = $(this).get(0);
     var pos = 0;
     if ("selectionStart" in el) {
@@ -766,9 +766,9 @@ function setSimpleMDE($editArea) {
     indentWithTabs: false,
     tabSize: 4,
     spellChecker: false,
-    previewRender: function(plainText, preview) {
+    previewRender: function (plainText, preview) {
       // Async method
-      setTimeout(function() {
+      setTimeout(function () {
         // FIXME: still send render request when return back to edit mode
         $.post(
           $editArea.data("url"),
@@ -778,7 +778,7 @@ function setSimpleMDE($editArea) {
             context: $editArea.data("context"),
             text: plainText
           },
-          function(data) {
+          function (data) {
             preview.innerHTML = '<div class="markdown">' + data + "</div>";
             emojify.run($(".editor-preview")[0]);
           }
@@ -829,7 +829,7 @@ function setCodeMirror($editArea) {
   codeMirrorEditor = CodeMirror.fromTextArea($editArea[0], {
     lineNumbers: true
   });
-  codeMirrorEditor.on("change", function(cm, change) {
+  codeMirrorEditor.on("change", function (cm, change) {
     $editArea.val(cm.getValue());
   });
 
@@ -866,7 +866,7 @@ function setCodeMirror($editArea) {
 }
 
 function initEditor() {
-  $(".js-quick-pull-choice-option").change(function() {
+  $(".js-quick-pull-choice-option").change(function () {
     if ($(this).val() == "commit-to-new-branch") {
       $(".quick-pull-branch-name").show();
       $(".quick-pull-branch-name input").prop("required", true);
@@ -878,7 +878,7 @@ function initEditor() {
 
   var $editFilename = $("#file-name");
   $editFilename
-    .keyup(function(e) {
+    .keyup(function (e) {
       var $section = $(".breadcrumb span.section");
       var $divider = $(".breadcrumb div.divider");
       if (e.keyCode == 8) {
@@ -915,7 +915,7 @@ function initEditor() {
         }
       }
       var parts = [];
-      $(".breadcrumb span.section").each(function(i, element) {
+      $(".breadcrumb span.section").each(function (i, element) {
         element = $(element);
         if (element.find("a").length) {
           parts.push(element.find("a").text());
@@ -932,7 +932,7 @@ function initEditor() {
       $("#preview-tab").data(
         "context",
         $("#preview-tab").data("root-context") +
-          tree_path.substring(0, tree_path.lastIndexOf("/") + 1)
+        tree_path.substring(0, tree_path.lastIndexOf("/") + 1)
       );
     })
     .trigger("keyup");
@@ -944,7 +944,7 @@ function initEditor() {
   var lineWrapExtensions = $editArea.data("line-wrap-extensions").split(",");
 
   $editFilename
-    .on("keyup", function(e) {
+    .on("keyup", function (e) {
       var val = $editFilename.val(),
         m,
         mode,
@@ -1015,7 +1015,7 @@ function initEditor() {
       value = value.split("/");
       value = value[value.length - 1];
 
-      $.getJSON($editFilename.data("ec-url-prefix") + value, function(
+      $.getJSON($editFilename.data("ec-url-prefix") + value, function (
         editorconfig
       ) {
         if (editorconfig.indent_style === "tab") {
@@ -1027,7 +1027,7 @@ function initEditor() {
           // - https://github.com/codemirror/CodeMirror/issues/988
           // - https://codemirror.net/doc/manual.html#keymaps
           codeMirrorEditor.setOption("extraKeys", {
-            Tab: function(cm) {
+            Tab: function (cm) {
               var spaces = Array(parseInt(cm.getOption("indentUnit")) + 1).join(
                 " "
               );
@@ -1049,7 +1049,7 @@ function initOrganization() {
 
   // Options
   if ($(".organization.settings.options").length > 0) {
-    $("#org_name").keyup(function() {
+    $("#org_name").keyup(function () {
       var $prompt = $("#org-name-change-prompt");
       if (
         $(this)
@@ -1076,7 +1076,7 @@ function initAdmin() {
 
   // New user
   if ($(".admin.new.user").length > 0 || $(".admin.edit.user").length > 0) {
-    $("#login_type").change(function() {
+    $("#login_type").change(function () {
       if (
         $(this)
           .val()
@@ -1111,7 +1111,7 @@ function initAdmin() {
 
   // New authentication
   if ($(".admin.new.authentication").length > 0) {
-    $("#auth_type").change(function() {
+    $("#auth_type").change(function () {
       $(".ldap").hide();
       $(".dldap").hide();
       $(".smtp").hide();
@@ -1158,7 +1158,7 @@ function initAdmin() {
     var $detailModal = $("#detail-modal");
 
     // Attach view detail modals
-    $(".view-detail").click(function() {
+    $(".view-detail").click(function () {
       $detailModal.find(".content p").text($(this).data("content"));
       $detailModal.modal("show");
       return false;
@@ -1166,7 +1166,7 @@ function initAdmin() {
 
     // Select actions
     var $checkboxes = $(".select.table .ui.checkbox");
-    $(".select.action").click(function() {
+    $(".select.action").click(function () {
       switch ($(this).data("action")) {
         case "select-all":
           $checkboxes.checkbox("check");
@@ -1179,11 +1179,11 @@ function initAdmin() {
           break;
       }
     });
-    $("#delete-selection").click(function() {
+    $("#delete-selection").click(function () {
       var $this = $(this);
       $this.addClass("loading disabled");
       var ids = [];
-      $checkboxes.each(function() {
+      $checkboxes.each(function () {
         if ($(this).checkbox("is checked")) {
           ids.push($(this).data("id"));
         }
@@ -1191,7 +1191,7 @@ function initAdmin() {
       $.post($this.data("link"), {
         _csrf: csrf,
         ids: ids
-      }).done(function() {
+      }).done(function () {
         window.location.href = $this.data("redirect");
       });
     });
@@ -1199,7 +1199,7 @@ function initAdmin() {
 }
 
 function buttonsClickOnEnter() {
-  $(".ui.button").keypress(function(e) {
+  $(".ui.button").keypress(function (e) {
     if (e.keyCode == 13 || e.keyCode == 32)
       // enter key or space bar
       $(this).click();
@@ -1207,7 +1207,7 @@ function buttonsClickOnEnter() {
 }
 
 function hideWhenLostFocus(body, parent) {
-  $(document).click(function(e) {
+  $(document).click(function (e) {
     var target = e.target;
     if (
       !$(target).is(body) &&
@@ -1227,7 +1227,7 @@ function searchUsers() {
 
   var $searchUserBox = $("#search-user-box");
   var $results = $searchUserBox.find(".results");
-  $searchUserBox.keyup(function() {
+  $searchUserBox.keyup(function () {
     var $this = $(this);
     var keyword = $this.find("input").val();
     if (keyword.length < 2) {
@@ -1238,8 +1238,8 @@ function searchUsers() {
     $.ajax({
       url: suburl + "/api/v1/users/search?q=" + keyword,
       dataType: "json",
-      success: function(response) {
-        var notEmpty = function(str) {
+      success: function (response) {
+        var notEmpty = function (str) {
           return str && str.length > 0;
         };
 
@@ -1247,7 +1247,7 @@ function searchUsers() {
 
         if (response.ok && response.data.length) {
           var html = "";
-          $.each(response.data, function(i, item) {
+          $.each(response.data, function (i, item) {
             html +=
               '<div class="item"><img class="ui avatar image" src="' +
               item.avatar_url +
@@ -1260,7 +1260,7 @@ function searchUsers() {
             html += "</div>";
           });
           $results.html(html);
-          $this.find(".results .item").click(function() {
+          $this.find(".results .item").click(function () {
             $this.find("input").val(
               $(this)
                 .find(".username")
@@ -1275,7 +1275,7 @@ function searchUsers() {
       }
     });
   });
-  $searchUserBox.find("input").focus(function() {
+  $searchUserBox.find("input").focus(function () {
     $searchUserBox.keyup();
   });
   hideWhenLostFocus("#search-user-box .results", "#search-user-box");
@@ -1289,7 +1289,7 @@ function searchRepositories() {
 
   var $searchRepoBox = $("#search-repo-box");
   var $results = $searchRepoBox.find(".results");
-  $searchRepoBox.keyup(function() {
+  $searchRepoBox.keyup(function () {
     var $this = $(this);
     var keyword = $this.find("input").val();
     if (keyword.length < 2) {
@@ -1305,8 +1305,8 @@ function searchRepositories() {
         "&uid=" +
         $searchRepoBox.data("uid"),
       dataType: "json",
-      success: function(response) {
-        var notEmpty = function(str) {
+      success: function (response) {
+        var notEmpty = function (str) {
           return str && str.length > 0;
         };
 
@@ -1314,14 +1314,14 @@ function searchRepositories() {
 
         if (response.ok && response.data.length) {
           var html = "";
-          $.each(response.data, function(i, item) {
+          $.each(response.data, function (i, item) {
             html +=
               '<div class="item"><i class="octicon octicon-repo"></i> <span class="fullname">' +
               item.full_name +
               "</span></div>";
           });
           $results.html(html);
-          $this.find(".results .item").click(function() {
+          $this.find(".results .item").click(function () {
             $this.find("input").val(
               $(this)
                 .find(".fullname")
@@ -1337,7 +1337,7 @@ function searchRepositories() {
       }
     });
   });
-  $searchRepoBox.find("input").focus(function() {
+  $searchRepoBox.find("input").focus(function () {
     $searchRepoBox.keyup();
   });
   hideWhenLostFocus("#search-repo-box .results", "#search-repo-box");
@@ -1345,7 +1345,7 @@ function searchRepositories() {
 
 function initCodeView() {
   if ($(".code-view .linenums").length > 0) {
-    $(document).on("click", ".lines-num span", function(e) {
+    $(document).on("click", ".lines-num span", function (e) {
       var $select = $(this);
       var $list = $select
         .parent()
@@ -1360,7 +1360,7 @@ function initCodeView() {
     });
 
     $(window)
-      .on("hashchange", function(e) {
+      .on("hashchange", function (e) {
         var m = window.location.hash.match(/^#(L\d+)\-(L\d+)$/);
         var $list = $(".code-view ol.linenums > li");
         var $first;
@@ -1391,7 +1391,7 @@ function initCookieWarn() {
         value: true
       });
     $(".nag.close").click(function () {
-      Cookies.set("cookieok", true, {expires: 365})
+      Cookies.set("cookieok", true, { expires: 365 })
     })
   }
 }
@@ -1417,7 +1417,7 @@ function initUserSettings() {
 
   // Options
   if ($(".user.settings.profile").length > 0) {
-    $("#username").keyup(function() {
+    $("#username").keyup(function () {
       var $prompt = $("#name-change-prompt");
       if (
         $(this)
@@ -1441,7 +1441,7 @@ function initRepositoryCollaboration() {
   console.log("initRepositoryCollaboration");
 
   // Change collaborator access mode
-  $(".access-mode.menu .item").click(function() {
+  $(".access-mode.menu .item").click(function () {
     var $menu = $(this).parent();
     $.post($menu.data("url"), {
       _csrf: csrf,
@@ -1452,53 +1452,53 @@ function initRepositoryCollaboration() {
 }
 
 function initWebhookSettings() {
-  $(".events.checkbox input").change(function() {
+  $(".events.checkbox input").change(function () {
     if ($(this).is(":checked")) {
       $(".events.fields").show();
     }
   });
-  $(".non-events.checkbox input").change(function() {
+  $(".non-events.checkbox input").change(function () {
     if ($(this).is(":checked")) {
       $(".events.fields").hide();
     }
   });
 
   // Highlight payload on first click
-  $(".hook.history.list .toggle.button").click(function() {
-    $($(this).data("target") + " .nohighlight").each(function() {
+  $(".hook.history.list .toggle.button").click(function () {
+    $($(this).data("target") + " .nohighlight").each(function () {
       var $this = $(this);
       $this.removeClass("nohighlight");
-      setTimeout(function() {
+      setTimeout(function () {
         hljs.highlightBlock($this[0]);
       }, 500);
     });
   });
 
   // Trigger delivery
-  $(".delivery.button, .redelivery.button").click(function() {
+  $(".delivery.button, .redelivery.button").click(function () {
     var $this = $(this);
     $this.addClass("loading disabled");
     $.post($this.data("link"), {
       _csrf: csrf
     }).done(
-      setTimeout(function() {
+      setTimeout(function () {
         window.location.href = $this.data("redirect");
       }, 5000)
     );
   });
 }
 
-$(document).ready(function() {
+$(document).ready(function () {
   csrf = $("meta[name=_csrf]").attr("content");
   suburl = $("meta[name=_suburl]").attr("content");
 
   // Set cursor to the end of autofocus input string
-  $("input[autofocus]").each(function() {
+  $("input[autofocus]").each(function () {
     $(this).val($(this).val());
   });
 
   // Show exact time
-  $(".time-since").each(function() {
+  $(".time-since").each(function () {
     $(this)
       .addClass("poping up")
       .attr("data-content", $(this).attr("title"))
@@ -1512,7 +1512,7 @@ $(document).ready(function() {
   });
   $(".jump.dropdown").dropdown({
     action: "select",
-    onShow: function() {
+    onShow: function () {
       $(".poping.up").popup("hide");
     }
   });
@@ -1529,7 +1529,7 @@ $(document).ready(function() {
   });
   $(".poping.up").popup();
   $(".top.menu .poping.up").popup({
-    onShow: function() {
+    onShow: function () {
       if ($(".top.menu .menu.transition").hasClass("visible")) {
         return false;
       }
@@ -1538,7 +1538,7 @@ $(document).ready(function() {
   $(".tabular.menu .item").tab();
   $(".tabable.menu .item").tab();
 
-  $(".toggle.button").click(function() {
+  $(".toggle.button").click(function () {
     $($(this).data("target")).slideToggle(100);
   });
 
@@ -1549,8 +1549,8 @@ $(document).ready(function() {
     $dropzone.dropzone({
       url: $dropzone.data("upload-url"),
       headers: { "X-CSRF-Token": csrf },
-      maxFiles: $dropzone.data("max-file"),
-      maxFilesize: $dropzone.data("max-size"),
+      //maxFiles: $dropzone.data("max-file"),
+      //maxFilesize: $dropzone.data("max-size"),
       acceptedFiles:
         $dropzone.data("accepts") === "*/*" ? null : $dropzone.data("accepts"),
       addRemoveLinks: true,
@@ -1558,15 +1558,15 @@ $(document).ready(function() {
       dictInvalidFileType: $dropzone.data("invalid-input-type"),
       dictFileTooBig: $dropzone.data("file-too-big"),
       dictRemoveFile: $dropzone.data("remove-file"),
-      init: function() {
-        this.on("success", function(file, data) {
+      init: function () {
+        this.on("success", function (file, data) {
           filenameDict[file.name] = data.uuid;
           var input = $(
             '<input id="' + data.uuid + '" name="files" type="hidden">'
           ).val(data.uuid);
           $(".files").append(input);
         });
-        this.on("removedfile", function(file) {
+        this.on("removedfile", function (file) {
           if (file.name in filenameDict) {
             $("#" + filenameDict[file.name]).remove();
           }
@@ -1611,7 +1611,7 @@ $(document).ready(function() {
 
   // Clipboard JS
   var clipboard = new ClipboardJS(".clipboard");
-  clipboard.on("success", function(e) {
+  clipboard.on("success", function (e) {
     e.clearSelection();
 
     $("#" + e.trigger.getAttribute("id")).popup("destroy");
@@ -1626,7 +1626,7 @@ $(document).ready(function() {
     );
   });
 
-  clipboard.on("error", function(e) {
+  clipboard.on("error", function (e) {
     $("#" + e.trigger.getAttribute("id")).popup("destroy");
     e.trigger.setAttribute(
       "data-content",
@@ -1646,7 +1646,7 @@ $(document).ready(function() {
   }
 
   // AJAX load buttons
-  $(".ajax-load-button").click(function() {
+  $(".ajax-load-button").click(function () {
     var $this = $(this);
     $this.addClass("disabled");
 
@@ -1655,7 +1655,7 @@ $(document).ready(function() {
       headers: {
         "X-AJAX": "true"
       }
-    }).done(function(data, status, request) {
+    }).done(function (data, status, request) {
       $(data).insertBefore($this);
 
       // Update new URL or remove self if no more feeds
@@ -1670,12 +1670,12 @@ $(document).ready(function() {
   });
 
   // Helpers
-  $(".delete-button").click(function() {
+  $(".delete-button").click(function () {
     var $this = $(this);
     $(".delete.modal")
       .modal({
         closable: false,
-        onApprove: function() {
+        onApprove: function () {
           if ($this.data("type") == "form") {
             $($this.data("form")).submit();
             return;
@@ -1684,7 +1684,7 @@ $(document).ready(function() {
           $.post($this.data("url"), {
             _csrf: csrf,
             id: $this.data("id")
-          }).done(function(data) {
+          }).done(function (data) {
             window.location.href = data.redirect;
           });
         }
@@ -1692,27 +1692,27 @@ $(document).ready(function() {
       .modal("show");
     return false;
   });
-  $(".show-panel.button").click(function() {
+  $(".show-panel.button").click(function () {
     $($(this).data("panel")).show();
   });
-  $(".show-modal.button").click(function() {
+  $(".show-modal.button").click(function () {
     $($(this).data("modal")).modal("show");
   });
-  $(".delete-post.button").click(function() {
+  $(".delete-post.button").click(function () {
     var $this = $(this);
     $.post($this.data("request-url"), {
       _csrf: csrf
-    }).done(function() {
+    }).done(function () {
       window.location.href = $this.data("done-url");
     });
   });
   // To make arbitrary form element to behave like a submit button
-  $(".submit-button").click(function() {
+  $(".submit-button").click(function () {
     $($(this).data("form")).submit();
   });
 
   // Check or select on option to enable/disable target region
-  $(".enable-system").change(function() {
+  $(".enable-system").change(function () {
     if (this.checked) {
       $($(this).data("target")).removeClass("disabled");
     } else {
@@ -1720,18 +1720,18 @@ $(document).ready(function() {
       $($(this).data("uncheck")).prop("checked", false);
     }
   });
-  $(".enable-system-radio").change(function() {
+  $(".enable-system-radio").change(function () {
     $($(this).data("enable")).removeClass("disabled");
     $($(this).data("disable")).addClass("disabled");
     $($(this).data("uncheck")).prop("checked", false);
   });
 
   // Set anchor.
-  $(".markdown").each(function() {
+  $(".markdown").each(function () {
     var headers = {};
     $(this)
       .find("h1, h2, h3, h4, h5, h6")
-      .each(function() {
+      .each(function () {
         var node = $(this);
         var val = encodeURIComponent(
           node
@@ -1752,8 +1752,8 @@ $(document).ready(function() {
         node = node.wrap('<div id="' + name + '" class="anchor-wrap" ></div>');
         node.append(
           '<a class="anchor" href="#' +
-            name +
-            '"><span class="octicon octicon-link"></span></a>'
+          name +
+          '"><span class="octicon octicon-link"></span></a>'
         );
       });
   });
@@ -1843,7 +1843,7 @@ function selectRange($list, $select, $from) {
   changeHash("#" + $select.attr("rel"));
 }
 
-$(function() {
+$(function () {
   if ($(".user.signin").length > 0) return;
   $("form").areYouSure();
 });
@@ -1860,16 +1860,16 @@ function getByteLen(normalVal) {
       c < 1 << 7
         ? 1
         : c < 1 << 11
-        ? 2
-        : c < 1 << 16
-        ? 3
-        : c < 1 << 21
-        ? 4
-        : c < 1 << 26
-        ? 5
-        : c < 1 << 31
-        ? 6
-        : Number.NaN;
+          ? 2
+          : c < 1 << 16
+            ? 3
+            : c < 1 << 21
+              ? 4
+              : c < 1 << 26
+                ? 5
+                : c < 1 << 31
+                  ? 6
+                  : Number.NaN;
   }
   return byteLen;
 }
@@ -1878,7 +1878,7 @@ function showMessageMaxLength(maxLen, textElemId, counterId) {
   var $msg = $("#" + textElemId);
   $("#" + counterId).html(maxLen - getByteLen($msg.val()));
 
-  var onMessageKey = function(e) {
+  var onMessageKey = function (e) {
     var $msg = $(this);
     var text = $msg.val();
     var len = getByteLen(text);
@@ -2050,7 +2050,7 @@ function OdmlEditor() {
           action: Xonomy.newElementChild,
           actionParameter: "<property><name>...</name><value>...</value></property>"
         }
-      ],
+        ],
       }
     },
     onchange: function () {
