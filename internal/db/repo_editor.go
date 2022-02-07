@@ -415,6 +415,33 @@ func DeleteUploads(uploads ...*Upload) (err error) {
 		if err := os.Remove(localPath); err != nil {
 			return fmt.Errorf("remove upload: %v", err)
 		}
+
+	}
+
+	return sess.Commit()
+}
+
+func RemoveFilesFromLocalRepository(dirPath string, uploads ...*Upload) (err error) {
+	if len(uploads) == 0 {
+		return nil
+	}
+
+	sess := x.NewSession()
+	defer sess.Close()
+	if err = sess.Begin(); err != nil {
+		return err
+	}
+
+	for _, upload := range uploads {
+		targetPath := path.Join(dirPath, upload.Name)
+		if !osutil.IsFile(targetPath) {
+			continue
+		}
+
+		if err := os.Remove(targetPath); err != nil {
+			return fmt.Errorf("[Remove Upload Files From Local Repository] targerPath: %v", err)
+		}
+		log.Info("[DELETE Upload Files From Local Repository] %v", targetPath)
 	}
 
 	return sess.Commit()
@@ -535,5 +562,8 @@ func (repo *Repository) UploadRepoFiles(doer *User, opts UploadRepoFileOptions) 
 	annexUninit(localPath) // Uninitialise annex to prepare for deletion
 	StartIndexing(*repo)   // Index the new data
 	//localPathのディレクトリの削除
+	if err := RemoveFilesFromLocalRepository(dirPath, uploads...); err != nil {
+		return err
+	}
 	return DeleteUploads(uploads...)
 }
