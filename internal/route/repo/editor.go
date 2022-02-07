@@ -427,9 +427,7 @@ func DeleteFilePost(c *context.Context, f form.DeleteRepoFile) {
 func renderUploadSettings(c *context.Context) {
 	c.RequireDropzone()
 	c.Data["UploadAllowedTypes"] = strings.Join(conf.Repository.Upload.AllowedTypes, ",")
-	log.Info("[UploadMaxSize] : %v", conf.Repository.Upload.FileMaxSize)
 	c.Data["UploadMaxSize"] = conf.Repository.Upload.FileMaxSize
-	log.Info("[UploadMaxFiles] : %v", conf.Repository.Upload.MaxFiles)
 	c.Data["UploadMaxFiles"] = conf.Repository.Upload.MaxFiles
 }
 
