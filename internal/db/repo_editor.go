@@ -420,8 +420,6 @@ func DeleteUploads(uploads ...*Upload) (err error) {
 	return sess.Commit()
 }
 
-func RemoveLocalRepo()
-
 func DeleteUpload(u *Upload) error {
 	return DeleteUploads(u)
 }
