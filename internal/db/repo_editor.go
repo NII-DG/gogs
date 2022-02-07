@@ -421,9 +421,16 @@ func DeleteUploads(uploads ...*Upload) (err error) {
 	return sess.Commit()
 }
 
+//新規にアップロードしたファイルのみ削除になる。前回までのアップロードされたファイルも削除する必要がある。
+//dirPath内のあるファイルおよび、ディレクトリ名を取得した後、削除する。
 func RemoveFilesFromLocalRepository(dirPath string, uploads ...*Upload) (err error) {
 	if len(uploads) == 0 {
 		return nil
+	}
+
+	files, _ := filepath.Glob(dirPath + "/*")
+	for _, f := range files {
+		log.Info("[ALL File path] : %v In %v", f, dirPath)
 	}
 
 	sess := x.NewSession()
