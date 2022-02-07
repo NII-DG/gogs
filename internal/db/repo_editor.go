@@ -428,28 +428,32 @@ func RemoveFilesFromLocalRepository(dirPath string, uploads ...*Upload) (err err
 		return nil
 	}
 
-	files, _ := filepath.Glob(dirPath + "/*")
-	for _, f := range files {
-		log.Info("[ALL File path] : %v In %v", f, dirPath)
-	}
-
 	sess := x.NewSession()
 	defer sess.Close()
 	if err = sess.Begin(); err != nil {
 		return err
 	}
 
-	for _, upload := range uploads {
-		targetPath := path.Join(dirPath, upload.Name)
-		if !osutil.IsFile(targetPath) {
-			continue
-		}
-
-		if err := os.Remove(targetPath); err != nil {
+	files, _ := filepath.Glob(dirPath + "/*")
+	for _, f := range files {
+		log.Info("[ALL File path] : %v In %v", f, dirPath)
+		if err := os.Remove(f); err != nil {
 			return fmt.Errorf("[Remove Upload Files From Local Repository] targerPath: %v", err)
 		}
-		log.Info("[DELETE Upload Files From Local Repository] %v", targetPath)
+		log.Info("[DELETE Upload Files From Local Repository] %v", f)
 	}
+
+	// for _, upload := range uploads {
+	// 	targetPath := path.Join(dirPath, upload.Name)
+	// 	if !osutil.IsFile(targetPath) {
+	// 		continue
+	// 	}
+
+	// 	if err := os.Remove(targetPath); err != nil {
+	// 		return fmt.Errorf("[Remove Upload Files From Local Repository] targerPath: %v", err)
+	// 	}
+	// 	log.Info("[DELETE Upload Files From Local Repository] %v", targetPath)
+	// }
 
 	return sess.Commit()
 }
