@@ -428,7 +428,9 @@ func renderUploadSettings(c *context.Context) {
 	c.RequireDropzone()
 	c.Data["UploadAllowedTypes"] = strings.Join(conf.Repository.Upload.AllowedTypes, ",")
 	c.Data["UploadMaxSize"] = conf.Repository.Upload.FileMaxSize
-	c.Data["UploadMaxFiles"] = conf.Repository.Upload.MaxFiles
+	// c.Data["UploadMaxFiles"] = conf.Repository.Upload.MaxFiles
+	c.Data["UploadMaxFiles"] = 6
+
 }
 
 func UploadFile(c *context.Context) {
