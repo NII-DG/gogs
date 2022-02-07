@@ -420,6 +420,8 @@ func DeleteUploads(uploads ...*Upload) (err error) {
 	return sess.Commit()
 }
 
+func RemoveLocalRepo()
+
 func DeleteUpload(u *Upload) error {
 	return DeleteUploads(u)
 }
@@ -500,6 +502,7 @@ func (repo *Repository) UploadRepoFiles(doer *User, opts UploadRepoFileOptions) 
 		}
 
 		targetPath := path.Join(dirPath, upload.Name)
+		log.Info("[targetPath] dirPath : %v, upload.Name", dirPath, upload.Name)
 		// GIN: Create subdirectory for dirtree uploads
 		if err = os.MkdirAll(filepath.Dir(targetPath), os.ModePerm); err != nil {
 			return fmt.Errorf("mkdir: %v", err)
@@ -533,5 +536,6 @@ func (repo *Repository) UploadRepoFiles(doer *User, opts UploadRepoFileOptions) 
 	}
 	annexUninit(localPath) // Uninitialise annex to prepare for deletion
 	StartIndexing(*repo)   // Index the new data
+	//localPathのディレクトリの削除
 	return DeleteUploads(uploads...)
 }
