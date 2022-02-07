@@ -436,11 +436,14 @@ func RemoveFilesFromLocalRepository(dirPath string, uploads ...*Upload) (err err
 
 	files, _ := filepath.Glob(dirPath + "/*")
 	for _, f := range files {
-		log.Info("[ALL File path] : %v In %v", f, dirPath)
-		if err := os.Remove(f); err != nil {
-			return fmt.Errorf("[Remove Upload Files From Local Repository] targerPath: %v", err)
+		if !strings.Contains(f, ".git") {
+			log.Info("[ALL File path] : %v In %v", f, dirPath)
+			if err := os.Remove(f); err != nil {
+				return fmt.Errorf("[Remove Upload Files From Local Repository] targerPath: %v", err)
+			}
+			log.Info("[DELETE Upload Files From Local Repository] %v", f)
 		}
-		log.Info("[DELETE Upload Files From Local Repository] %v", f)
+
 	}
 
 	// for _, upload := range uploads {
