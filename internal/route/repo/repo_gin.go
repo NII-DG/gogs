@@ -12,6 +12,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"unsafe"
 
@@ -328,20 +329,20 @@ func GetIpfsHashValue(key string, repoPath string) {
 	if msg, err := git.NewCommand("annex", "whereis", "--key", key).RunInDir(repoPath); err != nil {
 		logv2.Error("[git annex whereis Error] err : %v", err)
 	} else {
-		logv2.Info("[Msg1] : %v", msg)
-		logv2.Info("[Msg2] : %s", msg)
 		strMsg := *(*string)(unsafe.Pointer(&msg))
-		logv2.Info("=============================================================")
+		logv2.Info("=================[*(*string)(unsafe.Pointer(&msg))]============================================")
 		logv2.Info(strMsg)
 		logv2.Info("=============================================================")
-		for unitMsg := range msg {
-			logv2.Info("[unitMsg1] : %v", unitMsg)
-			logv2.Info("[unitMsg2] : %s", unitMsg)
-			uniStrMsg := *(*string)(unsafe.Pointer(&unitMsg))
-			logv2.Info("=============================================================")
-			logv2.Info(uniStrMsg)
-			logv2.Info("=============================================================")
+		logv2.Info("=================[split]============================================")
+		reg := "\r\n\\n"
+		arr1 := regexp.MustCompile(reg).Split(strMsg, -1)
+
+		for _, s := range arr1 {
+			logv2.Info("*********************************")
+			logv2.Info(s)
+			logv2.Info("*********************************")
 		}
+
 		logv2.Info("[Log_01 git annes whereis Info] msg : %s", msg)
 	}
 }
