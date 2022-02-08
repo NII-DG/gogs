@@ -328,21 +328,20 @@ func GetIpfsHashValue(key string, repoPath string) {
 	if msg, err := git.NewCommand("annex", "whereis", "--key", key).RunInDir(repoPath); err != nil {
 		logv2.Error("[git annex whereis Error] err : %v", err)
 	} else {
-		log.Info("[Msg1] : %v", msg)
-		log.Info("[Msg2] : %s", msg)
+		logv2.Info("[Msg1] : %v", msg)
+		logv2.Info("[Msg2] : %s", msg)
 		strMsg := *(*string)(unsafe.Pointer(&msg))
-		log.Info("=============================================================")
-		log.Info(strMsg)
-		log.Info("=============================================================")
+		logv2.Info("=============================================================")
+		logv2.Info(strMsg)
+		logv2.Info("=============================================================")
 		for unitMsg := range msg {
-			log.Info("[unitMsg1] : %v", unitMsg)
-			log.Info("[unitMsg2] : %s", unitMsg)
+			logv2.Info("[unitMsg1] : %v", unitMsg)
+			logv2.Info("[unitMsg2] : %s", unitMsg)
 			uniStrMsg := *(*string)(unsafe.Pointer(&unitMsg))
-			log.Info("=============================================================")
-			log.Info(uniStrMsg)
-			log.Info("=============================================================")
+			logv2.Info("=============================================================")
+			logv2.Info(uniStrMsg)
+			logv2.Info("=============================================================")
 		}
-		logv2.Info("[git annes whereis Info] msg : %s", msg)
-
+		logv2.Info("[Log_01 git annes whereis Info] msg : %s", msg)
 	}
 }
