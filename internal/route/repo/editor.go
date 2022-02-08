@@ -478,6 +478,8 @@ func UploadFilePost(c *context.Context, f form.UploadRepoFile) {
 	c.Data["commit_choice"] = f.CommitChoice
 	c.Data["new_branch_name"] = branchName
 
+	log.Info("[c.Repo.RepoLink + /src/ + branchName] %v", c.Repo.RepoLink+"/src/"+branchName)
+
 	if c.HasError() {
 		c.Success(tmplEditorUpload)
 		return
