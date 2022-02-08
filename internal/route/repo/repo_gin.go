@@ -243,32 +243,23 @@ func resolveAnnexedContent(c *context.Context, buf []byte) ([]byte, error) {
 	} else {
 		logv2.Info("[Success enable remote(ipfs)] msg : %s, repoPath : %v", msg, repoPath)
 	}
+
+	keyparts := strings.Split(strings.TrimSpace(string(buf)), "/")
+	key := keyparts[len(keyparts)-1]
+
 	//IPFSの所在確認（デバック用）
 	logv2.Info("[git annex whereis] path : %v", repoPath)
-	if msg, err := git.NewCommand("annex", "whereis").RunInDir(repoPath); err != nil {
+	if msg, err := git.NewCommand("annex", "whereis", "--key", key).RunInDir(repoPath); err != nil {
 		logv2.Error("[git annex whereis Error] err : %v", err)
 	} else {
 		logv2.Info("[git annes whereis Info] msg : %s", msg)
 	}
-
-	logv2.Info("[Log_1] Annexed file requested: Resolving content for %q", bytes.TrimSpace(buf))
-
-	keyparts := strings.Split(strings.TrimSpace(string(buf)), "/")
-	key := keyparts[len(keyparts)-1]
-	logv2.Info("[Log_1_1] key :  %s, RepoPath : %v ", key, repoPath)
 
 	//ipfsからオブジェクトを取得
 	if msg, err := git.NewCommand("annex", "copy", "--from", "ipfs", "--key", key).RunInDir(repoPath); err != nil {
 		logv2.Error("[Failure copy dataObject from ipfs] err : %v, repoPath : %v", err, repoPath)
 	} else {
 		logv2.Info("[Success copy dataObject from ipfs] msg : %s, repoPath : %v", msg, repoPath)
-	}
-	//IPFSの所在確認（デバック用）
-	logv2.Info("[git annex whereis] path : %v", repoPath)
-	if msg, err := git.NewCommand("annex", "whereis").RunInDir(repoPath); err != nil {
-		logv2.Error("[git annex whereis Error] err : %v", err)
-	} else {
-		logv2.Info("[git annes whereis Info] msg : %s", msg)
 	}
 
 	contentPath, err := git.NewCommand("annex", "contentlocation", key).RunInDir(repoPath)
@@ -299,7 +290,7 @@ func resolveAnnexedContent(c *context.Context, buf []byte) ([]byte, error) {
 	annexBuf = annexBuf[:n]
 	c.Data["FileSize"] = info.Size()
 	log.Trace("Annexed file size: %d B", info.Size())
-	//メモ：repopath + /annex を削除する。
+	//メモrepopath + /annex を削除する。
 	//gogs-repositories/user1/demo4.git/annex
 	return annexBuf, nil
 }
