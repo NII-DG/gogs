@@ -13,6 +13,7 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
+	"unsafe"
 
 	"github.com/gogs/git-module"
 	"github.com/ivis-yoshida/gogs/internal/conf"
@@ -255,6 +256,11 @@ func resolveAnnexedContent(c *context.Context, buf []byte) ([]byte, error) {
 		logv2.Info("[git annes whereis Info] msg : %s", msg)
 	}
 
+	logv2.Info("======================================")
+	logv2.Info("[GetIpfsHashValue(key, repoPath)]")
+	logv2.Info("======================================")
+	GetIpfsHashValue(key, repoPath)
+
 	//ipfsからオブジェクトを取得
 	if msg, err := git.NewCommand("annex", "copy", "--from", "ipfs", "--key", key).RunInDir(repoPath); err != nil {
 		logv2.Error("[Failure copy dataObject from ipfs] err : %v, repoPath : %v", err, repoPath)
@@ -315,5 +321,28 @@ func AnnexGetKey(c *context.Context) {
 	err := serveAnnexedKey(c, filename, contentPath)
 	if err != nil {
 		c.Error(err, "AnnexGetKey")
+	}
+}
+
+func GetIpfsHashValue(key string, repoPath string) {
+	if msg, err := git.NewCommand("annex", "whereis", "--key", key).RunInDir(repoPath); err != nil {
+		logv2.Error("[git annex whereis Error] err : %v", err)
+	} else {
+		log.Info("[Msg1] : %v", msg)
+		log.Info("[Msg2] : %s", msg)
+		strMsg := *(*string)(unsafe.Pointer(&msg))
+		log.Info("=============================================================")
+		log.Info(strMsg)
+		log.Info("=============================================================")
+		for unitMsg := range msg {
+			log.Info("[unitMsg1] : %v", unitMsg)
+			log.Info("[unitMsg2] : %s", unitMsg)
+			uniStrMsg := *(*string)(unsafe.Pointer(&unitMsg))
+			log.Info("=============================================================")
+			log.Info(uniStrMsg)
+			log.Info("=============================================================")
+		}
+		logv2.Info("[git annes whereis Info] msg : %s", msg)
+
 	}
 }

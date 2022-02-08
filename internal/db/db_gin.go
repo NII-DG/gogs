@@ -158,7 +158,7 @@ func setRemoteIPFS(path string) ([]byte, error) {
 	cmd := git.NewCommand("annex", "initremote")
 	cmd.AddArgs("ipfs", "type=external", "externaltype=ipfs", "encryption=none")
 	msg, err := cmd.RunInDir(path)
-	logv2.Info("[Initremoto IPFS] path : %v, msg : %v, error : %s", path, msg, err)
+	logv2.Info("[Initremoto IPFS] path : %v, msg : %s, error : %v", path, msg, err)
 	return msg, err
 }
 
