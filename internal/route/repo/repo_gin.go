@@ -338,9 +338,13 @@ func GetIpfsHashValue(key string, repoPath string) {
 		arr1 := regexp.MustCompile(reg).Split(strMsg, -1)
 
 		for _, s := range arr1 {
-			logv2.Info("*********************************")
-			logv2.Info(s)
-			logv2.Info("*********************************")
+			if strings.Contains(s, "ipfs:") {
+				index := strings.LastIndex(s, ":")
+				hash := s[index:]
+				logv2.Info("*********************************")
+				logv2.Info("=" + hash + "=")
+				logv2.Info("*********************************")
+			}
 		}
 
 		logv2.Info("[Log_01 git annes whereis Info] msg : %s", msg)
