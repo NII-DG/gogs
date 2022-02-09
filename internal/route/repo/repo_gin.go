@@ -336,12 +336,10 @@ func GetIpfsHashValueByAnnexKey(key string, repoPath string) (string, error) {
 		for _, s := range arr1 {
 			if strings.Contains(s, "ipfs:") {
 				index := strings.LastIndex(s, ":")
-				hash := s[index+1:]
-				_ = hash
-				break
+				trimStr := &hash
+				*trimStr = s[index+1:]
 			}
 		}
-		return hash, err
 	}
 	return hash, err
 }
