@@ -178,6 +178,14 @@ AUTHOR : dai.tsukioka
 NOTE : methods : [sync and copy] locations are invert
 */
 func annexUpload(repoPath, remote string) error {
+	//IPFSの所在確認（デバック用）
+	logv2.Info("[git annex whereis1-1] path : %v", repoPath)
+	if msg, err := git.NewCommand("annex", "whereis").RunInDir(repoPath); err != nil {
+		logv2.Error("[git annex whereis Error] err : %v", err)
+	} else {
+		logv2.Info("[git annes whereis Info] msg : %s", msg)
+	}
+
 	//ipfsへ実データをコピーする。
 	logv2.Info("[Uploading annexed data to %v] path : %v", remote, repoPath)
 	cmd := git.NewCommand("annex", "copy", "--to", remote)
@@ -188,12 +196,12 @@ func annexUpload(repoPath, remote string) error {
 	}
 
 	//IPFSの所在確認（デバック用）
-	// logv2.Info("[git annex whereis] path : %v", repoPath)
-	// if msg, err := git.NewCommand("annex", "whereis").RunInDir(repoPath); err != nil {
-	// 	logv2.Error("[git annex whereis Error] err : %v", err)
-	// } else {
-	// 	logv2.Info("[git annes whereis Info] msg : %s", msg)
-	// }
+	logv2.Info("[git annex whereis1-2] path : %v", repoPath)
+	if msg, err := git.NewCommand("annex", "whereis").RunInDir(repoPath); err != nil {
+		logv2.Error("[git annex whereis Error] err : %v", err)
+	} else {
+		logv2.Info("[git annes whereis Info] msg : %s", msg)
+	}
 
 	//リモートと同期（メタデータを更新）
 	log.Info("Synchronising annex info : %v", repoPath)
