@@ -260,7 +260,8 @@ func resolveAnnexedContent(c *context.Context, buf []byte) ([]byte, error) {
 	logv2.Info("======================================")
 	logv2.Info("[GetIpfsHashValue(key, repoPath)]")
 	logv2.Info("======================================")
-	GetIpfsHashValue(key, repoPath)
+	hash, err := GetIpfsHashValueByAnnexKey(key, repoPath)
+	logv2.Info("[GetIpfsHashValue(key, repoPath)] Hash ; %v", hash)
 
 	//ipfsからオブジェクトを取得
 	if msg, err := git.NewCommand("annex", "copy", "--from", "ipfs", "--key", key).RunInDir(repoPath); err != nil {
@@ -325,28 +326,22 @@ func AnnexGetKey(c *context.Context) {
 	}
 }
 
-func GetIpfsHashValue(key string, repoPath string) {
-	if msg, err := git.NewCommand("annex", "whereis", "--key", key).RunInDir(repoPath); err != nil {
-		logv2.Error("[git annex whereis Error] err : %v", err)
-	} else {
-		strMsg := *(*string)(unsafe.Pointer(&msg))
-		logv2.Info("=================[*(*string)(unsafe.Pointer(&msg))]============================================")
-		logv2.Info(strMsg)
-		logv2.Info("=============================================================")
-		logv2.Info("=================[split]============================================")
+func GetIpfsHashValueByAnnexKey(key string, repoPath string) (string, error) {
+	var hash string
+	var err error
+	if msg, err := git.NewCommand("annex", "whereis", "--key", key).RunInDir(repoPath); err == nil {
+		strMsg := *(*string)(unsafe.Pointer(&msg)) //[]byte to string
 		reg := "\r\n|\n"
-		arr1 := regexp.MustCompile(reg).Split(strMsg, -1)
-
+		arr1 := regexp.MustCompile(reg).Split(strMsg, -1) //改行分割
 		for _, s := range arr1 {
 			if strings.Contains(s, "ipfs:") {
 				index := strings.LastIndex(s, ":")
-				hash := s[index:]
-				logv2.Info("*********************************")
-				logv2.Info("=" + hash + "=")
-				logv2.Info("*********************************")
+				hash := s[index+1:]
+				_ = hash
+				break
 			}
 		}
-
-		logv2.Info("[Log_01 git annes whereis Info] msg : %s", msg)
+		return hash, err
 	}
+	return hash, err
 }
