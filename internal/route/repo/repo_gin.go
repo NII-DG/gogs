@@ -264,6 +264,10 @@ func resolveAnnexedContent(c *context.Context, buf []byte) ([]byte, error) {
 		logv2.Info("[Get IPFS Hash From AnnexKey] key : %v To hash : %v", key, hashByAnnex)
 	}
 
+	//BCAPI通信（コンテンツパスからIPFSハッシュ値を取得）
+
+	//BC-IPFSハッシュ値とAnnex-IPFSハッシュ値を比較
+
 	//ipfsからオブジェクトを取得
 	if msg, err := git.NewCommand("annex", "copy", "--from", "ipfs", "--key", key).RunInDir(repoPath); err != nil {
 		logv2.Error("[Failure copy dataObject from ipfs] err : %v, repoPath : %v", err, repoPath)
@@ -327,6 +331,7 @@ func AnnexGetKey(c *context.Context) {
 	}
 }
 
+//Convert Annex Key to IPFS hash
 func GetIpfsHashValueByAnnexKey(key string, repoPath string) (string, error) {
 	var hash string
 	var err error
