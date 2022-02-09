@@ -48,6 +48,7 @@ func renderDirectory(c *context.Context, treeLink string) {
 		c.Error(err, "list entries")
 		return
 	}
+	log.Info("[entries] %v", entries)
 	entries.Sort()
 
 	c.Data["Files"], err = entries.CommitsInfo(c.Repo.Commit, git.CommitsInfoOptions{
