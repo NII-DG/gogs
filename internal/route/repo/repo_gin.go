@@ -257,11 +257,12 @@ func resolveAnnexedContent(c *context.Context, buf []byte) ([]byte, error) {
 		logv2.Info("[git annes whereis Info] msg : %s", msg)
 	}
 
-	logv2.Info("======================================")
-	logv2.Info("[GetIpfsHashValue(key, repoPath)]")
-	logv2.Info("======================================")
-	hash, err := GetIpfsHashValueByAnnexKey(key, repoPath)
-	logv2.Info("[GetIpfsHashValue(key, repoPath)] Hash ; %v", hash)
+	hashByAnnex, err := GetIpfsHashValueByAnnexKey(key, repoPath)
+	if err != nil {
+		logv2.Error("[Cannot Get IPFS Hash] key : %v, err : %v", key, err)
+	} else {
+		logv2.Info("[Get IPFS Hash From AnnexKey] key : %v To hash : %v", key, hashByAnnex)
+	}
 
 	//ipfsからオブジェクトを取得
 	if msg, err := git.NewCommand("annex", "copy", "--from", "ipfs", "--key", key).RunInDir(repoPath); err != nil {
