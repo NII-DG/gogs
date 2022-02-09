@@ -334,7 +334,7 @@ func GetIpfsHashValue(key string, repoPath string) {
 		logv2.Info(strMsg)
 		logv2.Info("=============================================================")
 		logv2.Info("=================[split]============================================")
-		reg := "\r\n\\n"
+		reg := "\r\n|\n"
 		arr1 := regexp.MustCompile(reg).Split(strMsg, -1)
 
 		for _, s := range arr1 {
