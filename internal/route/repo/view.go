@@ -48,7 +48,6 @@ func renderDirectory(c *context.Context, treeLink string) {
 		c.Error(err, "list entries")
 		return
 	}
-	log.Info("[entries] %v", entries)
 	entries.Sort()
 
 	c.Data["Files"], err = entries.CommitsInfo(c.Repo.Commit, git.CommitsInfoOptions{
@@ -56,6 +55,7 @@ func renderDirectory(c *context.Context, treeLink string) {
 		MaxConcurrency: conf.Repository.CommitsFetchConcurrency,
 		Timeout:        5 * time.Minute,
 	})
+	log.Info("c.Data[\"Files\"] %v", c.Data["Files"])
 
 	if err != nil {
 		c.Error(err, "get commits info")
