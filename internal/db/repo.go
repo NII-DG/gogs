@@ -146,6 +146,10 @@ func NewRepoContext() {
 	RemoveAllWithNotice("Clean up repository temporary data", filepath.Join(conf.Server.AppDataPath, "tmp"))
 }
 
+type AbstructDbRepository interface {
+	FullName() string
+}
+
 // Repository contains information of a repository.
 type Repository struct {
 	ID              int64

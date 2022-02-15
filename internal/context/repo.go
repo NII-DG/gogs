@@ -20,6 +20,14 @@ import (
 	"github.com/ivis-yoshida/gogs/internal/db"
 )
 
+type AbstructCtxRepository interface {
+	GetTreePath() string
+	GetRepoLink() string
+	GetBranchName() string
+	GetCommit() *git.Commit
+	GetDbRepo() db.AbstructDbRepository
+}
+
 type PullRequest struct {
 	BaseRepo *db.Repository
 	Allowed  bool
@@ -48,6 +56,36 @@ type Repository struct {
 	Mirror       *db.Mirror
 
 	PullRequest *PullRequest
+}
+
+// GetTreePath is RCOS specific code.
+// This returns value of "TreePath" field.
+func (r *Repository) GetTreePath() string {
+	return r.TreePath
+}
+
+// GetRepoLink is RCOS specific code.
+// This returns value of "RepoLink" field.
+func (r *Repository) GetRepoLink() string {
+	return r.RepoLink
+}
+
+// GetBranchName is RCOS specific code.
+// This returns value of "BranchName" field.
+func (r *Repository) GetBranchName() string {
+	return r.BranchName
+}
+
+// GetCommit() is RCOS specific code.
+// This returns value of "Commit" field.
+func (r *Repository) GetCommit() *git.Commit {
+	return r.Commit
+}
+
+// GetDbRepo is RCOS specific code.
+// This returns value of "Repository" field.
+func (r *Repository) GetDbRepo() db.AbstructDbRepository {
+	return r.Repository
 }
 
 // IsOwner returns true if current user is the owner of repository.
