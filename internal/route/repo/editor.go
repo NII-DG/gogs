@@ -611,10 +611,10 @@ func RemoveUploadFileFromServer(c *context.Context, f form.RemoveUploadFile) {
 }
 
 // CreateDmp is GIN specific code
-func CreateDmp(c *context.Context) {
+func CreateDmp(c context.AbstructContext) {
 	schema := c.QueryEscape("schema")
 	schemaUrl := getTemplateUrl() + "dmp/"
-	treeNames, treePaths := getParentTreeFields(c.Repo.TreePath)
+	treeNames, treePaths := getParentTreeFields(c.GetRepo().GetTreePath())
 
 	c.PageIs("Edit")
 	c.RequireHighlightJS()
@@ -652,31 +652,31 @@ func CreateDmp(c *context.Context) {
 
 	combinedDmp := decodedBasicSchema + decodedOrgSchema
 
-	c.Data["IsYAML"] = false
-	c.Data["IsJSON"] = true
-	c.Data["IsDmpJson"] = true
+	c.CallData()["IsYAML"] = false
+	c.CallData()["IsJSON"] = true
+	c.CallData()["IsDmpJson"] = true
 
-	c.Data["FileContent"] = combinedDmp
-	c.Data["ParentTreePath"] = path.Dir(c.Repo.TreePath)
-	c.Data["TreeNames"] = treeNames
-	c.Data["TreePaths"] = treePaths
-	c.Data["BranchLink"] = c.Repo.RepoLink + "/src/" + c.Repo.BranchName
-	c.Data["commit_summary"] = "実施事項: dmp.jsonを新規作成"
-	c.Data["commit_message"] = ""
-	c.Data["commit_choice"] = "direct"
-	c.Data["new_branch_name"] = ""
-	c.Data["last_commit"] = c.Repo.Commit.ID
-	c.Data["MarkdownFileExts"] = strings.Join(conf.Markdown.FileExtensions, ",")
-	c.Data["LineWrapExtensions"] = strings.Join(conf.Repository.Editor.LineWrapExtensions, ",")
-	c.Data["PreviewableFileModes"] = strings.Join(conf.Repository.Editor.PreviewableFileModes, ",")
-	c.Data["EditorconfigURLPrefix"] = fmt.Sprintf("%s/api/v1/repos/%s/editorconfig/", conf.Server.Subpath, c.Repo.Repository.FullName())
+	c.CallData()["FileContent"] = combinedDmp
+	c.CallData()["ParentTreePath"] = path.Dir(c.GetRepo().GetTreePath())
+	c.CallData()["TreeNames"] = treeNames
+	c.CallData()["TreePaths"] = treePaths
+	c.CallData()["BranchLink"] = c.GetRepo().GetRepoLink() + "/src/" + c.GetRepo().GetBranchName()
+	c.CallData()["commit_summary"] = "実施事項: dmp.jsonを新規作成"
+	c.CallData()["commit_message"] = ""
+	c.CallData()["commit_choice"] = "direct"
+	c.CallData()["new_branch_name"] = ""
+	c.CallData()["last_commit"] = c.GetRepo().GetCommit().ID
+	c.CallData()["MarkdownFileExts"] = strings.Join(conf.Markdown.FileExtensions, ",")
+	c.CallData()["LineWrapExtensions"] = strings.Join(conf.Repository.Editor.LineWrapExtensions, ",")
+	c.CallData()["PreviewableFileModes"] = strings.Join(conf.Repository.Editor.PreviewableFileModes, ",")
+	c.CallData()["EditorconfigURLPrefix"] = fmt.Sprintf("%s/api/v1/repos/%s/editorconfig/", conf.Server.Subpath, c.GetRepo().GetDbRepo().FullName())
 
 	c.Success(tmplEditorEdit)
 }
 
 // fetchDmpSchema is RCOS specific code.
 // This function fetch&bind JSON Schema of DMP for validation.
-func fetchDmpSchema(c *context.Context, blobPath string) error {
+func fetchDmpSchema(c context.AbstructContext, blobPath string) error {
 	src, err := fetchContentsOnGithub(blobPath)
 	if err != nil {
 		return err
@@ -687,14 +687,14 @@ func fetchDmpSchema(c *context.Context, blobPath string) error {
 		return err
 	}
 
-	c.Data["IsDmpJson"] = true
-	c.Data["Schema"] = decodedScheme
+	c.CallData()["IsDmpJson"] = true
+	c.CallData()["Schema"] = decodedScheme
 	return nil
 }
 
 // bidingDmpSchemaList is RCOS specific code.
 // This function binds DMP organization list.
-func bidingDmpSchemaList(c *context.Context, treePath string) error {
+func bidingDmpSchemaList(c context.AbstructContext, treePath string) error {
 	contents, err := fetchContentsOnGithub(treePath)
 	if err != nil {
 		return err
@@ -714,7 +714,7 @@ func bidingDmpSchemaList(c *context.Context, treePath string) error {
 		schemaList = append(schemaList, org.(string))
 	}
 
-	c.Data["SchemaList"] = schemaList
+	c.CallData()["SchemaList"] = schemaList
 	return nil
 }
 
