@@ -2,7 +2,7 @@
 // Source: ./internal/context/context.go
 
 // Package mock_context is a generated GoMock package.
-package mocks
+package mock_context
 
 import (
 	reflect "reflect"
