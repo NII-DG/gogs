@@ -86,7 +86,9 @@ func editFile(c *context.Context, isNewFile bool) {
 				schemaUrl := getTemplateUrl()
 
 				var f repoUtil
-				err = fetchDmpSchema(c, f, schemaUrl+"dmp/json_schema/schema_dmp_"+dmpSchema.Schema)
+				var d dmpUtil
+
+				err = d.fetchDmpSchema(c, f, schemaUrl+"dmp/json_schema/schema_dmp_"+dmpSchema.Schema)
 				if err != nil {
 					log.Error("failed fetching DMP template: %v", err)
 				}
@@ -623,15 +625,16 @@ func CreateDmp(c context.AbstructContext) {
 	c.RequireSimpleMDE()
 
 	var f repoUtil
+	var d dmpUtil
 
 	// data binding for "Add DMP" pulldown at DMP editing page
 	// (The pulldown on the repository top page is binded in repo.renderDirectory.)
-	err := bidingDmpSchemaList(c, f, schemaUrl+"orgs")
+	err := d.bidingDmpSchemaList(c, f, schemaUrl+"orgs")
 	if err != nil {
 		log.Error("%v", err)
 	}
 
-	err = fetchDmpSchema(c, f, schemaUrl+"json_schema/schema_dmp_"+schema)
+	err = d.fetchDmpSchema(c, f, schemaUrl+"json_schema/schema_dmp_"+schema)
 	if err != nil {
 		log.Error("%v", err)
 	}
@@ -678,9 +681,18 @@ func CreateDmp(c context.AbstructContext) {
 	c.Success(tmplEditorEdit)
 }
 
+type DmpUtil interface {
+	fetchDmpSchema(c context.AbstructContext, f AbstructRepoUtil, blobPath string) error
+	bidingDmpSchemaList(c context.AbstructContext, f AbstructRepoUtil, treePath string) error
+}
+
+// dmpUtil is an alias for utility functions related to the manipulation of DMP information.
+// For effective unit test execution, the above DmpUtil interface must be satisfied.
+type dmpUtil func()
+
 // fetchDmpSchema is RCOS specific code.
 // This function fetch&bind JSON Schema of DMP for validation.
-func fetchDmpSchema(c context.AbstructContext, f AbstructRepoUtil, blobPath string) error {
+func (d dmpUtil) fetchDmpSchema(c context.AbstructContext, f AbstructRepoUtil, blobPath string) error {
 	src, err := f.FetchContentsOnGithub(blobPath)
 	if err != nil {
 		return err
@@ -698,7 +710,7 @@ func fetchDmpSchema(c context.AbstructContext, f AbstructRepoUtil, blobPath stri
 
 // bidingDmpSchemaList is RCOS specific code.
 // This function binds DMP organization list.
-func bidingDmpSchemaList(c context.AbstructContext, f AbstructRepoUtil, treePath string) error {
+func (d dmpUtil) bidingDmpSchemaList(c context.AbstructContext, f AbstructRepoUtil, treePath string) error {
 	contents, err := f.FetchContentsOnGithub(treePath)
 	if err != nil {
 		return err
