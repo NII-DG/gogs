@@ -36,7 +36,8 @@ func Test_fetchContentsOnGithub(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := fetchContentsOnGithub(tt.args.blobPath)
+			var f repoUtil
+			got, err := f.FetchContentsOnGithub(tt.args.blobPath)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("fetchContentsOnGithub() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -83,7 +84,8 @@ func Test_decodeBlobContent(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := decodeBlobContent(tt.args.blobInfo)
+			var f repoUtil
+			got, err := f.DecodeBlobContent(tt.args.blobInfo)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("decodeBlobContent() error = %v, wantErr %v", err, tt.wantErr)
 				return

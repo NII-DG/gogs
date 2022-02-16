@@ -99,12 +99,14 @@ func GenerateMaDmp(c *context.Context) {
 	// refs: 1. https://zenn.dev/snowcait/scraps/3d51d8f7841f0c
 	//       2. https://qiita.com/taizo/items/c397dbfed7215969b0a5
 	templateUrl := getTemplateUrl() + "maDMP.ipynb"
-	src, err := fetchContentsOnGithub(templateUrl)
+
+	var f repoUtil
+	src, err := f.FetchContentsOnGithub(templateUrl)
 	if err != nil {
 		log.Error(2, "maDMP blob could not be fetched: %v", err)
 	}
 
-	decodedMaDmp, err := decodeBlobContent(src)
+	decodedMaDmp, err := f.DecodeBlobContent(src)
 	if err != nil {
 		log.Error(2, "maDMP blob could not be decorded: %v", err)
 
@@ -177,12 +179,19 @@ func GenerateMaDmp(c *context.Context) {
 	c.Redirect(c.Repo.RepoLink)
 }
 
-// fetchContentsOnGithub is RCOS specific code.
+type AbstructRepoUtil interface {
+	FetchContentsOnGithub(blobPath string) ([]byte, error)
+	DecodeBlobContent(blobInfo []byte) (string, error)
+}
+
+type repoUtil func()
+
+// FetchContentsOnGithub is RCOS specific code.
 // This uses the Github API to retrieve information about the file
 // specified in the argument, and returns it in the type of []byte.
 // If any processing fails, it will return error.
 // refs: https://docs.github.com/en/rest/reference/repos#contents
-func fetchContentsOnGithub(blobPath string) ([]byte, error) {
+func (f repoUtil) FetchContentsOnGithub(blobPath string) ([]byte, error) {
 	req, err := http.NewRequest("GET", blobPath, nil)
 	if err != nil {
 		return nil, err
@@ -208,11 +217,11 @@ func fetchContentsOnGithub(blobPath string) ([]byte, error) {
 	return contents, nil
 }
 
-// decodeBlobContent is RCOS specific code.
+// DecodeBlobContent is RCOS specific code.
 // This reads and decodes "content" value of the response byte slice
 // retrieved from the GitHub API.
 // refs: https://docs.github.com/en/rest/reference/repos#contents
-func decodeBlobContent(blobInfo []byte) (string, error) {
+func (f repoUtil) DecodeBlobContent(blobInfo []byte) (string, error) {
 	var blob interface{}
 	err := json.Unmarshal(blobInfo, &blob)
 	if err != nil {
@@ -241,12 +250,14 @@ func failedGenereteMaDmp(c *context.Context, msg string) {
 func fetchDockerfile(c *context.Context) {
 	// コード付帯機能の起動時間短縮のための暫定的な定義
 	dockerfileUrl := getTemplateUrl() + "Dockerfile"
-	src, err := fetchContentsOnGithub(dockerfileUrl)
+
+	var f repoUtil
+	src, err := f.FetchContentsOnGithub(dockerfileUrl)
 	if err != nil {
 		log.Error(2, "Dockerfile could not be fetched: %v", err)
 	}
 
-	decodedDockerfile, err := decodeBlobContent(src)
+	decodedDockerfile, err := f.DecodeBlobContent(src)
 	if err != nil {
 		log.Error(2, "Dockerfile could not be decorded: %v", err)
 
