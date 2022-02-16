@@ -65,9 +65,8 @@ func renderDirectory(c *context.Context, treeLink string) {
 	} else {
 		schemaUrl := getTemplateUrl() + "dmp/orgs"
 
-		var f repoUtil
 		var d dmpUtil
-		d.bidingDmpSchemaList(c, f, schemaUrl)
+		d.BidingDmpSchemaList(c, schemaUrl)
 	}
 
 	var readmeFile *git.Blob
