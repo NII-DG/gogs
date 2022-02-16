@@ -613,8 +613,13 @@ func RemoveUploadFileFromServer(c *context.Context, f form.RemoveUploadFile) {
 	c.Status(http.StatusNoContent)
 }
 
-// CreateDmp is GIN specific code
 func CreateDmp(c context.AbstructContext) {
+	var d dmpUtil
+	createDmp(c, d)
+}
+
+// CreateDmp is GIN specific code
+func createDmp(c context.AbstructContext, d AbstructDmpUtil) {
 	schema := c.QueryEscape("schema")
 	schemaUrl := getTemplateUrl() + "dmp/"
 	treeNames, treePaths := getParentTreeFields(c.GetRepo().GetTreePath())
@@ -625,7 +630,6 @@ func CreateDmp(c context.AbstructContext) {
 
 	// data binding for "Add DMP" pulldown at DMP editing page
 	// (The pulldown on the repository top page is binded in repo.renderDirectory.)
-	var d dmpUtil
 	err := d.BidingDmpSchemaList(c, schemaUrl+"orgs")
 	if err != nil {
 		log.Error("%v", err)
