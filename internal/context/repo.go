@@ -24,7 +24,7 @@ type AbstructCtxRepository interface {
 	GetTreePath() string
 	GetRepoLink() string
 	GetBranchName() string
-	GetCommit() *git.Commit
+	GetCommitId() *git.SHA1
 	GetDbRepo() db.AbstructDbRepository
 }
 
@@ -76,10 +76,10 @@ func (r *Repository) GetBranchName() string {
 	return r.BranchName
 }
 
-// GetCommit() is RCOS specific code.
-// This returns value of "Commit" field.
-func (r *Repository) GetCommit() *git.Commit {
-	return r.Commit
+// GetCommitId is RCOS specific code.
+// This returns value of Commit.ID field in github.com/gogs/git-module.
+func (r *Repository) GetCommitId() *git.SHA1 {
+	return r.Commit.ID
 }
 
 // GetDbRepo is RCOS specific code.
