@@ -673,7 +673,7 @@ func createDmp(c context.AbstructContext, d AbstructDmpUtil) {
 	c.CallData()["commit_message"] = ""
 	c.CallData()["commit_choice"] = "direct"
 	c.CallData()["new_branch_name"] = ""
-	c.CallData()["last_commit"] = c.GetRepo().GetCommit().ID
+	c.CallData()["last_commit"] = c.GetRepo().GetCommitId()
 	c.CallData()["MarkdownFileExts"] = strings.Join(conf.Markdown.FileExtensions, ",")
 	c.CallData()["LineWrapExtensions"] = strings.Join(conf.Repository.Editor.LineWrapExtensions, ",")
 	c.CallData()["PreviewableFileModes"] = strings.Join(conf.Repository.Editor.PreviewableFileModes, ",")
