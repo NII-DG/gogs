@@ -186,12 +186,20 @@ type AbstructRepoUtil interface {
 
 type repoUtil func()
 
+func (f repoUtil) FetchContentsOnGithub(blobPath string) ([]byte, error) {
+	return f.fetchContentsOnGithub(blobPath)
+}
+
+func (f repoUtil) DecodeBlobContent(blobInfo []byte) (string, error) {
+	return f.decodeBlobContent(blobInfo)
+}
+
 // FetchContentsOnGithub is RCOS specific code.
 // This uses the Github API to retrieve information about the file
 // specified in the argument, and returns it in the type of []byte.
 // If any processing fails, it will return error.
 // refs: https://docs.github.com/en/rest/reference/repos#contents
-func (f repoUtil) FetchContentsOnGithub(blobPath string) ([]byte, error) {
+func (f repoUtil) fetchContentsOnGithub(blobPath string) ([]byte, error) {
 	req, err := http.NewRequest("GET", blobPath, nil)
 	if err != nil {
 		return nil, err
@@ -221,7 +229,7 @@ func (f repoUtil) FetchContentsOnGithub(blobPath string) ([]byte, error) {
 // This reads and decodes "content" value of the response byte slice
 // retrieved from the GitHub API.
 // refs: https://docs.github.com/en/rest/reference/repos#contents
-func (f repoUtil) DecodeBlobContent(blobInfo []byte) (string, error) {
+func (f repoUtil) decodeBlobContent(blobInfo []byte) (string, error) {
 	var blob interface{}
 	err := json.Unmarshal(blobInfo, &blob)
 	if err != nil {
