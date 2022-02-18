@@ -614,12 +614,13 @@ func RemoveUploadFileFromServer(c *context.Context, f form.RemoveUploadFile) {
 }
 
 func CreateDmp(c context.AbstructContext) {
+	var f repoUtil
 	var d dmpUtil
-	createDmp(c, d)
+	createDmp(c, f, d)
 }
 
 // CreateDmp is GIN specific code
-func createDmp(c context.AbstructContext, d AbstructDmpUtil) {
+func createDmp(c context.AbstructContext, f AbstructRepoUtil, d AbstructDmpUtil) {
 	schema := c.QueryEscape("schema")
 	schemaUrl := getTemplateUrl() + "dmp/"
 	treeNames, treePaths := getParentTreeFields(c.GetRepo().GetTreePath())
@@ -633,29 +634,34 @@ func createDmp(c context.AbstructContext, d AbstructDmpUtil) {
 	err := d.BidingDmpSchemaList(c, schemaUrl+"orgs")
 	if err != nil {
 		log.Error("%v", err)
+		return
 	}
 	err = d.FetchDmpSchema(c, schemaUrl+"json_schema/schema_dmp_"+schema)
 	if err != nil {
 		log.Error("%v", err)
+		return
 	}
 
-	var f repoUtil
 	srcBasic, err := f.FetchContentsOnGithub(schemaUrl + "basic")
 	if err != nil {
-		log.Fatal("%v", err)
+		log.Error("%v", err)
+		return
 	}
 	decodedBasicSchema, err := f.DecodeBlobContent(srcBasic)
 	if err != nil {
-		log.Fatal("%v", err)
+		log.Error("%v", err)
+		return
 	}
 
 	srcOrg, err := f.FetchContentsOnGithub(schemaUrl + "orgs/" + schema)
 	if err != nil {
-		log.Fatal("%v", err)
+		log.Error("%v", err)
+		return
 	}
 	decodedOrgSchema, err := f.DecodeBlobContent(srcOrg)
 	if err != nil {
-		log.Fatal("%v", err)
+		log.Error("%v", err)
+		return
 	}
 
 	combinedDmp := decodedBasicSchema + decodedOrgSchema
