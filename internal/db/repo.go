@@ -148,6 +148,7 @@ func NewRepoContext() {
 
 type AbstructDbRepository interface {
 	FullName() string
+	UpdateRepoFile(doer *User, opts UpdateRepoFileOptions) (err error)
 }
 
 // Repository contains information of a repository.

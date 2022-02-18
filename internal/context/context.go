@@ -28,11 +28,14 @@ import (
 
 type AbstructContext interface {
 	GetRepo() AbstructCtxRepository
+	GetFlash() *session.Flash
+	GetUser() *db.User
 	CallData() map[string]interface{}
 	QueryEscape(name string) string
 	PageIs(name string)
 	RequireHighlightJS()
 	RequireSimpleMDE()
+	Redirect(location string, status ...int)
 	Success(name string)
 }
 
@@ -58,6 +61,18 @@ type Context struct {
 // This gets the "Repo" field (Repository struct).
 func (c *Context) GetRepo() AbstructCtxRepository {
 	return c.Repo
+}
+
+// GetFlash is RCOS specific code.
+// This gets the "Flash" field.
+func (c *Context) GetFlash() *session.Flash {
+	return c.Flash
+}
+
+// GetUser is RCOS specific code.
+// This gets the "User" field.
+func (c *Context) GetUser() *db.User {
+	return c.User
 }
 
 // CallData is RCOS specific code.

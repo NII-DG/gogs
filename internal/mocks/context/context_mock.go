@@ -7,8 +7,10 @@ package mock_context
 import (
 	reflect "reflect"
 
+	session "github.com/go-macaron/session"
 	gomock "github.com/golang/mock/gomock"
 	context "github.com/ivis-yoshida/gogs/internal/context"
+	db "github.com/ivis-yoshida/gogs/internal/db"
 )
 
 // MockAbstructContext is a mock of AbstructContext interface.
@@ -48,6 +50,20 @@ func (mr *MockAbstructContextMockRecorder) CallData() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CallData", reflect.TypeOf((*MockAbstructContext)(nil).CallData))
 }
 
+// GetFlash mocks base method.
+func (m *MockAbstructContext) GetFlash() *session.Flash {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetFlash")
+	ret0, _ := ret[0].(*session.Flash)
+	return ret0
+}
+
+// GetFlash indicates an expected call of GetFlash.
+func (mr *MockAbstructContextMockRecorder) GetFlash() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFlash", reflect.TypeOf((*MockAbstructContext)(nil).GetFlash))
+}
+
 // GetRepo mocks base method.
 func (m *MockAbstructContext) GetRepo() context.AbstructCtxRepository {
 	m.ctrl.T.Helper()
@@ -60,6 +76,20 @@ func (m *MockAbstructContext) GetRepo() context.AbstructCtxRepository {
 func (mr *MockAbstructContextMockRecorder) GetRepo() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRepo", reflect.TypeOf((*MockAbstructContext)(nil).GetRepo))
+}
+
+// GetUser mocks base method.
+func (m *MockAbstructContext) GetUser() *db.User {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUser")
+	ret0, _ := ret[0].(*db.User)
+	return ret0
+}
+
+// GetUser indicates an expected call of GetUser.
+func (mr *MockAbstructContextMockRecorder) GetUser() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUser", reflect.TypeOf((*MockAbstructContext)(nil).GetUser))
 }
 
 // PageIs mocks base method.
@@ -86,6 +116,23 @@ func (m *MockAbstructContext) QueryEscape(name string) string {
 func (mr *MockAbstructContextMockRecorder) QueryEscape(name interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "QueryEscape", reflect.TypeOf((*MockAbstructContext)(nil).QueryEscape), name)
+}
+
+// Redirect mocks base method.
+func (m *MockAbstructContext) Redirect(location string, status ...int) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{location}
+	for _, a := range status {
+		varargs = append(varargs, a)
+	}
+	m.ctrl.Call(m, "Redirect", varargs...)
+}
+
+// Redirect indicates an expected call of Redirect.
+func (mr *MockAbstructContextMockRecorder) Redirect(location interface{}, status ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{location}, status...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Redirect", reflect.TypeOf((*MockAbstructContext)(nil).Redirect), varargs...)
 }
 
 // RequireHighlightJS mocks base method.

@@ -49,6 +49,20 @@ func (mr *MockAbstructCtxRepositoryMockRecorder) GetBranchName() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBranchName", reflect.TypeOf((*MockAbstructCtxRepository)(nil).GetBranchName))
 }
 
+// GetCommit mocks base method.
+func (m *MockAbstructCtxRepository) GetCommit() *git.Commit {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetCommit")
+	ret0, _ := ret[0].(*git.Commit)
+	return ret0
+}
+
+// GetCommit indicates an expected call of GetCommit.
+func (mr *MockAbstructCtxRepositoryMockRecorder) GetCommit() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCommit", reflect.TypeOf((*MockAbstructCtxRepository)(nil).GetCommit))
+}
+
 // GetCommitId mocks base method.
 func (m *MockAbstructCtxRepository) GetCommitId() *git.SHA1 {
 	m.ctrl.T.Helper()
@@ -75,6 +89,20 @@ func (m *MockAbstructCtxRepository) GetDbRepo() db.AbstructDbRepository {
 func (mr *MockAbstructCtxRepositoryMockRecorder) GetDbRepo() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDbRepo", reflect.TypeOf((*MockAbstructCtxRepository)(nil).GetDbRepo))
+}
+
+// GetLastCommitIdStr mocks base method.
+func (m *MockAbstructCtxRepository) GetLastCommitIdStr() string {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetLastCommitIdStr")
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+// GetLastCommitIdStr indicates an expected call of GetLastCommitIdStr.
+func (mr *MockAbstructCtxRepositoryMockRecorder) GetLastCommitIdStr() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLastCommitIdStr", reflect.TypeOf((*MockAbstructCtxRepository)(nil).GetLastCommitIdStr))
 }
 
 // GetRepoLink mocks base method.
