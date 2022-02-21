@@ -104,6 +104,20 @@ func (mr *MockAbstructContextMockRecorder) PageIs(name interface{}) *gomock.Call
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PageIs", reflect.TypeOf((*MockAbstructContext)(nil).PageIs), name)
 }
 
+// Query mocks base method.
+func (m *MockAbstructContext) Query(name string) string {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Query", name)
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+// Query indicates an expected call of Query.
+func (mr *MockAbstructContextMockRecorder) Query(name interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Query", reflect.TypeOf((*MockAbstructContext)(nil).Query), name)
+}
+
 // QueryEscape mocks base method.
 func (m *MockAbstructContext) QueryEscape(name string) string {
 	m.ctrl.T.Helper()
@@ -169,4 +183,37 @@ func (m *MockAbstructContext) Success(name string) {
 func (mr *MockAbstructContextMockRecorder) Success(name interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Success", reflect.TypeOf((*MockAbstructContext)(nil).Success), name)
+}
+
+// Tr mocks base method.
+func (m *MockAbstructContext) Tr(arg0 string, arg1 ...interface{}) string {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0}
+	for _, a := range arg1 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "Tr", varargs...)
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+// Tr indicates an expected call of Tr.
+func (mr *MockAbstructContextMockRecorder) Tr(arg0 interface{}, arg1 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0}, arg1...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Tr", reflect.TypeOf((*MockAbstructContext)(nil).Tr), varargs...)
+}
+
+// UserID mocks base method.
+func (m *MockAbstructContext) UserID() int64 {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UserID")
+	ret0, _ := ret[0].(int64)
+	return ret0
+}
+
+// UserID indicates an expected call of UserID.
+func (mr *MockAbstructContextMockRecorder) UserID() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UserID", reflect.TypeOf((*MockAbstructContext)(nil).UserID))
 }

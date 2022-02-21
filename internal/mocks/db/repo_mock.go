@@ -48,6 +48,20 @@ func (mr *MockAbstructDbRepositoryMockRecorder) FullName() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FullName", reflect.TypeOf((*MockAbstructDbRepository)(nil).FullName))
 }
 
+// GetDefaultBranch mocks base method.
+func (m *MockAbstructDbRepository) GetDefaultBranch() string {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetDefaultBranch")
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+// GetDefaultBranch indicates an expected call of GetDefaultBranch.
+func (mr *MockAbstructDbRepositoryMockRecorder) GetDefaultBranch() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDefaultBranch", reflect.TypeOf((*MockAbstructDbRepository)(nil).GetDefaultBranch))
+}
+
 // UpdateRepoFile mocks base method.
 func (m *MockAbstructDbRepository) UpdateRepoFile(doer *db.User, opts db.UpdateRepoFileOptions) error {
 	m.ctrl.T.Helper()
