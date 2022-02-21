@@ -27,16 +27,26 @@ import (
 )
 
 type AbstructContext interface {
+	// RCOS specific method
 	GetRepo() AbstructCtxRepository
 	GetFlash() *session.Flash
 	GetUser() *db.User
 	CallData() map[string]interface{}
+
+	// macaron.Context method
+	Query(name string) string
 	QueryEscape(name string) string
+	QueryInt(name string) int
+	Tr(string, ...interface{}) string
+
+	// context.Context method
 	PageIs(name string)
 	RequireHighlightJS()
 	RequireSimpleMDE()
 	Redirect(location string, status ...int)
+	UserID() int64
 	Success(name string)
+	Error(err error, msg string)
 }
 
 // Context represents context of a request.
@@ -73,6 +83,12 @@ func (c *Context) GetFlash() *session.Flash {
 // This gets the "User" field.
 func (c *Context) GetUser() *db.User {
 	return c.User
+}
+
+// CallTr is RCOS specific code.
+// This calls macaron's "Tr" method and sets the argument.
+func (c *Context) CallTr(nickname string, etc ...interface{}) string {
+	return c.Tr(nickname, etc)
 }
 
 // CallData is RCOS specific code.

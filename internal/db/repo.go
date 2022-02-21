@@ -147,6 +147,7 @@ func NewRepoContext() {
 }
 
 type AbstructDbRepository interface {
+	GetDefaultBranch() string
 	FullName() string
 	UpdateRepoFile(doer *User, opts UpdateRepoFileOptions) (err error)
 }
@@ -213,6 +214,11 @@ type Repository struct {
 	UpdatedUnix int64
 
 	Downloaded uint64 `xorm:"NOT NULL DEFAULT 0" gorm:"NOT NULL;DEFAULT:0"`
+}
+
+// GetDefaultBranch is RCOS specific code.
+func (repo *Repository) GetDefaultBranch() string {
+	return repo.DefaultBranch
 }
 
 func (repo *Repository) BeforeInsert() {

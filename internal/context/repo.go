@@ -28,6 +28,7 @@ type AbstructCtxRepository interface {
 	GetCommitId() *git.SHA1
 	GetLastCommitIdStr() string
 	GetDbRepo() db.AbstructDbRepository
+	GetGitRepo() *git.Repository
 }
 
 type PullRequest struct {
@@ -100,6 +101,12 @@ func (r *Repository) GetLastCommitIdStr() string {
 // This returns value of "Repository" field.
 func (r *Repository) GetDbRepo() db.AbstructDbRepository {
 	return r.Repository
+}
+
+// GetGitRepo is RCOS specific code.
+// This returns value of "GitRepo" field.
+func (r *Repository) GetGitRepo() *git.Repository {
+	return r.GitRepo
 }
 
 // IsOwner returns true if current user is the owner of repository.

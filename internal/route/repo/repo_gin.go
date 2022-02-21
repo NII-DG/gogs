@@ -74,21 +74,21 @@ func serveAnnexedKey(ctx *context.Context, name string, contentPath string) erro
 }
 
 // readDmpJson is RCOS specific code.
-func readDmpJson(c *context.Context) {
+func readDmpJson(c context.AbstructContext) {
 	log.Trace("Reading dmp.json file")
-	entry, err := c.Repo.Commit.Blob("/dmp.json")
+	entry, err := c.GetRepo().GetCommit().Blob("/dmp.json")
 	if err != nil || entry == nil {
 		log.Error(2, "dmp.json blob could not be retrieved: %v", err)
-		c.Data["HasDmpJson"] = false
+		c.CallData()["HasDmpJson"] = false
 		return
 	}
 	buf, err := entry.Bytes()
 	if err != nil {
 		log.Error(2, "dmp.json data could not be read: %v", err)
-		c.Data["HasDmpJson"] = false
+		c.CallData()["HasDmpJson"] = false
 		return
 	}
-	c.Data["DOIInfo"] = string(buf)
+	c.CallData()["DOIInfo"] = string(buf)
 }
 
 // GenerateMaDmp is RCOS specific code.
