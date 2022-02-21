@@ -31,6 +31,14 @@ type AbstructCtxRepository interface {
 	GetGitRepo() *git.Repository
 }
 
+type AbstructGitRepository interface {
+	BranchCommit(branch string, opts ...git.CatFileCommitOptions) (*git.Commit, error)
+}
+
+type AbstructCommit interface {
+	Blob(subpath string, opts ...git.LsTreeOptions) (*git.Blob, error)
+}
+
 type PullRequest struct {
 	BaseRepo *db.Repository
 	Allowed  bool
