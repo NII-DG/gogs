@@ -50,6 +50,18 @@ func (mr *MockAbstructContextMockRecorder) CallData() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CallData", reflect.TypeOf((*MockAbstructContext)(nil).CallData))
 }
 
+// Error mocks base method.
+func (m *MockAbstructContext) Error(err error, msg string) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "Error", err, msg)
+}
+
+// Error indicates an expected call of Error.
+func (mr *MockAbstructContextMockRecorder) Error(err, msg interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Error", reflect.TypeOf((*MockAbstructContext)(nil).Error), err, msg)
+}
+
 // GetFlash mocks base method.
 func (m *MockAbstructContext) GetFlash() *session.Flash {
 	m.ctrl.T.Helper()
@@ -130,6 +142,20 @@ func (m *MockAbstructContext) QueryEscape(name string) string {
 func (mr *MockAbstructContextMockRecorder) QueryEscape(name interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "QueryEscape", reflect.TypeOf((*MockAbstructContext)(nil).QueryEscape), name)
+}
+
+// QueryInt mocks base method.
+func (m *MockAbstructContext) QueryInt(name string) int {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "QueryInt", name)
+	ret0, _ := ret[0].(int)
+	return ret0
+}
+
+// QueryInt indicates an expected call of QueryInt.
+func (mr *MockAbstructContextMockRecorder) QueryInt(name interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "QueryInt", reflect.TypeOf((*MockAbstructContext)(nil).QueryInt), name)
 }
 
 // Redirect mocks base method.

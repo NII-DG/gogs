@@ -146,3 +146,89 @@ func (mr *MockAbstructCtxRepositoryMockRecorder) GetTreePath() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTreePath", reflect.TypeOf((*MockAbstructCtxRepository)(nil).GetTreePath))
 }
+
+// MockAbstructGitRepository is a mock of AbstructGitRepository interface.
+type MockAbstructGitRepository struct {
+	ctrl     *gomock.Controller
+	recorder *MockAbstructGitRepositoryMockRecorder
+}
+
+// MockAbstructGitRepositoryMockRecorder is the mock recorder for MockAbstructGitRepository.
+type MockAbstructGitRepositoryMockRecorder struct {
+	mock *MockAbstructGitRepository
+}
+
+// NewMockAbstructGitRepository creates a new mock instance.
+func NewMockAbstructGitRepository(ctrl *gomock.Controller) *MockAbstructGitRepository {
+	mock := &MockAbstructGitRepository{ctrl: ctrl}
+	mock.recorder = &MockAbstructGitRepositoryMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockAbstructGitRepository) EXPECT() *MockAbstructGitRepositoryMockRecorder {
+	return m.recorder
+}
+
+// BranchCommit mocks base method.
+func (m *MockAbstructGitRepository) BranchCommit(branch string, opts ...git.CatFileCommitOptions) (*git.Commit, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{branch}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "BranchCommit", varargs...)
+	ret0, _ := ret[0].(*git.Commit)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// BranchCommit indicates an expected call of BranchCommit.
+func (mr *MockAbstructGitRepositoryMockRecorder) BranchCommit(branch interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{branch}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BranchCommit", reflect.TypeOf((*MockAbstructGitRepository)(nil).BranchCommit), varargs...)
+}
+
+// MockAbstructCommit is a mock of AbstructCommit interface.
+type MockAbstructCommit struct {
+	ctrl     *gomock.Controller
+	recorder *MockAbstructCommitMockRecorder
+}
+
+// MockAbstructCommitMockRecorder is the mock recorder for MockAbstructCommit.
+type MockAbstructCommitMockRecorder struct {
+	mock *MockAbstructCommit
+}
+
+// NewMockAbstructCommit creates a new mock instance.
+func NewMockAbstructCommit(ctrl *gomock.Controller) *MockAbstructCommit {
+	mock := &MockAbstructCommit{ctrl: ctrl}
+	mock.recorder = &MockAbstructCommitMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockAbstructCommit) EXPECT() *MockAbstructCommitMockRecorder {
+	return m.recorder
+}
+
+// Blob mocks base method.
+func (m *MockAbstructCommit) Blob(subpath string, opts ...git.LsTreeOptions) (*git.Blob, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{subpath}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "Blob", varargs...)
+	ret0, _ := ret[0].(*git.Blob)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Blob indicates an expected call of Blob.
+func (mr *MockAbstructCommitMockRecorder) Blob(subpath interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{subpath}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Blob", reflect.TypeOf((*MockAbstructCommit)(nil).Blob), varargs...)
+}

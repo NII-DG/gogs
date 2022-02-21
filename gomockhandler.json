@@ -1,8 +1,8 @@
 {
 	"mocks": {
 		"internal/mocks/context/context_mock.go": {
-			"checksum": "V/ZE1rzlnvzz5KLmGhgS/g==",
-			"source_checksum": "j/uO7hchJRlzrsAOzwvY1Q==",
+			"checksum": "+QAVB1Xsz1KPQUElOwdAQg==",
+			"source_checksum": "mbxdLgUdcjAQRHvx6hymCg==",
 			"mode": "SOURCE_MODE",
 			"source_mode_runner": {
 				"source": "internal/context/context.go",
@@ -10,8 +10,8 @@
 			}
 		},
 		"internal/mocks/context/repo_mock.go": {
-			"checksum": "Mf3EA4VIq/VCN88zc890RQ==",
-			"source_checksum": "SctD39eM3XiRknfCBpZI0g==",
+			"checksum": "o3wZPZuOYspzHh9JyFRIKw==",
+			"source_checksum": "gcvwEc0mR7l6m11+DdSG7A==",
 			"mode": "SOURCE_MODE",
 			"source_mode_runner": {
 				"source": "internal/context/repo.go",
