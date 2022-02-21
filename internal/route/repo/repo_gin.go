@@ -91,6 +91,7 @@ func readDmpJson(c *context.Context) {
 	c.Data["DOIInfo"] = string(buf)
 }
 
+// GenerateMaDmp is RCOS specific code.
 func GenerateMaDmp(c context.AbstructContext) {
 	var f repoUtil
 	generateMaDmp(c, f)

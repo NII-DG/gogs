@@ -619,7 +619,7 @@ func CreateDmp(c context.AbstructContext) {
 	createDmp(c, f, d)
 }
 
-// CreateDmp is GIN specific code
+// CreateDmp is RCOS specific code
 func createDmp(c context.AbstructContext, f AbstructRepoUtil, d AbstructDmpUtil) {
 	schema := c.QueryEscape("schema")
 	schemaUrl := getTemplateUrl() + "dmp/"
