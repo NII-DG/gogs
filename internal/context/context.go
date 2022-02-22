@@ -85,12 +85,6 @@ func (c *Context) GetUser() *db.User {
 	return c.User
 }
 
-// CallTr is RCOS specific code.
-// This calls macaron's "Tr" method and sets the argument.
-func (c *Context) CallTr(nickname string, etc ...interface{}) string {
-	return c.Tr(nickname, etc)
-}
-
 // CallData is RCOS specific code.
 // This calls the "Data" field in *macaron.Context
 func (c *Context) CallData() map[string]interface{} {
