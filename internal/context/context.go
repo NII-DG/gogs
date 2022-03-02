@@ -30,7 +30,7 @@ type AbstructContext interface {
 	// RCOS specific method
 	GetRepo() AbstructCtxRepository
 	GetFlash() *session.Flash
-	GetUser() *db.User
+	GetUser() db.AbstructDbUser
 	CallData() map[string]interface{}
 
 	// macaron.Context method
@@ -81,7 +81,7 @@ func (c *Context) GetFlash() *session.Flash {
 
 // GetUser is RCOS specific code.
 // This gets the "User" field.
-func (c *Context) GetUser() *db.User {
+func (c *Context) GetUser() db.AbstructDbUser {
 	return c.User
 }
 

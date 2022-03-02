@@ -100,7 +100,7 @@ func exploreMetadata(c context.AbstructContext) {
 	c.CallData()["Title"] = c.Tr("explore")
 	c.CallData()["PageIsExplore"] = true
 	c.CallData()["PageIsExploreMetadata"] = true
-	c.CallData()["UserRightErr"] = (c.GetUser().Type >= db.UserFA)
+	c.CallData()["UserRightErr"] = (c.GetUser().GetType() >= db.UserFA)
 
 	selectedKey := c.Query("selectKey")
 	keyword := c.Query("q")
