@@ -42,7 +42,7 @@ const (
 )
 
 type ComposeHookEnvsOptions struct {
-	AuthUser  *User
+	AuthUser  AbstructDbUser
 	OwnerName string
 	OwnerSalt string
 	RepoID    int64
@@ -53,9 +53,9 @@ type ComposeHookEnvsOptions struct {
 func ComposeHookEnvs(opts ComposeHookEnvsOptions) []string {
 	envs := []string{
 		"SSH_ORIGINAL_COMMAND=1",
-		ENV_AUTH_USER_ID + "=" + com.ToStr(opts.AuthUser.ID),
-		ENV_AUTH_USER_NAME + "=" + opts.AuthUser.Name,
-		ENV_AUTH_USER_EMAIL + "=" + opts.AuthUser.Email,
+		ENV_AUTH_USER_ID + "=" + com.ToStr(opts.AuthUser.GetId()),
+		ENV_AUTH_USER_NAME + "=" + opts.AuthUser.GetName(),
+		ENV_AUTH_USER_EMAIL + "=" + opts.AuthUser.GetEmail(),
 		ENV_REPO_OWNER_NAME + "=" + opts.OwnerName,
 		ENV_REPO_OWNER_SALT_MD5 + "=" + cryptoutil.MD5(opts.OwnerSalt),
 		ENV_REPO_ID + "=" + com.ToStr(opts.RepoID),
@@ -118,7 +118,7 @@ type UpdateRepoFileOptions struct {
 }
 
 // UpdateRepoFile adds or updates a file in repository.
-func (repo *Repository) UpdateRepoFile(doer *User, opts UpdateRepoFileOptions) (err error) {
+func (repo *Repository) UpdateRepoFile(doer AbstructDbUser, opts UpdateRepoFileOptions) (err error) {
 	repoWorkingPool.CheckIn(com.ToStr(repo.ID))
 	defer repoWorkingPool.CheckOut(com.ToStr(repo.ID))
 
