@@ -62,6 +62,20 @@ func (mr *MockAbstructDbRepositoryMockRecorder) GetDefaultBranch() *gomock.Call 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDefaultBranch", reflect.TypeOf((*MockAbstructDbRepository)(nil).GetDefaultBranch))
 }
 
+// RepoPath mocks base method.
+func (m *MockAbstructDbRepository) RepoPath() string {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RepoPath")
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+// RepoPath indicates an expected call of RepoPath.
+func (mr *MockAbstructDbRepositoryMockRecorder) RepoPath() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RepoPath", reflect.TypeOf((*MockAbstructDbRepository)(nil).RepoPath))
+}
+
 // UpdateRepoFile mocks base method.
 func (m *MockAbstructDbRepository) UpdateRepoFile(doer db.AbstructDbUser, opts db.UpdateRepoFileOptions) error {
 	m.ctrl.T.Helper()
@@ -74,4 +88,43 @@ func (m *MockAbstructDbRepository) UpdateRepoFile(doer db.AbstructDbUser, opts d
 func (mr *MockAbstructDbRepositoryMockRecorder) UpdateRepoFile(doer, opts interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateRepoFile", reflect.TypeOf((*MockAbstructDbRepository)(nil).UpdateRepoFile), doer, opts)
+}
+
+// MockAbstructDbUtil is a mock of AbstructDbUtil interface.
+type MockAbstructDbUtil struct {
+	ctrl     *gomock.Controller
+	recorder *MockAbstructDbUtilMockRecorder
+}
+
+// MockAbstructDbUtilMockRecorder is the mock recorder for MockAbstructDbUtil.
+type MockAbstructDbUtilMockRecorder struct {
+	mock *MockAbstructDbUtil
+}
+
+// NewMockAbstructDbUtil creates a new mock instance.
+func NewMockAbstructDbUtil(ctrl *gomock.Controller) *MockAbstructDbUtil {
+	mock := &MockAbstructDbUtil{ctrl: ctrl}
+	mock.recorder = &MockAbstructDbUtilMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockAbstructDbUtil) EXPECT() *MockAbstructDbUtilMockRecorder {
+	return m.recorder
+}
+
+// SearchRepositoryByName mocks base method.
+func (m *MockAbstructDbUtil) SearchRepositoryByName(opts *db.SearchRepoOptions) ([]*db.Repository, int64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SearchRepositoryByName", opts)
+	ret0, _ := ret[0].([]*db.Repository)
+	ret1, _ := ret[1].(int64)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
+}
+
+// SearchRepositoryByName indicates an expected call of SearchRepositoryByName.
+func (mr *MockAbstructDbUtilMockRecorder) SearchRepositoryByName(opts interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SearchRepositoryByName", reflect.TypeOf((*MockAbstructDbUtil)(nil).SearchRepositoryByName), opts)
 }
