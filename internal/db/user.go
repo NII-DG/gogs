@@ -47,6 +47,10 @@ const (
 	UserFA // :caution: more "UserFA" have the rights of searching metadata
 )
 
+type AbstructDbUser interface {
+	GetType() UserType
+}
+
 // User represents the object of individual and member of organization.
 type User struct {
 	ID        int64
@@ -101,6 +105,12 @@ type User struct {
 	NumMembers  int
 	Teams       []*Team `xorm:"-" gorm:"-" json:"-"`
 	Members     []*User `xorm:"-" gorm:"-" json:"-"`
+}
+
+// GetType is RCOS specific code.
+// This returns value of "Type" field.
+func (u *User) GetType() UserType {
+	return u.Type
 }
 
 func (u *User) BeforeInsert() {
