@@ -91,10 +91,10 @@ func (mr *MockAbstructContextMockRecorder) GetRepo() *gomock.Call {
 }
 
 // GetUser mocks base method.
-func (m *MockAbstructContext) GetUser() *db.User {
+func (m *MockAbstructContext) GetUser() db.AbstructDbUser {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetUser")
-	ret0, _ := ret[0].(*db.User)
+	ret0, _ := ret[0].(db.AbstructDbUser)
 	return ret0
 }
 
