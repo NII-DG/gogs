@@ -1,8 +1,8 @@
 {
 	"mocks": {
 		"internal/mocks/context/context_mock.go": {
-			"checksum": "+QAVB1Xsz1KPQUElOwdAQg==",
-			"source_checksum": "mbxdLgUdcjAQRHvx6hymCg==",
+			"checksum": "MtlB0KSpJ7HJrbCeVf8e4g==",
+			"source_checksum": "BzDXAvC27avQOLG98hoyZQ==",
 			"mode": "SOURCE_MODE",
 			"source_mode_runner": {
 				"source": "internal/context/context.go",
@@ -19,12 +19,21 @@
 			}
 		},
 		"internal/mocks/db/repo_mock.go": {
-			"checksum": "y1p13B9U4hSM5Uff7QyQIw==",
-			"source_checksum": "twURgEMR3ojUxj+kUfXzcg==",
+			"checksum": "QErIAdc9IARTc2tbIQwbAg==",
+			"source_checksum": "PFjv1llCBtECx92aDMqePQ==",
 			"mode": "SOURCE_MODE",
 			"source_mode_runner": {
 				"source": "internal/db/repo.go",
 				"destination": "internal/mocks/db/repo_mock.go"
+			}
+		},
+		"internal/mocks/db/user_mock.go": {
+			"checksum": "2mbeFj7RTv/nPjEIlJ9rKA==",
+			"source_checksum": "5+biwT7GUA925Z9dwmb9ng==",
+			"mode": "SOURCE_MODE",
+			"source_mode_runner": {
+				"source": "internal/db/user.go",
+				"destination": "internal/mocks/db/user_mock.go"
 			}
 		},
 		"internal/mocks/repo/editor_mock.go": {
@@ -38,7 +47,7 @@
 		},
 		"internal/mocks/repo/repo_gin_mock.go": {
 			"checksum": "htXwhFVQqcaUjfz61VUWBQ==",
-			"source_checksum": "I3kAaiUtq4froac/NfTgSA==",
+			"source_checksum": "e4f8mDu2G+jGH/BtcqX+Jw==",
 			"mode": "SOURCE_MODE",
 			"source_mode_runner": {
 				"source": "internal/route/repo/repo_gin.go",
