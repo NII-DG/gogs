@@ -63,7 +63,7 @@ func (mr *MockAbstructDbRepositoryMockRecorder) GetDefaultBranch() *gomock.Call 
 }
 
 // UpdateRepoFile mocks base method.
-func (m *MockAbstructDbRepository) UpdateRepoFile(doer *db.User, opts db.UpdateRepoFileOptions) error {
+func (m *MockAbstructDbRepository) UpdateRepoFile(doer db.AbstructDbUser, opts db.UpdateRepoFileOptions) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateRepoFile", doer, opts)
 	ret0, _ := ret[0].(error)
