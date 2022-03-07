@@ -533,7 +533,7 @@ func UploadFilePost(c *context.Context, f form.UploadRepoFile) {
 		TreePath:      f.TreePath,
 		Message:       message,
 		Files:         f.Files,
-		UpperRopoPath: c.Repo.RepoLink + branchName,
+		UpperRopoPath: c.Repo.RepoLink + "/" + branchName,
 	}); err != nil {
 		log.Error("Failed to upload files: %v", err)
 		c.FormErr("TreePath")

@@ -24,7 +24,7 @@ func GetAnnexAddInfo(rawJson *[]byte) ([]AnnexAddResponse, error) {
 	logv2.Trace("[strMsg] %v", strMsg)
 	splitByline := regexp.MustCompile(reg).Split(strMsg, -1) //改行分割
 	strJson := "["
-	for index := 1; index < len(splitByline)-1; index++ {
+	for index := 0; index < len(splitByline)-1; index++ {
 		if index == len(splitByline)-2 {
 			strJson = strJson + splitByline[index]
 			strJson = strJson + "]"
@@ -35,7 +35,6 @@ func GetAnnexAddInfo(rawJson *[]byte) ([]AnnexAddResponse, error) {
 	}
 	logv2.Trace("[strJson] %v", strJson)
 	byteJson := []byte(strJson)
-	logv2.Trace("[byteJson] %v", byteJson)
 	var data []AnnexAddResponse
 	if err := json.Unmarshal(byteJson, &data); err != nil {
 		return nil, err
