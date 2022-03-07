@@ -229,12 +229,13 @@ func annexUpload(repoPath, remote string, uploadFileMap *map[string]string) erro
 		strJson := "["
 		for index := 1; index < len(splitByline)-1; index++ {
 			logv2.Info("[splitByline] index: %v , str %v", index, splitByline[index])
-			if index != len(splitByline)-1 {
-				strJson = strJson + splitByline[index]
-				strJson = strJson + ","
-			} else {
+			if index == len(splitByline)-1 {
 				strJson = strJson + splitByline[index]
 				strJson = strJson + "]"
+
+			} else {
+				strJson = strJson + splitByline[index]
+				strJson = strJson + ","
 			}
 		}
 		logv2.Info("[strJson] %v", strJson)
