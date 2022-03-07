@@ -578,7 +578,7 @@ func (repo *Repository) UploadRepoFiles(doer *User, opts UploadRepoFileOptions) 
 	if err != nil { // Copy new files
 		return fmt.Errorf("annex copy %s: %v", localPath, err)
 	} else {
-		for _, unit := range contentInfoInIPFS {
+		for _, unit := range *contentInfoInIPFS {
 			if _, isKey := uploadFileMap[unit.File]; isKey {
 				uploadFileMap[unit.File] = unit.Hash
 				log.Info("[unit.File] : %v", unit.File)

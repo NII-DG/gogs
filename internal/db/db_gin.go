@@ -207,7 +207,7 @@ AUTHOR : dai.tsukioka
 NOTE : methods : [sync and copy] locations are invert
 ToDo : IPFSへアップロードしたコンテンツアドレスをupploadFileMapに追加する。
 */
-func annexUpload(repoPath, remote string, uploadFileMap *map[string]string) ([]annex_ipfs.AnnexContentInfo, error) {
+func annexUpload(repoPath, remote string, uploadFileMap *map[string]string) (*[]annex_ipfs.AnnexContentInfo, error) {
 	//ipfsへ実データをコピーする。
 	logv2.Info("[Uploading annexed data to %v] path : %v", remote, repoPath)
 	cmd := git.NewCommand("annex", "copy", "--to", remote)
@@ -219,7 +219,7 @@ func annexUpload(repoPath, remote string, uploadFileMap *map[string]string) ([]a
 
 	//コンテンツアドレスの取得
 	logv2.Info("[git annex whereis1-2] path : %v", repoPath)
-	var contentInfoList []annex_ipfs.AnnexContentInfo
+	var contentInfoList *[]annex_ipfs.AnnexContentInfo
 	if msgWhereis, err := git.NewCommand("annex", "whereis", "--json").RunInDir(repoPath); err != nil {
 		logv2.Error("[git annex whereis Error] err : %v", err)
 	} else {
