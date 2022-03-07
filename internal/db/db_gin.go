@@ -217,8 +217,8 @@ func annexUpload(repoPath, remote string, uploadFileMap *map[string]string) erro
 	}
 
 	//IPFSの所在確認（デバック用）
-	logv2.Info("[git annex whereis1-2] path : %v", repoPath, "--json")
-	if msgWhereis, err := git.NewCommand("annex", "whereis").RunInDir(repoPath); err != nil {
+	logv2.Info("[git annex whereis1-2] path : %v", repoPath)
+	if msgWhereis, err := git.NewCommand("annex", "whereis", "--json").RunInDir(repoPath); err != nil {
 		logv2.Error("[git annex whereis Error] err : %v", err)
 	} else {
 		logv2.Trace("[git annes whereis Info] msg : %s", msgWhereis)
