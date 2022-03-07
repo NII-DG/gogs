@@ -223,7 +223,23 @@ func annexUpload(repoPath, remote string, uploadFileMap *map[string]string) erro
 		logv2.Error("[git annex whereis Error] err : %v", err)
 	} else {
 		logv2.Trace("[git annes whereis Info] msg : %s", msgWhereis)
-		var data []annex_ipfs.AnnexWhereResponse = []annex_ipfs.AnnexWhereResponse{}
+		reg := "\r\n|\n"
+		strMsg := *(*string)(unsafe.Pointer(&msgWhereis))        //[]byte to string
+		splitByline := regexp.MustCompile(reg).Split(strMsg, -1) //改行分割
+		strJson := "["
+		for index := 0; index < len(splitByline); index++ {
+			if index != len(splitByline)-1 {
+				strJson = strJson + splitByline[index]
+				strJson = strJson + ","
+			} else {
+				strJson = strJson + splitByline[index]
+				strJson = strJson + "]"
+			}
+		}
+		logv2.Info("[strJson] %v", strJson)
+		msgWhereis := []byte(strJson)
+
+		var data []annex_ipfs.AnnexWhereResponse
 		if err := json.Unmarshal(msgWhereis, &data); err != nil {
 			logv2.Trace("[JSON Unmarshal error]  : %s", err)
 		} else {
