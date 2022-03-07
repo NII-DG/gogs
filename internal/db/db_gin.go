@@ -175,7 +175,7 @@ func annexAdd(repoPath string, all bool, files ...string) ([]annex_ipfs.AnnexAdd
 	if err == nil {
 		reslist, err := annex_ipfs.GetAnnexAddInfo(&msg)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("[Annex Add Json Error]: %v", err)
 		}
 		return reslist, nil
 	}
