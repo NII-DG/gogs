@@ -166,7 +166,7 @@ func setRemoteIPFS(path string) ([]byte, error) {
 
 //ToDo :upploadFileMap(map)にKeyを追加する。
 func annexAdd(repoPath string, all bool, files ...string) ([]annex_ipfs.AnnexAddResponse, error) {
-	cmd := git.NewCommand("annex", "add")
+	cmd := git.NewCommand("annex", "add", "--json")
 	if all {
 		cmd.AddArgs(".")
 	}
