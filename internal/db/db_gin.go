@@ -14,7 +14,7 @@ import (
 	"github.com/G-Node/libgin/libgin"
 	"github.com/G-Node/libgin/libgin/annex"
 	"github.com/gogs/git-module"
-	annex_ipfs "github.com/ivis-yoshida/gogs/internal/annex_ipfs"
+	"github.com/ivis-yoshida/gogs/internal/annex_ipfs"
 	"github.com/ivis-yoshida/gogs/internal/conf"
 	"github.com/unknwon/com"
 	"golang.org/x/crypto/bcrypt"
@@ -207,64 +207,39 @@ AUTHOR : dai.tsukioka
 NOTE : methods : [sync and copy] locations are invert
 ToDo : IPFSへアップロードしたコンテンツアドレスをupploadFileMapに追加する。
 */
-func annexUpload(repoPath, remote string, uploadFileMap *map[string]string) error {
+func annexUpload(repoPath, remote string, uploadFileMap *map[string]string) ([]annex_ipfs.AnnexContentInfo, error) {
 	//ipfsへ実データをコピーする。
 	logv2.Info("[Uploading annexed data to %v] path : %v", remote, repoPath)
 	cmd := git.NewCommand("annex", "copy", "--to", remote)
 	if msg, err := cmd.RunInDir(repoPath); err != nil {
-		return fmt.Errorf("[Failure git annex copy to %v] err : %v ,fromPath : %v", remote, err, repoPath)
+		return nil, fmt.Errorf("[Failure git annex copy to %v] err : %v ,fromPath : %v", remote, err, repoPath)
 	} else {
 		logv2.Info("[Success copy to ipfs] msg : %s, fromPath : %v", msg, repoPath)
 	}
 
 	//コンテンツアドレスの取得
 	logv2.Info("[git annex whereis1-2] path : %v", repoPath)
+	var contentInfoList []annex_ipfs.AnnexContentInfo
 	if msgWhereis, err := git.NewCommand("annex", "whereis", "--json").RunInDir(repoPath); err != nil {
 		logv2.Error("[git annex whereis Error] err : %v", err)
 	} else {
 		logv2.Trace("[git annes whereis Info] msg : %s", msgWhereis)
-		reg := "\r\n|\n"
-		strMsg := *(*string)(unsafe.Pointer(&msgWhereis))        //[]byte to string
-		splitByline := regexp.MustCompile(reg).Split(strMsg, -1) //改行分割
-		strJson := "["
-		logv2.Info("[len(splitByline)] index: %v", len(splitByline))
-		for index := 1; index < len(splitByline)-1; index++ {
-			logv2.Info("[splitByline] index: %v , str %v", index, splitByline[index])
-			if index == len(splitByline)-2 {
-				strJson = strJson + splitByline[index]
-				strJson = strJson + "]"
-			} else {
-				strJson = strJson + splitByline[index]
-				strJson = strJson + ","
-			}
+		contentInfoList, err = annex_ipfs.GetAnnexContentInfoList(msgWhereis)
+		if err != nil {
+			return nil, fmt.Errorf("[JSON Convert] err : %v ,fromPath : %v", err, repoPath)
 		}
-
-		logv2.Info("[strJson] %v", strJson)
-		msgWhereis := []byte(strJson)
-
-		var data []annex_ipfs.AnnexWhereResponse
-		if err := json.Unmarshal(msgWhereis, &data); err != nil {
-			logv2.Trace("[JSON Unmarshal error]  : %s", err)
-		} else {
-			for _, d := range data {
-				logv2.Info("[Json parse] command : %v, note: %v, success:  %v, untrust:  %v, key:  %v, whereis:  %v, file:  %v, ",
-					d.Command, d.Note, d.Success, d.Untrusted, d.Key, d.Whereis, d.File)
-			}
-
-		}
-
 	}
 
 	//リモートと同期（メタデータを更新）
 	log.Info("Synchronising annex info : %v", repoPath)
 	if msg, err := git.NewCommand("annex", "sync").RunInDir(repoPath); err != nil {
 		logv2.Error("[Failure git-annex sync] err : %v, msg : %s", err, msg)
-		return fmt.Errorf("[Failure git-annex sync] err : %v, msg : %s", err, msg)
+		return nil, fmt.Errorf("[Failure git-annex sync] err : %v, msg : %s", err, msg)
 	} else {
 		logv2.Info("[Success git-annex sync] msg : %s", msg)
 	}
 
-	return nil
+	return contentInfoList, nil
 }
 
 // func getPathAndContentAddress(msgWhereis []byte) (uploadFileMap map[string]string) {

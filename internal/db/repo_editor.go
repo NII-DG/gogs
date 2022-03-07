@@ -574,8 +574,17 @@ func (repo *Repository) UploadRepoFiles(doer *User, opts UploadRepoFileOptions) 
 	if err = git.RepoPush(localPath, "origin", opts.NewBranch, git.PushOptions{Envs: envs}); err != nil {
 		return fmt.Errorf("git push origin %s: %v", opts.NewBranch, err)
 	}
-	if err = annexUpload(localPath, "ipfs", &uploadFileMap); err != nil { // Copy new files
+	contentInfoInIPFS, err := annexUpload(localPath, "ipfs", &uploadFileMap)
+	if err != nil { // Copy new files
 		return fmt.Errorf("annex copy %s: %v", localPath, err)
+	} else {
+		for _, unit := range contentInfoInIPFS {
+			if _, isKey := uploadFileMap[unit.File]; isKey {
+				uploadFileMap[unit.File] = unit.Hash
+				log.Info("[unit.File] : %v", unit.File)
+				log.Info("[unit.Hash] : %v", unit.Hash)
+			}
+		}
 	}
 	log.Info("[uploadFileMap] %v", uploadFileMap)
 	annexUninit(localPath) // Uninitialise annex to prepare for deletion
@@ -584,5 +593,6 @@ func (repo *Repository) UploadRepoFiles(doer *User, opts UploadRepoFileOptions) 
 	if err := RemoveFilesFromLocalRepository(dirPath, uploads...); err != nil {
 		return err
 	}
+
 	return DeleteUploads(uploads...)
 }

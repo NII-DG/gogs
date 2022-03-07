@@ -61,7 +61,7 @@ func (a AnnexWhereResponse) getAnnexContentInfo() AnnexContentInfo {
 	return *info
 }
 
-func getAnnexContentInfoList(msgWhereis []byte) ([]AnnexContentInfo, error) {
+func GetAnnexContentInfoList(msgWhereis []byte) ([]AnnexContentInfo, error) {
 	reg := "\r\n|\n"
 	strMsg := *(*string)(unsafe.Pointer(&msgWhereis))        //[]byte to string
 	splitByline := regexp.MustCompile(reg).Split(strMsg, -1) //改行分割
