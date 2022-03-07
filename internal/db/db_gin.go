@@ -227,7 +227,7 @@ func annexUpload(repoPath, remote string, uploadFileMap *map[string]string) erro
 		strMsg := *(*string)(unsafe.Pointer(&msgWhereis))        //[]byte to string
 		splitByline := regexp.MustCompile(reg).Split(strMsg, -1) //改行分割
 		strJson := "["
-		for index := 0; index < len(splitByline); index++ {
+		for index := 1; index < len(splitByline)-1; index++ {
 			if index != len(splitByline)-1 {
 				strJson = strJson + splitByline[index]
 				strJson = strJson + ","
