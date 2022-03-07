@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+	"unsafe"
 
 	"github.com/G-Node/libgin/libgin"
 	"github.com/G-Node/libgin/libgin/annex"
@@ -162,6 +163,7 @@ func setRemoteIPFS(path string) ([]byte, error) {
 	return msg, err
 }
 
+//ToDo :upploadFileMap(map)にKeyを追加する。
 func annexAdd(repoPath string, all bool, files ...string) error {
 	cmd := git.NewCommand("annex", "add")
 	if all {
@@ -169,13 +171,35 @@ func annexAdd(repoPath string, all bool, files ...string) error {
 	}
 	msg, err := cmd.AddArgs(files...).RunInDir(repoPath)
 	logv2.Info("[AnnexAdd] msg : %s, err : %v", msg, err)
+	pathList := getfilePath(msg)
+	for _, s := range pathList {
+		logv2.Info("[IN PathList] %v", s)
+	}
+
 	return err
+}
+
+func getfilePath(msg []byte) []string {
+	pathList := []string{}
+	reg := "\r\n|\n"
+	strMsg := *(*string)(unsafe.Pointer(&msg))               //[]byte to string
+	splitByline := regexp.MustCompile(reg).Split(strMsg, -1) //改行分割
+	for _, s := range splitByline {
+		if strings.Contains(s, "add ") {
+			index := strings.LastIndex(s, "add ")
+			path := s[index+1:]
+			pathList = append(pathList, path)
+
+		}
+	}
+	return pathList
 }
 
 /**
 UPDATE : 2022/02/01
 AUTHOR : dai.tsukioka
 NOTE : methods : [sync and copy] locations are invert
+ToDo : IPFSへアップロードしたコンテンツアドレスをupploadFileMapに追加する。
 */
 func annexUpload(repoPath, remote string) error {
 	//IPFSの所在確認（デバック用）

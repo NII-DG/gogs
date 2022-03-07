@@ -484,12 +484,13 @@ func DeleteUploadByUUID(uuid string) error {
 }
 
 type UploadRepoFileOptions struct {
-	LastCommitID string
-	OldBranch    string
-	NewBranch    string
-	TreePath     string
-	Message      string
-	Files        []string // In UUID format
+	LastCommitID  string
+	OldBranch     string
+	NewBranch     string
+	TreePath      string
+	Message       string
+	Files         []string // In UUID format
+	UpperRopoPath string   //RepoOwnerNm / RepoNm / branchNm
 }
 
 // isRepositoryGitPath returns true if given path is or resides inside ".git" path of the repository.
@@ -497,6 +498,7 @@ func isRepositoryGitPath(path string) bool {
 	return strings.HasSuffix(path, ".git") || strings.Contains(path, ".git"+string(os.PathSeparator))
 }
 
+//TODO：IPFSへアップロードしたLowerFilePathとコンテンツアドレスを返す。
 func (repo *Repository) UploadRepoFiles(doer *User, opts UploadRepoFileOptions) (err error) {
 
 	if len(opts.Files) == 0 {

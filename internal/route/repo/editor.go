@@ -452,6 +452,7 @@ func UploadFile(c *context.Context) {
 }
 
 func UploadFilePost(c *context.Context, f form.UploadRepoFile) {
+
 	c.PageIs("Upload")
 	renderUploadSettings(c)
 
