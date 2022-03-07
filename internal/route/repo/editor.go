@@ -527,12 +527,13 @@ func UploadFilePost(c *context.Context, f form.UploadRepoFile) {
 	}
 
 	if err := c.Repo.Repository.UploadRepoFiles(c.User, db.UploadRepoFileOptions{
-		LastCommitID: c.Repo.CommitID,
-		OldBranch:    oldBranchName,
-		NewBranch:    branchName,
-		TreePath:     f.TreePath,
-		Message:      message,
-		Files:        f.Files,
+		LastCommitID:  c.Repo.CommitID,
+		OldBranch:     oldBranchName,
+		NewBranch:     branchName,
+		TreePath:      f.TreePath,
+		Message:       message,
+		Files:         f.Files,
+		UpperRopoPath: c.Repo.RepoLink + branchName,
 	}); err != nil {
 		log.Error("Failed to upload files: %v", err)
 		c.FormErr("TreePath")

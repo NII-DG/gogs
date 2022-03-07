@@ -21,6 +21,7 @@ import (
 
 	"github.com/gogs/git-module"
 
+	"github.com/ivis-yoshida/gogs/internal/annex_ipfs"
 	"github.com/ivis-yoshida/gogs/internal/conf"
 	"github.com/ivis-yoshida/gogs/internal/cryptoutil"
 	"github.com/ivis-yoshida/gogs/internal/db/errors"
@@ -556,8 +557,8 @@ func (repo *Repository) UploadRepoFiles(doer *User, opts UploadRepoFileOptions) 
 	}
 
 	annexSetup(localPath) // Initialise annex and set configuration (with add filter for filesizes)
-	uploadFileMap := map[string]string{}
-	if uploadFileMap, err = annexAdd(localPath, true); err != nil {
+	annexAddRes := []annex_ipfs.AnnexAddResponse{}
+	if annexAddRes, err = annexAdd(localPath, true); err != nil {
 		return fmt.Errorf("git annex add: %v", err)
 	} else if err = git.RepoCommit(localPath, doer.NewGitSig(), opts.Message); err != nil {
 		return fmt.Errorf("commit changes on %q: %v", localPath, err)
@@ -574,19 +575,11 @@ func (repo *Repository) UploadRepoFiles(doer *User, opts UploadRepoFileOptions) 
 	if err = git.RepoPush(localPath, "origin", opts.NewBranch, git.PushOptions{Envs: envs}); err != nil {
 		return fmt.Errorf("git push origin %s: %v", opts.NewBranch, err)
 	}
-	contentInfoInIPFS, err := annexUpload(localPath, "ipfs", &uploadFileMap)
+	contentMap, err := annexUpload(opts.UpperRopoPath, localPath, "ipfs", annexAddRes)
 	if err != nil { // Copy new files
 		return fmt.Errorf("annex copy %s: %v", localPath, err)
-	} else {
-		for _, unit := range *contentInfoInIPFS {
-			if _, isKey := uploadFileMap[unit.File]; isKey {
-				uploadFileMap[unit.File] = unit.Hash
-				log.Info("[unit.File] : %v", unit.File)
-				log.Info("[unit.Hash] : %v", unit.Hash)
-			}
-		}
 	}
-	log.Info("[uploadFileMap] %v", uploadFileMap)
+	log.Info("[contentMap] %v", contentMap)
 	annexUninit(localPath) // Uninitialise annex to prepare for deletion
 	StartIndexing(*repo)   // Index the new data
 	//localPathのディレクトリの削除

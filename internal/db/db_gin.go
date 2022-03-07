@@ -165,8 +165,7 @@ func setRemoteIPFS(path string) ([]byte, error) {
 }
 
 //ToDo :upploadFileMap(map)にKeyを追加する。
-func annexAdd(repoPath string, all bool, files ...string) (map[string]string, error) {
-	uploadFileMap := map[string]string{}
+func annexAdd(repoPath string, all bool, files ...string) ([]annex_ipfs.AnnexAddResponse, error) {
 	cmd := git.NewCommand("annex", "add")
 	if all {
 		cmd.AddArgs(".")
@@ -174,15 +173,17 @@ func annexAdd(repoPath string, all bool, files ...string) (map[string]string, er
 	msg, err := cmd.AddArgs(files...).RunInDir(repoPath)
 	logv2.Info("[AnnexAdd] msg : %s, err : %v", msg, err)
 	if err == nil {
-		pathList := getfilePath(msg)
-		if len(pathList) > 0 {
-			for _, path := range pathList {
-				logv2.Info("[AddFilePath] msg : %v", path)
-				uploadFileMap[path] = ""
-			}
+		reslist, err := annex_ipfs.GetAnnexAddInfo(&msg)
+		if err != nil {
+			return nil, err
 		}
+		return reslist, nil
 	}
-	return uploadFileMap, err
+	return nil, err
+}
+
+func lens(res []annex_ipfs.AnnexAddResponse) {
+	panic("unimplemented")
 }
 
 func getfilePath(msg []byte) []string {
@@ -207,27 +208,33 @@ AUTHOR : dai.tsukioka
 NOTE : methods : [sync and copy] locations are invert
 ToDo : IPFSへアップロードしたコンテンツアドレスをupploadFileMapに追加する。
 */
-func annexUpload(repoPath, remote string, uploadFileMap *map[string]string) (*[]annex_ipfs.AnnexContentInfo, error) {
+func annexUpload(upperpath, repoPath, remote string, annexAddRes []annex_ipfs.AnnexAddResponse) (map[string]string, error) {
+	contentMap := map[string]string{}
 	//ipfsへ実データをコピーする。
 	logv2.Info("[Uploading annexed data to %v] path : %v", remote, repoPath)
-	cmd := git.NewCommand("annex", "copy", "--to", remote)
-	if msg, err := cmd.RunInDir(repoPath); err != nil {
-		return nil, fmt.Errorf("[Failure git annex copy to %v] err : %v ,fromPath : %v", remote, err, repoPath)
-	} else {
-		logv2.Info("[Success copy to ipfs] msg : %s, fromPath : %v", msg, repoPath)
+	for _, content := range annexAddRes {
+		cmd := git.NewCommand("annex", "copy", "--to", remote, "--key", content.Key)
+		if msg, err := cmd.RunInDir(repoPath); err != nil {
+			return nil, fmt.Errorf("[Failure git annex copy to %v] err : %v ,fromPath : %v", remote, err, repoPath)
+		} else {
+			logv2.Info("[Success copy to ipfs] msg : %s, fromPath : %v", msg, repoPath)
+		}
 	}
 
 	//コンテンツアドレスの取得
 	logv2.Info("[git annex whereis1-2] path : %v", repoPath)
-	var contentInfoList *[]annex_ipfs.AnnexContentInfo
-	if msgWhereis, err := git.NewCommand("annex", "whereis", "--json").RunInDir(repoPath); err != nil {
-		logv2.Error("[git annex whereis Error] err : %v", err)
-	} else {
-		logv2.Trace("[git annes whereis Info] msg : %s", msgWhereis)
-		contentInfoList, err = annex_ipfs.GetAnnexContentInfoList(&msgWhereis)
-		if err != nil {
-			return nil, fmt.Errorf("[JSON Convert] err : %v ,fromPath : %v", err, repoPath)
+	for _, content := range annexAddRes {
+		if msgWhereis, err := git.NewCommand("annex", "whereis", "--json", "--key", content.Key).RunInDir(repoPath); err != nil {
+			logv2.Error("[git annex whereis Error] err : %v", err)
+		} else {
+			logv2.Trace("[git annes whereis Info] msg : %s", msgWhereis)
+			contentInfo, err := annex_ipfs.GetAnnexContentInfo(&msgWhereis)
+			if err != nil {
+				return nil, fmt.Errorf("[JSON Convert] err : %v ,fromPath : %v", err, repoPath)
+			}
+			contentMap[upperpath+content.File] = contentInfo.Hash
 		}
+
 	}
 
 	//リモートと同期（メタデータを更新）
@@ -239,7 +246,7 @@ func annexUpload(repoPath, remote string, uploadFileMap *map[string]string) (*[]
 		logv2.Info("[Success git-annex sync] msg : %s", msg)
 	}
 
-	return contentInfoList, nil
+	return contentMap, nil
 }
 
 // func getPathAndContentAddress(msgWhereis []byte) (uploadFileMap map[string]string) {
