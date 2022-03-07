@@ -61,9 +61,9 @@ func (a AnnexWhereResponse) getAnnexContentInfo() AnnexContentInfo {
 	return *info
 }
 
-func GetAnnexContentInfoList(msgWhereis []byte) ([]AnnexContentInfo, error) {
+func GetAnnexContentInfoList(msgWhereis *[]byte) ([]AnnexContentInfo, error) {
 	reg := "\r\n|\n"
-	strMsg := *(*string)(unsafe.Pointer(&msgWhereis))        //[]byte to string
+	strMsg := *(*string)(unsafe.Pointer(msgWhereis))         //[]byte to string
 	splitByline := regexp.MustCompile(reg).Split(strMsg, -1) //改行分割
 	strJson := "["
 	for index := 1; index < len(splitByline)-1; index++ {
@@ -77,7 +77,7 @@ func GetAnnexContentInfoList(msgWhereis []byte) ([]AnnexContentInfo, error) {
 	}
 	byteJson := []byte(strJson)
 	var data []AnnexWhereResponse
-	if err := json.Unmarshal(msgWhereis, &byteJson); err != nil {
+	if err := json.Unmarshal(byteJson, &data); err != nil {
 		return nil, err
 	}
 
