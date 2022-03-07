@@ -225,7 +225,7 @@ func annexUpload(repoPath, remote string, uploadFileMap *map[string]string) erro
 		logv2.Trace("[git annes whereis Info] msg : %s", msgWhereis)
 		var data []annex_ipfs.AnnexWhereResponse = []annex_ipfs.AnnexWhereResponse{}
 		if err := json.Unmarshal(msgWhereis, &data); err != nil {
-			fmt.Println("JSON Unmarshal error:", err)
+			logv2.Trace("[JSON Unmarshal error]  : %s", err)
 		} else {
 			for _, d := range data {
 				logv2.Info("[Json parse] command : %v, note: %v, success:  %v, untrust:  %v, key:  %v, whereis:  %v, file:  %v, ",
