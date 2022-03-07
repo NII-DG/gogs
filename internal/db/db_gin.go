@@ -217,7 +217,7 @@ func annexUpload(repoPath, remote string, uploadFileMap *map[string]string) erro
 	}
 
 	//IPFSの所在確認（デバック用）
-	logv2.Info("[git annex whereis1-2] path : %v", repoPath)
+	logv2.Info("[git annex whereis1-2] path : %v", repoPath, "--json")
 	if msgWhereis, err := git.NewCommand("annex", "whereis").RunInDir(repoPath); err != nil {
 		logv2.Error("[git annex whereis Error] err : %v", err)
 	} else {
@@ -225,8 +225,16 @@ func annexUpload(repoPath, remote string, uploadFileMap *map[string]string) erro
 
 	}
 
+	logv2.Info("[git annex whereis1-2] path : %v", repoPath)
+	if msgWhereis2, err := git.NewCommand("annex", "whereis").RunInDir(repoPath); err != nil {
+		logv2.Error("[git annex whereis Error] err : %v", err)
+	} else {
+		logv2.Trace("[git annes whereis Info] msg : %s", msgWhereis2)
+
+	}
+
 	//リモートと同期（メタデータを更新）
-	log.Info("Synchronising annex info : %v", repoPath, "--json")
+	log.Info("Synchronising annex info : %v", repoPath)
 	if msg, err := git.NewCommand("annex", "sync").RunInDir(repoPath); err != nil {
 		logv2.Error("[Failure git-annex sync] err : %v, msg : %s", err, msg)
 		return fmt.Errorf("[Failure git-annex sync] err : %v, msg : %s", err, msg)
