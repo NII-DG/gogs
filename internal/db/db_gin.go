@@ -217,7 +217,7 @@ func annexUpload(repoPath, remote string, uploadFileMap *map[string]string) erro
 		logv2.Info("[Success copy to ipfs] msg : %s, fromPath : %v", msg, repoPath)
 	}
 
-	//IPFSの所在確認（デバック用）
+	//コンテンツアドレスの取得
 	logv2.Info("[git annex whereis1-2] path : %v", repoPath)
 	if msgWhereis, err := git.NewCommand("annex", "whereis", "--json").RunInDir(repoPath); err != nil {
 		logv2.Error("[git annex whereis Error] err : %v", err)
@@ -226,9 +226,9 @@ func annexUpload(repoPath, remote string, uploadFileMap *map[string]string) erro
 		reg := "\r\n|\n"
 		strMsg := *(*string)(unsafe.Pointer(&msgWhereis))        //[]byte to string
 		splitByline := regexp.MustCompile(reg).Split(strMsg, -1) //改行分割
-		logv2.Info("[strJson] %v", splitByline)
 		strJson := "["
 		for index := 1; index < len(splitByline)-1; index++ {
+			logv2.Info("[splitByline] index: %v , str %v", index, splitByline[index])
 			if index != len(splitByline)-1 {
 				strJson = strJson + splitByline[index]
 				strJson = strJson + ","
