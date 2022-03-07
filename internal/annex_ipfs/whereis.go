@@ -1,6 +1,11 @@
 package annex_ipfs
 
-import "strings"
+import (
+	"encoding/json"
+	"regexp"
+	"strings"
+	"unsafe"
+)
 
 //git annex whereis --jsonの構造体
 type AnnexWhereResponse struct {
@@ -54,4 +59,31 @@ func (a AnnexWhereResponse) getAnnexContentInfo() AnnexContentInfo {
 	info.Hash = a.getHashValueInIPFS()
 	info.File = a.getFile()
 	return *info
+}
+
+func getAnnexContentInfoList(msgWhereis []byte) ([]AnnexContentInfo, error) {
+	reg := "\r\n|\n"
+	strMsg := *(*string)(unsafe.Pointer(&msgWhereis))        //[]byte to string
+	splitByline := regexp.MustCompile(reg).Split(strMsg, -1) //改行分割
+	strJson := "["
+	for index := 1; index < len(splitByline)-1; index++ {
+		if index == len(splitByline)-2 {
+			strJson = strJson + splitByline[index]
+			strJson = strJson + "]"
+		} else {
+			strJson = strJson + splitByline[index]
+			strJson = strJson + ","
+		}
+	}
+	byteJson := []byte(strJson)
+	var data []AnnexWhereResponse
+	if err := json.Unmarshal(msgWhereis, &byteJson); err != nil {
+		return nil, err
+	}
+
+	contentInfoList := []AnnexContentInfo{}
+	for _, d := range data {
+		contentInfoList = append(contentInfoList, d.getAnnexContentInfo())
+	}
+	return contentInfoList, nil
 }
