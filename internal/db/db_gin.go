@@ -14,6 +14,7 @@ import (
 	"github.com/G-Node/libgin/libgin"
 	"github.com/G-Node/libgin/libgin/annex"
 	"github.com/gogs/git-module"
+	annex_ipfs "github.com/ivis-yoshida/gogs/internal/annex_ipfs"
 	"github.com/ivis-yoshida/gogs/internal/conf"
 	"github.com/unknwon/com"
 	"golang.org/x/crypto/bcrypt"
@@ -209,7 +210,7 @@ ToDo : IPFSへアップロードしたコンテンツアドレスをupploadFileM
 func annexUpload(repoPath, remote string, uploadFileMap *map[string]string) error {
 	//ipfsへ実データをコピーする。
 	logv2.Info("[Uploading annexed data to %v] path : %v", remote, repoPath)
-	cmd := git.NewCommand("annex", "copy", "--to", remote, "--json")
+	cmd := git.NewCommand("annex", "copy", "--to", remote)
 	if msg, err := cmd.RunInDir(repoPath); err != nil {
 		return fmt.Errorf("[Failure git annex copy to %v] err : %v ,fromPath : %v", remote, err, repoPath)
 	} else {
@@ -222,14 +223,16 @@ func annexUpload(repoPath, remote string, uploadFileMap *map[string]string) erro
 		logv2.Error("[git annex whereis Error] err : %v", err)
 	} else {
 		logv2.Trace("[git annes whereis Info] msg : %s", msgWhereis)
+		var data []annex_ipfs.AnnexWhereResponse = []annex_ipfs.AnnexWhereResponse{}
+		if err := json.Unmarshal(msgWhereis, &data); err != nil {
+			fmt.Println("JSON Unmarshal error:", err)
+		} else {
+			for _, d := range data {
+				logv2.Info("[Json parse] command : %v, note: %v, success:  %v, untrust:  %v, key:  %v, whereis:  %v, file:  %v, ",
+					d.Command, d.Note, d.Success, d.Untrusted, d.Key, d.Whereis, d.File)
+			}
 
-	}
-
-	logv2.Info("[git annex whereis1-2] path : %v", repoPath)
-	if msgWhereis2, err := git.NewCommand("annex", "whereis").RunInDir(repoPath); err != nil {
-		logv2.Error("[git annex whereis Error] err : %v", err)
-	} else {
-		logv2.Trace("[git annes whereis Info] msg : %s", msgWhereis2)
+		}
 
 	}
 
