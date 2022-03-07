@@ -498,7 +498,7 @@ func isRepositoryGitPath(path string) bool {
 	return strings.HasSuffix(path, ".git") || strings.Contains(path, ".git"+string(os.PathSeparator))
 }
 
-//TODO：IPFSへアップロードしたLowerFilePathとコンテンツアドレスを返す。
+//TODO：IPFSへアップロードしたLowerFilePathとコンテンツアドレスのMapを返す。
 func (repo *Repository) UploadRepoFiles(doer *User, opts UploadRepoFileOptions) (err error) {
 
 	if len(opts.Files) == 0 {
@@ -556,7 +556,8 @@ func (repo *Repository) UploadRepoFiles(doer *User, opts UploadRepoFileOptions) 
 	}
 
 	annexSetup(localPath) // Initialise annex and set configuration (with add filter for filesizes)
-	if err = annexAdd(localPath, true); err != nil {
+	uploadFileMap := map[string]string{}
+	if uploadFileMap, err = annexAdd(localPath, true); err != nil {
 		return fmt.Errorf("git annex add: %v", err)
 	} else if err = git.RepoCommit(localPath, doer.NewGitSig(), opts.Message); err != nil {
 		return fmt.Errorf("commit changes on %q: %v", localPath, err)
@@ -573,10 +574,10 @@ func (repo *Repository) UploadRepoFiles(doer *User, opts UploadRepoFileOptions) 
 	if err = git.RepoPush(localPath, "origin", opts.NewBranch, git.PushOptions{Envs: envs}); err != nil {
 		return fmt.Errorf("git push origin %s: %v", opts.NewBranch, err)
 	}
-
-	if err := annexUpload(localPath, "ipfs"); err != nil { // Copy new files
+	if err = annexUpload(localPath, "ipfs", &uploadFileMap); err != nil { // Copy new files
 		return fmt.Errorf("annex copy %s: %v", localPath, err)
 	}
+	log.Info("[uploadFileMap] %v", uploadFileMap)
 	annexUninit(localPath) // Uninitialise annex to prepare for deletion
 	StartIndexing(*repo)   // Index the new data
 	//localPathのディレクトリの削除

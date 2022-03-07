@@ -164,19 +164,23 @@ func setRemoteIPFS(path string) ([]byte, error) {
 }
 
 //ToDo :upploadFileMap(map)にKeyを追加する。
-func annexAdd(repoPath string, all bool, files ...string) error {
+func annexAdd(repoPath string, all bool, files ...string) (map[string]string, error) {
+	uploadFileMap := map[string]string{}
 	cmd := git.NewCommand("annex", "add")
 	if all {
 		cmd.AddArgs(".")
 	}
 	msg, err := cmd.AddArgs(files...).RunInDir(repoPath)
 	logv2.Info("[AnnexAdd] msg : %s, err : %v", msg, err)
-	pathList := getfilePath(msg)
-	for _, s := range pathList {
-		logv2.Info("[IN PathList] %v", s)
+	if err == nil {
+		pathList := getfilePath(msg)
+		if len(pathList) > 0 {
+			for _, path := range pathList {
+				uploadFileMap[path] = ""
+			}
+		}
 	}
-
-	return err
+	return uploadFileMap, err
 }
 
 func getfilePath(msg []byte) []string {
@@ -201,18 +205,10 @@ AUTHOR : dai.tsukioka
 NOTE : methods : [sync and copy] locations are invert
 ToDo : IPFSへアップロードしたコンテンツアドレスをupploadFileMapに追加する。
 */
-func annexUpload(repoPath, remote string) error {
-	//IPFSの所在確認（デバック用）
-	logv2.Info("[git annex whereis1-1] path : %v", repoPath)
-	if msg, err := git.NewCommand("annex", "whereis").RunInDir(repoPath); err != nil {
-		logv2.Error("[git annex whereis Error] err : %v", err)
-	} else {
-		logv2.Info("[git annes whereis Info] msg : %s", msg)
-	}
-
+func annexUpload(repoPath, remote string, uploadFileMap *map[string]string) error {
 	//ipfsへ実データをコピーする。
 	logv2.Info("[Uploading annexed data to %v] path : %v", remote, repoPath)
-	cmd := git.NewCommand("annex", "copy", "--to", remote)
+	cmd := git.NewCommand("annex", "copy", "--to", remote, "--json")
 	if msg, err := cmd.RunInDir(repoPath); err != nil {
 		return fmt.Errorf("[Failure git annex copy to %v] err : %v ,fromPath : %v", remote, err, repoPath)
 	} else {
@@ -221,21 +217,32 @@ func annexUpload(repoPath, remote string) error {
 
 	//IPFSの所在確認（デバック用）
 	logv2.Info("[git annex whereis1-2] path : %v", repoPath)
-	if msg, err := git.NewCommand("annex", "whereis").RunInDir(repoPath); err != nil {
+	if msgWhereis, err := git.NewCommand("annex", "whereis", "--json").RunInDir(repoPath); err != nil {
 		logv2.Error("[git annex whereis Error] err : %v", err)
 	} else {
-		logv2.Info("[git annes whereis Info] msg : %s", msg)
+		logv2.Trace("[git annes whereis Info] msg : %s", msgWhereis)
+
 	}
 
 	//リモートと同期（メタデータを更新）
 	log.Info("Synchronising annex info : %v", repoPath)
 	if msg, err := git.NewCommand("annex", "sync").RunInDir(repoPath); err != nil {
 		logv2.Error("[Failure git-annex sync] err : %v, msg : %s", err, msg)
+		return fmt.Errorf("[Failure git-annex sync] err : %v, msg : %s", err, msg)
 	} else {
 		logv2.Info("[Success git-annex sync] msg : %s", msg)
 	}
+
 	return nil
 }
+
+// func getPathAndContentAddress(msgWhereis []byte) (uploadFileMap map[string]string) {
+// 	uploadFileMap = map[string]string{}
+// 	strMsg := *(*string)(unsafe.Pointer(&msgWhereis))//[]byte to string
+// 	reg := "\r\n|\n"
+// 	splitByLine := regexp.MustCompile(reg).Split(strMsg, -1) //改行分割
+
+// }
 
 // isAddressAllowed returns true if the email address is allowed to sign up
 // based on the regular expressions found in the email filter file
