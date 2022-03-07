@@ -187,7 +187,7 @@ func getfilePath(msg []byte) []string {
 	for _, s := range splitByline {
 		if strings.Contains(s, "add ") {
 			index := strings.LastIndex(s, "add ")
-			path := s[index+1:]
+			path := s[index+4:]
 			pathList = append(pathList, path)
 
 		}
