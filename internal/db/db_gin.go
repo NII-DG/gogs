@@ -224,7 +224,7 @@ func annexUpload(repoPath, remote string, uploadFileMap *map[string]string) ([]a
 		logv2.Error("[git annex whereis Error] err : %v", err)
 	} else {
 		logv2.Trace("[git annes whereis Info] msg : %s", msgWhereis)
-		contentInfoList, err = annex_ipfs.GetAnnexContentInfoList(msgWhereis)
+		contentInfoList, err = annex_ipfs.GetAnnexContentInfoList(&msgWhereis)
 		if err != nil {
 			return nil, fmt.Errorf("[JSON Convert] err : %v ,fromPath : %v", err, repoPath)
 		}
