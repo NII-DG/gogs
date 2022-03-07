@@ -208,7 +208,7 @@ ToDo : IPFSへアップロードしたコンテンツアドレスをupploadFileM
 func annexUpload(repoPath, remote string, uploadFileMap *map[string]string) error {
 	//ipfsへ実データをコピーする。
 	logv2.Info("[Uploading annexed data to %v] path : %v", remote, repoPath)
-	cmd := git.NewCommand("annex", "copy", "--to", remote, "--json")
+	cmd := git.NewCommand("annex", "copy", "--to", remote)
 	if msg, err := cmd.RunInDir(repoPath); err != nil {
 		return fmt.Errorf("[Failure git annex copy to %v] err : %v ,fromPath : %v", remote, err, repoPath)
 	} else {
@@ -217,7 +217,7 @@ func annexUpload(repoPath, remote string, uploadFileMap *map[string]string) erro
 
 	//IPFSの所在確認（デバック用）
 	logv2.Info("[git annex whereis1-2] path : %v", repoPath)
-	if msgWhereis, err := git.NewCommand("annex", "whereis", "--json").RunInDir(repoPath); err != nil {
+	if msgWhereis, err := git.NewCommand("annex", "whereis").RunInDir(repoPath); err != nil {
 		logv2.Error("[git annex whereis Error] err : %v", err)
 	} else {
 		logv2.Trace("[git annes whereis Info] msg : %s", msgWhereis)
