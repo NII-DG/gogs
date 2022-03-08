@@ -90,7 +90,7 @@ func renderDirectory(c *context.Context, treeLink string) {
 		}
 
 		// GIN mod: Replace existing buffer p and reader with annexed content buffer
-		p, err = resolveAnnexedContent(c, p)
+		p, err = resolveAnnexedContent(c, p, "")
 		if err != nil {
 			return
 		}
@@ -167,7 +167,7 @@ func fetchDmpSchema(c *context.Context, filePath string) {
 	c.Data["Schema"] = string(scheme)
 }
 
-func renderFile(c *context.Context, entry *git.TreeEntry, treeLink, rawLink string) {
+func renderFile(c *context.Context, entry *git.TreeEntry, treeLink, rawLink string, contentLocation string) {
 	c.Data["IsViewFile"] = true
 
 	blob := entry.Blob()
@@ -184,7 +184,7 @@ func renderFile(c *context.Context, entry *git.TreeEntry, treeLink, rawLink stri
 
 	// GIN mod: Replace existing buffer p with annexed content buffer (only if
 	// it's an annexed ptr file)
-	p, err = resolveAnnexedContent(c, p)
+	p, err = resolveAnnexedContent(c, p, contentLocation)
 	if err != nil {
 		return
 	}
@@ -331,6 +331,9 @@ func Home(c *context.Context) {
 	}
 	c.Data["RequireHighlightJS"] = true
 
+	//コンテンツロケーションの定義
+	var contentLocation string
+
 	branchLink := c.Repo.RepoLink + "/src/" + c.Repo.BranchName
 	treeLink := branchLink
 	rawLink := c.Repo.RepoLink + "/raw/" + c.Repo.BranchName
@@ -339,6 +342,8 @@ func Home(c *context.Context) {
 	if len(c.Repo.TreePath) > 0 {
 		treeLink += "/" + c.Repo.TreePath
 		log.Info("[Debug_1 Add treeLink] new path : %v, add path : %v", treeLink, c.Repo.TreePath)
+		temploc := &contentLocation
+		*temploc = c.Repo.RepoLink + "/" + c.Repo.BranchName + "/" + c.Repo.TreePath
 
 	} else {
 		isRootDir = true
@@ -368,7 +373,7 @@ func Home(c *context.Context) {
 	if entry.IsTree() {
 		renderDirectory(c, treeLink)
 	} else {
-		renderFile(c, entry, treeLink, rawLink)
+		renderFile(c, entry, treeLink, rawLink, contentLocation)
 	}
 	if c.Written() {
 		return
