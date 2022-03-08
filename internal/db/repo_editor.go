@@ -500,37 +500,37 @@ func isRepositoryGitPath(path string) bool {
 }
 
 //TODO：IPFSへアップロードしたLowerFilePathとコンテンツアドレスのMapを返す。
-func (repo *Repository) UploadRepoFiles(doer *User, opts UploadRepoFileOptions) (err error) {
+func (repo *Repository) UploadRepoFiles(doer *User, opts UploadRepoFileOptions) (contentMap map[string]string, err error) {
 
 	if len(opts.Files) == 0 {
 		log.Error("Error 1: %v", len(opts.Files))
-		return nil
+		return nil, nil
 	}
 
 	uploads, err := GetUploadsByUUIDs(opts.Files)
 	if err != nil {
-		return fmt.Errorf("get uploads by UUIDs[%v]: %v", opts.Files, err)
+		return nil, fmt.Errorf("get uploads by UUIDs[%v]: %v", opts.Files, err)
 	}
 
 	repoWorkingPool.CheckIn(com.ToStr(repo.ID))
 	defer repoWorkingPool.CheckOut(com.ToStr(repo.ID))
 
 	if err = repo.DiscardLocalRepoBranchChanges(opts.OldBranch); err != nil {
-		return fmt.Errorf("discard local repo branch[%s] changes: %v", opts.OldBranch, err)
+		return nil, fmt.Errorf("discard local repo branch[%s] changes: %v", opts.OldBranch, err)
 	} else if err = repo.UpdateLocalCopyBranch(opts.OldBranch); err != nil {
-		return fmt.Errorf("update local copy branch[%s]: %v", opts.OldBranch, err)
+		return nil, fmt.Errorf("update local copy branch[%s]: %v", opts.OldBranch, err)
 	}
 
 	if opts.OldBranch != opts.NewBranch {
 		if err = repo.CheckoutNewBranch(opts.OldBranch, opts.NewBranch); err != nil {
-			return fmt.Errorf("checkout new branch[%s] from old branch[%s]: %v", opts.NewBranch, opts.OldBranch, err)
+			return nil, fmt.Errorf("checkout new branch[%s] from old branch[%s]: %v", opts.NewBranch, opts.OldBranch, err)
 		}
 	}
 
 	localPath := repo.LocalCopyPath()
 	dirPath := path.Join(localPath, opts.TreePath)
 	if err = os.MkdirAll(dirPath, os.ModePerm); err != nil {
-		return err
+		return nil, err
 	}
 
 	// Copy uploaded files into repository
@@ -549,19 +549,19 @@ func (repo *Repository) UploadRepoFiles(doer *User, opts UploadRepoFileOptions) 
 		log.Info("[targetPath] dirPath : %v, upload.Name", dirPath, upload.Name)
 		// GIN: Create subdirectory for dirtree uploads
 		if err = os.MkdirAll(filepath.Dir(targetPath), os.ModePerm); err != nil {
-			return fmt.Errorf("mkdir: %v", err)
+			return nil, fmt.Errorf("mkdir: %v", err)
 		}
 		if err = com.Copy(tmpPath, targetPath); err != nil {
-			return fmt.Errorf("copy: %v", err)
+			return nil, fmt.Errorf("copy: %v", err)
 		}
 	}
 
 	annexSetup(localPath) // Initialise annex and set configuration (with add filter for filesizes)
 	annexAddRes := []annex_ipfs.AnnexAddResponse{}
 	if annexAddRes, err = annexAdd(localPath, true); err != nil {
-		return fmt.Errorf("git annex add: %v", err)
+		return nil, fmt.Errorf("git annex add: %v", err)
 	} else if err = git.RepoCommit(localPath, doer.NewGitSig(), opts.Message); err != nil {
-		return fmt.Errorf("commit changes on %q: %v", localPath, err)
+		return nil, fmt.Errorf("commit changes on %q: %v", localPath, err)
 	}
 
 	envs := ComposeHookEnvs(ComposeHookEnvsOptions{
@@ -573,19 +573,18 @@ func (repo *Repository) UploadRepoFiles(doer *User, opts UploadRepoFileOptions) 
 		RepoPath:  repo.RepoPath(),
 	})
 	if err = git.RepoPush(localPath, "origin", opts.NewBranch, git.PushOptions{Envs: envs}); err != nil {
-		return fmt.Errorf("git push origin %s: %v", opts.NewBranch, err)
+		return nil, fmt.Errorf("git push origin %s: %v", opts.NewBranch, err)
 	}
-	contentMap, err := annexUpload(opts.UpperRopoPath, localPath, "ipfs", annexAddRes)
+	contentMap, err = annexUpload(opts.UpperRopoPath, localPath, "ipfs", annexAddRes)
 	if err != nil { // Copy new files
-		return fmt.Errorf("annex copy %s: %v", localPath, err)
+		return nil, fmt.Errorf("annex copy %s: %v", localPath, err)
 	}
-	log.Info("[contentMap] %v", contentMap)
 	annexUninit(localPath) // Uninitialise annex to prepare for deletion
 	StartIndexing(*repo)   // Index the new data
 	//localPathのディレクトリの削除
 	if err := RemoveFilesFromLocalRepository(dirPath, uploads...); err != nil {
-		return err
+		return nil, err
 	}
 
-	return DeleteUploads(uploads...)
+	return contentMap, DeleteUploads(uploads...)
 }
