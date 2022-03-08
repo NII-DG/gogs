@@ -452,9 +452,6 @@ func UploadFile(c *context.Context) {
 }
 
 func UploadFilePost(c *context.Context, f form.UploadRepoFile) {
-	log.Info("[UserID] %v", c.UserID)
-	log.Info("[User] %v", c.User)
-
 	c.PageIs("Upload")
 	renderUploadSettings(c)
 
@@ -528,7 +525,7 @@ func UploadFilePost(c *context.Context, f form.UploadRepoFile) {
 		message += "\n\n" + f.CommitMessage
 	}
 	//第一戻り値をcontentMapにする
-	_, err := c.Repo.Repository.UploadRepoFiles(c.User, db.UploadRepoFileOptions{
+	contentMap, err := c.Repo.Repository.UploadRepoFiles(c.User, db.UploadRepoFileOptions{
 		LastCommitID:  c.Repo.CommitID,
 		OldBranch:     oldBranchName,
 		NewBranch:     branchName,
@@ -544,6 +541,9 @@ func UploadFilePost(c *context.Context, f form.UploadRepoFile) {
 		return
 	}
 	//アップロードしたコンテンツをBC登録
+	userCode := c.User.Name
+	log.Info("[contentMap] %v", contentMap)
+	log.Info("[userCode] %v", userCode)
 
 	if f.IsNewBrnach() && c.Repo.PullRequest.Allowed {
 		c.Redirect(c.Repo.PullRequestURL(oldBranchName, f.NewBranchName))
