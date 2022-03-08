@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"regexp"
 	"unsafe"
-
-	logv2 "unknwon.dev/clog/v2"
 )
 
 //git annex add --to --jsonの構造体
@@ -20,8 +18,7 @@ type AnnexAddResponse struct {
 
 func GetAnnexAddInfo(rawJson *[]byte) ([]AnnexAddResponse, error) {
 	reg := "\r\n|\n"
-	strMsg := *(*string)(unsafe.Pointer(rawJson)) //[]byte to string
-	logv2.Trace("[strMsg] %v", strMsg)
+	strMsg := *(*string)(unsafe.Pointer(rawJson))            //[]byte to string
 	splitByline := regexp.MustCompile(reg).Split(strMsg, -1) //改行分割
 	strJson := "["
 	for index := 0; index < len(splitByline)-1; index++ {
@@ -33,7 +30,6 @@ func GetAnnexAddInfo(rawJson *[]byte) ([]AnnexAddResponse, error) {
 			strJson = strJson + ","
 		}
 	}
-	logv2.Trace("[strJson] %v", strJson)
 	byteJson := []byte(strJson)
 	var data []AnnexAddResponse
 	if err := json.Unmarshal(byteJson, &data); err != nil {

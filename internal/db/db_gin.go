@@ -171,7 +171,6 @@ func annexAdd(repoPath string, all bool, files ...string) ([]annex_ipfs.AnnexAdd
 		cmd.AddArgs(".")
 	}
 	msg, err := cmd.AddArgs(files...).RunInDir(repoPath)
-	logv2.Info("[AnnexAdd] msg : %s, err : %v", msg, err)
 	if err == nil {
 		reslist, err := annex_ipfs.GetAnnexAddInfo(&msg)
 		if err != nil {
@@ -214,38 +213,37 @@ func annexUpload(upperpath, repoPath, remote string, annexAddRes []annex_ipfs.An
 	logv2.Info("[Uploading annexed data to %v] path : %v", remote, repoPath)
 	for _, content := range annexAddRes {
 		cmd := git.NewCommand("annex", "copy", "--to", remote, "--key", content.Key)
-		if msg, err := cmd.RunInDir(repoPath); err != nil {
+		if _, err := cmd.RunInDir(repoPath); err != nil {
 			return nil, fmt.Errorf("[Failure git annex copy to %v] err : %v ,fromPath : %v", remote, err, repoPath)
 		} else {
-			logv2.Info("[Success copy to ipfs] msg : %s, fromPath : %v", msg, repoPath)
+			logv2.Info("[Success copy to ipfs] fromPath : %v", repoPath)
 		}
 	}
 
 	//コンテンツアドレスの取得
-	logv2.Info("[git annex whereis1-2] path : %v", repoPath)
 	for _, content := range annexAddRes {
 		if msgWhereis, err := git.NewCommand("annex", "whereis", "--json", "--key", content.Key).RunInDir(repoPath); err != nil {
 			logv2.Error("[git annex whereis Error] err : %v", err)
 		} else {
-			logv2.Trace("[git annes whereis Info] msg : %s", msgWhereis)
 			contentInfo, err := annex_ipfs.GetAnnexContentInfo(&msgWhereis)
 			if err != nil {
 				return nil, fmt.Errorf("[JSON Convert] err : %v ,fromPath : %v", err, repoPath)
 			}
 			contentLocation := upperpath + "/" + content.File
-			logv2.Trace("[contentLocation] %v", contentLocation)
 			contentMap[contentLocation] = contentInfo.Hash
 		}
-
+	}
+	//IPFSへアップロードしたコンテンツロケーションを表示
+	for k := range contentMap {
+		logv2.Info("[Upload to IPFS] file : %v", k)
 	}
 
 	//リモートと同期（メタデータを更新）
 	log.Info("Synchronising annex info : %v", repoPath)
 	if msg, err := git.NewCommand("annex", "sync").RunInDir(repoPath); err != nil {
-		logv2.Error("[Failure git-annex sync] err : %v, msg : %s", err, msg)
 		return nil, fmt.Errorf("[Failure git-annex sync] err : %v, msg : %s", err, msg)
 	} else {
-		logv2.Info("[Success git-annex sync] msg : %s", msg)
+		logv2.Info("[Success git-annex sync] path : %v", repoPath)
 	}
 
 	return contentMap, nil
