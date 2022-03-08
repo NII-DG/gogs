@@ -14,6 +14,7 @@ import (
 
 	log "unknwon.dev/clog/v2"
 
+	"github.com/ivis-yoshida/gogs/internal/bcapi"
 	"github.com/ivis-yoshida/gogs/internal/conf"
 	"github.com/ivis-yoshida/gogs/internal/context"
 	"github.com/ivis-yoshida/gogs/internal/db"
@@ -541,15 +542,20 @@ func UploadFilePost(c *context.Context, f form.UploadRepoFile) {
 		return
 	}
 	//アップロードしたコンテンツをBC登録
-	userCode := c.User.Name
-	log.Info("[contentMap] %v", contentMap)
-	log.Info("[userCode] %v", userCode)
+	httpErr := bcapi.CreateContentHistory(c.User.Name, contentMap)
+	if httpErr != nil {
+		log.Error("[HTTP ERROR Create Content Hsitory] %v", httpErr)
+	}
 
 	if f.IsNewBrnach() && c.Repo.PullRequest.Allowed {
 		c.Redirect(c.Repo.PullRequestURL(oldBranchName, f.NewBranchName))
 	} else {
 		c.Redirect(c.Repo.RepoLink + "/src/" + branchName + "/" + f.TreePath)
 	}
+}
+
+func createContentHistory() {
+	panic("unimplemented")
 }
 
 func UploadFileToServer(c *context.Context) {

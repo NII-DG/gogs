@@ -20,7 +20,7 @@ type ReqCreateContentHistory struct {
 }
 
 //[POST] /createContentHistory
-func createContentHistory(user_code string, contentMap map[string]string) error {
+func CreateContentHistory(user_code string, contentMap map[string]string) error {
 	//登録日時の取得
 	now := time.Now()
 	//リクエストボディ定義
