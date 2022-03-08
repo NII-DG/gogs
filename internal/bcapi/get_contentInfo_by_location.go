@@ -17,7 +17,7 @@ type ResContentInfo struct {
 }
 
 //[GET] /getContentInfoByLocation
-func getContentInfoByLocation(userCode, fileLocation string) (ResContentInfo, error) {
+func GetContentInfoByLocation(userCode, fileLocation string) (ResContentInfo, error) {
 	//リクエスト生成
 	req, _ := createNewRequest(http.MethodGet, API_URL_GET_CONTENT_INFO_BY_LOCATION, nil)
 	//ヘッダー設定

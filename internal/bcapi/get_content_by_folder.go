@@ -20,7 +20,7 @@ type ResContentsInFolder struct {
 }
 
 //[GET] /getContentByFolder
-func getContentByFolder(userCode, folderPath string) (ResContentsInFolder, error) {
+func GetContentByFolder(userCode, folderPath string) (ResContentsInFolder, error) {
 	//リクエスト生成
 	req, _ := createNewRequest(http.MethodGet, API_URL_GET_CONTENT_BY_FOLDER, nil)
 	//ヘッダー設定

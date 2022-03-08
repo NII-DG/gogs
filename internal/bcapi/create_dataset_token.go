@@ -38,7 +38,7 @@ type ResNotCreateDatasetToken struct {
 }
 
 //[POST] /createDatasetToken
-func createDatasetToken(user_code string, contentMap map[string]Dataset) (ResNotCreateDatasetToken, error) {
+func CreateDatasetToken(user_code string, contentMap map[string]Dataset) (ResNotCreateDatasetToken, error) {
 	//登録日時の取得
 	now := time.Now()
 	//リクエストボディ定義
