@@ -140,9 +140,9 @@ func annexSetup(path string) {
 
 	// Set size filter in config
 	//large fileのサイズを定義する（不要）
-	// if msg, err := annex.SetAnnexSizeFilter(path, conf.Repository.Upload.AnnexFileMinSize*annex.MEGABYTE); err != nil {
-	// 	logv2.Error("Failed to set size filter for annex: %v (%s)", err, msg)
-	// }
+	if msg, err := annex.SetAnnexSizeFilter(path, conf.Repository.Upload.AnnexFileMinSize*annex.MEGABYTE); err != nil {
+		logv2.Error("Failed to set size filter for annex: %v (%s)", err, msg)
+	}
 
 	//Setting initremote ipfs
 	if msg, err := setRemoteIPFS(path); err != nil {

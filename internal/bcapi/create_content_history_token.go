@@ -6,6 +6,10 @@ import (
 	"io/ioutil"
 	"net/http"
 	"time"
+
+	logv2 "unknwon.dev/clog/v2"
+
+	"github.com/ivis-yoshida/gogs/internal/conf"
 )
 
 var API_URL_CREATE_CONTENT_HISTORY_TOKEN = "createContentHistoryToken"
@@ -42,6 +46,8 @@ func CreateContentHistory(user_code string, contentMap map[string]string) error 
 	//ヘッダー設定
 	req.Header.Set("Authorization", "token")
 	req.Header.Set("Content-Type", "application/json")
+	logv2.Info("[conf.BcApiServer.ServerURL] %v", conf.BcApiServer.ServerURL)
+	logv2.Info("[conf.BcApiServer.Token] %v", conf.BcApiServer.Token)
 
 	//通信実行
 	client := new(http.Client)

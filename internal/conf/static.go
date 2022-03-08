@@ -33,6 +33,12 @@ var CustomConf string
 // ⚠️ WARNING: After changing the following section, do not forget to update template of
 // "/admin/config" page as well.
 var (
+	//BCAPI server settings
+	BcApiServer struct {
+		ServerURL string `ini:"BCAPI_SERVER_URL"`
+		Token     string `ini:"BCAPI_TOKEN"`
+	}
+
 	// Application settings
 	App struct {
 		// ⚠️ WARNING: Should only be set by the main package (i.e. "gogs.go").
