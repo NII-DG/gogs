@@ -176,6 +176,10 @@ func annexAdd(repoPath string, all bool, files ...string) ([]annex_ipfs.AnnexAdd
 		if err != nil {
 			return nil, fmt.Errorf("[Annex Add Json Error]: %v", err)
 		}
+		for _, i := range reslist {
+			logv2.Info("[] %v", i.File)
+			logv2.Info("[] %v", i.Key)
+		}
 		return reslist, nil
 	}
 	return nil, err
