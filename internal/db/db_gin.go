@@ -232,7 +232,9 @@ func annexUpload(upperpath, repoPath, remote string, annexAddRes []annex_ipfs.An
 			if err != nil {
 				return nil, fmt.Errorf("[JSON Convert] err : %v ,fromPath : %v", err, repoPath)
 			}
-			contentMap[upperpath+content.File] = contentInfo.Hash
+			contentLocation := upperpath + "/" + content.File
+			logv2.Trace("[contentLocation] %v", contentLocation)
+			contentMap[contentLocation] = contentInfo.Hash
 		}
 
 	}
