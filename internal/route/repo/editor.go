@@ -525,8 +525,8 @@ func UploadFilePost(c *context.Context, f form.UploadRepoFile) {
 	if len(f.CommitMessage) > 0 {
 		message += "\n\n" + f.CommitMessage
 	}
-
-	if err := c.Repo.Repository.UploadRepoFiles(c.User, db.UploadRepoFileOptions{
+	//第一戻り値をcontentMapにする
+	_, err := c.Repo.Repository.UploadRepoFiles(c.User, db.UploadRepoFileOptions{
 		LastCommitID:  c.Repo.CommitID,
 		OldBranch:     oldBranchName,
 		NewBranch:     branchName,
@@ -534,12 +534,14 @@ func UploadFilePost(c *context.Context, f form.UploadRepoFile) {
 		Message:       message,
 		Files:         f.Files,
 		UpperRopoPath: c.Repo.RepoLink + "/" + branchName,
-	}); err != nil {
+	})
+	if err != nil {
 		log.Error("Failed to upload files: %v", err)
 		c.FormErr("TreePath")
 		c.RenderWithErr(c.Tr("repo.editor.unable_to_upload_files", f.TreePath, errors.InternalServerError), tmplEditorUpload, &f)
 		return
 	}
+	//アップロードしたコンテンツをBC登録
 
 	if f.IsNewBrnach() && c.Repo.PullRequest.Allowed {
 		c.Redirect(c.Repo.PullRequestURL(oldBranchName, f.NewBranchName))
