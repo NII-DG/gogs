@@ -212,6 +212,7 @@ func annexUpload(upperpath, repoPath, remote string, annexAddRes []annex_ipfs.An
 	//ipfsへ実データをコピーする。
 	logv2.Info("[Uploading annexed data to %v] path : %v", remote, repoPath)
 	for _, content := range annexAddRes {
+		logv2.Info("[key] %v", content.Key)
 		cmd := git.NewCommand("annex", "copy", "--to", remote, "--key", content.Key)
 		if _, err := cmd.RunInDir(repoPath); err != nil {
 			return nil, fmt.Errorf("[Failure git annex copy to %v] err : %v ,fromPath : %v", remote, err, repoPath)
