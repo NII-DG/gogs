@@ -452,6 +452,8 @@ func UploadFile(c *context.Context) {
 }
 
 func UploadFilePost(c *context.Context, f form.UploadRepoFile) {
+	log.Info("[UserID] %v", c.UserID)
+	log.Info("[User] %v", c.User)
 
 	c.PageIs("Upload")
 	renderUploadSettings(c)
