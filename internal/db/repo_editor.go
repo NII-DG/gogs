@@ -534,6 +534,9 @@ func (repo *Repository) UploadRepoFiles(doer *User, opts UploadRepoFileOptions) 
 
 	localPath := repo.LocalCopyPath()
 	dirPath := path.Join(localPath, opts.TreePath)
+	log.Info("[localPath]%v", localPath)
+	log.Info("[opts.TreePath]%v", opts.TreePath)
+	log.Info("[dirPath]%v", dirPath)
 	if err = os.MkdirAll(dirPath, os.ModePerm); err != nil {
 		return nil, err
 	}
