@@ -379,19 +379,20 @@ var (
 		RSAHostKey string
 	}
 
-	// BcApiServer struct {
-	// 	ServerURL string `ini:"bcapi.BCAPI_SERVER_URL"`
-	// 	Token     string `ini:"bcapi.BCAPI_TOKEN"`
-	// }
+	//BCAPI server settings
+	BcApiServer struct {
+		ServerURL string `ini:"bcapi.BCAPI_SERVER_URL"`
+		Token     string `ini:"bcapi.BCAPI_TOKEN"`
+	}
 )
 
 //BCAPI server settings
-type BcApiServerOpts struct {
-	ServerURL string `ini:"bcapi.BCAPI_SERVER_URL"`
-	Token     string `ini:"bcapi.BCAPI_TOKEN"`
-}
+// type BcApiServerOpts struct {
+// 	ServerURL string `ini:"bcapi.BCAPI_SERVER_URL"`
+// 	Token     string `ini:"bcapi.BCAPI_TOKEN"`
+// }
 
-var BcApiServer BcApiServerOpts
+// var BcApiServer BcApiServerOpts
 
 type ServerOpts struct {
 	ExternalURL          string `ini:"EXTERNAL_URL"`
