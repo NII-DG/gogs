@@ -192,6 +192,13 @@ func Init(customConf string) error {
 	Database.Path = ensureAbs(Database.Path)
 
 	// *****************************
+	// ------ BC-API settings ------
+	// *****************************
+	if err = File.Section("bcapi").MapTo(&BcApiServer); err != nil {
+		return errors.Wrap(err, "mapping [bcapi] section")
+	}
+
+	// *****************************
 	// ----- Security settings -----
 	// *****************************
 
