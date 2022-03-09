@@ -40,6 +40,7 @@ import (
 	"github.com/ivis-yoshida/gogs/internal/route"
 	"github.com/ivis-yoshida/gogs/internal/route/admin"
 	apiv1 "github.com/ivis-yoshida/gogs/internal/route/api/v1"
+	"github.com/ivis-yoshida/gogs/internal/route/dataset"
 	"github.com/ivis-yoshida/gogs/internal/route/dev"
 	"github.com/ivis-yoshida/gogs/internal/route/lfs"
 	"github.com/ivis-yoshida/gogs/internal/route/org"
@@ -622,10 +623,14 @@ func runWeb(c *cli.Context) error {
 				m.Get("/commits/*", repo.RefCommits)
 				m.Get("/commit/:sha([a-f0-9]{7,40})$", repo.Diff)
 				m.Get("/forks", repo.Forks)
+				//dataset登録
+				m.Post("/dataset", bindIgnErr(form.DatasetFrom{}), dataset.CreateDataset)
+
 			}, repo.MustBeNotBare, context.RepoRef())
 			m.Get("/commit/:sha([a-f0-9]{7,40})\\.:ext(patch|diff)", repo.MustBeNotBare, repo.RawDiff)
 
 			m.Get("/compare/:before([a-z0-9]{40})\\.\\.\\.:after([a-z0-9]{40})", repo.MustBeNotBare, context.RepoRef(), repo.CompareDiff)
+
 		}, ignSignIn, context.RepoAssignment())
 		m.Group("/:username/:reponame", func() {
 			m.Get("", context.ServeGoGet(), repo.Home)
