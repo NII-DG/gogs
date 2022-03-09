@@ -94,6 +94,12 @@ func getRepoDOI(c *Context) string {
 	return doiBase + uuid[:6]
 }
 
+// This "HasFileInRepo" due to the effect of placing the test code
+// in the "context_test" package to avoid cyclicError in the unit test.
+func HasFileInRepo(c AbstructContext, filePath string) bool {
+	return hasFileInRepo(c, filePath)
+}
+
 // hasFileInRepo is RCOS specific code.
 // This returns 'true' if a repository includes a file with the name given as an argument.
 // Used by context.RepoAssignment.

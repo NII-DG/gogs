@@ -115,26 +115,25 @@ func generateMaDmp(c context.AbstructContext, f AbstructRepoUtil) {
 	if err != nil {
 		log.Error(2, "maDMP blob could not be decorded: %v", err)
 
-		failedGenereteMaDmp(c, "Sorry, faild gerate maDMP: fetching template failed")
+		f.FailedGenereteMaDmp(c, "Sorry, faild gerate maDMP: fetching template failed")
 		return
 	}
 
-	// コード付帯機能の起動時間短縮のための暫定的な定義
-	fetchDockerfile(c)
+	FetchDockerfile(c)
 
 	// ユーザが作成したDMP情報取得
 	entry, err := c.GetRepo().GetCommit().Blob("/dmp.json")
 	if err != nil || entry == nil {
 		log.Error(2, "dmp.json blob could not be retrieved: %v", err)
 
-		failedGenereteMaDmp(c, "Sorry, faild gerate maDMP: DMP could not read")
+		f.FailedGenereteMaDmp(c, "Sorry, faild gerate maDMP: DMP could not read")
 		return
 	}
 	buf, err := entry.Bytes()
 	if err != nil {
 		log.Error(2, "dmp.json data could not be read: %v", err)
 
-		failedGenereteMaDmp(c, "Sorry, faild gerate maDMP: DMP could not read")
+		f.FailedGenereteMaDmp(c, "Sorry, faild gerate maDMP: DMP could not read")
 		return
 	}
 
@@ -143,7 +142,7 @@ func generateMaDmp(c context.AbstructContext, f AbstructRepoUtil) {
 	if err != nil {
 		log.Error(2, "Unmarshal DMP info: %v", err)
 
-		failedGenereteMaDmp(c, "Sorry, faild gerate maDMP: DMP could not read")
+		f.FailedGenereteMaDmp(c, "Sorry, faild gerate maDMP: DMP could not read")
 		return
 	}
 
@@ -180,7 +179,7 @@ func generateMaDmp(c context.AbstructContext, f AbstructRepoUtil) {
 	if err != nil {
 		log.Error(2, "failed generating maDMP: %v", err)
 
-		failedGenereteMaDmp(c, "Faild gerate maDMP: Already exist")
+		f.FailedGenereteMaDmp(c, "Faild gerate maDMP: Already exist")
 		return
 	}
 
@@ -202,6 +201,7 @@ func (ds decodeStringer) DecodeString(s string) ([]byte, error) {
 type AbstructRepoUtil interface {
 	FetchContentsOnGithub(blobPath string) ([]byte, error)
 	DecodeBlobContent(blobInfo []byte) (string, error)
+	FailedGenereteMaDmp(c context.AbstructContext, msg string)
 }
 
 type repoUtil func()
@@ -269,28 +269,35 @@ func (f repoUtil) decodeBlobContent(blobInfo []byte, ds DecodeStringer) (string,
 // failedGenerateMaDmp is RCOS specific code.
 // This is a function used by GenerateMaDmp to emit an error message
 // on UI when maDMP generation fails.
-func failedGenereteMaDmp(c context.AbstructContext, msg string) {
+func (f repoUtil) FailedGenereteMaDmp(c context.AbstructContext, msg string) {
 	c.GetFlash().Error(msg)
 	c.Redirect(c.GetRepo().GetRepoLink())
 }
 
+func FetchDockerfile(c context.AbstructContext) {
+	var f repoUtil
+	fetchDockerfile(c, f)
+}
+
 // fetchDockerfile is RCOS specific code.
 // This fetches the Dockerfile used when launching Binderhub.
-func fetchDockerfile(c context.AbstructContext) {
+func fetchDockerfile(c context.AbstructContext, f AbstructRepoUtil) {
 	// コード付帯機能の起動時間短縮のための暫定的な定義
 	dockerfileUrl := getTemplateUrl() + "Dockerfile"
 
-	var f repoUtil
 	src, err := f.FetchContentsOnGithub(dockerfileUrl)
 	if err != nil {
 		log.Error(2, "Dockerfile could not be fetched: %v", err)
+
+		f.FailedGenereteMaDmp(c, "Sorry, faild gerate maDMP: fetching template failed(Dockerfile)")
+		return
 	}
 
 	decodedDockerfile, err := f.DecodeBlobContent(src)
 	if err != nil {
 		log.Error(2, "Dockerfile could not be decorded: %v", err)
 
-		failedGenereteMaDmp(c, "Sorry, faild gerate maDMP: fetching template failed(Dockerfile)")
+		f.FailedGenereteMaDmp(c, "Sorry, faild gerate maDMP: fetching template failed(Dockerfile)")
 		return
 	}
 
