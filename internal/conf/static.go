@@ -381,8 +381,8 @@ var (
 
 	//BCAPI server settings
 	BcApiServer struct {
-		ServerURL string `ini:"bcapi.BCAPI_SERVER_URL"`
-		Token     string `ini:"bcapi.BCAPI_TOKEN"`
+		ServerURL string `ini:"BCAPI_SERVER_URL"`
+		Token     string `ini:"BCAPI_TOKEN"`
 	}
 )
 
