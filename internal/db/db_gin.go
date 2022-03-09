@@ -237,7 +237,7 @@ func annexUpload(upperpath, repoPath, remote string, annexAddRes []annex_ipfs.An
 	//IPFSへアップロードしたコンテンツロケーションを表示
 	index := 1
 	for k := range contentMap {
-		logv2.Info("[Upload to IPFS] No.%vfile : %v", index, k)
+		logv2.Info("[Upload to IPFS] No.%v, file : %v", index, k)
 		upload_No := &index
 		*upload_No++
 	}
