@@ -177,10 +177,6 @@ func annexAdd(repoPath string, all bool, files ...string) ([]annex_ipfs.AnnexAdd
 		if err != nil {
 			return nil, fmt.Errorf("[Annex Add Json Error]: %v", err)
 		}
-		for _, i := range reslist {
-			logv2.Info("[name] %v", i.File)
-			logv2.Info("[key] %v", i.Key)
-		}
 		return reslist, nil
 	}
 	return nil, err
@@ -217,7 +213,6 @@ func annexUpload(upperpath, repoPath, remote string, annexAddRes []annex_ipfs.An
 	//ipfsへ実データをコピーする。
 	logv2.Info("[Uploading annexed data to %v] path : %v", remote, repoPath)
 	for _, content := range annexAddRes {
-		logv2.Info("[key] %v", content.Key)
 		cmd := git.NewCommand("annex", "copy", "--to", remote, "--key", content.Key)
 		if _, err := cmd.RunInDir(repoPath); err != nil {
 			return nil, fmt.Errorf("[Failure git annex copy to %v] err : %v ,fromPath : %v", remote, err, repoPath)
@@ -240,8 +235,11 @@ func annexUpload(upperpath, repoPath, remote string, annexAddRes []annex_ipfs.An
 		}
 	}
 	//IPFSへアップロードしたコンテンツロケーションを表示
+	index := 1
 	for k := range contentMap {
-		logv2.Info("[Upload to IPFS] file : %v", k)
+		logv2.Info("[Upload to IPFS] No.%vfile : %v", index, k)
+		upload_No := &index
+		*upload_No++
 	}
 
 	//リモートと同期（メタデータを更新）
