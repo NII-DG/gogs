@@ -386,14 +386,6 @@ var (
 	}
 )
 
-//BCAPI server settings
-// type BcApiServerOpts struct {
-// 	ServerURL string `ini:"bcapi.BCAPI_SERVER_URL"`
-// 	Token     string `ini:"bcapi.BCAPI_TOKEN"`
-// }
-
-// var BcApiServer BcApiServerOpts
-
 type ServerOpts struct {
 	ExternalURL          string `ini:"EXTERNAL_URL"`
 	Domain               string

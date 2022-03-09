@@ -3,13 +3,13 @@ package bcapi
 import (
 	"bytes"
 	"net/http"
-)
 
-var ServerPath string = "http://localhost8080/"
+	"github.com/ivis-yoshida/gogs/internal/conf"
+)
 
 func createNewRequest(httpMethod, urlPath string, reqBody []byte) (*http.Request, error) {
 
-	fullUrl := ServerPath + urlPath
+	fullUrl := conf.BcApiServer.ServerURL + urlPath
 	if reqBody != nil {
 		return http.NewRequest(httpMethod, fullUrl, bytes.NewReader(reqBody))
 	} else {
