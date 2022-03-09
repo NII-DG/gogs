@@ -425,6 +425,7 @@ func DeleteUploads(uploads ...*Upload) (err error) {
 //新規にアップロードしたファイルのみ削除になる。前回までのアップロードされたファイルも削除する必要がある。
 //dirPath内のあるファイルおよび、ディレクトリ名を取得した後、削除する。
 func RemoveFilesFromLocalRepository(dirPath string, uploads ...*Upload) (err error) {
+	log.Info("[Deleting Upload Files or directory From Local Repository]")
 	if len(uploads) == 0 {
 		return nil
 	}

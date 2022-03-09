@@ -4,8 +4,7 @@ import (
 	"encoding/json"
 	"regexp"
 	"unsafe"
-
-	logv2 "unknwon.dev/clog/v2"
+	//logv2 "unknwon.dev/clog/v2"
 )
 
 //git annex add --to --jsonの構造体
@@ -32,7 +31,6 @@ func GetAnnexAddInfo(rawJson *[]byte) ([]AnnexAddResponse, error) {
 			strJson = strJson + ","
 		}
 	}
-	logv2.Info("[strJson] %v", strJson)
 	byteJson := []byte(strJson)
 	var data []AnnexAddResponse
 	if err := json.Unmarshal(byteJson, &data); err != nil {

@@ -115,16 +115,16 @@ func annexSetup(path string) {
 
 	// Initialise annex in case it's a new repository
 
-	if msg, err := annex.Init(path); err != nil {
-		logv2.Error("[Annex init failed] err : %v, msg : %s", err, msg)
+	if _, err := annex.Init(path); err != nil {
+		logv2.Error("[Annex init failed] path : %v, err : %v", path, err)
 		return
 	} else {
-		logv2.Info("[Annex init Success] err : %v, msg : %s", err, msg)
+		logv2.Info("[Annex init Success] path : %v", path)
 	}
 
 	// Upgrade to v8 in case the directory was here before and wasn't cleaned up properly
 	if msg, err := annex.Upgrade(path); err != nil {
-		log.Error(2, "Annex upgrade failed: %v (%s)", err, msg)
+		logv2.Error("Annex upgrade failed: %v (%s)", err, msg)
 		return
 	}
 
@@ -146,9 +146,11 @@ func annexSetup(path string) {
 	//conf.Repository.Upload.AnnexFileMinSize * annex.MEGABYTE
 
 	//Setting initremote ipfs
-	if msg, err := setRemoteIPFS(path); err != nil {
-		log.Error(2, "Annex initremote ipfs failed: %v (%s)", err, msg)
+	if err := setRemoteIPFS(path); err != nil {
+		logv2.Error("[Failure Initremoto IPFS] path : %v,  error : %v", path, err)
 		return
+	} else {
+		logv2.Info("[Initremoto IPFS] path : %v", path)
 	}
 }
 
@@ -157,12 +159,11 @@ UPDATE : 2022/02/01
 AUTHOR : dai.tsukioka
 NOTE : Setting initremote ipfs
 */
-func setRemoteIPFS(path string) ([]byte, error) {
+func setRemoteIPFS(path string) error {
 	cmd := git.NewCommand("annex", "initremote")
 	cmd.AddArgs("ipfs", "type=external", "externaltype=ipfs", "encryption=none")
-	msg, err := cmd.RunInDir(path)
-	logv2.Info("[Initremoto IPFS] path : %v, msg : %s, error : %v", path, msg, err)
-	return msg, err
+	_, err := cmd.RunInDir(path)
+	return err
 }
 
 //ToDo :upploadFileMap(map)にKeyを追加する。
@@ -216,8 +217,6 @@ func annexUpload(upperpath, repoPath, remote string, annexAddRes []annex_ipfs.An
 		cmd := git.NewCommand("annex", "copy", "--to", remote, "--key", content.Key)
 		if _, err := cmd.RunInDir(repoPath); err != nil {
 			return nil, fmt.Errorf("[Failure git annex copy to %v] err : %v ,fromPath : %v", remote, err, repoPath)
-		} else {
-			logv2.Info("[Success copy to ipfs] fromPath : %v", repoPath)
 		}
 	}
 
@@ -237,7 +236,7 @@ func annexUpload(upperpath, repoPath, remote string, annexAddRes []annex_ipfs.An
 	//IPFSへアップロードしたコンテンツロケーションを表示
 	index := 1
 	for k := range contentMap {
-		logv2.Info("[Upload to IPFS] No.%v, file : %v", index, k)
+		logv2.Info("[Upload to IPFS] No.%v file : %v", index, k)
 		upload_No := &index
 		*upload_No++
 	}

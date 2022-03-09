@@ -525,7 +525,7 @@ func UploadFilePost(c *context.Context, f form.UploadRepoFile) {
 	if len(f.CommitMessage) > 0 {
 		message += "\n\n" + f.CommitMessage
 	}
-	//第一戻り値をcontentMapにする
+
 	contentMap, err := c.Repo.Repository.UploadRepoFiles(c.User, db.UploadRepoFileOptions{
 		LastCommitID:  c.Repo.CommitID,
 		OldBranch:     oldBranchName,
