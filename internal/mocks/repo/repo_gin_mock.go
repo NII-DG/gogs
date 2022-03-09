@@ -8,7 +8,46 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
+	context "github.com/ivis-yoshida/gogs/internal/context"
 )
+
+// MockDecodeStringer is a mock of DecodeStringer interface.
+type MockDecodeStringer struct {
+	ctrl     *gomock.Controller
+	recorder *MockDecodeStringerMockRecorder
+}
+
+// MockDecodeStringerMockRecorder is the mock recorder for MockDecodeStringer.
+type MockDecodeStringerMockRecorder struct {
+	mock *MockDecodeStringer
+}
+
+// NewMockDecodeStringer creates a new mock instance.
+func NewMockDecodeStringer(ctrl *gomock.Controller) *MockDecodeStringer {
+	mock := &MockDecodeStringer{ctrl: ctrl}
+	mock.recorder = &MockDecodeStringerMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockDecodeStringer) EXPECT() *MockDecodeStringerMockRecorder {
+	return m.recorder
+}
+
+// DecodeString mocks base method.
+func (m *MockDecodeStringer) DecodeString(s string) ([]byte, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DecodeString", s)
+	ret0, _ := ret[0].([]byte)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DecodeString indicates an expected call of DecodeString.
+func (mr *MockDecodeStringerMockRecorder) DecodeString(s interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DecodeString", reflect.TypeOf((*MockDecodeStringer)(nil).DecodeString), s)
+}
 
 // MockAbstructRepoUtil is a mock of AbstructRepoUtil interface.
 type MockAbstructRepoUtil struct {
@@ -46,6 +85,18 @@ func (m *MockAbstructRepoUtil) DecodeBlobContent(blobInfo []byte) (string, error
 func (mr *MockAbstructRepoUtilMockRecorder) DecodeBlobContent(blobInfo interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DecodeBlobContent", reflect.TypeOf((*MockAbstructRepoUtil)(nil).DecodeBlobContent), blobInfo)
+}
+
+// FailedGenereteMaDmp mocks base method.
+func (m *MockAbstructRepoUtil) FailedGenereteMaDmp(c context.AbstructContext, msg string) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "FailedGenereteMaDmp", c, msg)
+}
+
+// FailedGenereteMaDmp indicates an expected call of FailedGenereteMaDmp.
+func (mr *MockAbstructRepoUtilMockRecorder) FailedGenereteMaDmp(c, msg interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FailedGenereteMaDmp", reflect.TypeOf((*MockAbstructRepoUtil)(nil).FailedGenereteMaDmp), c, msg)
 }
 
 // FetchContentsOnGithub mocks base method.
