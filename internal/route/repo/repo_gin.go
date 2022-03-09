@@ -242,30 +242,22 @@ func resolveAnnexedContent(c *context.Context, buf []byte, contentLocation strin
 	repoPath := c.Repo.Repository.RepoPath()
 
 	//IPFSの所在確認（デバック用）
-	logv2.Info("[git annex whereis 2-1] path : %v", repoPath)
-	if msg, err := git.NewCommand("annex", "whereis").RunInDir(repoPath); err != nil {
-		logv2.Error("[git annex whereis Error] err : %v", err)
-	} else {
-		logv2.Info("[git annes whereis Info] msg : %s", msg)
-	}
+	// logv2.Info("[git annex whereis 2-1] path : %v", repoPath)
+	// if msg, err := git.NewCommand("annex", "whereis").RunInDir(repoPath); err != nil {
+	// 	logv2.Error("[git annex whereis Error] err : %v", err)
+	// } else {
+	// 	logv2.Info("[git annes whereis Info] msg : %s", msg)
+	// }
 
 	//ベアレポジトリをIPFSへ連携
-	if msg, err := git.NewCommand("annex", "enableremote", "ipfs").RunInDir(repoPath); err != nil {
+	if _, err := git.NewCommand("annex", "enableremote", "ipfs").RunInDir(repoPath); err != nil {
 		logv2.Error("[Failure enable remote(ipfs)] err : %v, repoPath : %v", err, repoPath)
 	} else {
-		logv2.Info("[Success enable remote(ipfs)] msg : %s, repoPath : %v", msg, repoPath)
+		logv2.Info("[Success enable remote(ipfs)] repoPath : %v", repoPath)
 	}
 
 	keyparts := strings.Split(strings.TrimSpace(string(buf)), "/")
 	key := keyparts[len(keyparts)-1]
-
-	//IPFSの所在確認（デバック用）
-	logv2.Info("[git annex whereis2-2] path : %v", repoPath)
-	if msg, err := git.NewCommand("annex", "whereis", "--key", key).RunInDir(repoPath); err != nil {
-		logv2.Error("[git annex whereis Error] err : %v", err)
-	} else {
-		logv2.Info("[git annes whereis Info] msg : %s", msg)
-	}
 
 	addressByAnnex, err := GetIpfsHashValueByAnnexKey(key, repoPath)
 	if err != nil {
@@ -289,15 +281,15 @@ func resolveAnnexedContent(c *context.Context, buf []byte, contentLocation strin
 	}
 
 	//ipfsからオブジェクトを取得
-	if msg, err := git.NewCommand("annex", "copy", "--from", "ipfs", "--key", key).RunInDir(repoPath); err != nil {
+	if _, err := git.NewCommand("annex", "copy", "--from", "ipfs", "--key", key).RunInDir(repoPath); err != nil {
 		logv2.Error("[Failure copy dataObject from ipfs] err : %v, repoPath : %v", err, repoPath)
 	} else {
-		logv2.Info("[Success copy dataObject from ipfs] msg : %s, repoPath : %v", msg, repoPath)
+		logv2.Info("[Success copy dataObject from ipfs] key : %s, repoPath : %v, contentlocation", key, repoPath, contentLocation)
 	}
 
 	contentPath, err := git.NewCommand("annex", "contentlocation", key).RunInDir(repoPath)
 	if err != nil {
-		logv2.Error("[Log_2] Failed to find content location for key %q, err : %v", key, err)
+		logv2.Error("Failed to find content location for key %q, err : %v", key, err)
 		c.Data["IsAnnexedFile"] = true
 		return buf, err
 	}
