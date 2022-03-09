@@ -650,6 +650,11 @@ func (repo *Repository) UpdateLocalCopyBranch(branch string) error {
 	return UpdateLocalCopyBranch(repo.RepoPath(), repo.LocalCopyPath(), branch, false)
 }
 
+//リモートレポジトリのローカルコピーを作成
+func (repo *Repository) LocalCopyBranch(branch string) error {
+	return UpdateLocalCopyBranch(repo.RepoPath(), repo.LocalCopyPath(), branch, false)
+}
+
 // PatchPath returns corresponding patch file path of repository by given issue ID.
 func (repo *Repository) PatchPath(index int64) (string, error) {
 	if err := repo.GetOwner(); err != nil {

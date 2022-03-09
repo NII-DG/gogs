@@ -462,8 +462,9 @@ func UploadFilePost(c *context.Context, f form.UploadRepoFile) {
 	if f.IsNewBrnach() {
 		branchName = f.NewBranchName
 	}
-
+	log.Info("[f.TreePath before]%v", f.TreePath)
 	f.TreePath = pathutil.Clean(f.TreePath)
+	log.Info("[f.TreePath after]%v", f.TreePath)
 	treeNames, treePaths := getParentTreeFields(f.TreePath)
 	if len(treeNames) == 0 {
 		// We must at least have one element for user to input.

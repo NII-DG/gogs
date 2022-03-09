@@ -593,3 +593,45 @@ func (repo *Repository) UploadRepoFiles(doer *User, opts UploadRepoFileOptions) 
 
 	return contentMap, DeleteUploads(uploads...)
 }
+
+type DatasetInfo struct {
+	Input  []InputInfo
+	Src    []SrcInfo
+	Output []OutputInfo
+}
+
+type InputInfo struct {
+	file    string
+	address string
+}
+
+type SrcInfo struct {
+	file    string
+	address string
+}
+
+type OutputInfo struct {
+	file    string
+	address string
+}
+
+//データセットフォーマットのチェックとコンテンツアドレスの取得(map[stirng]DatasetInfo)
+func (repo *Repository) CheckDatadetAndGetContentAddress(datasetList []string, branch string) (datasetInfo map[string]DatasetInfo, err error) {
+
+	repoWorkingPool.CheckIn(com.ToStr(repo.ID))
+	defer repoWorkingPool.CheckOut(com.ToStr(repo.ID))
+	if err = repo.DiscardLocalRepoBranchChanges(branch); err != nil {
+		return nil, fmt.Errorf("discard local repo branch[%s] changes: %v", branch, err)
+	} else if err = repo.LocalCopyBranch(branch); err != nil {
+		return nil, fmt.Errorf("update local copy branch[%s]: %v", branch, err)
+	}
+
+	//ローカルレポジトリの操作するためのディレクトリ取得
+	// localPath := repo.LocalCopyPath()
+	// dirPath := path.Join(localPath, opts.TreePath)
+
+	//フォーマットのチェック
+
+	//コンテンツアドレスの取得
+	return nil, nil
+}

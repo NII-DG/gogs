@@ -360,7 +360,7 @@ func Home(c *context.Context) {
 	c.Data["PageIsRepoHome"] = isRootDir
 
 	// Get current entry user currently looking at.
-
+	//選択フォルダーの下にフォルダー、ファイルの確認
 	entry, err := c.Repo.Commit.TreeEntry(c.Repo.TreePath)
 	log.Info("[c.Repo.TreePath]", c.Repo.TreePath)
 	log.Info("[entry]", entry)
