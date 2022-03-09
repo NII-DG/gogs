@@ -503,11 +503,13 @@ func isRepositoryGitPath(path string) bool {
 //TODO：IPFSへアップロードしたLowerFilePathとコンテンツアドレスのMapを返す。
 func (repo *Repository) UploadRepoFiles(doer *User, opts UploadRepoFileOptions) (contentMap map[string]string, err error) {
 
-	log.Info("[opts.Files] %v", opts.Files)
-
 	if len(opts.Files) == 0 {
 		log.Error("Error 1: %v", len(opts.Files))
 		return nil, nil
+	}
+
+	for _, fi := range opts.Files {
+		log.Info("[opts.Files] %v", fi)
 	}
 
 	uploads, err := GetUploadsByUUIDs(opts.Files)
