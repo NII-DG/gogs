@@ -188,6 +188,17 @@ func generateMaDmp(c context.AbstructContext, f AbstructRepoUtil) {
 	c.Redirect(c.GetRepo().GetRepoLink())
 }
 
+type DecodeStringer interface {
+	DecodeString(s string) ([]byte, error)
+}
+type decodeStringer func()
+
+// DecodeString is wrapper of base64.StdEncoding.DecodeString (RCOS specific code).
+// This can be mocked.
+func (ds decodeStringer) DecodeString(s string) ([]byte, error) {
+	return base64.StdEncoding.DecodeString(s)
+}
+
 type AbstructRepoUtil interface {
 	FetchContentsOnGithub(blobPath string) ([]byte, error)
 	DecodeBlobContent(blobInfo []byte) (string, error)
@@ -200,7 +211,8 @@ func (f repoUtil) FetchContentsOnGithub(blobPath string) ([]byte, error) {
 }
 
 func (f repoUtil) DecodeBlobContent(blobInfo []byte) (string, error) {
-	return f.decodeBlobContent(blobInfo)
+	var ds decodeStringer
+	return f.decodeBlobContent(blobInfo, ds)
 }
 
 // FetchContentsOnGithub is RCOS specific code.
@@ -238,7 +250,7 @@ func (f repoUtil) fetchContentsOnGithub(blobPath string) ([]byte, error) {
 // This reads and decodes "content" value of the response byte slice
 // retrieved from the GitHub API.
 // refs: https://docs.github.com/en/rest/reference/repos#contents
-func (f repoUtil) decodeBlobContent(blobInfo []byte) (string, error) {
+func (f repoUtil) decodeBlobContent(blobInfo []byte, ds DecodeStringer) (string, error) {
 	var blob interface{}
 	err := json.Unmarshal(blobInfo, &blob)
 	if err != nil {
@@ -246,7 +258,7 @@ func (f repoUtil) decodeBlobContent(blobInfo []byte) (string, error) {
 	}
 
 	raw := blob.(map[string]interface{})["content"]
-	decodedBlobContent, err := base64.StdEncoding.DecodeString(raw.(string))
+	decodedBlobContent, err := ds.DecodeString(raw.(string))
 	if err != nil {
 		return "", err
 	}

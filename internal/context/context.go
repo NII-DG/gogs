@@ -26,10 +26,17 @@ import (
 	"github.com/ivis-yoshida/gogs/internal/template"
 )
 
+type AbstructFlash interface {
+	Error(msg string, current ...bool)
+	Warning(msg string, current ...bool)
+	Info(msg string, current ...bool)
+	Success(msg string, current ...bool)
+}
+
 type AbstructContext interface {
 	// RCOS specific method
 	GetRepo() AbstructCtxRepository
-	GetFlash() *session.Flash
+	GetFlash() AbstructFlash
 	GetUser() db.AbstructDbUser
 	CallData() map[string]interface{}
 
@@ -75,7 +82,7 @@ func (c *Context) GetRepo() AbstructCtxRepository {
 
 // GetFlash is RCOS specific code.
 // This gets the "Flash" field.
-func (c *Context) GetFlash() *session.Flash {
+func (c *Context) GetFlash() AbstructFlash {
 	return c.Flash
 }
 
