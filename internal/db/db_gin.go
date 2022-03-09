@@ -143,6 +143,7 @@ func annexSetup(path string) {
 	// if msg, err := annex.SetAnnexSizeFilter(path, conf.Repository.Upload.AnnexFileMinSize*annex.MEGABYTE); err != nil {
 	// 	logv2.Error("Failed to set size filter for annex: %v (%s)", err, msg)
 	//}
+	//conf.Repository.Upload.AnnexFileMinSize * annex.MEGABYTE
 
 	//Setting initremote ipfs
 	if msg, err := setRemoteIPFS(path); err != nil {

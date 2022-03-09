@@ -46,8 +46,8 @@ func CreateContentHistory(user_code string, contentMap map[string]string) error 
 	//ヘッダー設定
 	req.Header.Set("Authorization", "token")
 	req.Header.Set("Content-Type", "application/json")
-	logv2.Info("[conf.BcApiServer.ServerURL] %v", conf.BcApiServer.ServerURL)
-	logv2.Info("[conf.BcApiServer.Token] %v", conf.BcApiServer.Token)
+	logv2.Info("[conf.BcApiServer.ServerURL] %v", conf.BCAPI.ServerURL)
+	logv2.Info("[conf.BcApiServer.Token] %v", conf.BCAPI.Token)
 
 	//通信実行
 	client := new(http.Client)
