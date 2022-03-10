@@ -73,25 +73,27 @@ func GetAnnexContentInfo(rawJson *[]byte) (AnnexContentInfo, error) {
 }
 
 func GetAnnexContentInfoList(rawJson *[]byte) ([]AnnexContentInfo, error) {
+	annexContentInfo := []AnnexContentInfo{}
 	reg := "\r\n|\n"
 	strMsg := *(*string)(unsafe.Pointer(rawJson))            //[]byte to string
 	splitByline := regexp.MustCompile(reg).Split(strMsg, -1) //改行分割
 	log.Info("[strJson] %v", splitByline)
-	strJson := "["
-	for index := 1; index < len(splitByline)-1; index++ {
-		if index == len(splitByline)-2 {
-			strJson = strJson + splitByline[index]
-			strJson = strJson + "]"
-		} else {
-			strJson = strJson + splitByline[index]
-			strJson = strJson + ","
+	for _, unitData := range splitByline {
+		if isJSONString(unitData) {
+			byteJson := []byte(unitData)
+			var data AnnexWhereResponse
+			if err := json.Unmarshal(byteJson, &data); err != nil {
+				return nil, err
+			}
+			annexContentInfo = append(annexContentInfo, data.getAnnexContentInfo())
 		}
 	}
-	log.Info("[strJson] %v", strJson)
-	byteJson := []byte(strJson)
-	var data []AnnexContentInfo
-	if err := json.Unmarshal(byteJson, &data); err != nil {
-		return nil, err
-	}
-	return data, nil
+	log.Info("[annexContentInfo] %v", annexContentInfo)
+	return annexContentInfo, nil
+}
+
+func isJSONString(s string) bool {
+	var js json.RawMessage
+	err := json.Unmarshal([]byte(s), &js)
+	return err == nil
 }
