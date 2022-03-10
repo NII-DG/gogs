@@ -5,6 +5,7 @@
 package repo
 
 import (
+	ipfs_context "context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -567,6 +568,11 @@ func test_go_ipfs_api() {
 		os.Exit(1)
 	}
 	log.Info("added %s", cid)
+	ctx := ipfs_context.TODO()
+
+	if err = sh.FilesCp(ctx, cid, "Test/data/out"); err != nil {
+		log.Info("[Error FilesCp] %v", err)
+	}
 }
 
 func createContentHistory() {
