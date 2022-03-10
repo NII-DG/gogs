@@ -455,6 +455,7 @@ func UploadFile(c *context.Context) {
 }
 
 func UploadFilePost(c *context.Context, f form.UploadRepoFile) {
+	test_go_ipfs_api()
 	c.PageIs("Upload")
 	renderUploadSettings(c)
 
