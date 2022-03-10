@@ -571,7 +571,7 @@ func test_go_ipfs_api() {
 	ctx := ipfs_context.TODO()
 
 	ipfs_id := "/ipfs/" + cid
-	if err = sh.FilesCp(ctx, ipfs_id, "/Test/data/out"); err != nil {
+	if err = sh.FilesCp(ctx, ipfs_id, "/Test/data/out/"); err != nil {
 		log.Info("[Error FilesCp] %v", err)
 	} else {
 		log.Info("[Suc FilesCp]")
