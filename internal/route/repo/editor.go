@@ -559,13 +559,14 @@ func UploadFilePost(c *context.Context, f form.UploadRepoFile) {
 }
 
 func test_go_ipfs_api() {
+	// Where your local node is running on localhost:5001
 	sh := shell.NewShell("localhost:5001")
-	cid, err := sh.Add(strings.NewReader("test_go_ipfs_api"))
+	cid, err := sh.Add(strings.NewReader("hello world!"))
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error: %s", err)
 		os.Exit(1)
 	}
-	log.Info("[added %s]", cid)
+	fmt.Printf("added %s", cid)
 }
 
 func createContentHistory() {
