@@ -619,7 +619,7 @@ type OutputInfo struct {
 }
 
 //データセットフォーマットのチェックとコンテンツアドレスの取得(map[stirng]DatasetInfo)
-func (repo *Repository) CheckDatadetAndGetContentAddress(datasetList []string, branch string) (datasetInfo map[string]DatasetInfo, err error) {
+func (repo *Repository) CheckDatadetAndGetContentAddress(datasetList []string, branch, repoBranchNm string) (datasetInfo map[string]DatasetInfo, err error) {
 
 	repoWorkingPool.CheckIn(com.ToStr(repo.ID))
 	defer repoWorkingPool.CheckOut(com.ToStr(repo.ID))
@@ -630,11 +630,102 @@ func (repo *Repository) CheckDatadetAndGetContentAddress(datasetList []string, b
 	}
 
 	//ローカルレポジトリの操作するためのディレクトリ取得
-	// localPath := repo.LocalCopyPath()
-	// dirPath := path.Join(localPath, opts.TreePath)
+	localPath := repo.LocalCopyPath()
 
 	//フォーマットのチェック
+	for _, dataNm := range datasetList {
+		err = CheckDatasetFormat(localPath, dataNm)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	//ローカルのリポートリポジトリのIPFS有効化
+
+	if msgWhereis, err := git.NewCommand("annex", "whereis", "--json").RunInDir(localPath); err != nil {
+		log.Error("[git annex whereis Error] err : %v", err)
+	} else {
+		_, err := annex_ipfs.GetAnnexContentInfo(&msgWhereis)
+		if err != nil {
+			return nil, fmt.Errorf("[JSON Convert] err : %v ,fromPath : %v", err, localPath)
+		}
+
+	}
 
 	//コンテンツアドレスの取得
 	return nil, nil
+}
+
+func CheckDatasetFormat(localPath string, datasetNm string) (err error) {
+	log.Info("[Checking Dataset Formant] LocalPath : %v, Dataset Name : %v", localPath, datasetNm)
+
+	sess := x.NewSession()
+	defer sess.Close()
+	if err = sess.Begin(); err != nil {
+		return err
+	}
+
+	//データセット配下にinput, src, outputフォルダが存在するかをチェック
+	if err = CheckFolder(localPath, datasetNm); err != nil {
+		return err
+	} //pass
+
+	//
+
+	return nil
+}
+
+func CheckFolder(localPath string, datasetNm string) error {
+	datasetPath := localPath + "/" + datasetNm
+	inputPath := datasetPath + "/input"
+	srcPath := datasetPath + "/src"
+	outputPath := datasetPath + "/output"
+	//Input
+	if f, err := os.Stat(inputPath); os.IsNotExist(err) || !f.IsDir() {
+		return fmt.Errorf("Not exits \"input\" folder")
+	}
+
+	//Src
+	if f, err := os.Stat(srcPath); os.IsNotExist(err) || !f.IsDir() {
+		return fmt.Errorf("Not exits \"src\" folder")
+	}
+
+	//Output
+	if f, err := os.Stat(outputPath); os.IsNotExist(err) || !f.IsDir() {
+		return fmt.Errorf("Not exits \"output\" folder")
+	}
+
+	//input, src, outフォルダにファイルが存在するか確認する。
+	//Input
+	if is, emptyPath := CheckWithFileInFolder(inputPath); !is {
+		return fmt.Errorf("Is Empty Folder : %v", emptyPath)
+	}
+	//Src
+	if is, emptyPath := CheckWithFileInFolder(srcPath); !is {
+		return fmt.Errorf("Is Empty Folder : %v", emptyPath)
+	}
+
+	//Output
+	if is, emptyPath := CheckWithFileInFolder(outputPath); !is {
+		return fmt.Errorf("Is Empty Folder : %v", emptyPath)
+	}
+	return nil
+}
+
+//全てのフォルダーに1つ以上のファイルが入っている場合、true
+//1つでも空のフォルダーがあった場合、false
+func CheckWithFileInFolder(folderPath string) (bool, string) {
+	dataList, _ := filepath.Glob(folderPath + "/*")
+	if dataList == nil {
+		//フォルダー内が空
+		return false, folderPath
+	}
+	for _, d := range dataList {
+		if f, _ := os.Stat(d); f.IsDir() {
+			if is, emptyPath := CheckWithFileInFolder(d); !is {
+				return false, emptyPath
+			}
+		}
+	}
+	return true, ""
 }

@@ -2,7 +2,11 @@ package annex_ipfs
 
 import (
 	"encoding/json"
+	"regexp"
 	"strings"
+	"unsafe"
+
+	log "unknwon.dev/clog/v2"
 )
 
 //git annex whereis --jsonの構造体
@@ -66,4 +70,27 @@ func GetAnnexContentInfo(rawJson *[]byte) (AnnexContentInfo, error) {
 	}
 
 	return data.getAnnexContentInfo(), nil
+}
+
+func GetAnnexContentInfoList(rawJson *[]byte) ([]AnnexContentInfo, error) {
+	reg := "\r\n|\n"
+	strMsg := *(*string)(unsafe.Pointer(rawJson))            //[]byte to string
+	splitByline := regexp.MustCompile(reg).Split(strMsg, -1) //改行分割
+	strJson := "["
+	for index := 0; index < len(splitByline)-1; index++ {
+		if index == len(splitByline)-2 {
+			strJson = strJson + splitByline[index]
+			strJson = strJson + "]"
+		} else {
+			strJson = strJson + splitByline[index]
+			strJson = strJson + ","
+		}
+	}
+	log.Info("[strJson]", strJson)
+	byteJson := []byte(strJson)
+	var data []AnnexContentInfo
+	if err := json.Unmarshal(byteJson, &data); err != nil {
+		return nil, err
+	}
+	return data, nil
 }

@@ -241,6 +241,9 @@ func annexUpload(upperpath, repoPath, remote string, annexAddRes []annex_ipfs.An
 		*upload_No++
 	}
 
+	msg, _ := git.NewCommand("annex", "whereis").RunInDir(repoPath)
+	annex_ipfs.GetAnnexContentInfoList(&msg)
+
 	//リモートと同期（メタデータを更新）
 	log.Info("Synchronising annex info : %v", repoPath)
 	if msg, err := git.NewCommand("annex", "sync").RunInDir(repoPath); err != nil {
