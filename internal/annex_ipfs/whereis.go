@@ -76,8 +76,9 @@ func GetAnnexContentInfoList(rawJson *[]byte) ([]AnnexContentInfo, error) {
 	reg := "\r\n|\n"
 	strMsg := *(*string)(unsafe.Pointer(rawJson))            //[]byte to string
 	splitByline := regexp.MustCompile(reg).Split(strMsg, -1) //改行分割
+	log.Info("[strJson] %v", splitByline)
 	strJson := "["
-	for index := 0; index < len(splitByline)-1; index++ {
+	for index := 1; index < len(splitByline)-1; index++ {
 		if index == len(splitByline)-2 {
 			strJson = strJson + splitByline[index]
 			strJson = strJson + "]"
@@ -86,7 +87,7 @@ func GetAnnexContentInfoList(rawJson *[]byte) ([]AnnexContentInfo, error) {
 			strJson = strJson + ","
 		}
 	}
-	log.Info("[strJson]", strJson)
+	log.Info("[strJson] %v", strJson)
 	byteJson := []byte(strJson)
 	var data []AnnexContentInfo
 	if err := json.Unmarshal(byteJson, &data); err != nil {
