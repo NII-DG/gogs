@@ -604,7 +604,7 @@ type DatasetInfo struct {
 }
 
 type ContentInfo struct {
-	File    string
+	File    string //ex : datasetNm/Folder/...../File
 	Address string
 }
 
@@ -660,13 +660,14 @@ func (repo *Repository) CheckDatadetAndGetContentAddress(datasetNmList []string,
 			srcPath := datasetNm + "/" + SRC_FOLDER_NM
 			OutputPath := datasetNm + "/" + OUTPUT_FOLDER_NM
 
-			filePath := content.File
+			filePath := content.File                // ex datasetNm/FolderNm/...../FileNm
+			fullFilePath := repoBranchNm + filePath // ex RepoOwnerNm/RepoNm/BranchNm/datasetNm/FolderNm/...../FileNm
 			if strings.HasPrefix(filePath, inputPath) {
-				datasetInfo.InputList = append(datasetInfo.InputList, ContentInfo{content.File, content.Hash})
+				datasetInfo.InputList = append(datasetInfo.InputList, ContentInfo{fullFilePath, content.Hash})
 			} else if strings.HasPrefix(filePath, srcPath) {
-				datasetInfo.SrcList = append(datasetInfo.SrcList, ContentInfo{content.File, content.Hash})
+				datasetInfo.SrcList = append(datasetInfo.SrcList, ContentInfo{fullFilePath, content.Hash})
 			} else if strings.HasPrefix(filePath, OutputPath) {
-				datasetInfo.OutputList = append(datasetInfo.OutputList, ContentInfo{content.File, content.Hash})
+				datasetInfo.OutputList = append(datasetInfo.OutputList, ContentInfo{fullFilePath, content.Hash})
 			}
 		}
 		datasetPath := repoBranchNm + "/" + datasetNm

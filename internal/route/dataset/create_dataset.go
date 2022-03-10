@@ -1,6 +1,8 @@
 package dataset
 
 import (
+	"fmt"
+
 	"github.com/ivis-yoshida/gogs/internal/bcapi"
 	"github.com/ivis-yoshida/gogs/internal/context"
 	"github.com/ivis-yoshida/gogs/internal/db"
@@ -29,18 +31,20 @@ func CreateDataset(c *context.Context, f form.DatasetFrom) {
 	for datasetPath, datasetData := range datasetNmToFileMap {
 		if bcContentList, err := bcapi.GetContentByFolder(userCode, datasetPath); err != nil {
 			c.Error(err, "Error In Exchanging BCAPI ")
-		} else {
-
+			return
+		} else if !isContainDatasetFileInBC(datasetData, bcContentList) {
+			var err error = fmt.Errorf("[A Part Of Dataset File Is Not Registered In BC] Dataset Name : %v", datasetPath)
+			c.Error(err, "不正なファイルが含まれています")
+			return
 		}
 	}
-
 	//IPFS上でデータセット構築
 
 	//データセットのBC登録
 
 }
 
-func isContainDatasetFileInBC(datasetPath string, datasetData db.DatasetInfo, bcContentList bcapi.ResContentsInFolder) bool {
+func isContainDatasetFileInBC(datasetData db.DatasetInfo, bcContentList bcapi.ResContentsInFolder) bool {
 	for _, inputData := range datasetData.InputList {
 		if !isContainFileInBc(inputData, bcContentList) {
 			return false

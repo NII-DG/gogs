@@ -8,12 +8,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
 	"path"
 	"path/filepath"
 	"strings"
 
 	log "unknwon.dev/clog/v2"
 
+	shell "github.com/ipfs/go-ipfs-api"
 	"github.com/ivis-yoshida/gogs/internal/bcapi"
 	"github.com/ivis-yoshida/gogs/internal/conf"
 	"github.com/ivis-yoshida/gogs/internal/context"
@@ -553,6 +555,16 @@ func UploadFilePost(c *context.Context, f form.UploadRepoFile) {
 	} else {
 		c.Redirect(c.Repo.RepoLink + "/src/" + branchName + "/" + f.TreePath)
 	}
+}
+
+func test_go_ipfs_api() {
+	sh := shell.NewShell("localhost:5001")
+	cid, err := sh.Add(strings.NewReader("test_go_ipfs_api"))
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error: %s", err)
+		os.Exit(1)
+	}
+	log.Info("[added %s]", cid)
 }
 
 func createContentHistory() {
