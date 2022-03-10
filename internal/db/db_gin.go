@@ -241,9 +241,6 @@ func annexUpload(upperpath, repoPath, remote string, annexAddRes []annex_ipfs.An
 		*upload_No++
 	}
 
-	msg, _ := git.NewCommand("annex", "whereis", "--json").RunInDir(repoPath)
-	annex_ipfs.GetAnnexContentInfoList(&msg)
-
 	//リモートと同期（メタデータを更新）
 	log.Info("Synchronising annex info : %v", repoPath)
 	if msg, err := git.NewCommand("annex", "sync").RunInDir(repoPath); err != nil {
@@ -254,14 +251,6 @@ func annexUpload(upperpath, repoPath, remote string, annexAddRes []annex_ipfs.An
 
 	return contentMap, nil
 }
-
-// func getPathAndContentAddress(msgWhereis []byte) (uploadFileMap map[string]string) {
-// 	uploadFileMap = map[string]string{}
-// 	strMsg := *(*string)(unsafe.Pointer(&msgWhereis))//[]byte to string
-// 	reg := "\r\n|\n"
-// 	splitByLine := regexp.MustCompile(reg).Split(strMsg, -1) //改行分割
-
-// }
 
 // isAddressAllowed returns true if the email address is allowed to sign up
 // based on the regular expressions found in the email filter file

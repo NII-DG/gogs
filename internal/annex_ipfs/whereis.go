@@ -73,8 +73,8 @@ func GetAnnexContentInfo(rawJson *[]byte) (AnnexContentInfo, error) {
 	return data.getAnnexContentInfo(), nil
 }
 
-func GetAnnexContentInfoList(rawJson *[]byte) ([]AnnexContentInfo, error) {
-	annexContentInfo := []AnnexContentInfo{}
+func GetAnnexContentInfoListByDatasetNm(rawJson *[]byte, datasetNmList []string) (map[string][]AnnexContentInfo, error) {
+	annexContentInfoMap := map[string][]AnnexContentInfo{}
 	reg := "\r\n|\n"
 	strJson := *(*string)(unsafe.Pointer(rawJson))            //[]byte to string
 	splitByline := regexp.MustCompile(reg).Split(strJson, -1) //改行分割
@@ -85,8 +85,20 @@ func GetAnnexContentInfoList(rawJson *[]byte) ([]AnnexContentInfo, error) {
 			if err := json.Unmarshal(byteJson, &data); err != nil {
 				return nil, err
 			}
-			annexContentInfo = append(annexContentInfo, data.getAnnexContentInfo())
+			for _, datasetNm := range datasetNmList {
+				if isContainDatasetNm(data.getFile(), datasetNm) {
+					annexContentInfoMap[datasetNm] = append(annexContentInfoMap[datasetNm], data.getAnnexContentInfo())
+				}
+			}
 		}
 	}
-	return annexContentInfo, nil
+	return annexContentInfoMap, nil
+}
+
+func isContainDatasetNm(fileNm string, datasetNm string) bool {
+	if strings.HasPrefix(fileNm, datasetNm) {
+		//FileNm(datasetフォルダーからのパス[datasetNm/folder/..../file])の左に指定データセット名があること
+		return true
+	}
+	return false
 }

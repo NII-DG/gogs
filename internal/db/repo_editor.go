@@ -598,28 +598,22 @@ func (repo *Repository) UploadRepoFiles(doer *User, opts UploadRepoFileOptions) 
 }
 
 type DatasetInfo struct {
-	Input  []InputInfo
-	Src    []SrcInfo
-	Output []OutputInfo
+	InputList  []ContentInfo
+	SrcList    []ContentInfo
+	OutputList []ContentInfo
 }
 
-type InputInfo struct {
-	file    string
-	address string
+type ContentInfo struct {
+	File    string
+	Address string
 }
 
-type SrcInfo struct {
-	file    string
-	address string
-}
-
-type OutputInfo struct {
-	file    string
-	address string
-}
+var INPUT_FOLDER_NM string = "input"
+var SRC_FOLDER_NM string = "src"
+var OUTPUT_FOLDER_NM string = "output"
 
 //データセットフォーマットのチェックとコンテンツアドレスの取得(map[stirng]DatasetInfo)
-func (repo *Repository) CheckDatadetAndGetContentAddress(datasetList []string, branch, repoBranchNm string) (datasetInfo map[string]DatasetInfo, err error) {
+func (repo *Repository) CheckDatadetAndGetContentAddress(datasetNmList []string, branch, repoBranchNm string) (datasetNmToFileMap map[string]DatasetInfo, err error) {
 
 	repoWorkingPool.CheckIn(com.ToStr(repo.ID))
 	defer repoWorkingPool.CheckOut(com.ToStr(repo.ID))
@@ -633,27 +627,52 @@ func (repo *Repository) CheckDatadetAndGetContentAddress(datasetList []string, b
 	localPath := repo.LocalCopyPath()
 
 	//フォーマットのチェック
-	for _, dataNm := range datasetList {
-		err = CheckDatasetFormat(localPath, dataNm)
+	for _, datasetNm := range datasetNmList {
+		err = CheckDatasetFormat(localPath, datasetNm)
 		if err != nil {
 			return nil, err
 		}
 	}
 
 	//ローカルのリポートリポジトリのIPFS有効化
-
-	if msgWhereis, err := git.NewCommand("annex", "whereis", "--json").RunInDir(localPath); err != nil {
-		log.Error("[git annex whereis Error] err : %v", err)
+	//ベアレポジトリをIPFSへ連携
+	if _, err := git.NewCommand("annex", "enableremote", "ipfs").RunInDir(localPath); err != nil {
+		return nil, fmt.Errorf("[Failure enable remote(ipfs)] err : %v, localPath : %v", err, localPath)
 	} else {
-		_, err := annex_ipfs.GetAnnexContentInfo(&msgWhereis)
-		if err != nil {
-			return nil, fmt.Errorf("[JSON Convert] err : %v ,fromPath : %v", err, localPath)
-		}
-
+		log.Info("[Success enable remote(ipfs)] repoPath : %v", localPath)
 	}
 
 	//コンテンツアドレスの取得
-	return nil, nil
+	datasetToContentsMap := map[string][]annex_ipfs.AnnexContentInfo{}
+	if msgWhereis, err := git.NewCommand("annex", "whereis", "--json").RunInDir(localPath); err != nil {
+		log.Error("[git annex whereis Error] err : %v", err)
+	} else {
+		if datasetToContentsMap, err = annex_ipfs.GetAnnexContentInfoListByDatasetNm(&msgWhereis, datasetNmList); err != nil {
+			return nil, fmt.Errorf("[JSON Convert] err : %v ,fromPath : %v", err, localPath)
+		}
+	}
+
+	for datasetNm, annexContentInfoList := range datasetToContentsMap {
+		datasetInfo := &DatasetInfo{}
+		log.Trace("[Picking up annex content info] dataset name : %v", datasetNm)
+		for _, content := range annexContentInfoList {
+			inputPath := datasetNm + "/" + INPUT_FOLDER_NM //ex : datasetNm/input
+			srcPath := datasetNm + "/" + SRC_FOLDER_NM
+			OutputPath := datasetNm + "/" + OUTPUT_FOLDER_NM
+
+			filePath := content.File
+			if strings.HasPrefix(filePath, inputPath) {
+				datasetInfo.InputList = append(datasetInfo.InputList, ContentInfo{content.File, content.Hash})
+			} else if strings.HasPrefix(filePath, srcPath) {
+				datasetInfo.SrcList = append(datasetInfo.SrcList, ContentInfo{content.File, content.Hash})
+			} else if strings.HasPrefix(filePath, OutputPath) {
+				datasetInfo.OutputList = append(datasetInfo.OutputList, ContentInfo{content.File, content.Hash})
+			}
+		}
+		datasetPath := repoBranchNm + "/" + datasetNm
+		datasetNmToFileMap[datasetPath] = *datasetInfo
+	}
+	return datasetNmToFileMap, nil
 }
 
 func CheckDatasetFormat(localPath string, datasetNm string) (err error) {
@@ -669,30 +688,27 @@ func CheckDatasetFormat(localPath string, datasetNm string) (err error) {
 	if err = CheckFolder(localPath, datasetNm); err != nil {
 		return err
 	} //pass
-
-	//
-
 	return nil
 }
 
 func CheckFolder(localPath string, datasetNm string) error {
 	datasetPath := localPath + "/" + datasetNm
-	inputPath := datasetPath + "/input"
-	srcPath := datasetPath + "/src"
-	outputPath := datasetPath + "/output"
+	inputPath := datasetPath + "/" + INPUT_FOLDER_NM
+	srcPath := datasetPath + "/" + SRC_FOLDER_NM
+	outputPath := datasetPath + "/" + OUTPUT_FOLDER_NM
 	//Input
 	if f, err := os.Stat(inputPath); os.IsNotExist(err) || !f.IsDir() {
-		return fmt.Errorf("Not exits \"input\" folder")
+		return fmt.Errorf("Not exits \"%v\" folder", INPUT_FOLDER_NM)
 	}
 
 	//Src
 	if f, err := os.Stat(srcPath); os.IsNotExist(err) || !f.IsDir() {
-		return fmt.Errorf("Not exits \"src\" folder")
+		return fmt.Errorf("Not exits \"%v\" folder", SRC_FOLDER_NM)
 	}
 
 	//Output
 	if f, err := os.Stat(outputPath); os.IsNotExist(err) || !f.IsDir() {
-		return fmt.Errorf("Not exits \"output\" folder")
+		return fmt.Errorf("Not exits \"%v\" folder", OUTPUT_FOLDER_NM)
 	}
 
 	//input, src, outフォルダにファイルが存在するか確認する。
