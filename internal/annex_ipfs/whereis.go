@@ -6,7 +6,8 @@ import (
 	"strings"
 	"unsafe"
 
-	log "unknwon.dev/clog/v2"
+	//log "unknwon.dev/clog/v2"
+	"github.com/ivis-yoshida/gogs/internal/jsonfunc"
 )
 
 //git annex whereis --jsonの構造体
@@ -75,11 +76,10 @@ func GetAnnexContentInfo(rawJson *[]byte) (AnnexContentInfo, error) {
 func GetAnnexContentInfoList(rawJson *[]byte) ([]AnnexContentInfo, error) {
 	annexContentInfo := []AnnexContentInfo{}
 	reg := "\r\n|\n"
-	strMsg := *(*string)(unsafe.Pointer(rawJson))            //[]byte to string
-	splitByline := regexp.MustCompile(reg).Split(strMsg, -1) //改行分割
-	log.Info("[strJson] %v", splitByline)
+	strJson := *(*string)(unsafe.Pointer(rawJson))            //[]byte to string
+	splitByline := regexp.MustCompile(reg).Split(strJson, -1) //改行分割
 	for _, unitData := range splitByline {
-		if isJSONString(unitData) {
+		if jsonfunc.IsJSONString(unitData) {
 			byteJson := []byte(unitData)
 			var data AnnexWhereResponse
 			if err := json.Unmarshal(byteJson, &data); err != nil {
@@ -88,12 +88,5 @@ func GetAnnexContentInfoList(rawJson *[]byte) ([]AnnexContentInfo, error) {
 			annexContentInfo = append(annexContentInfo, data.getAnnexContentInfo())
 		}
 	}
-	log.Info("[annexContentInfo] %v", annexContentInfo)
 	return annexContentInfo, nil
-}
-
-func isJSONString(s string) bool {
-	var js json.RawMessage
-	err := json.Unmarshal([]byte(s), &js)
-	return err == nil
 }
