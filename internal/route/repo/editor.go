@@ -548,7 +548,7 @@ func UploadFilePost(c *context.Context, f form.UploadRepoFile) {
 	if httpErr != nil {
 		log.Error("[HTTP ERROR Create Content Hsitory] %v", httpErr)
 		c.FormErr("TreePath")
-		c.RenderWithErr(c.Tr("repo.editor.unable_upload_data_to_bc"), tmplEditorUpload, &f)
+		c.RenderWithErr("ブロックチェーンへの登録中にエラーが発生し、失敗しました", tmplEditorUpload, &f)
 		return
 	}
 
