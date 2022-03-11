@@ -547,6 +547,9 @@ func UploadFilePost(c *context.Context, f form.UploadRepoFile) {
 	httpErr := bcapi.CreateContentHistory(c.User.Name, contentMap)
 	if httpErr != nil {
 		log.Error("[HTTP ERROR Create Content Hsitory] %v", httpErr)
+		c.FormErr("TreePath")
+		c.RenderWithErr(c.Tr("repo.editor.unable_upload_data_to_BC", f.TreePath, errors.InternalServerError), tmplEditorUpload, &f)
+		return
 	}
 
 	if f.IsNewBrnach() && c.Repo.PullRequest.Allowed {

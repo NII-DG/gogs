@@ -147,7 +147,7 @@ func annexSetup(path string) {
 
 	//Setting initremote ipfs
 	if err := setRemoteIPFS(path); err != nil {
-		logv2.Error("[Failure Initremoto IPFS] path : %v,  error : %v", path, err)
+		logv2.Warn("[Warn Initremoto IPFS] path : %v,  error : %v", path, err)
 		return
 	} else {
 		logv2.Info("[Initremoto IPFS] path : %v", path)

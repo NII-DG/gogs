@@ -269,15 +269,15 @@ func resolveAnnexedContent(c *context.Context, buf []byte, contentLocation strin
 	//BCAPI通信（コンテンツパスからIPFSハッシュ値を取得）
 	bcContentInfo, err := bcapi.GetContentInfoByLocation(c.User.Name, contentLocation)
 	if err != nil {
-		logv2.Error("%v", err)
+		logv2.Error("[BC-API HTTP error] %v", err)
 		c.Data["IsAnnexedFile"] = true
-		//return buf, err
+		return buf, err
 	}
 	//BC-IPFSハッシュ値とAnnex-IPFSハッシュ値を比較
 	if addressByAnnex != bcContentInfo.ContentAddress {
 		logv2.Error("[Not math AnnexContentAddress to BcContentAddress] AnnexContentAddress : %v, BcContentAddress : %v", addressByAnnex, bcContentInfo.ContentAddress)
 		c.Data["IsAnnexedFile"] = true
-		//return buf, fmt.Errorf("[Not math AnnexContentAddress to BcContentAddress]")
+		return buf, fmt.Errorf("[Not math AnnexContentAddress to BcContentAddress]")
 	}
 
 	//ipfsからオブジェクトを取得
