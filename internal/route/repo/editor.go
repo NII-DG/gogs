@@ -562,11 +562,34 @@ func test_ipfs_command() {
 	if err := ipfs.FilesCopy("QmSUKpmLpNGZGoAmDpzTV9xryPBg8D5uNtPiXVj92hz4YD", "/ivis-tsukioka/brain/master/datset1/input/test1d.txt"); err != nil {
 		log.Error("%v", err)
 	}
+	hash, err := ipfs.FilesStatus("/ivis-tsukioka/brain/master/datset1/input")
+	if err != nil {
+		log.Error("[1st] %v", err)
+	}
+	log.Info("[1st hash /ivis-tsukioka/brain/master/datset1/input] %v", hash)
 
-	_, err := ipfs.FilesStat("/ivis-tsukioka/brain/master/datset1/input")
+	err = ipfs.FilesRemove("/ivis-tsukioka/brain/master/datset1")
 	if err != nil {
 		log.Error("%v", err)
 	}
+
+	hash, err = ipfs.FilesStatus("/ivis-tsukioka/brain/master/datset1/input")
+	if err != nil {
+		log.Error("[2nd] %v", err)
+	}
+	log.Info("[2nd hash /ivis-tsukioka/brain/master/datset1/input] %v", hash)
+
+	hash, err = ipfs.FilesStatus("/ivis-tsukioka/brain/master/datset1")
+	if err != nil {
+		log.Error("[3nd] %v", err)
+	}
+	log.Info("[3nd hash /ivis-tsukioka/brain/master/datset1] %v", hash)
+
+	hash, err = ipfs.FilesStatus("/ivis-tsukioka/brain/master")
+	if err != nil {
+		log.Error("[4nd] %v", err)
+	}
+	log.Info("[4nd hash /ivis-tsukioka/brain/master] %v", hash)
 
 }
 

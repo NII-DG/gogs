@@ -41,17 +41,19 @@ type IpfsCommand struct {
 // @param contentAddress コピーするコンテンツアドレス ex : QmT8LDwxQQqEBbChjBn4zEhiWtfRHNwwQYguNDjJZ9tME1
 // @param fullFilePath コピー先ディレクトリ ex : /RepoOwnerNm/RepoNm/BranchNm/DatasetFoleder/...../FileNm.txt
 func FilesCopy(contentAddress, fullRepoFilePath string) error {
+	logv2.Info("[Copying IPFS Filse] Content Adress : %v, FullRepoFilePath : %v", contentAddress, fullRepoFilePath)
 	contentParam := "/ipfs/" + contentAddress
 	cmd := NewCommand("files", "cp", contentParam, "-p", fullRepoFilePath)
 	if _, err := cmd.Run(); err != nil {
 		return fmt.Errorf("[Failure ipfs files cp ...] Content Adress : %v, FullRepoFilePath : %v", contentAddress, fullRepoFilePath)
 	}
+	logv2.Info("[Completion of Copy IPFS Filse] Content Adress : %v, FullRepoFilePath : %v", contentAddress, fullRepoFilePath)
 	return nil
 }
 
 // ipfs files stat...コマンド
 // @param folderPath ex /RepoOwnerNm/RepoNm/BranchNm/DatasetFoleder/input
-func FilesStat(folderPath string) (string, error) {
+func FilesStatus(folderPath string) (string, error) {
 	cmd := NewCommand("files", "stat", folderPath)
 	msg, err := cmd.Run()
 	if err != nil {
@@ -62,10 +64,19 @@ func FilesStat(folderPath string) (string, error) {
 	logv2.Info("[strMsg] %v", strMsg)
 	reg := "\r\n|\n"
 	splitByline := regexp.MustCompile(reg).Split(strMsg, -1)
-	for i, str := range splitByline {
-		logv2.Info("[line] index : %v, str : %v", i, str)
+	return splitByline[0], nil
+}
+
+// ipfs file rm...コマンド
+// @param folderNm ex /RepoOwnerNm/RepoNm/BranchNm/DatasetFolederNm
+func FilesRemove(folderPath string) error {
+	logv2.Info("[Removing IPFS Folder] FolderPath: %v", folderPath)
+	cmd := NewCommand("files", "rm", "-r", folderPath)
+	if _, err := cmd.Run(); err != nil {
+		return fmt.Errorf("[Failure ipfs file rm ...] FolderPath : %v", folderPath)
 	}
-	return "", nil
+	logv2.Info("[Remove IPFS Folder] FolderPath: %v", folderPath)
+	return nil
 }
 
 func NewCommand(args ...string) *IpfsCommand {
