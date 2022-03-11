@@ -563,7 +563,7 @@ func test_ipfs_command() {
 	if err != nil {
 		log.Error("[Error test_ipfs_command] %v", err)
 	} else {
-		log.Info("[OK test_ipfs_command] %v", msg)
+		log.Info("[OK test_ipfs_command] %s", msg)
 	}
 
 }
