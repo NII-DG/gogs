@@ -21,7 +21,6 @@ import (
 	"github.com/ivis-yoshida/gogs/internal/gitutil"
 	"github.com/ivis-yoshida/gogs/internal/markup"
 	"github.com/ivis-yoshida/gogs/internal/pathutil"
-	"github.com/ivis-yoshida/gogs/internal/route/dataset"
 	"github.com/ivis-yoshida/gogs/internal/template"
 	"github.com/ivis-yoshida/gogs/internal/tool"
 	log "unknwon.dev/clog/v2"
@@ -454,17 +453,6 @@ func UploadFile(c *context.Context) {
 }
 
 func UploadFilePost(c *context.Context, f form.UploadRepoFile) {
-	ok, err := dataset.IsDatasetFolderOnIPFS("/ivis-tsukioka/brain/master/dataset222")
-	if err != nil {
-		log.Error("[IsDatasetFolderOnIPFS] %v", err)
-	}
-	log.Error("[IsDatasetFolderOnIPFS] %v", ok)
-
-	ok, err = dataset.IsDatasetFolderOnIPFS("/ivis-tsukioka/brain/master/dataset223")
-	if err != nil {
-		log.Error("[2nd IsDatasetFolderOnIPFS] %v", err)
-	}
-	log.Error("[2nd IsDatasetFolderOnIPFS] %v", ok)
 
 	c.PageIs("Upload")
 	renderUploadSettings(c)

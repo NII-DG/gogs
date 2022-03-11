@@ -8,8 +8,7 @@ import (
 	"time"
 )
 
-//仮置き
-type Dataset struct {
+type UploadDatasetInfo struct {
 	InputAddress  string
 	SrcAddress    string
 	OutputAddress string
@@ -38,7 +37,7 @@ type ResNotCreateDatasetToken struct {
 }
 
 //[POST] /createDatasetToken
-func CreateDatasetToken(user_code string, contentMap map[string]Dataset) (ResNotCreateDatasetToken, error) {
+func CreateDatasetToken(user_code string, contentMap map[string]UploadDatasetInfo) (ResNotCreateDatasetToken, error) {
 	//登録日時の取得
 	now := time.Now()
 	//リクエストボディ定義
