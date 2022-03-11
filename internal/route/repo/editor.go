@@ -566,6 +566,15 @@ func test_ipfs_command() {
 		log.Info("[OK test_ipfs_command] %s", msg)
 	}
 
+	cmd2 := ipfs.NewCommand("files", "cp", "/ipfs/QmT8LDwxQQqEBbChjBn4zEhiWtfRHNwwQYguNDjJZ9tME1", "-p", "/Dir_test_ipfs_command1/input/")
+
+	msg2, err2 := cmd2.Run()
+	if err != nil {
+		log.Error("[Error CP test_ipfs_command] %v", err2)
+	} else {
+		log.Info("[OK CP test_ipfs_command] %s", msg2)
+	}
+
 }
 
 func createContentHistory() {
