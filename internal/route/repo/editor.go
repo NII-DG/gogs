@@ -19,6 +19,7 @@ import (
 	"github.com/ivis-yoshida/gogs/internal/db/errors"
 	"github.com/ivis-yoshida/gogs/internal/form"
 	"github.com/ivis-yoshida/gogs/internal/gitutil"
+	"github.com/ivis-yoshida/gogs/internal/ipfs"
 	"github.com/ivis-yoshida/gogs/internal/markup"
 	"github.com/ivis-yoshida/gogs/internal/pathutil"
 	"github.com/ivis-yoshida/gogs/internal/template"
@@ -432,6 +433,7 @@ func renderUploadSettings(c *context.Context) {
 }
 
 func UploadFile(c *context.Context) {
+	test_ipfs_command()
 	c.PageIs("Upload")
 	renderUploadSettings(c)
 
@@ -552,6 +554,17 @@ func UploadFilePost(c *context.Context, f form.UploadRepoFile) {
 	} else {
 		c.Redirect(c.Repo.RepoLink + "/src/" + branchName + "/" + f.TreePath)
 	}
+}
+
+func test_ipfs_command() {
+	cmd := ipfs.NewCommand("cat", "QmT8LDwxQQqEBbChjBn4zEhiWtfRHNwwQYguNDjJZ9tME1")
+	msg, err := cmd.Run()
+	if err == nil {
+		log.Error("[Error test_ipfs_command] %v", err)
+	} else {
+		log.Info("[OK test_ipfs_command] %v", msg)
+	}
+
 }
 
 func createContentHistory() {

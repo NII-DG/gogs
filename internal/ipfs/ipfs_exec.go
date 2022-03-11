@@ -21,13 +21,19 @@ var (
 	ErrNotBlob           = errors.New("the entry is not a blob")
 )
 
+const DefaultTimeout = time.Minute
+const (
+	CAT   = "cat"
+	FILES = "files"
+)
+
 type IpfsCommand struct {
 	name string
 	args []string
 	envs []string
 }
 
-func Execution(args ...string) *IpfsCommand {
+func NewCommand(args ...string) *IpfsCommand {
 	return &IpfsCommand{
 		name: "ipfs",
 		args: args,
@@ -41,8 +47,6 @@ func (c *IpfsCommand) AddEnvs(envs ...string) *IpfsCommand {
 	c.envs = append(c.envs, envs...)
 	return c
 }
-
-const DefaultTimeout = time.Minute
 
 func (c *IpfsCommand) RunInDirPipelineWithTimeout(timeout time.Duration, stdout, stderr io.Writer, dir string) (err error) {
 	if timeout < time.Nanosecond {
