@@ -608,8 +608,13 @@ type ContentInfo struct {
 	Address string
 }
 
+// @value input
 var INPUT_FOLDER_NM string = "input"
+
+// @value src
 var SRC_FOLDER_NM string = "src"
+
+// @value output
 var OUTPUT_FOLDER_NM string = "output"
 
 //データセットフォーマットのチェックとコンテンツアドレスの取得(map[stirng]DatasetInfo)

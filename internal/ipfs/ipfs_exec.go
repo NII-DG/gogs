@@ -61,7 +61,6 @@ func FilesStatus(folderPath string) (string, error) {
 	}
 	//msgからフォルダーアドレスを取得
 	strMsg := *(*string)(unsafe.Pointer(&msg))
-	logv2.Info("[strMsg] %v", strMsg)
 	reg := "\r\n|\n"
 	splitByline := regexp.MustCompile(reg).Split(strMsg, -1)
 	return splitByline[0], nil
@@ -72,11 +71,24 @@ func FilesStatus(folderPath string) (string, error) {
 func FilesRemove(folderPath string) error {
 	logv2.Info("[Removing IPFS Folder] FolderPath: %v", folderPath)
 	cmd := NewCommand("files", "rm", "-r", folderPath)
+
 	if _, err := cmd.Run(); err != nil {
 		return fmt.Errorf("[Failure ipfs file rm ...] FolderPath : %v", folderPath)
 	}
 	logv2.Info("[Remove IPFS Folder] FolderPath: %v", folderPath)
 	return nil
+}
+
+func FilesIs(folderPath string) ([]string, error) {
+	cmd := NewCommand("files", "ls", folderPath)
+	msg, err := cmd.Run()
+	if err != nil {
+		return nil, fmt.Errorf("[Failure ipfs file is ...] FolderPath : %v", folderPath)
+	}
+	strMsg := *(*string)(unsafe.Pointer(&msg))
+	reg := "\r\n|\n"
+	splitByline := regexp.MustCompile(reg).Split(strMsg, -1)
+	return splitByline, nil
 }
 
 func NewCommand(args ...string) *IpfsCommand {

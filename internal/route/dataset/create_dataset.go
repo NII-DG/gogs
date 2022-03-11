@@ -2,6 +2,7 @@ package dataset
 
 import (
 	"fmt"
+	//logv2 "unknwon.dev/clog/v2"
 
 	"github.com/ivis-yoshida/gogs/internal/bcapi"
 	"github.com/ivis-yoshida/gogs/internal/context"
@@ -14,15 +15,15 @@ func CreateDataset(c *context.Context, f form.DatasetFrom) {
 	//実行ユーザ
 	userCode := c.User.Name
 	//レポジトリパス
-	repoBranchNm := c.Repo.RepoLink + "/" + c.Repo.BranchName
+	repoBranchPath := c.Repo.RepoLink + "/" + c.Repo.BranchName
 	//登録データセット（フォルダー名）
 	datasetList := f.Datasets
 	//ブランチ
-	branch := c.Repo.BranchName
+	branchNm := c.Repo.BranchName
 
 	//データセットフォーマットのチェック（datasetFolder : [input, src, output]フォルダーがあること、かつ、その配下にファイルがあること）
 	//各データセットパスとその内のフォルダ内のコンテンツ情報を持つMapを取得する。
-	datasetNmToFileMap, err := c.Repo.Repository.CheckDatadetAndGetContentAddress(datasetList, branch, repoBranchNm)
+	datasetNmToFileMap, err := c.Repo.Repository.CheckDatadetAndGetContentAddress(datasetList, branchNm, repoBranchPath)
 	if err != nil {
 		c.Error(err, "[Error] CheckDatadetAndGetContentAddress()")
 		return
@@ -34,11 +35,14 @@ func CreateDataset(c *context.Context, f form.DatasetFrom) {
 			return
 		} else if !isContainDatasetFileInBC(datasetData, bcContentList) {
 			var err error = fmt.Errorf("[A Part Of Dataset File Is Not Registered In BC] Dataset Name : %v", datasetPath)
-			c.Error(err, "不正なファイルが含まれています")
+			c.Error(err, "BC未登録のファイルが含まれています")
 			return
 		}
 	}
 	//IPFS上でデータセット構築
+	// for datasetPath, datasetData := range datasetNmToFileMap {
+
+	// }
 
 	//データセットのBC登録
 
