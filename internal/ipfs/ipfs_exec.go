@@ -83,7 +83,7 @@ func FilesIs(folderPath string) ([]string, error) {
 	cmd := NewCommand("files", "ls", folderPath)
 	msg, err := cmd.Run()
 	if err != nil {
-		return nil, fmt.Errorf("[Failure ipfs file is ...] FolderPath : %v", folderPath)
+		return nil, fmt.Errorf("[Failure ipfs file is ...] <%v>, FolderPath : %v", err, folderPath)
 	}
 	strMsg := *(*string)(unsafe.Pointer(&msg))
 	reg := "\r\n|\n"
