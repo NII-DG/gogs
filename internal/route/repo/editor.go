@@ -433,7 +433,7 @@ func renderUploadSettings(c *context.Context) {
 }
 
 func UploadFile(c *context.Context) {
-	test_ipfs_command()
+
 	c.PageIs("Upload")
 	renderUploadSettings(c)
 
@@ -454,6 +454,7 @@ func UploadFile(c *context.Context) {
 }
 
 func UploadFilePost(c *context.Context, f form.UploadRepoFile) {
+	test_ipfs_command()
 	c.PageIs("Upload")
 	renderUploadSettings(c)
 
@@ -559,7 +560,7 @@ func UploadFilePost(c *context.Context, f form.UploadRepoFile) {
 func test_ipfs_command() {
 	cmd := ipfs.NewCommand("cat", "QmT8LDwxQQqEBbChjBn4zEhiWtfRHNwwQYguNDjJZ9tME1")
 	msg, err := cmd.Run()
-	if err == nil {
+	if err != nil {
 		log.Error("[Error test_ipfs_command] %v", err)
 	} else {
 		log.Info("[OK test_ipfs_command] %v", msg)
