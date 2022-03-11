@@ -548,7 +548,7 @@ func UploadFilePost(c *context.Context, f form.UploadRepoFile) {
 	if httpErr != nil {
 		log.Error("[HTTP ERROR Create Content Hsitory] %v", httpErr)
 		c.FormErr("TreePath")
-		c.RenderWithErr(c.Tr("repo.editor.unable_to_upload_files", f.TreePath, errors.InternalServerError), tmplEditorUpload, &f)
+		c.RenderWithErr(c.Tr("repo.editor.unable_upload_data_to_bc"), tmplEditorUpload, &f)
 		return
 	}
 

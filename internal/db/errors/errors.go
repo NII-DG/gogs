@@ -7,6 +7,7 @@ package errors
 import "errors"
 
 var InternalServerError = errors.New("internal server error")
+var BCServerError = errors.New("BCAPI-BC server error")
 
 // New is a wrapper of real errors.New function.
 func New(text string) error {
