@@ -5,18 +5,13 @@
 package repo
 
 import (
-	ipfs_context "context"
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"os"
 	"path"
 	"path/filepath"
 	"strings"
 
-	log "unknwon.dev/clog/v2"
-
-	shell "github.com/ipfs/go-ipfs-api"
 	"github.com/ivis-yoshida/gogs/internal/bcapi"
 	"github.com/ivis-yoshida/gogs/internal/conf"
 	"github.com/ivis-yoshida/gogs/internal/context"
@@ -28,6 +23,7 @@ import (
 	"github.com/ivis-yoshida/gogs/internal/pathutil"
 	"github.com/ivis-yoshida/gogs/internal/template"
 	"github.com/ivis-yoshida/gogs/internal/tool"
+	log "unknwon.dev/clog/v2"
 )
 
 const (
@@ -456,7 +452,6 @@ func UploadFile(c *context.Context) {
 }
 
 func UploadFilePost(c *context.Context, f form.UploadRepoFile) {
-	test_go_ipfs_api()
 	c.PageIs("Upload")
 	renderUploadSettings(c)
 
@@ -556,25 +551,6 @@ func UploadFilePost(c *context.Context, f form.UploadRepoFile) {
 		c.Redirect(c.Repo.PullRequestURL(oldBranchName, f.NewBranchName))
 	} else {
 		c.Redirect(c.Repo.RepoLink + "/src/" + branchName + "/" + f.TreePath)
-	}
-}
-
-func test_go_ipfs_api() {
-	// Where your local node is running on localhost:5001
-	sh := shell.NewShell("localhost:5001")
-	cid, err := sh.Add(strings.NewReader("test_go_ipfs_api()"))
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "error: %s", err)
-		os.Exit(1)
-	}
-	log.Info("added %s", cid)
-	ctx := ipfs_context.TODO()
-
-	ipfs_id := "/ipfs/" + cid
-	if err = sh.FilesCp(ctx, ipfs_id, "/Test/data/out/"); err != nil {
-		log.Info("[Error FilesCp] %v", err)
-	} else {
-		log.Info("[Suc FilesCp]")
 	}
 }
 
