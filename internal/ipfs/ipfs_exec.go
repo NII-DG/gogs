@@ -8,7 +8,11 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"regexp"
 	"time"
+	"unsafe"
+
+	logv2 "unknwon.dev/clog/v2"
 )
 
 var (
@@ -31,6 +35,37 @@ type IpfsCommand struct {
 	name string
 	args []string
 	envs []string
+}
+
+//　ipfs files cp....コマンド
+// @param contentAddress コピーするコンテンツアドレス ex : QmT8LDwxQQqEBbChjBn4zEhiWtfRHNwwQYguNDjJZ9tME1
+// @param fullFilePath コピー先ディレクトリ ex : /RepoOwnerNm/RepoNm/BranchNm/DatasetFoleder/...../FileNm.txt
+func FilesCopy(contentAddress, fullRepoFilePath string) error {
+	contentParam := "/ipfs/" + contentAddress
+	cmd := NewCommand("files", "cp", contentParam, "-p", fullRepoFilePath)
+	if _, err := cmd.Run(); err != nil {
+		return fmt.Errorf("[Failure ipfs files cp ...] Content Adress : %v, FullRepoFilePath : %v", contentAddress, fullRepoFilePath)
+	}
+	return nil
+}
+
+// ipfs files stat...コマンド
+// @param folderPath ex /RepoOwnerNm/RepoNm/BranchNm/DatasetFoleder/input
+func FilesStat(folderPath string) (string, error) {
+	cmd := NewCommand("files", "stat", folderPath)
+	msg, err := cmd.Run()
+	if err != nil {
+		return "", fmt.Errorf("[Failure ipfs files stat ...] FolderPath : %v", folderPath)
+	}
+	//msgからフォルダーアドレスを取得
+	strMsg := *(*string)(unsafe.Pointer(&msg))
+	logv2.Info("[strMsg] %v", strMsg)
+	reg := "\r\n|\n"
+	splitByline := regexp.MustCompile(reg).Split(strMsg, -1)
+	for i, str := range splitByline {
+		logv2.Info("[line] index : %v, str : %v", i, str)
+	}
+	return "", nil
 }
 
 func NewCommand(args ...string) *IpfsCommand {

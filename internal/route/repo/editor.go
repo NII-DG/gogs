@@ -558,21 +558,14 @@ func UploadFilePost(c *context.Context, f form.UploadRepoFile) {
 }
 
 func test_ipfs_command() {
-	cmd := ipfs.NewCommand("cat", "QmT8LDwxQQqEBbChjBn4zEhiWtfRHNwwQYguNDjJZ9tME1")
-	msg, err := cmd.Run()
-	if err != nil {
-		log.Error("[Error test_ipfs_command] %v", err)
-	} else {
-		log.Info("[OK test_ipfs_command] %s", msg)
+
+	if err := ipfs.FilesCopy("QmSUKpmLpNGZGoAmDpzTV9xryPBg8D5uNtPiXVj92hz4YD", "/ivis-tsukioka/brain/master/datset1/input/test1d.txt"); err != nil {
+		log.Error("%v", err)
 	}
 
-	cmd2 := ipfs.NewCommand("files", "cp", "/ipfs/QmT8LDwxQQqEBbChjBn4zEhiWtfRHNwwQYguNDjJZ9tME1", "-p", "/Dir_test_ipfs_command1/input/")
-
-	msg2, err2 := cmd2.Run()
+	_, err := ipfs.FilesStat("/ivis-tsukioka/brain/master/datset1/input")
 	if err != nil {
-		log.Error("[Error CP test_ipfs_command] %v", err2)
-	} else {
-		log.Info("[OK CP test_ipfs_command] %s", msg2)
+		log.Error("%v", err)
 	}
 
 }
