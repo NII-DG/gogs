@@ -91,7 +91,7 @@ func renderDirectory(c *context.Context, treeLink string) {
 		logv2.Info("[data.Entry.Type() == git.ObjectBlob] %v ", data.Entry.Type() == git.ObjectBlob)
 		if data.Entry.Type() == git.ObjectBlob {
 			for _, resData := range resList.ContentsInFolder {
-				fullPath := currentFolederPath + data.Entry.Name()
+				fullPath := currentFolederPath + "/" + data.Entry.Name()
 				logv2.Info("[fullPath vs resData.ContentLocation] %v, %v ", fullPath, resData.ContentLocation)
 				logv2.Info("[fullPath == resData.ContentLocation] %v ", fullPath == resData.ContentLocation)
 				if fullPath == resData.ContentLocation {
