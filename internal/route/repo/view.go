@@ -54,16 +54,22 @@ func renderDirectory(c *context.Context, treeLink string) {
 	}
 	entries.Sort()
 
-	c.Data["Files"], err = entries.CommitsInfo(c.Repo.Commit, git.CommitsInfoOptions{
+	//コンテンツアドレスを取得
+	var filesData []*git.EntryCommitInfo
+	filesData, err = entries.CommitsInfo(c.Repo.Commit, git.CommitsInfoOptions{
 		Path:           c.Repo.TreePath,
 		MaxConcurrency: conf.Repository.CommitsFetchConcurrency,
 		Timeout:        5 * time.Minute,
 	})
-
 	if err != nil {
 		c.Error(err, "get commits info")
 		return
 	}
+	for _, data := range filesData {
+		logv2.Info("[data.Entry.Name()] %v, %v", data.Entry.Name(), data.Entry.Type())
+	}
+
+	c.Data["Files"] = filesData
 
 	if c.Data["HasDmpJson"].(bool) {
 		readDmpJson(c)
