@@ -19,8 +19,8 @@ var API_URL_CREATE_DATASET_TOKEN string = "createDatasetToken"
 type ReqCreateDatasetToken struct {
 	UserCode    string `json:"user_code"`
 	DatasetList []struct {
-		DatasetLocation string    `json:"content_location"`
-		InputAddress    string    `json:"content_address"`
+		DatasetLocation string    `json:"dataset_location"`
+		InputAddress    string    `json:"input_address"`
 		SrcAddress      string    `json:"src_address"`
 		OutputAddress   string    `json:"output_address"`
 		AddDateTime     time.Time `json:"add_date_time"`
@@ -29,8 +29,8 @@ type ReqCreateDatasetToken struct {
 
 type ResNotCreateDatasetToken struct {
 	DatasetList []struct {
-		DatasetLocation string `json:"content_location"`
-		InputAddress    string `json:"content_address"`
+		DatasetLocation string `json:"dataset_location"`
+		InputAddress    string `json:"input_address"`
 		SrcAddress      string `json:"src_address"`
 		OutputAddress   string `json:"output_address"`
 	} `json:"dataset_list"`
@@ -45,8 +45,8 @@ func CreateDatasetToken(user_code string, contentMap map[string]UploadDatasetInf
 	reqStr.UserCode = user_code
 	for k, v := range contentMap {
 		reqStr.DatasetList = append(reqStr.DatasetList, struct {
-			DatasetLocation string    "json:\"content_location\""
-			InputAddress    string    "json:\"content_address\""
+			DatasetLocation string    "json:\"dataset_location\""
+			InputAddress    string    "json:\"input_address\""
 			SrcAddress      string    "json:\"src_address\""
 			OutputAddress   string    "json:\"output_address\""
 			AddDateTime     time.Time "json:\"add_date_time\""
