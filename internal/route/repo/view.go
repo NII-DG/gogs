@@ -79,16 +79,21 @@ func renderDirectory(c *context.Context, treeLink string) {
 		tmpPath := &currentFolederPath
 		*tmpPath = *tmpPath + "/" + c.Repo.TreePath
 	}
+	logv2.Info("[currentFolederPath] %v ", currentFolederPath)
 	resList, err := bcapi.GetContentByFolder(c.User.Name, currentFolederPath)
 	if err != nil {
 		c.Error(err, "list entries")
 		return
 	}
+	logv2.Info("[resList] %v ", resList)
 	for index, data := range filesDataList {
 		logv2.Info("[index] %v", index)
+		logv2.Info("[data.Entry.Type() == git.ObjectBlob] %v ", data.Entry.Type() == git.ObjectBlob)
 		if data.Entry.Type() == git.ObjectBlob {
 			for _, resData := range resList.ContentsInFolder {
 				fullPath := currentFolederPath + data.Entry.Name()
+				logv2.Info("[fullPath vs resData.ContentLocation] %v, %v ", fullPath, resData.ContentLocation)
+				logv2.Info("[fullPath == resData.ContentLocation] %v ", fullPath == resData.ContentLocation)
 				if fullPath == resData.ContentLocation {
 					altFileDataList = append(altFileDataList, AltEntryCommitInfo{
 						Entry:          data.Entry,
