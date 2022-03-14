@@ -46,6 +46,7 @@
 					<td class="message collapsing has-emoji">
 						<a rel="nofollow" class="ui sha label" href="{{$.RepoLink}}/commit/{{.Commit.ID}}">{{ShortSHA1 .Commit.ID.String}}</a>
 						{{RenderCommitMessage false .Commit.Summary $.RepoLink $.Repository.ComposeMetas | Str2HTML}}
+						<a rel="nofollow" class="ui sha label" href="ipfs://{{.ContentAddress}}">{{.ContentAddress}}</a>
 					</td>
 					<td class="text grey right age">{{TimeSince .Commit.Committer.When $.Lang}}</td>
 			</tr>
