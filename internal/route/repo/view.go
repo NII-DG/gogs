@@ -465,55 +465,6 @@ func Forks(c *context.Context) {
 }
 
 func CreateDataset(c *context.Context, f form.DatasetFrom) {
-	//実行ユーザ
-	userCode := c.User.Name
-	//レポジトリパス
-	repoBranchPath := c.Repo.RepoLink + "/" + c.Repo.BranchName
-	//登録データセット（フォルダー名）
-	datasetList := f.DatasetList
-	//ブランチ
-	branchNm := c.Repo.BranchName
-
-	//データセットフォーマットのチェック（datasetFolder : [input, src, output]フォルダーがあること、かつ、その配下にファイルがあること）
-	//各データセットパスとその内のフォルダ内のコンテンツ情報を持つMapを取得する。
-	datasetNmToFileMap, err := c.Repo.Repository.CheckDatadetAndGetContentAddress(datasetList, branchNm, repoBranchPath)
-	if err != nil {
-		c.Error(err, "[Error] CheckDatadetAndGetContentAddress()")
-		return
-	}
-	//データセット内のコンテンツがBC上に存在するかをチェック
-	for datasetPath, datasetData := range datasetNmToFileMap {
-		if bcContentList, err := bcapi.GetContentByFolder(userCode, datasetPath); err != nil {
-			c.Error(err, "Error In Exchanging BCAPI ")
-			return
-		} else if !isContainDatasetFileInBC(datasetData, bcContentList) {
-			var err error = fmt.Errorf("[A Part Of Dataset File Is Not Registered In BC] Dataset Name : %v", datasetPath)
-			c.Error(err, "BC未登録のファイルが含まれています")
-			return
-		}
-	}
-
-	//IPFS上でデータセット構築
-	uploadDatasetMap := map[string]bcapi.UploadDatasetInfo{}
-	for datasetPath, datasetData := range datasetNmToFileMap {
-		if uploadDataset, err := dataset.GetDatasetAddress(datasetPath, datasetData); err != nil {
-			logv2.Error("[Get each Address IN Dataset] %v", err)
-			c.Error(err, "データセット内の各フォルダアドレスが取得できませんでした")
-		} else {
-			uploadDatasetMap[datasetPath] = uploadDataset
-		}
-	}
-
-	//データセットのBC登録
-	notCreatedDataset, err := bcapi.CreateDatasetToken(userCode, uploadDatasetMap)
-	if err != nil {
-		logv2.Error("[Failure Create Dataset Token] %v", err)
-		c.Error(err, "データセットのトークン化に失敗しました")
-	}
-	if len(notCreatedDataset.DatasetList) > 0 {
-		//登録できなかったデータセットの表示
-
-	}
 
 	c.Data["PageIsViewFiles"] = true
 
@@ -606,23 +557,79 @@ func CreateDataset(c *context.Context, f form.DatasetFrom) {
 	c.Data["BranchLink"] = branchLink
 	c.Data["DatasetLink"] = datasetLink
 
+	//実行ユーザ
+	userCode := c.User.Name
+	//レポジトリパス
+	repoBranchPath := c.Repo.RepoLink + "/" + c.Repo.BranchName
+	//登録データセット（フォルダー名）
+	datasetList := f.DatasetList
+	//ブランチ
+	branchNm := c.Repo.BranchName
+
+	//データセットフォーマットのチェック（datasetFolder : [input, src, output]フォルダーがあること、かつ、その配下にファイルがあること）
+	//各データセットパスとその内のフォルダ内のコンテンツ情報を持つMapを取得する。
+	datasetNmToFileMap, err := c.Repo.Repository.CheckDatadetAndGetContentAddress(datasetList, branchNm, repoBranchPath)
+	if err != nil {
+		c.Error(err, "[Error] CheckDatadetAndGetContentAddress()")
+		return
+	}
+	//データセット内のコンテンツがBC上に存在するかをチェック
+	for datasetPath, datasetData := range datasetNmToFileMap {
+		if bcContentList, err := bcapi.GetContentByFolder(userCode, datasetPath); err != nil {
+			c.Error(err, "Error In Exchanging BCAPI ")
+			return
+		} else if !isContainDatasetFileInBC(datasetData, bcContentList) {
+			var err error = fmt.Errorf("[A Part Of Dataset File Is Not Registered In BC] Dataset Name : %v", datasetPath)
+			c.Error(err, "BC未登録のファイルが含まれています")
+			return
+		}
+	}
+
+	//IPFS上でデータセット構築
+	uploadDatasetMap := map[string]bcapi.UploadDatasetInfo{}
+	for datasetPath, datasetData := range datasetNmToFileMap {
+		if uploadDataset, err := dataset.GetDatasetAddress(datasetPath, datasetData); err != nil {
+			logv2.Error("[Get each Address IN Dataset] %v", err)
+			c.Error(err, "データセット内の各フォルダアドレスが取得できませんでした")
+		} else {
+			uploadDatasetMap[datasetPath] = uploadDataset
+		}
+	}
+
+	//データセットのBC登録
+	notCreatedDataset, err := bcapi.CreateDatasetToken(userCode, uploadDatasetMap)
+	if err != nil {
+		logv2.Error("[Failure Create Dataset Token] %v", err)
+		c.Error(err, "データセットのトークン化に失敗しました")
+	}
+	if len(notCreatedDataset.DatasetList) > 0 {
+		//登録できなかったデータセットの表示
+		notCreatesDatasetList := ""
+		for _, dataset := range notCreatedDataset.DatasetList {
+			logv2.Warn("[Already Exist Dataset Token] %v", dataset.DatasetLocation)
+			temStr := &notCreatesDatasetList
+			*temStr = *temStr + dataset.DatasetLocation
+		}
+		c.FormErr("Dataset")
+
+		msg := fmt.Sprintf("%vは既に登録されています。", notCreatesDatasetList)
+		c.RenderWithErr(msg, HOME, &f)
+	}
+
 	c.Success(HOME)
 }
 
 func isContainDatasetFileInBC(datasetData db.DatasetInfo, bcContentList bcapi.ResContentsInFolder) bool {
 	for _, inputData := range datasetData.InputList {
-		logv2.Trace("[INPUT]")
 		if !isContainFileInBc(inputData, bcContentList) {
 			return false
 		}
 	}
-	logv2.Trace("[SRC]")
 	for _, srcData := range datasetData.SrcList {
 		if !isContainFileInBc(srcData, bcContentList) {
 			return false
 		}
 	}
-	logv2.Trace("[OUTPUT]")
 	for _, outData := range datasetData.OutputList {
 		if !isContainFileInBc(outData, bcContentList) {
 			return false
@@ -633,10 +640,6 @@ func isContainDatasetFileInBC(datasetData db.DatasetInfo, bcContentList bcapi.Re
 
 func isContainFileInBc(contentData db.ContentInfo, bcContentList bcapi.ResContentsInFolder) bool {
 	for _, bcContent := range bcContentList.ContentsInFolder {
-		logv2.Trace("[contentData.File] %v", contentData.File)
-		logv2.Trace("[bcContent.ContentLocation] %v", bcContent.ContentLocation)
-		logv2.Trace("[contentData.Address] %v", contentData.Address)
-		logv2.Trace("[bcContent.ContentAddress] %v", bcContent.ContentAddress)
 		if contentData.File == bcContent.ContentLocation && contentData.Address == bcContent.ContentAddress {
 			return true
 		}
