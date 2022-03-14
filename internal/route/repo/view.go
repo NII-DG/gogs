@@ -110,8 +110,8 @@ func renderDirectory(c *context.Context, treeLink string) {
 		logv2.Info("[altData] %v", altData.Entry.Name())
 		logv2.Info("[altData] %v", altData.ContentAddress)
 	}
-	logv2.Info("[altFileDataList] %v", altFileDataList)
-	c.Data["Files"] = filesDataList
+	logv2.Info("[altFileDataList] %s", altFileDataList)
+	c.Data["Files"] = altFileDataList
 
 	if c.Data["HasDmpJson"].(bool) {
 		readDmpJson(c)
