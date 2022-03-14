@@ -636,8 +636,9 @@ func CreateDataset(c *context.Context, f form.DatasetFrom) {
 	}
 	if isDisplaySubmitDataset {
 		c.Flash.InfoMsg = fmt.Sprintf("%vをブロックチェーンへ登録申請しました。", createDatasetListStr)
-		c.Data["Flash"] = c.Flash
+
 	}
+	c.Data["Flash"] = c.Flash
 	c.Success(HOME)
 }
 
