@@ -608,7 +608,7 @@ func CreateDataset(c *context.Context, f form.DatasetFrom) {
 		for _, dataset := range notCreatedDataset.DatasetList {
 			logv2.Warn("[Already Exist Dataset Token] %v", dataset.DatasetLocation)
 			temStr := &notCreatesDatasetList
-			*temStr = *temStr + "<" + dataset.DatasetLocation + ">  "
+			*temStr = *temStr + dataset.DatasetLocation
 
 		}
 		msg := fmt.Sprintf("%vは既に登録されています。", notCreatesDatasetList)
