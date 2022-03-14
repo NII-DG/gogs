@@ -638,6 +638,7 @@ func (repo *Repository) CheckDatadetAndGetContentAddress(datasetNmList []string,
 			return nil, err
 		}
 	}
+	log.Info("[OK Dataset Format] %s", datasetNmList)
 
 	//ローカルのリポートリポジトリのIPFS有効化
 	//ベアレポジトリをIPFSへ連携
@@ -658,7 +659,7 @@ func (repo *Repository) CheckDatadetAndGetContentAddress(datasetNmList []string,
 	}
 
 	for datasetNm, annexContentInfoList := range datasetToContentsMap {
-		datasetInfo := &DatasetInfo{}
+		datasetInfo := DatasetInfo{}
 		log.Trace("[Picking up annex content info] dataset name : %v", datasetNm)
 		for _, content := range annexContentInfoList {
 			inputPath := datasetNm + "/" + INPUT_FOLDER_NM //ex : datasetNm/input
@@ -676,7 +677,8 @@ func (repo *Repository) CheckDatadetAndGetContentAddress(datasetNmList []string,
 			}
 		}
 		datasetPath := repoBranchNm + "/" + datasetNm
-		datasetNmToFileMap[datasetPath] = *datasetInfo
+		datasetNmToFileMap[datasetPath] = datasetInfo
+		log.Trace("[datasetNmToFileMap] %v", datasetNmToFileMap)
 	}
 	return datasetNmToFileMap, nil
 }
