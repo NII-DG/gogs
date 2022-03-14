@@ -425,8 +425,13 @@ func (f *DeleteRepoFile) IsNewBrnach() bool {
 	return f.CommitChoice == "commit-to-new-branch"
 }
 
+//データセットフォーム
 type DatasetFrom struct {
 	DatasetList []string `binding:"Required"`
+}
+
+func (f *DatasetFrom) Validate(ctx *macaron.Context, errs binding.Errors) binding.Errors {
+	return validate(errs, ctx.Data, f, ctx.Locale)
 }
 
 func (d *DatasetFrom) getDatasets() []string {
