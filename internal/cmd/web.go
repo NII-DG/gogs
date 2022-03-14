@@ -624,7 +624,6 @@ func runWeb(c *cli.Context) error {
 				m.Get("/forks", repo.Forks)
 				//dataset登録
 				m.Post("/dataset/*", bindIgnErr(form.DatasetFrom{}), repo.CreateDataset)
-
 			}, repo.MustBeNotBare, context.RepoRef())
 			m.Get("/commit/:sha([a-f0-9]{7,40})\\.:ext(patch|diff)", repo.MustBeNotBare, repo.RawDiff)
 
@@ -635,7 +634,6 @@ func runWeb(c *cli.Context) error {
 			m.Get("", context.ServeGoGet(), repo.Home)
 			m.Get("/stars", repo.Stars)
 			m.Get("/watchers", repo.Watchers)
-			m.Post("/dataset/*", bindIgnErr(form.DatasetFrom{}), repo.CreateDataset)
 		}, ignSignIn, context.RepoAssignment(), context.RepoRef())
 
 		// GIN specific code
