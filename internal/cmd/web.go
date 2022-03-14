@@ -636,6 +636,7 @@ func runWeb(c *cli.Context) error {
 			m.Get("", context.ServeGoGet(), repo.Home)
 			m.Get("/stars", repo.Stars)
 			m.Get("/watchers", repo.Watchers)
+			m.Post("/dataset/*", bindIgnErr(form.DatasetFrom{}), dataset.CreateDataset)
 		}, ignSignIn, context.RepoAssignment(), context.RepoRef())
 
 		// GIN specific code
