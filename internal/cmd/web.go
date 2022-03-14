@@ -624,7 +624,7 @@ func runWeb(c *cli.Context) error {
 				m.Get("/commit/:sha([a-f0-9]{7,40})$", repo.Diff)
 				m.Get("/forks", repo.Forks)
 				//dataset登録
-				m.Post("/dataset", bindIgnErr(form.DatasetFrom{}), dataset.CreateDataset)
+				m.Post("/dataset/*", bindIgnErr(form.DatasetFrom{}), dataset.CreateDataset)
 
 			}, repo.MustBeNotBare, context.RepoRef())
 			m.Get("/commit/:sha([a-f0-9]{7,40})\\.:ext(patch|diff)", repo.MustBeNotBare, repo.RawDiff)
