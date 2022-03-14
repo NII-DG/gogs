@@ -13,6 +13,7 @@ import (
 
 //データセット登録処理
 func CreateDataset(c *context.Context, f form.DatasetFrom) {
+	logv2.Info("[dataset form] %v", f.Datasets)
 	//実行ユーザ
 	userCode := c.User.Name
 	//レポジトリパス
