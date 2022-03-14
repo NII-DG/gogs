@@ -40,6 +40,14 @@ const (
 	FORKS    = "repo/forks"
 )
 
+type AltEntryCommitInfo struct {
+	Entry          *git.TreeEntry
+	Index          int
+	Commit         *git.Commit
+	Submodule      *git.Submodule
+	ContentAddress string
+}
+
 func renderDirectory(c *context.Context, treeLink string) {
 	tree, err := c.Repo.Commit.Subtree(c.Repo.TreePath)
 	if err != nil {
@@ -55,6 +63,7 @@ func renderDirectory(c *context.Context, treeLink string) {
 	entries.Sort()
 
 	//コンテンツアドレスを取得
+	var altFileDataList []AltEntryCommitInfo
 	var filesDataList []*git.EntryCommitInfo
 	filesDataList, err = entries.CommitsInfo(c.Repo.Commit, git.CommitsInfoOptions{
 		Path:           c.Repo.TreePath,
@@ -82,18 +91,18 @@ func renderDirectory(c *context.Context, treeLink string) {
 				fullPath := currentFolederPath + data.Entry.Name()
 				if fullPath == resData.ContentLocation {
 					tmpFileData := filesDataList[index]
-					filesDataList[index] = tmpFileData
+					altFileDataList = append(altFileDataList, AltEntryCommitInfo{
+						Entry:          tmpFileData.Entry,
+						Index:          tmpFileData.Index,
+						Commit:         tmpFileData.Commit,
+						Submodule:      tmpFileData.Submodule,
+						ContentAddress: resData.ContentAddress,
+					})
 				}
 			}
 		}
 	}
-
-	for _, data := range filesDataList {
-		logv2.Info("[data.Entry.Name()] %v, %v", data.Entry.Name(), data.Entry.Type())
-		logv2.Info("[c.Repo.TreePath] %v", c.Repo.TreePath)
-		logv2.Info("[c.Repo.RepoLink + \"/\" + c.Repo.BranchName] %v", c.Repo.RepoLink+"/"+c.Repo.BranchName)
-	}
-	logv2.Info("[filesDataList] %v", filesDataList)
+	logv2.Info("[altFileDataList] %v", altFileDataList)
 	c.Data["Files"] = filesDataList
 
 	if c.Data["HasDmpJson"].(bool) {
