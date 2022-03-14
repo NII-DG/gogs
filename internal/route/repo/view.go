@@ -579,9 +579,9 @@ func CreateDataset(c *context.Context, f form.DatasetFrom) {
 			c.Error(err, "Error In Exchanging BCAPI ")
 			return
 		} else if !isContainDatasetFileInBC(datasetData, bcContentList) {
-			var err error = fmt.Errorf("[A Part Of Dataset File Is Not Registered In BC] Dataset Name : %v", datasetPath)
-			c.Error(err, "BC未登録のファイルが含まれています")
-			return
+			logv2.Error("[A Part Of Dataset File Is Not Registered In BC] Dataset Name : %v", datasetPath)
+			msg := fmt.Sprintf("アップロードされたファイルがブロックチェーンに未登録または登録処理中の可能性があります。再度、データセット登録を申請してください。")
+			c.RenderWithErr(msg, HOME, &f)
 		}
 	}
 
