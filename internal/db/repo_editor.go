@@ -667,8 +667,8 @@ func (repo *Repository) CheckDatadetAndGetContentAddress(datasetNmList []string,
 			srcPath := datasetNm + "/" + SRC_FOLDER_NM
 			OutputPath := datasetNm + "/" + OUTPUT_FOLDER_NM
 
-			filePath := content.File                // ex datasetNm/FolderNm/...../FileNm
-			fullFilePath := repoBranchNm + filePath // ex RepoOwnerNm/RepoNm/BranchNm/datasetNm/FolderNm/...../FileNm
+			filePath := content.File                      // ex datasetNm/FolderNm/...../FileNm
+			fullFilePath := repoBranchNm + "/" + filePath // ex RepoOwnerNm/RepoNm/BranchNm/datasetNm/FolderNm/...../FileNm
 			if strings.HasPrefix(filePath, inputPath) {
 				datasetInfo.InputList = append(datasetInfo.InputList, ContentInfo{fullFilePath, content.Hash})
 			} else if strings.HasPrefix(filePath, srcPath) {
