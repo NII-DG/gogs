@@ -63,7 +63,7 @@ func renderDirectory(c *context.Context, treeLink string) {
 	entries.Sort()
 
 	//コンテンツアドレスを取得
-	var altFileDataList []AltEntryCommitInfo
+	altFileDataList := []AltEntryCommitInfo{}
 	var filesDataList []*git.EntryCommitInfo
 	filesDataList, err = entries.CommitsInfo(c.Repo.Commit, git.CommitsInfoOptions{
 		Path:           c.Repo.TreePath,
@@ -90,17 +90,20 @@ func renderDirectory(c *context.Context, treeLink string) {
 			for _, resData := range resList.ContentsInFolder {
 				fullPath := currentFolederPath + data.Entry.Name()
 				if fullPath == resData.ContentLocation {
-					tmpFileData := filesDataList[index]
 					altFileDataList = append(altFileDataList, AltEntryCommitInfo{
-						Entry:          tmpFileData.Entry,
-						Index:          tmpFileData.Index,
-						Commit:         tmpFileData.Commit,
-						Submodule:      tmpFileData.Submodule,
+						Entry:          data.Entry,
+						Index:          data.Index,
+						Commit:         data.Commit,
+						Submodule:      data.Submodule,
 						ContentAddress: resData.ContentAddress,
 					})
 				}
 			}
 		}
+	}
+	for _, altData := range altFileDataList {
+		logv2.Info("[altData] %v", altData.Entry.Name())
+		logv2.Info("[altData] %v", altData.ContentAddress)
 	}
 	logv2.Info("[altFileDataList] %v", altFileDataList)
 	c.Data["Files"] = filesDataList
