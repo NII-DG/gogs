@@ -337,6 +337,7 @@ func Home(c *context.Context) {
 	branchLink := c.Repo.RepoLink + "/src/" + c.Repo.BranchName
 	treeLink := branchLink
 	rawLink := c.Repo.RepoLink + "/raw/" + c.Repo.BranchName
+	datasetLink := c.Repo.RepoLink + "/dataset/" + c.Repo.BranchName
 
 	isRootDir := false
 	if len(c.Repo.TreePath) > 0 {
@@ -402,6 +403,8 @@ func Home(c *context.Context) {
 	c.Data["TreeLink"] = treeLink
 	c.Data["TreeNames"] = treeNames
 	c.Data["BranchLink"] = branchLink
+	c.Data["DatasetLink"] = datasetLink
+
 	c.Success(HOME)
 }
 
