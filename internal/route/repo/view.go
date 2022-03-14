@@ -26,6 +26,7 @@ import (
 	"github.com/ivis-yoshida/gogs/internal/form"
 	"github.com/ivis-yoshida/gogs/internal/gitutil"
 	"github.com/ivis-yoshida/gogs/internal/markup"
+	"github.com/ivis-yoshida/gogs/internal/route/dataset"
 	"github.com/ivis-yoshida/gogs/internal/template"
 	"github.com/ivis-yoshida/gogs/internal/template/highlight"
 	"github.com/ivis-yoshida/gogs/internal/tool"
@@ -495,7 +496,7 @@ func CreateDataset(c *context.Context, f form.DatasetFrom) {
 	//IPFS上でデータセット構築
 	uploadDatasetMap := map[string]bcapi.UploadDatasetInfo{}
 	for datasetPath, datasetData := range datasetNmToFileMap {
-		if uploadDataset, err := GetDatasetAddress(datasetPath, datasetData); err != nil {
+		if uploadDataset, err := dataset.GetDatasetAddress(datasetPath, datasetData); err != nil {
 			logv2.Error("[Get each Address IN Dataset] %v", err)
 			c.Error(err, "データセット内の各フォルダアドレスが取得できませんでした")
 		} else {
