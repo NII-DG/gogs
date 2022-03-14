@@ -55,8 +55,8 @@ func renderDirectory(c *context.Context, treeLink string) {
 	entries.Sort()
 
 	//コンテンツアドレスを取得
-	var filesData []*git.EntryCommitInfo
-	filesData, err = entries.CommitsInfo(c.Repo.Commit, git.CommitsInfoOptions{
+	var filesDataList []*git.EntryCommitInfo
+	filesDataList, err = entries.CommitsInfo(c.Repo.Commit, git.CommitsInfoOptions{
 		Path:           c.Repo.TreePath,
 		MaxConcurrency: conf.Repository.CommitsFetchConcurrency,
 		Timeout:        5 * time.Minute,
@@ -65,13 +65,36 @@ func renderDirectory(c *context.Context, treeLink string) {
 		c.Error(err, "get commits info")
 		return
 	}
-	for _, data := range filesData {
+	currentFolederPath := c.Repo.RepoLink + "/" + c.Repo.BranchName
+	if c.Repo.TreePath != "" {
+		tmpPath := &currentFolederPath
+		*tmpPath = *tmpPath + "/" + c.Repo.TreePath
+	}
+	resList, err := bcapi.GetContentByFolder(c.User.Name, currentFolederPath)
+	if err != nil {
+		c.Error(err, "list entries")
+		return
+	}
+	for index, data := range filesDataList {
+		logv2.Info("[index] %v", index)
+		if data.Entry.Type() == git.ObjectBlob {
+			for _, resData := range resList.ContentsInFolder {
+				fullPath := currentFolederPath + data.Entry.Name()
+				if fullPath == resData.ContentLocation {
+					tmpFileData := filesDataList[index]
+					filesDataList[index] = tmpFileData
+				}
+			}
+		}
+	}
+
+	for _, data := range filesDataList {
 		logv2.Info("[data.Entry.Name()] %v, %v", data.Entry.Name(), data.Entry.Type())
 		logv2.Info("[c.Repo.TreePath] %v", c.Repo.TreePath)
 		logv2.Info("[c.Repo.RepoLink + \"/\" + c.Repo.BranchName] %v", c.Repo.RepoLink+"/"+c.Repo.BranchName)
 	}
-
-	c.Data["Files"] = filesData
+	logv2.Info("[filesDataList] %v", filesDataList)
+	c.Data["Files"] = filesDataList
 
 	if c.Data["HasDmpJson"].(bool) {
 		readDmpJson(c)
