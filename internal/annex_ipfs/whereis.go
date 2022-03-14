@@ -6,8 +6,8 @@ import (
 	"strings"
 	"unsafe"
 
-	//log "unknwon.dev/clog/v2"
 	"github.com/ivis-yoshida/gogs/internal/jsonfunc"
+	log "unknwon.dev/clog/v2"
 )
 
 //git annex whereis --jsonの構造体
@@ -78,6 +78,7 @@ func GetAnnexContentInfoListByDatasetNm(rawJson *[]byte, datasetNmList []string)
 	reg := "\r\n|\n"
 	strJson := *(*string)(unsafe.Pointer(rawJson))            //[]byte to string
 	splitByline := regexp.MustCompile(reg).Split(strJson, -1) //改行分割
+	log.Trace("[splitByline] %v", splitByline)
 	for _, unitData := range splitByline {
 		if jsonfunc.IsJSONString(unitData) {
 			byteJson := []byte(unitData)
@@ -92,6 +93,7 @@ func GetAnnexContentInfoListByDatasetNm(rawJson *[]byte, datasetNmList []string)
 			}
 		}
 	}
+	log.Trace("[annexContentInfoMap] %v", annexContentInfoMap)
 	return annexContentInfoMap, nil
 }
 
