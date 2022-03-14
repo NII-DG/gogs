@@ -68,15 +68,18 @@ func CreateDataset(c *context.Context, f form.DatasetFrom) {
 
 func isContainDatasetFileInBC(datasetData db.DatasetInfo, bcContentList bcapi.ResContentsInFolder) bool {
 	for _, inputData := range datasetData.InputList {
+		logv2.Trace("[INPUT]")
 		if !isContainFileInBc(inputData, bcContentList) {
 			return false
 		}
 	}
+	logv2.Trace("[SRC]")
 	for _, srcData := range datasetData.SrcList {
 		if !isContainFileInBc(srcData, bcContentList) {
 			return false
 		}
 	}
+	logv2.Trace("[OUTPUT]")
 	for _, outData := range datasetData.OutputList {
 		if !isContainFileInBc(outData, bcContentList) {
 			return false
@@ -87,6 +90,10 @@ func isContainDatasetFileInBC(datasetData db.DatasetInfo, bcContentList bcapi.Re
 
 func isContainFileInBc(contentData db.ContentInfo, bcContentList bcapi.ResContentsInFolder) bool {
 	for _, bcContent := range bcContentList.ContentsInFolder {
+		logv2.Trace("[contentData.File] %v", contentData.File)
+		logv2.Trace("[bcContent.ContentLocation] %v", bcContent.ContentLocation)
+		logv2.Trace("[contentData.Address] %v", contentData.Address)
+		logv2.Trace("[bcContent.ContentAddress] %v", bcContent.ContentAddress)
 		if contentData.File == bcContent.ContentLocation && contentData.Address == bcContent.ContentAddress {
 			return true
 		}
