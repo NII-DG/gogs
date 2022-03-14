@@ -612,11 +612,12 @@ func CreateDataset(c *context.Context, f form.DatasetFrom) {
 			*temStr = *temStr + addDataset
 
 		}
-		msg := fmt.Sprintf("%vは既に登録されています。該当するデータセットフォルダーのチェックを外して再度、登録してください。", notCreatesDatasetList)
+		msg := fmt.Sprintf("%vは既に登録されています。", notCreatesDatasetList)
 		c.Flash.ErrorMsg = msg
 	}
 
 	//登録依頼したデータセットの表示
+	isDisplaySubmitDataset := false
 	createDatasetListStr := ""
 	for k, _ := range uploadDatasetMap {
 		isSumbitBc := true
@@ -627,14 +628,16 @@ func CreateDataset(c *context.Context, f form.DatasetFrom) {
 			}
 		}
 		if isSumbitBc {
+			isTmpDisplay := &isDisplaySubmitDataset
+			*isTmpDisplay = true
 			tmpStr := &createDatasetListStr
 			*tmpStr = *tmpStr + "[" + k + "]  "
 		}
 	}
-
-	c.Flash.InfoMsg = fmt.Sprintf("%vをブロックチェーンへ登録申請しました。", createDatasetListStr)
-	c.Data["Flash"] = c.Flash
-
+	if isDisplaySubmitDataset {
+		c.Flash.InfoMsg = fmt.Sprintf("%vをブロックチェーンへ登録申請しました。", createDatasetListStr)
+		c.Data["Flash"] = c.Flash
+	}
 	c.Success(HOME)
 }
 
