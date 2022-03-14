@@ -612,8 +612,8 @@ func CreateDataset(c *context.Context, f form.DatasetFrom) {
 			*temStr = *temStr + addDataset
 
 		}
-		msg := fmt.Sprintf("%vは既に登録されています。", notCreatesDatasetList)
-		c.RenderWithErr(msg, HOME, &f)
+		msg := fmt.Sprintf("%vは既に登録されています。該当するデータセットフォルダーのチェックを外して再度、登録してください。", notCreatesDatasetList)
+		c.Flash.ErrorMsg = msg
 	}
 
 	//登録依頼したデータセットの表示
