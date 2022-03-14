@@ -617,23 +617,23 @@ func CreateDataset(c *context.Context, f form.DatasetFrom) {
 	}
 
 	//登録依頼したデータセットの表示
-	// createDatasetListStr := ""
-	// for k, _ := range uploadDatasetMap {
-	// 	isSumbitBc := true
-	// 	for _, nonDataset := range notCreatedDataset.DatasetList {
-	// 		if k == nonDataset.DatasetLocation {
-	// 			isTmp := &isSumbitBc
-	// 			*isTmp = false
-	// 		}
-	// 	}
-	// 	if isSumbitBc {
-	// 		tmpStr := &createDatasetListStr
-	// 		*tmpStr = *tmpStr + "<" + k + ">  "
-	// 	}
-	// }
+	createDatasetListStr := ""
+	for k, _ := range uploadDatasetMap {
+		isSumbitBc := true
+		for _, nonDataset := range notCreatedDataset.DatasetList {
+			if k == nonDataset.DatasetLocation {
+				isTmp := &isSumbitBc
+				*isTmp = false
+			}
+		}
+		if isSumbitBc {
+			tmpStr := &createDatasetListStr
+			*tmpStr = *tmpStr + "[" + k + "]  "
+		}
+	}
 
-	// c.Flash.InfoMsg = fmt.Sprintf("%vをブロックチェーンへ登録申請しました。", createDatasetListStr)
-	// c.Data["Flash"] = c.Flash
+	c.Flash.InfoMsg = fmt.Sprintf("%vをブロックチェーンへ登録申請しました。", createDatasetListStr)
+	c.Data["Flash"] = c.Flash
 
 	c.Success(HOME)
 }
