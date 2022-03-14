@@ -19,14 +19,17 @@ import (
 	"github.com/unknwon/paginater"
 	log "unknwon.dev/clog/v2"
 
+	"github.com/ivis-yoshida/gogs/internal/bcapi"
 	"github.com/ivis-yoshida/gogs/internal/conf"
 	"github.com/ivis-yoshida/gogs/internal/context"
 	"github.com/ivis-yoshida/gogs/internal/db"
+	"github.com/ivis-yoshida/gogs/internal/form"
 	"github.com/ivis-yoshida/gogs/internal/gitutil"
 	"github.com/ivis-yoshida/gogs/internal/markup"
 	"github.com/ivis-yoshida/gogs/internal/template"
 	"github.com/ivis-yoshida/gogs/internal/template/highlight"
 	"github.com/ivis-yoshida/gogs/internal/tool"
+	logv2 "unknwon.dev/clog/v2"
 )
 
 const (
@@ -458,4 +461,184 @@ func Forks(c *context.Context) {
 	c.Data["Forks"] = forks
 
 	c.Success(FORKS)
+}
+
+func CreateDataset(c *context.Context, f form.DatasetFrom) {
+	//実行ユーザ
+	userCode := c.User.Name
+	//レポジトリパス
+	repoBranchPath := c.Repo.RepoLink + "/" + c.Repo.BranchName
+	//登録データセット（フォルダー名）
+	datasetList := f.DatasetList
+	//ブランチ
+	branchNm := c.Repo.BranchName
+
+	//データセットフォーマットのチェック（datasetFolder : [input, src, output]フォルダーがあること、かつ、その配下にファイルがあること）
+	//各データセットパスとその内のフォルダ内のコンテンツ情報を持つMapを取得する。
+	datasetNmToFileMap, err := c.Repo.Repository.CheckDatadetAndGetContentAddress(datasetList, branchNm, repoBranchPath)
+	if err != nil {
+		c.Error(err, "[Error] CheckDatadetAndGetContentAddress()")
+		return
+	}
+	//データセット内のコンテンツがBC上に存在するかをチェック
+	for datasetPath, datasetData := range datasetNmToFileMap {
+		if bcContentList, err := bcapi.GetContentByFolder(userCode, datasetPath); err != nil {
+			c.Error(err, "Error In Exchanging BCAPI ")
+			return
+		} else if !isContainDatasetFileInBC(datasetData, bcContentList) {
+			var err error = fmt.Errorf("[A Part Of Dataset File Is Not Registered In BC] Dataset Name : %v", datasetPath)
+			c.Error(err, "BC未登録のファイルが含まれています")
+			return
+		}
+	}
+
+	//IPFS上でデータセット構築
+	uploadDatasetMap := map[string]bcapi.UploadDatasetInfo{}
+	for datasetPath, datasetData := range datasetNmToFileMap {
+		if uploadDataset, err := GetDatasetAddress(datasetPath, datasetData); err != nil {
+			logv2.Error("[Get each Address IN Dataset] %v", err)
+			c.Error(err, "データセット内の各フォルダアドレスが取得できませんでした")
+		} else {
+			uploadDatasetMap[datasetPath] = uploadDataset
+		}
+	}
+
+	//データセットのBC登録
+	notCreatedDataset, err := bcapi.CreateDatasetToken(userCode, uploadDatasetMap)
+	if err != nil {
+		logv2.Error("[Failure Create Dataset Token] %v", err)
+		c.Error(err, "データセットのトークン化に失敗しました")
+	}
+	if len(notCreatedDataset.DatasetList) > 0 {
+		//登録できなかったデータセットの表示
+
+	}
+
+	c.Data["PageIsViewFiles"] = true
+
+	if c.Repo.Repository.IsBare {
+		c.Success(BARE)
+		return
+	}
+
+	title := c.Repo.Repository.Owner.Name + "/" + c.Repo.Repository.Name
+	if len(c.Repo.Repository.Description) > 0 {
+		title += ": " + c.Repo.Repository.Description
+	}
+	c.Data["Title"] = title
+	if c.Repo.BranchName != c.Repo.Repository.DefaultBranch {
+		c.Data["Title"] = title + " @ " + c.Repo.BranchName
+	}
+	c.Data["RequireHighlightJS"] = true
+
+	//コンテンツロケーションの定義
+	var contentLocation string
+
+	branchLink := c.Repo.RepoLink + "/src/" + c.Repo.BranchName
+	treeLink := branchLink
+	rawLink := c.Repo.RepoLink + "/raw/" + c.Repo.BranchName
+	datasetLink := c.Repo.RepoLink + "/dataset/" + c.Repo.BranchName
+
+	isRootDir := false
+	if len(c.Repo.TreePath) > 0 {
+		treeLink += "/" + c.Repo.TreePath
+		log.Info("[Debug_1 Add treeLink] new path : %v, add path : %v", treeLink, c.Repo.TreePath)
+		temploc := &contentLocation
+		*temploc = c.Repo.RepoLink + "/" + c.Repo.BranchName + "/" + c.Repo.TreePath
+
+	} else {
+		isRootDir = true
+
+		// Only show Git stats panel when view root directory
+		var err error
+		c.Repo.CommitsCount, err = c.Repo.Commit.CommitsCount()
+		if err != nil {
+			c.Error(err, "count commits")
+			return
+		}
+		c.Data["CommitsCount"] = c.Repo.CommitsCount
+	}
+	c.Data["PageIsRepoHome"] = isRootDir
+
+	// Get current entry user currently looking at.
+	//選択フォルダーの下にフォルダー、ファイルの確認
+	entry, err := c.Repo.Commit.TreeEntry(c.Repo.TreePath)
+	logv2.Info("[c.Repo.TreePath]", c.Repo.TreePath)
+	logv2.Info("[entry]", entry)
+
+	if err != nil {
+		c.NotFoundOrError(gitutil.NewError(err), "get tree entry")
+		return
+	}
+
+	if entry.IsTree() {
+		renderDirectory(c, treeLink)
+	} else {
+		renderFile(c, entry, treeLink, rawLink, contentLocation)
+	}
+	if c.Written() {
+		return
+	}
+
+	setEditorconfigIfExists(c)
+	if c.Written() {
+		return
+	}
+
+	var treeNames []string
+	paths := make([]string, 0, 5)
+	if len(c.Repo.TreePath) > 0 {
+		treeNames = strings.Split(c.Repo.TreePath, "/")
+		for i := range treeNames {
+			paths = append(paths, strings.Join(treeNames[:i+1], "/"))
+		}
+
+		c.Data["HasParentPath"] = true
+		if len(paths)-2 >= 0 {
+			c.Data["ParentPath"] = "/" + paths[len(paths)-2]
+		}
+	}
+
+	c.Data["Paths"] = paths
+	c.Data["TreeLink"] = treeLink
+	c.Data["TreeNames"] = treeNames
+	c.Data["BranchLink"] = branchLink
+	c.Data["DatasetLink"] = datasetLink
+
+	c.Success(HOME)
+}
+
+func isContainDatasetFileInBC(datasetData db.DatasetInfo, bcContentList bcapi.ResContentsInFolder) bool {
+	for _, inputData := range datasetData.InputList {
+		logv2.Trace("[INPUT]")
+		if !isContainFileInBc(inputData, bcContentList) {
+			return false
+		}
+	}
+	logv2.Trace("[SRC]")
+	for _, srcData := range datasetData.SrcList {
+		if !isContainFileInBc(srcData, bcContentList) {
+			return false
+		}
+	}
+	logv2.Trace("[OUTPUT]")
+	for _, outData := range datasetData.OutputList {
+		if !isContainFileInBc(outData, bcContentList) {
+			return false
+		}
+	}
+	return true
+}
+
+func isContainFileInBc(contentData db.ContentInfo, bcContentList bcapi.ResContentsInFolder) bool {
+	for _, bcContent := range bcContentList.ContentsInFolder {
+		logv2.Trace("[contentData.File] %v", contentData.File)
+		logv2.Trace("[bcContent.ContentLocation] %v", bcContent.ContentLocation)
+		logv2.Trace("[contentData.Address] %v", contentData.Address)
+		logv2.Trace("[bcContent.ContentAddress] %v", bcContent.ContentAddress)
+		if contentData.File == bcContent.ContentLocation && contentData.Address == bcContent.ContentAddress {
+			return true
+		}
+	}
+	return false
 }
