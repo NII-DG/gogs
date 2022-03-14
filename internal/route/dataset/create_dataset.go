@@ -13,13 +13,13 @@ import (
 
 //データセット登録処理
 func CreateDataset(c *context.Context, f form.DatasetFrom) {
-	logv2.Info("[dataset form] %v", f.Datasets)
+	logv2.Info("[dataset form] %v", f.DatasetList)
 	//実行ユーザ
 	userCode := c.User.Name
 	//レポジトリパス
 	repoBranchPath := c.Repo.RepoLink + "/" + c.Repo.BranchName
 	//登録データセット（フォルダー名）
-	datasetList := f.Datasets
+	datasetList := f.DatasetList
 	//ブランチ
 	branchNm := c.Repo.BranchName
 

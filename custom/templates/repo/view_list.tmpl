@@ -34,7 +34,7 @@
 					</td>
 				{{else}}
 					<td class="name">
-						<input type="checkbox" name="dataset_list[]" value="{{.Entry.Name}}" />
+						<input type="checkbox" name="dataset_list" value="{{.Entry.Name}}" />
 						{{if .Entry.IsSymlink}}
 							<span class="octicon octicon-file-symlink-file"></span>
 						{{else}}
