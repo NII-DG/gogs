@@ -87,10 +87,10 @@ func renderDirectory(c *context.Context, treeLink string) {
 	}
 	logv2.Info("[resList] %v ", resList)
 	for index, data := range filesDataList {
+		flg := false
 		logv2.Info("[index] %v", index)
 		logv2.Info("[data.Entry.Type() == git.ObjectBlob] %v ", data.Entry.Type() == git.ObjectBlob)
 		if data.Entry.Type() == git.ObjectBlob {
-			flg := false
 			for _, resData := range resList.ContentsInFolder {
 				fullPath := currentFolederPath + "/" + data.Entry.Name()
 				logv2.Info("[fullPath vs resData.ContentLocation] %v, %v ", fullPath, resData.ContentLocation)
@@ -107,15 +107,15 @@ func renderDirectory(c *context.Context, treeLink string) {
 					*tmpFlg = true
 				}
 			}
-			if !flg {
-				altFileDataList = append(altFileDataList, AltEntryCommitInfo{
-					Entry:          data.Entry,
-					Index:          data.Index,
-					Commit:         data.Commit,
-					Submodule:      data.Submodule,
-					ContentAddress: "",
-				})
-			}
+		}
+		if !flg {
+			altFileDataList = append(altFileDataList, AltEntryCommitInfo{
+				Entry:          data.Entry,
+				Index:          data.Index,
+				Commit:         data.Commit,
+				Submodule:      data.Submodule,
+				ContentAddress: "",
+			})
 		}
 	}
 	for _, altData := range altFileDataList {
