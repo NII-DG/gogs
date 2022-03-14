@@ -67,6 +67,8 @@ func renderDirectory(c *context.Context, treeLink string) {
 	}
 	for _, data := range filesData {
 		logv2.Info("[data.Entry.Name()] %v, %v", data.Entry.Name(), data.Entry.Type())
+		logv2.Info("[c.Repo.TreePath] %v", c.Repo.TreePath)
+		logv2.Info("[c.Repo.RepoLink + \"/\" + c.Repo.BranchName] %v", c.Repo.RepoLink+"/"+c.Repo.BranchName)
 	}
 
 	c.Data["Files"] = filesData
