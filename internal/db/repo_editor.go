@@ -658,6 +658,7 @@ func (repo *Repository) CheckDatadetAndGetContentAddress(datasetNmList []string,
 		}
 	}
 
+	datasetNmToFileMap = map[string]DatasetInfo{}
 	for datasetNm, annexContentInfoList := range datasetToContentsMap {
 		datasetInfo := DatasetInfo{}
 		log.Trace("[Picking up annex content info] dataset name : %v", datasetNm)
