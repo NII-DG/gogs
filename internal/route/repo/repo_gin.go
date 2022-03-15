@@ -3,8 +3,11 @@ package repo
 import (
 	"bufio"
 	"bytes"
+	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"path"
@@ -14,6 +17,7 @@ import (
 	"github.com/gogs/git-module"
 	"github.com/ivis-yoshida/gogs/internal/conf"
 	"github.com/ivis-yoshida/gogs/internal/context"
+	"github.com/ivis-yoshida/gogs/internal/db"
 	"github.com/ivis-yoshida/gogs/internal/tool"
 	log "gopkg.in/clog.v1"
 )
@@ -69,22 +73,245 @@ func serveAnnexedKey(ctx *context.Context, name string, contentPath string) erro
 	return err
 }
 
-func readDmpJson(c *context.Context) {
+// readDmpJson is RCOS specific code.
+func readDmpJson(c context.AbstructContext) {
 	log.Trace("Reading dmp.json file")
-	entry, err := c.Repo.Commit.Blob("/dmp.json")
+	entry, err := c.GetRepo().GetCommit().Blob("/dmp.json")
 	if err != nil || entry == nil {
 		log.Error(2, "dmp.json blob could not be retrieved: %v", err)
-		c.Data["HasDmpJson"] = false
+		c.CallData()["HasDmpJson"] = false
 		return
 	}
 	buf, err := entry.Bytes()
 	if err != nil {
 		log.Error(2, "dmp.json data could not be read: %v", err)
-		c.Data["HasDmpJson"] = false
+		c.CallData()["HasDmpJson"] = false
 		return
 	}
-	c.Data["DOIInfo"] = string(buf)
-	c.Data["IsTextFile"] = true
+	c.CallData()["DOIInfo"] = string(buf)
+}
+
+// GenerateMaDmp is RCOS specific code.
+func GenerateMaDmp(c context.AbstructContext) {
+	var f repoUtil
+	generateMaDmp(c, f)
+}
+
+// generateMaDmp is RCOS specific code.
+// This generates maDMP(machine actionable DMP) based on
+// DMP information created by the user in the repository.
+func generateMaDmp(c context.AbstructContext, f AbstructRepoUtil) {
+	// GitHubテンプレートNotebookを取得
+	// refs: 1. https://zenn.dev/snowcait/scraps/3d51d8f7841f0c
+	//       2. https://qiita.com/taizo/items/c397dbfed7215969b0a5
+	templateUrl := getTemplateUrl() + "maDMP.ipynb"
+
+	src, err := f.FetchContentsOnGithub(templateUrl)
+	if err != nil {
+		log.Error(2, "maDMP blob could not be fetched: %v", err)
+	}
+
+	decodedMaDmp, err := f.DecodeBlobContent(src)
+	if err != nil {
+		log.Error(2, "maDMP blob could not be decorded: %v", err)
+
+		f.FailedGenereteMaDmp(c, "Sorry, faild gerate maDMP: fetching template failed")
+		return
+	}
+
+	FetchDockerfile(c)
+
+	// ユーザが作成したDMP情報取得
+	entry, err := c.GetRepo().GetCommit().Blob("/dmp.json")
+	if err != nil || entry == nil {
+		log.Error(2, "dmp.json blob could not be retrieved: %v", err)
+
+		f.FailedGenereteMaDmp(c, "Sorry, faild gerate maDMP: DMP could not read")
+		return
+	}
+	buf, err := entry.Bytes()
+	if err != nil {
+		log.Error(2, "dmp.json data could not be read: %v", err)
+
+		f.FailedGenereteMaDmp(c, "Sorry, faild gerate maDMP: DMP could not read")
+		return
+	}
+
+	var dmp interface{}
+	err = json.Unmarshal(buf, &dmp)
+	if err != nil {
+		log.Error(2, "Unmarshal DMP info: %v", err)
+
+		f.FailedGenereteMaDmp(c, "Sorry, faild gerate maDMP: DMP could not read")
+		return
+	}
+
+	// dmp.jsonに"fields"プロパティがある想定
+	selectedField := dmp.(map[string]interface{})["field"]
+	selectedDataSize := dmp.(map[string]interface{})["dataSize"]
+	selectedDatasetStructure := dmp.(map[string]interface{})["datasetStructure"]
+	/* maDMPへ埋め込む情報を追加する際は
+	ここに追記のこと
+	e.g.
+	hasGrdm := dmp.(map[string]interface{})["hasGrdm"]
+	*/
+
+	pathToMaDmp := "maDMP.ipynb"
+	err = c.GetRepo().GetDbRepo().UpdateRepoFile(c.GetUser(), db.UpdateRepoFileOptions{
+		LastCommitID: c.GetRepo().GetLastCommitIdStr(),
+		OldBranch:    c.GetRepo().GetBranchName(),
+		NewBranch:    c.GetRepo().GetBranchName(),
+		OldTreeName:  "",
+		NewTreeName:  pathToMaDmp,
+		Message:      "[GIN] Generate maDMP",
+		Content: fmt.Sprintf(
+			decodedMaDmp,  // この行が埋め込み先: maDMP
+			selectedField, // ここより以下は埋め込む値: DMP情報
+			selectedDataSize,
+			selectedDatasetStructure,
+			/* maDMPへ埋め込む情報を追加する際は
+			ここに追記のこと
+			e.g.
+			hasGrdm, */
+		),
+		IsNewFile: true,
+	})
+	if err != nil {
+		log.Error(2, "failed generating maDMP: %v", err)
+
+		f.FailedGenereteMaDmp(c, "Faild gerate maDMP: Already exist")
+		return
+	}
+
+	c.GetFlash().Success("maDMP generated!")
+	c.Redirect(c.GetRepo().GetRepoLink())
+}
+
+type DecodeStringer interface {
+	DecodeString(s string) ([]byte, error)
+}
+type decodeStringer func()
+
+// DecodeString is wrapper of base64.StdEncoding.DecodeString (RCOS specific code).
+// This can be mocked.
+func (ds decodeStringer) DecodeString(s string) ([]byte, error) {
+	return base64.StdEncoding.DecodeString(s)
+}
+
+type AbstructRepoUtil interface {
+	FetchContentsOnGithub(blobPath string) ([]byte, error)
+	DecodeBlobContent(blobInfo []byte) (string, error)
+	FailedGenereteMaDmp(c context.AbstructContext, msg string)
+}
+
+type repoUtil func()
+
+func (f repoUtil) FetchContentsOnGithub(blobPath string) ([]byte, error) {
+	return f.fetchContentsOnGithub(blobPath)
+}
+
+func (f repoUtil) DecodeBlobContent(blobInfo []byte) (string, error) {
+	var ds decodeStringer
+	return f.decodeBlobContent(blobInfo, ds)
+}
+
+// FetchContentsOnGithub is RCOS specific code.
+// This uses the Github API to retrieve information about the file
+// specified in the argument, and returns it in the type of []byte.
+// If any processing fails, it will return error.
+// refs: https://docs.github.com/en/rest/reference/repos#contents
+func (f repoUtil) fetchContentsOnGithub(blobPath string) ([]byte, error) {
+	req, err := http.NewRequest("GET", blobPath, nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Accept", "application/vnd.github.v3+json")
+
+	client := new(http.Client)
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	if resp.StatusCode == http.StatusNotFound {
+		return nil, fmt.Errorf("Error: blob not found.")
+	}
+	defer resp.Body.Close()
+
+	contents, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	return contents, nil
+}
+
+// DecodeBlobContent is RCOS specific code.
+// This reads and decodes "content" value of the response byte slice
+// retrieved from the GitHub API.
+// refs: https://docs.github.com/en/rest/reference/repos#contents
+func (f repoUtil) decodeBlobContent(blobInfo []byte, ds DecodeStringer) (string, error) {
+	var blob interface{}
+	err := json.Unmarshal(blobInfo, &blob)
+	if err != nil {
+		return "", err
+	}
+
+	raw := blob.(map[string]interface{})["content"]
+	decodedBlobContent, err := ds.DecodeString(raw.(string))
+	if err != nil {
+		return "", err
+	}
+
+	return string(decodedBlobContent), nil
+}
+
+// failedGenerateMaDmp is RCOS specific code.
+// This is a function used by GenerateMaDmp to emit an error message
+// on UI when maDMP generation fails.
+func (f repoUtil) FailedGenereteMaDmp(c context.AbstructContext, msg string) {
+	c.GetFlash().Error(msg)
+	c.Redirect(c.GetRepo().GetRepoLink())
+}
+
+func FetchDockerfile(c context.AbstructContext) {
+	var f repoUtil
+	fetchDockerfile(c, f)
+}
+
+// fetchDockerfile is RCOS specific code.
+// This fetches the Dockerfile used when launching Binderhub.
+func fetchDockerfile(c context.AbstructContext, f AbstructRepoUtil) {
+	// コード付帯機能の起動時間短縮のための暫定的な定義
+	dockerfileUrl := getTemplateUrl() + "Dockerfile"
+
+	src, err := f.FetchContentsOnGithub(dockerfileUrl)
+	if err != nil {
+		log.Error(2, "Dockerfile could not be fetched: %v", err)
+
+		f.FailedGenereteMaDmp(c, "Sorry, faild gerate maDMP: fetching template failed(Dockerfile)")
+		return
+	}
+
+	decodedDockerfile, err := f.DecodeBlobContent(src)
+	if err != nil {
+		log.Error(2, "Dockerfile could not be decorded: %v", err)
+
+		f.FailedGenereteMaDmp(c, "Sorry, faild gerate maDMP: fetching template failed(Dockerfile)")
+		return
+	}
+
+	pathToDockerfile := "Dockerfile"
+	_ = c.GetRepo().GetDbRepo().UpdateRepoFile(c.GetUser(), db.UpdateRepoFileOptions{
+		LastCommitID: c.GetRepo().GetLastCommitIdStr(),
+		OldBranch:    c.GetRepo().GetBranchName(),
+		NewBranch:    c.GetRepo().GetBranchName(),
+		OldTreeName:  "",
+		NewTreeName:  pathToDockerfile,
+		Message:      "[GIN] fetch Dockerfile",
+		Content:      decodedDockerfile,
+		IsNewFile:    true,
+	})
 }
 
 // resolveAnnexedContent takes a buffer with the contents of a git-annex

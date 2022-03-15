@@ -20,6 +20,21 @@ import (
 	"github.com/ivis-yoshida/gogs/internal/db"
 )
 
+type AbstructCtxRepository interface {
+	GetTreePath() string
+	GetRepoLink() string
+	GetBranchName() string
+	GetCommit() *git.Commit
+	GetCommitId() *git.SHA1
+	GetLastCommitIdStr() string
+	GetDbRepo() db.AbstructDbRepository
+	GetGitRepo() *git.Repository
+}
+
+type AbstructGitRepository interface {
+	BranchCommit(branch string, opts ...git.CatFileCommitOptions) (*git.Commit, error)
+}
+
 type PullRequest struct {
 	BaseRepo *db.Repository
 	Allowed  bool
@@ -48,6 +63,54 @@ type Repository struct {
 	Mirror       *db.Mirror
 
 	PullRequest *PullRequest
+}
+
+// GetTreePath is RCOS specific code.
+// This returns value of "TreePath" field.
+func (r *Repository) GetTreePath() string {
+	return r.TreePath
+}
+
+// GetRepoLink is RCOS specific code.
+// This returns value of "RepoLink" field.
+func (r *Repository) GetRepoLink() string {
+	return r.RepoLink
+}
+
+// GetBranchName is RCOS specific code.
+// This returns value of "BranchName" field.
+func (r *Repository) GetBranchName() string {
+	return r.BranchName
+}
+
+// GetCommit is ROCS specific code.
+// This returns value of "Commit" field.
+func (r *Repository) GetCommit() *git.Commit {
+	return r.Commit
+}
+
+// GetCommitId is RCOS specific code.
+// This returns value of Commit.ID field in github.com/gogs/git-module.
+func (r *Repository) GetCommitId() *git.SHA1 {
+	return r.Commit.ID
+}
+
+// GetLastCommitIdStr is RCOS specific code.
+// This returns value of "CommitID" field.
+func (r *Repository) GetLastCommitIdStr() string {
+	return r.CommitID
+}
+
+// GetDbRepo is RCOS specific code.
+// This returns value of "Repository" field.
+func (r *Repository) GetDbRepo() db.AbstructDbRepository {
+	return r.Repository
+}
+
+// GetGitRepo is RCOS specific code.
+// This returns value of "GitRepo" field.
+func (r *Repository) GetGitRepo() *git.Repository {
+	return r.GitRepo
 }
 
 // IsOwner returns true if current user is the owner of repository.
@@ -296,11 +359,13 @@ func RepoAssignment(pages ...bool) macaron.Handler {
 
 		c.Data["IsGuest"] = !c.Repo.HasAccess()
 
-		hasDmp := hasDmpJson(c)
+		hasDmp := hasFileInRepo(c, "/dmp.json")
 		c.Data["HasDmpJson"] = hasDmp
 		if hasDmp {
 			c.Data["IsDOIReady"] = isDOIReady(c)
 		}
+
+		c.Data["HasMaDmp"] = hasFileInRepo(c, "/maDMP.ipynb")
 
 		// if doi := getRepoDOI(c); doi != "" && libgin.IsRegisteredDOI(doi) {
 		// 	c.Data["DOI"] = doi

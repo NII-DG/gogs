@@ -53,6 +53,11 @@ func Home(c *context.Context) {
 }
 
 func ExploreRepos(c *context.Context) {
+	var d db.DbUtil
+	exploreRepos(c, d)
+}
+
+func exploreRepos(c *context.Context, d db.AbstructDbUtil) {
 	c.Data["Title"] = c.Tr("explore")
 	c.Data["PageIsExplore"] = true
 	c.Data["PageIsExploreRepositories"] = true
@@ -66,7 +71,7 @@ func ExploreRepos(c *context.Context) {
 	}
 
 	keyword := c.Query("q")
-	repos, count, err := db.SearchRepositoryByName(&db.SearchRepoOptions{
+	repos, count, err := d.SearchRepositoryByName(&db.SearchRepoOptions{
 		Keyword:  keyword,
 		UserID:   c.UserID(),
 		OrderBy:  "updated_unix DESC",
@@ -91,11 +96,17 @@ func ExploreRepos(c *context.Context) {
 }
 
 // ExploreMetadata is RCOS specific code
-func ExploreMetadata(c *context.Context) {
-	c.Data["Title"] = c.Tr("explore")
-	c.Data["PageIsExplore"] = true
-	c.Data["PageIsExploreMetadata"] = true
-	c.Data["UserRightErr"] = (c.User.Type >= db.UserFA)
+func ExploreMetadata(c context.AbstructContext) {
+	var d db.DbUtil
+	exploreMetadata(c, d)
+}
+
+// exploreMetadata is RCOS specific code
+func exploreMetadata(c context.AbstructContext, d db.AbstructDbUtil) {
+	c.CallData()["Title"] = c.Tr("explore")
+	c.CallData()["PageIsExplore"] = true
+	c.CallData()["PageIsExploreMetadata"] = true
+	c.CallData()["UserRightErr"] = (c.GetUser().GetType() >= db.UserFA)
 
 	selectedKey := c.Query("selectKey")
 	keyword := c.Query("q")
@@ -105,7 +116,7 @@ func ExploreMetadata(c *context.Context) {
 		page = 1
 	}
 
-	repos, count, err := db.SearchRepositoryByName(&db.SearchRepoOptions{
+	repos, count, err := d.SearchRepositoryByName(&db.SearchRepoOptions{
 		Keyword:  "",
 		UserID:   c.UserID(),
 		OrderBy:  "updated_unix DESC",
@@ -129,48 +140,53 @@ func ExploreMetadata(c *context.Context) {
 		commit, commintErr := gitRepo.CatFileCommit("refs/heads/master")
 		if commintErr != nil || commit == nil {
 			log.Error(2, "%s commit could not be retrieved: %v", repo.Name, err)
-			c.Data["HasDmpJson"] = false
+			c.CallData()["HasDmpJson"] = false
 			continue
 		}
 
 		entry, err := commit.Blob("/dmp.json")
 		if err != nil || entry == nil {
 			log.Error(2, "dmp.json blob could not be retrieved: %v", err)
-			c.Data["HasDmpJson"] = false
+			c.CallData()["HasDmpJson"] = false
 			continue
 		}
 		buf, err := entry.Bytes()
 		if err != nil {
 			log.Error(2, "dmp.json data could not be read: %v", err)
-			c.Data["HasDmpJson"] = false
+			c.CallData()["HasDmpJson"] = false
 			continue
 		}
 
-		c.Data["DOIInfo"] = string(buf)
+		c.CallData()["DOIInfo"] = string(buf)
 
 		if selectedKey != "" && keyword != "" && isContained(string(buf), selectedKey, keyword) {
-			c.Data["SelectedKey"] = selectedKey
-			c.Data["SearchResult"] = keyword
+			c.CallData()["SelectedKey"] = selectedKey
+			c.CallData()["SearchResult"] = keyword
 			repo.HasMetadata = true
 		}
 	}
 
 	// below is search
-	c.Data["Keyword"] = keyword
-	c.Data["Total"] = count
-	c.Data["Page"] = paginater.New(int(count), conf.UI.ExplorePagingNum, page, 5)
+	c.CallData()["Keyword"] = keyword
+	c.CallData()["Total"] = count
+	c.CallData()["Page"] = paginater.New(int(count), conf.UI.ExplorePagingNum, page, 5)
 
 	if err = db.RepositoryList(repos).LoadAttributes(); err != nil {
 		c.Error(err, "load attributes")
 		return
 	}
-	c.Data["Repos"] = filterUnlistedRepos(repos)
+	c.CallData()["Repos"] = filterUnlistedRepos(repos)
 
 	c.Success(EXPLORE_METADATA)
 }
 
-// DmpBrowsing is RCOS specific code
-func DmpBrowsing(c *context.Context) {
+func DmpBrowsing(c context.AbstructContext) {
+	var d db.DbUtil
+	dmpBrowsing(c, d)
+}
+
+// dmpBrowsing is RCOS specific code
+func dmpBrowsing(c context.AbstructContext, d db.AbstructDbUtil) {
 	page := c.QueryInt("page")
 	if page <= 0 {
 		page = 1
@@ -181,7 +197,7 @@ func DmpBrowsing(c *context.Context) {
 		c.Error(err, "get owner information")
 	}
 
-	repos, _, err := db.SearchRepositoryByName(&db.SearchRepoOptions{
+	repos, _, err := d.SearchRepositoryByName(&db.SearchRepoOptions{
 		Keyword:  repoName,
 		OwnerID:  owner.ID,
 		UserID:   c.UserID(),
@@ -206,26 +222,26 @@ func DmpBrowsing(c *context.Context) {
 		commit, commintErr := gitRepo.CatFileCommit("refs/heads/master")
 		if commintErr != nil || commit == nil {
 			log.Error(2, "%s commit could not be retrieved: %v", repo.Name, err)
-			c.Data["HasDmpJson"] = false
+			c.CallData()["HasDmpJson"] = false
 			continue
 		}
 
 		entry, err := commit.Blob("/dmp.json")
 		if err != nil || entry == nil {
 			log.Error(2, "dmp.json blob could not be retrieved: %v", err)
-			c.Data["HasDmpJson"] = false
+			c.CallData()["HasDmpJson"] = false
 			continue
 		}
 		buf, err := entry.Bytes()
 		if err != nil {
 			log.Error(2, "dmp.json data could not be read: %v", err)
-			c.Data["HasDmpJson"] = false
+			c.CallData()["HasDmpJson"] = false
 			continue
 		}
 
-		c.Data["OwnerName"] = owner.Name
-		c.Data["RepoName"] = repoName
-		c.Data["DOIInfo"] = string(buf)
+		c.CallData()["OwnerName"] = owner.Name
+		c.CallData()["RepoName"] = repoName
+		c.CallData()["DOIInfo"] = string(buf)
 	}
 	c.Success(DMP_BROWSING)
 }
