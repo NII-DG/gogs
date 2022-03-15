@@ -48,6 +48,9 @@
 						{{RenderCommitMessage false .Commit.Summary $.RepoLink $.Repository.ComposeMetas | Str2HTML}}
 						<a href="ipfs://{{.ContentAddress}}">{{.ContentAddress | Str2HTML}}</a>
 					</td>
+					<td>
+					<a href="ipfs://{{.ContentAddress}}">{{.ContentAddress | Str2HTML}}</a>
+					</td>
 					<td class="text grey right age">{{TimeSince .Commit.Committer.When $.Lang}}</td>
 			</tr>
 		{{end}}
