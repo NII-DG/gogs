@@ -724,6 +724,7 @@ func CreateDataset(c *context.Context, f form.DatasetFrom) {
 			logv2.Error("[A Part Of Dataset File Is Not Registered In BC] Dataset Name : %v", datasetPath)
 			msg := fmt.Sprintf("アップロードされたファイルがブロックチェーンに未登録または登録処理中の可能性があります。再度、データセット登録を申請してください。")
 			c.RenderWithErr(msg, HOME, &f)
+			return
 		}
 	}
 
@@ -733,6 +734,7 @@ func CreateDataset(c *context.Context, f form.DatasetFrom) {
 		if uploadDataset, err := dataset.GetDatasetAddress(datasetPath, datasetData); err != nil {
 			logv2.Error("[Get each Address IN Dataset] %v", err)
 			c.Error(err, "データセット内の各フォルダアドレスが取得できませんでした")
+			return
 		} else {
 			uploadDatasetMap[datasetPath] = uploadDataset
 		}
@@ -743,6 +745,7 @@ func CreateDataset(c *context.Context, f form.DatasetFrom) {
 	if err != nil {
 		logv2.Error("[Failure Create Dataset Token] %v", err)
 		c.Error(err, "データセットのトークン化に失敗しました")
+		return
 	}
 	if len(notCreatedDataset.DatasetList) > 0 {
 		//登録できなかったデータセットの表示
