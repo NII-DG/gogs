@@ -71,7 +71,7 @@ func CreateRepositoryNotice(desc string) error {
 // RemoveAllWithNotice removes all directories in given path and
 // creates a system notice when error occurs.
 func RemoveAllWithNotice(title, path string) {
-	annexUninit(path) // uninit annex to allow deleting
+	AnnexUninit(path) // uninit annex to allow deleting
 	if err := os.RemoveAll(path); err != nil {
 		desc := fmt.Sprintf("%s [%s]: %v", title, path, err)
 		log.Warn(desc)
