@@ -241,14 +241,6 @@ func resolveAnnexedContent(c *context.Context, buf []byte, contentLocation strin
 	}
 	repoPath := c.Repo.Repository.RepoPath()
 
-	//IPFSの所在確認（デバック用）
-	// logv2.Info("[git annex whereis 2-1] path : %v", repoPath)
-	// if msg, err := git.NewCommand("annex", "whereis").RunInDir(repoPath); err != nil {
-	// 	logv2.Error("[git annex whereis Error] err : %v", err)
-	// } else {
-	// 	logv2.Info("[git annes whereis Info] msg : %s", msg)
-	// }
-
 	//ベアレポジトリをIPFSへ連携
 	if _, err := git.NewCommand("annex", "enableremote", "ipfs").RunInDir(repoPath); err != nil {
 		logv2.Error("[Failure enable remote(ipfs)] err : %v, repoPath : %v", err, repoPath)
