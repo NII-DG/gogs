@@ -53,6 +53,11 @@ func Home(c *context.Context) {
 }
 
 func ExploreRepos(c *context.Context) {
+	var d db.DbUtil
+	exploreRepos(c, d)
+}
+
+func exploreRepos(c *context.Context, d db.AbstructDbUtil) {
 	c.Data["Title"] = c.Tr("explore")
 	c.Data["PageIsExplore"] = true
 	c.Data["PageIsExploreRepositories"] = true
@@ -66,7 +71,7 @@ func ExploreRepos(c *context.Context) {
 	}
 
 	keyword := c.Query("q")
-	repos, count, err := db.SearchRepositoryByName(&db.SearchRepoOptions{
+	repos, count, err := d.SearchRepositoryByName(&db.SearchRepoOptions{
 		Keyword:  keyword,
 		UserID:   c.UserID(),
 		OrderBy:  "updated_unix DESC",
@@ -92,15 +97,16 @@ func ExploreRepos(c *context.Context) {
 
 // ExploreMetadata is RCOS specific code
 func ExploreMetadata(c context.AbstructContext) {
-	exploreMetadata(c)
+	var d db.DbUtil
+	exploreMetadata(c, d)
 }
 
 // exploreMetadata is RCOS specific code
-func exploreMetadata(c context.AbstructContext) {
+func exploreMetadata(c context.AbstructContext, d db.AbstructDbUtil) {
 	c.CallData()["Title"] = c.Tr("explore")
 	c.CallData()["PageIsExplore"] = true
 	c.CallData()["PageIsExploreMetadata"] = true
-	c.CallData()["UserRightErr"] = (c.GetUser().Type >= db.UserFA)
+	c.CallData()["UserRightErr"] = (c.GetUser().GetType() >= db.UserFA)
 
 	selectedKey := c.Query("selectKey")
 	keyword := c.Query("q")
@@ -110,7 +116,7 @@ func exploreMetadata(c context.AbstructContext) {
 		page = 1
 	}
 
-	repos, count, err := db.SearchRepositoryByName(&db.SearchRepoOptions{
+	repos, count, err := d.SearchRepositoryByName(&db.SearchRepoOptions{
 		Keyword:  "",
 		UserID:   c.UserID(),
 		OrderBy:  "updated_unix DESC",
@@ -174,8 +180,13 @@ func exploreMetadata(c context.AbstructContext) {
 	c.Success(EXPLORE_METADATA)
 }
 
-// DmpBrowsing is RCOS specific code
 func DmpBrowsing(c context.AbstructContext) {
+	var d db.DbUtil
+	dmpBrowsing(c, d)
+}
+
+// dmpBrowsing is RCOS specific code
+func dmpBrowsing(c context.AbstructContext, d db.AbstructDbUtil) {
 	page := c.QueryInt("page")
 	if page <= 0 {
 		page = 1
@@ -186,7 +197,7 @@ func DmpBrowsing(c context.AbstructContext) {
 		c.Error(err, "get owner information")
 	}
 
-	repos, _, err := db.SearchRepositoryByName(&db.SearchRepoOptions{
+	repos, _, err := d.SearchRepositoryByName(&db.SearchRepoOptions{
 		Keyword:  repoName,
 		OwnerID:  owner.ID,
 		UserID:   c.UserID(),

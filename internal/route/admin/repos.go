@@ -42,7 +42,8 @@ func Repos(c *context.Context) {
 		}
 		count = db.CountRepositories(true)
 	} else {
-		repos, count, err = db.SearchRepositoryByName(&db.SearchRepoOptions{
+		var d db.DbUtil
+		repos, count, err = d.SearchRepositoryByName(&db.SearchRepoOptions{
 			Keyword:  keyword,
 			OrderBy:  "id ASC",
 			Private:  true,

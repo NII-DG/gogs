@@ -58,7 +58,8 @@ func collectSearchableRepoIDs(c *context.Context) ([]int64, error) {
 
 	// Run a full repository search (with no keywords) to get public
 	// repositories and then filter out the unlisted ones.
-	repos, _, err := db.SearchRepositoryByName(&db.SearchRepoOptions{
+	var d db.DbUtil
+	repos, _, err := d.SearchRepositoryByName(&db.SearchRepoOptions{
 		Keyword:  "",
 		UserID:   c.UserID(),
 		OrderBy:  "updated_unix DESC",

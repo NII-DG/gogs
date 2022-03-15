@@ -7,11 +7,101 @@ package mock_context
 import (
 	reflect "reflect"
 
-	session "github.com/go-macaron/session"
 	gomock "github.com/golang/mock/gomock"
 	context "github.com/ivis-yoshida/gogs/internal/context"
 	db "github.com/ivis-yoshida/gogs/internal/db"
 )
+
+// MockAbstructFlash is a mock of AbstructFlash interface.
+type MockAbstructFlash struct {
+	ctrl     *gomock.Controller
+	recorder *MockAbstructFlashMockRecorder
+}
+
+// MockAbstructFlashMockRecorder is the mock recorder for MockAbstructFlash.
+type MockAbstructFlashMockRecorder struct {
+	mock *MockAbstructFlash
+}
+
+// NewMockAbstructFlash creates a new mock instance.
+func NewMockAbstructFlash(ctrl *gomock.Controller) *MockAbstructFlash {
+	mock := &MockAbstructFlash{ctrl: ctrl}
+	mock.recorder = &MockAbstructFlashMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockAbstructFlash) EXPECT() *MockAbstructFlashMockRecorder {
+	return m.recorder
+}
+
+// Error mocks base method.
+func (m *MockAbstructFlash) Error(msg string, current ...bool) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{msg}
+	for _, a := range current {
+		varargs = append(varargs, a)
+	}
+	m.ctrl.Call(m, "Error", varargs...)
+}
+
+// Error indicates an expected call of Error.
+func (mr *MockAbstructFlashMockRecorder) Error(msg interface{}, current ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{msg}, current...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Error", reflect.TypeOf((*MockAbstructFlash)(nil).Error), varargs...)
+}
+
+// Info mocks base method.
+func (m *MockAbstructFlash) Info(msg string, current ...bool) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{msg}
+	for _, a := range current {
+		varargs = append(varargs, a)
+	}
+	m.ctrl.Call(m, "Info", varargs...)
+}
+
+// Info indicates an expected call of Info.
+func (mr *MockAbstructFlashMockRecorder) Info(msg interface{}, current ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{msg}, current...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Info", reflect.TypeOf((*MockAbstructFlash)(nil).Info), varargs...)
+}
+
+// Success mocks base method.
+func (m *MockAbstructFlash) Success(msg string, current ...bool) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{msg}
+	for _, a := range current {
+		varargs = append(varargs, a)
+	}
+	m.ctrl.Call(m, "Success", varargs...)
+}
+
+// Success indicates an expected call of Success.
+func (mr *MockAbstructFlashMockRecorder) Success(msg interface{}, current ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{msg}, current...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Success", reflect.TypeOf((*MockAbstructFlash)(nil).Success), varargs...)
+}
+
+// Warning mocks base method.
+func (m *MockAbstructFlash) Warning(msg string, current ...bool) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{msg}
+	for _, a := range current {
+		varargs = append(varargs, a)
+	}
+	m.ctrl.Call(m, "Warning", varargs...)
+}
+
+// Warning indicates an expected call of Warning.
+func (mr *MockAbstructFlashMockRecorder) Warning(msg interface{}, current ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{msg}, current...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Warning", reflect.TypeOf((*MockAbstructFlash)(nil).Warning), varargs...)
+}
 
 // MockAbstructContext is a mock of AbstructContext interface.
 type MockAbstructContext struct {
@@ -63,10 +153,10 @@ func (mr *MockAbstructContextMockRecorder) Error(err, msg interface{}) *gomock.C
 }
 
 // GetFlash mocks base method.
-func (m *MockAbstructContext) GetFlash() *session.Flash {
+func (m *MockAbstructContext) GetFlash() context.AbstructFlash {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetFlash")
-	ret0, _ := ret[0].(*session.Flash)
+	ret0, _ := ret[0].(context.AbstructFlash)
 	return ret0
 }
 
@@ -91,10 +181,10 @@ func (mr *MockAbstructContextMockRecorder) GetRepo() *gomock.Call {
 }
 
 // GetUser mocks base method.
-func (m *MockAbstructContext) GetUser() *db.User {
+func (m *MockAbstructContext) GetUser() db.AbstructDbUser {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetUser")
-	ret0, _ := ret[0].(*db.User)
+	ret0, _ := ret[0].(db.AbstructDbUser)
 	return ret0
 }
 

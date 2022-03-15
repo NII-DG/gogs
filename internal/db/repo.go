@@ -149,7 +149,8 @@ func NewRepoContext() {
 type AbstructDbRepository interface {
 	GetDefaultBranch() string
 	FullName() string
-	UpdateRepoFile(doer *User, opts UpdateRepoFileOptions) (err error)
+	UpdateRepoFile(doer AbstructDbUser, opts UpdateRepoFileOptions) (err error)
+	RepoPath() string
 }
 
 // Repository contains information of a repository.
@@ -1769,6 +1770,12 @@ func GetRepositoryCount(u *User) (int64, error) {
 	return getRepositoryCount(x, u)
 }
 
+type AbstructDbUtil interface {
+	SearchRepositoryByName(opts *SearchRepoOptions) (repos []*Repository, count int64, err error)
+}
+
+type DbUtil func()
+
 type SearchRepoOptions struct {
 	Keyword  string
 	OwnerID  int64
@@ -1781,7 +1788,7 @@ type SearchRepoOptions struct {
 
 // SearchRepositoryByName takes keyword and part of repository name to search,
 // it returns results in given range and number of total results.
-func SearchRepositoryByName(opts *SearchRepoOptions) (repos []*Repository, count int64, err error) {
+func (d DbUtil) SearchRepositoryByName(opts *SearchRepoOptions) (repos []*Repository, count int64, err error) {
 	if opts.Page <= 0 {
 		opts.Page = 1
 	}

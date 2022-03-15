@@ -52,7 +52,8 @@ func Search(c *context.APIContext) {
 		}
 	}
 
-	repos, count, err := db.SearchRepositoryByName(opts)
+	var d db.DbUtil
+	repos, count, err := d.SearchRepositoryByName(opts)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, map[string]interface{}{
 			"ok":    false,
