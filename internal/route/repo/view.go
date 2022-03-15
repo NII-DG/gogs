@@ -688,6 +688,7 @@ func CreateDataset(c *context.Context, f form.DatasetFrom) {
 	//ブランチ
 	branchNm := c.Repo.BranchName
 
+	//レポジトリのクローン
 	if err := c.Repo.Repository.CloneRepo(branchNm); err != nil {
 		c.Error(err, "[Error] CheckDatadetAndGetContentAddress()")
 		return
@@ -703,6 +704,13 @@ func CreateDataset(c *context.Context, f form.DatasetFrom) {
 	datasetNmToFileMap, err := c.Repo.Repository.GetContentAddress(datasetList, repoBranchPath)
 	if err != nil {
 		c.Error(err, "[Error] CheckDatadetAndGetContentAddress()")
+		return
+	}
+
+	//ローカルレポジトリの削除
+	db.AnnexUninit(c.Repo.Repository.LocalCopyPath()) // Uninitialise annex to prepare for deletion
+	if err := db.RemoveLocalRepository(c.Repo.Repository.LocalCopyPath()); err != nil {
+		c.Error(err, "[Error] Cannot Remove Local Repository")
 		return
 	}
 

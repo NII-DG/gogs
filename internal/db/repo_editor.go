@@ -465,6 +465,31 @@ func RemoveFilesFromLocalRepository(dirPath string, uploads ...*Upload) (err err
 	return sess.Commit()
 }
 
+func RemoveLocalRepository(dirPath string) (err error) {
+	log.Info("[Deleting Upload Files or directory From Local Repository]")
+
+	sess := x.NewSession()
+	defer sess.Close()
+	if err = sess.Begin(); err != nil {
+		return err
+	}
+
+	files, _ := filepath.Glob(dirPath + "/*")
+	for _, f := range files {
+		if !strings.Contains(f, ".git") {
+			if err := os.Remove(f); err != nil {
+				log.Warn("[Cannot remove file, this Path is directory] targetPath : %v", f)
+				if err := os.RemoveAll(f); err != nil {
+					return fmt.Errorf("[Remove directory From Local Repository] targerPath: %v", err)
+				}
+			}
+			log.Info("[DELETE Upload Files or directory From Local Repository] %v", f)
+		}
+
+	}
+	return sess.Commit()
+}
+
 func DeleteUpload(u *Upload) error {
 	return DeleteUploads(u)
 }
@@ -587,7 +612,7 @@ func (repo *Repository) UploadRepoFiles(doer *User, opts UploadRepoFileOptions) 
 	if err != nil { // Copy new files
 		return nil, fmt.Errorf("annex copy %s: %v", localPath, err)
 	}
-	annexUninit(localPath) // Uninitialise annex to prepare for deletion
+	AnnexUninit(localPath) // Uninitialise annex to prepare for deletion
 	StartIndexing(*repo)   // Index the new data
 	//localPathのディレクトリの削除
 	if err := RemoveFilesFromLocalRepository(dirPath, uploads...); err != nil {

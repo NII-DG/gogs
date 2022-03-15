@@ -78,7 +78,7 @@ func RebuildIndex() error {
 	return nil
 }
 
-func annexUninit(path string) {
+func AnnexUninit(path string) {
 	// walker sets the permission for any file found to 0660, to allow deletion
 	var mode os.FileMode
 	walker := func(path string, info os.FileInfo, err error) error {
