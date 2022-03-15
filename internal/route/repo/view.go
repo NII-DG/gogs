@@ -626,13 +626,24 @@ func CreateDataset(c *context.Context, f form.DatasetFrom) {
 	//ブランチ
 	branchNm := c.Repo.BranchName
 
+	if err := c.Repo.Repository.CloneRepo(branchNm); err != nil {
+		c.Error(err, "[Error] CheckDatadetAndGetContentAddress()")
+		return
+	}
+
 	//データセットフォーマットのチェック（datasetFolder : [input, src, output]フォルダーがあること、かつ、その配下にファイルがあること）
+	if err := c.Repo.Repository.CheckDatasetFormat(datasetList); err != nil {
+		msg := fmt.Sprint(err)
+		c.RenderWithErr(msg, HOME, &f)
+	}
+
 	//各データセットパスとその内のフォルダ内のコンテンツ情報を持つMapを取得する。
-	datasetNmToFileMap, err := c.Repo.Repository.CheckDatadetAndGetContentAddress(datasetList, branchNm, repoBranchPath)
+	datasetNmToFileMap, err := c.Repo.Repository.GetContentAddress(datasetList, repoBranchPath)
 	if err != nil {
 		c.Error(err, "[Error] CheckDatadetAndGetContentAddress()")
 		return
 	}
+
 	//データセット内のコンテンツがBC上に存在するかをチェック
 	for datasetPath, datasetData := range datasetNmToFileMap {
 		if bcContentList, err := bcapi.GetContentByFolder(userCode, datasetPath); err != nil {

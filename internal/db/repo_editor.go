@@ -617,17 +617,18 @@ var SRC_FOLDER_NM string = "src"
 // @value output
 var OUTPUT_FOLDER_NM string = "output"
 
-//データセットフォーマットのチェックとコンテンツアドレスの取得(map[stirng]DatasetInfo)
-func (repo *Repository) CheckDatadetAndGetContentAddress(datasetNmList []string, branch, repoBranchNm string) (datasetNmToFileMap map[string]DatasetInfo, err error) {
-
+func (repo *Repository) CloneRepo(branch string) (err error) {
 	repoWorkingPool.CheckIn(com.ToStr(repo.ID))
 	defer repoWorkingPool.CheckOut(com.ToStr(repo.ID))
 	if err = repo.DiscardLocalRepoBranchChanges(branch); err != nil {
-		return nil, fmt.Errorf("discard local repo branch[%s] changes: %v", branch, err)
+		return fmt.Errorf("discard local repo branch[%s] changes: %v", branch, err)
 	} else if err = repo.LocalCopyBranch(branch); err != nil {
-		return nil, fmt.Errorf("update local copy branch[%s]: %v", branch, err)
+		return fmt.Errorf("update local copy branch[%s]: %v", branch, err)
 	}
+	return nil
+}
 
+func (repo *Repository) CheckDatasetFormat(datasetNmList []string) (err error) {
 	//ローカルレポジトリの操作するためのディレクトリ取得
 	localPath := repo.LocalCopyPath()
 
@@ -635,10 +636,18 @@ func (repo *Repository) CheckDatadetAndGetContentAddress(datasetNmList []string,
 	for _, datasetNm := range datasetNmList {
 		err = CheckDatasetFormat(localPath, datasetNm)
 		if err != nil {
-			return nil, err
+			return err
 		}
 	}
 	log.Info("[OK Dataset Format] %s", datasetNmList)
+	return nil
+}
+
+//データセットフォーマットのチェックとコンテンツアドレスの取得(map[stirng]DatasetInfo)
+func (repo *Repository) GetContentAddress(datasetNmList []string, repoBranchNm string) (datasetNmToFileMap map[string]DatasetInfo, err error) {
+
+	//ローカルレポジトリの操作するためのディレクトリ取得
+	localPath := repo.LocalCopyPath()
 
 	//ローカルのリポートリポジトリのIPFS有効化
 	//ベアレポジトリをIPFSへ連携
@@ -707,32 +716,32 @@ func CheckFolder(localPath string, datasetNm string) error {
 	outputPath := datasetPath + "/" + OUTPUT_FOLDER_NM
 	//Input
 	if f, err := os.Stat(inputPath); os.IsNotExist(err) || !f.IsDir() {
-		return fmt.Errorf("Not exits \"%v\" folder", INPUT_FOLDER_NM)
+		return fmt.Errorf("データセットに\"%v\" folder が存在しません", INPUT_FOLDER_NM)
 	}
 
 	//Src
 	if f, err := os.Stat(srcPath); os.IsNotExist(err) || !f.IsDir() {
-		return fmt.Errorf("Not exits \"%v\" folder", SRC_FOLDER_NM)
+		return fmt.Errorf("データセットに\"%v\" folder が存在しません", SRC_FOLDER_NM)
 	}
 
 	//Output
 	if f, err := os.Stat(outputPath); os.IsNotExist(err) || !f.IsDir() {
-		return fmt.Errorf("Not exits \"%v\" folder", OUTPUT_FOLDER_NM)
+		return fmt.Errorf("データセットに\"%v\" folder が存在しません", OUTPUT_FOLDER_NM)
 	}
 
 	//input, src, outフォルダにファイルが存在するか確認する。
 	//Input
 	if is, emptyPath := CheckWithFileInFolder(inputPath); !is {
-		return fmt.Errorf("Is Empty Folder : %v", emptyPath)
+		return fmt.Errorf("%v配下にファイルが存在していません", emptyPath)
 	}
 	//Src
 	if is, emptyPath := CheckWithFileInFolder(srcPath); !is {
-		return fmt.Errorf("Is Empty Folder : %v", emptyPath)
+		return fmt.Errorf("%v配下にファイルが存在していません", emptyPath)
 	}
 
 	//Output
 	if is, emptyPath := CheckWithFileInFolder(outputPath); !is {
-		return fmt.Errorf("Is Empty Folder : %v", emptyPath)
+		return fmt.Errorf("%v配下にファイルが存在していません", emptyPath)
 	}
 	return nil
 }
