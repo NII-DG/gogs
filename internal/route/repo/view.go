@@ -698,6 +698,7 @@ func CreateDataset(c *context.Context, f form.DatasetFrom) {
 	if err := c.Repo.Repository.CheckDatasetFormat(datasetList); err != nil {
 		msg := fmt.Sprint(err)
 		c.RenderWithErr(msg, HOME, &f)
+		return
 	}
 
 	//各データセットパスとその内のフォルダ内のコンテンツ情報を持つMapを取得する。
