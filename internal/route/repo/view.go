@@ -62,7 +62,33 @@ func renderDirectory(c *context.Context, treeLink string) {
 	}
 	entries.Sort()
 
-	//コンテンツアドレスを取得
+	currentFolederPath := c.Repo.RepoLink + "/" + c.Repo.BranchName
+	if c.Repo.TreePath != "" {
+		tmpPath := &currentFolederPath
+		*tmpPath = *tmpPath + "/" + c.Repo.TreePath
+	}
+	//指定したフォルダーがデータセットであるか確認及び真の場合トークン情報を取得
+	res, err := bcapi.GetDatasetInfoByLocation(c.User.Name, currentFolederPath)
+	if err != nil {
+		c.Error(err, "exchange BC-API")
+		return
+	}
+	var inputAddress string
+	var srcCodeAddress string
+	var outputAddress string
+	isDataset := false
+	if res.DatasetLocation != "" {
+		tmpInput := &inputAddress
+		*tmpInput = res.InputAddress
+		tmpSrc := &srcCodeAddress
+		*tmpSrc = res.SrcCodeAddress
+		tmpOut := &outputAddress
+		*tmpOut = res.OutputAddress
+		tmpIsDataset := &isDataset
+		*tmpIsDataset = true
+	}
+
+	//フォルダーおよびファイルコンテンツアドレスを取得
 	altFileDataList := []AltEntryCommitInfo{}
 	var filesDataList []*git.EntryCommitInfo
 	filesDataList, err = entries.CommitsInfo(c.Repo.Commit, git.CommitsInfoOptions{
@@ -74,11 +100,7 @@ func renderDirectory(c *context.Context, treeLink string) {
 		c.Error(err, "get commits info")
 		return
 	}
-	currentFolederPath := c.Repo.RepoLink + "/" + c.Repo.BranchName
-	if c.Repo.TreePath != "" {
-		tmpPath := &currentFolederPath
-		*tmpPath = *tmpPath + "/" + c.Repo.TreePath
-	}
+
 	logv2.Info("[currentFolederPath] %v ", currentFolederPath)
 	resList, err := bcapi.GetContentByFolder(c.User.Name, currentFolederPath)
 	if err != nil {
@@ -110,8 +132,43 @@ func renderDirectory(c *context.Context, treeLink string) {
 					*tmpFlg = true
 				}
 			}
-		} else {
-
+		} else if data.Entry.Type() == git.ObjectTree && isDataset {
+			inputTreePath := res.DatasetLocation + "/" + db.INPUT_FOLDER_NM
+			srcTreePath := res.DatasetLocation + "/" + db.SRC_FOLDER_NM
+			outputTreePath := res.DatasetLocation + "/" + db.OUTPUT_FOLDER_NM
+			treePath := currentFolederPath + "/" + data.Entry.Name()
+			switch treePath {
+			case inputTreePath:
+				altFileDataList = append(altFileDataList, AltEntryCommitInfo{
+					Entry:          data.Entry,
+					Index:          data.Index,
+					Commit:         data.Commit,
+					Submodule:      data.Submodule,
+					ContentAddress: inputAddress,
+				})
+				tmpFlg := &flg
+				*tmpFlg = true
+			case srcTreePath:
+				altFileDataList = append(altFileDataList, AltEntryCommitInfo{
+					Entry:          data.Entry,
+					Index:          data.Index,
+					Commit:         data.Commit,
+					Submodule:      data.Submodule,
+					ContentAddress: srcCodeAddress,
+				})
+				tmpFlg := &flg
+				*tmpFlg = true
+			case outputTreePath:
+				altFileDataList = append(altFileDataList, AltEntryCommitInfo{
+					Entry:          data.Entry,
+					Index:          data.Index,
+					Commit:         data.Commit,
+					Submodule:      data.Submodule,
+					ContentAddress: outputAddress,
+				})
+				tmpFlg := &flg
+				*tmpFlg = true
+			}
 		}
 		if !flg {
 			altFileDataList = append(altFileDataList, AltEntryCommitInfo{
