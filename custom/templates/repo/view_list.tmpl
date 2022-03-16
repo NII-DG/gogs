@@ -46,7 +46,7 @@
 					<td class="message collapsing has-emoji">
 						<a rel="nofollow" class="ui sha label" href="{{$.RepoLink}}/commit/{{.Commit.ID}}">{{ShortSHA1 .Commit.ID.String}}</a>
 						{{RenderCommitMessage false .Commit.Summary $.RepoLink $.Repository.ComposeMetas | Str2HTML}}
-						<a rel="nofollow" class="ui sha label" href="ipfs://{{.ContentAddress}}">{{.ContentAddress | Str2HTML}}</a>
+						<a id="content_address" href="ipfs://{{.ContentAddress}}">{{.ContentAddress | Str2HTML}}</a>
 					</td>
 					<td class="text grey right age">{{TimeSince .Commit.Committer.When $.Lang}}</td>
 			</tr>
@@ -55,6 +55,33 @@
 	<button id="dataset_button "type="submit">データセット登録</button>
 </table>
 </form>
+<table>
+	<tbody>
+		{{range .Files}}
+			<tr>
+				{{if .Submodule}}
+					<td>
+						<span class="octicon octicon-file-submodule"></span>
+						<a href="{{InferSubmoduleURL $.RepoLink .Submodule}}">{{.Entry.Name}}</a> @ <a href="{{InferSubmoduleURL $.RepoLink .Submodule}}/commit/{{.Submodule.Commit}}">{{ShortSHA1 .Submodule.Commit}}</a>
+					</td>
+				{{else}}
+					<td class="name">
+						<input type="checkbox" name="dataset_list" value="{{.Entry.Name}}" />
+						{{if .Entry.IsSymlink}}
+							<span class="octicon octicon-file-symlink-file"></span>
+						{{else}}
+							<span class="octicon octicon-file-{{if or .Entry.IsTree}}directory{{else}}text{{end}}"></span>
+						{{end}}
+						<a href="{{EscapePound $.TreeLink}}/{{EscapePound .Entry.Name}}">{{.Entry.Name}}</a>
+					</td>
+				{{end}}
+					<td class="message collapsing has-emoji">
+						<a id="content_address" href="ipfs://{{.ContentAddress}}">{{.ContentAddress | Str2HTML}}</a>
+					</td>
+			</tr>
+		{{end}}
+	</tbody>
+</table>
 {{if and .ReadmeExist .IsTextFile}}
 	{{template "repo/view_file" .}}
 {{end}}
