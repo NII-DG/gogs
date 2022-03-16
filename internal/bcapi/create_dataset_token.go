@@ -6,8 +6,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"time"
-
-	logv2 "unknwon.dev/clog/v2"
 )
 
 type UploadDatasetInfo struct {
@@ -56,8 +54,6 @@ func CreateDatasetToken(user_code string, contentMap map[string]UploadDatasetInf
 	}
 
 	reqBody, err := json.Marshal(reqStr)
-
-	logv2.Info("[reqBody] : %s", reqBody)
 
 	if err != nil {
 		return ResNotCreateDatasetToken{}, fmt.Errorf("[Fail convert Json] %v", err)
