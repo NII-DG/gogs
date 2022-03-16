@@ -55,42 +55,6 @@
 	<button id="dataset_button "type="submit">データセット登録</button>
 </table>
 </form>
-<table style="border-collapse: collapse; margin: 20px 0 20px 0;">
-	<thead>
-		<tr>
-			<th class="name" style="border: solid 1px black;">
-				<p>'ファイル名 or フォルダ名'</P>
-			</th>
-			<th style="border: solid 1px black;">
-				<p> コンテンツアドレス（BC登録済み時のみ表示）</P>
-			</th>
-		</tr>
-	</thead>
-	<tbody>
-		{{range .Files}}
-			<tr>
-				{{if .Submodule}}
-					<td style="border: solid 1px black;">
-						<span class="octicon octicon-file-submodule"></span>
-						<a href="{{InferSubmoduleURL $.RepoLink .Submodule}}">{{.Entry.Name}}</a> @ <a href="{{InferSubmoduleURL $.RepoLink .Submodule}}/commit/{{.Submodule.Commit}}">{{ShortSHA1 .Submodule.Commit}}</a>
-					</td>
-				{{else}}
-					<td style="border: solid 1px black;">
-						{{if .Entry.IsSymlink}}
-							<span class="octicon octicon-file-symlink-file"></span>
-						{{else}}
-							<span class="octicon octicon-file-{{if or .Entry.IsTree}}directory{{else}}text{{end}}"></span>
-						{{end}}
-						<a href="{{EscapePound $.TreeLink}}/{{EscapePound .Entry.Name}}">{{.Entry.Name}}</a>
-					</td>
-				{{end}}
-					<td style="border: solid 1px black;">
-						<a id="content_address" href="ipfs://{{.ContentAddress}}">{{.ContentAddress | Str2HTML}}</a>
-					</td>
-			</tr>
-		{{end}}
-	</tbody>
-</table>
 {{if and .ReadmeExist .IsTextFile}}
 	{{template "repo/view_file" .}}
 {{end}}
