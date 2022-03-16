@@ -55,13 +55,13 @@
 	<button id="dataset_button "type="submit">データセット登録</button>
 </table>
 </form>
-<table id="repo-files-table">
+<table style="border-collapse: collapse;">
 	<thead>
 		<tr>
-			<th class="name">
+			<th class="name" style="border: solid 1px black;">
 				<p>'ファイル名 or フォルダ名'</P>
 			</th>
-			<th>
+			<th style="border: solid 1px black;">
 				<p> コンテンツアドレス（BC登録済み時のみ表示）</P>
 			</th>
 		</tr>
@@ -70,12 +70,12 @@
 		{{range .Files}}
 			<tr>
 				{{if .Submodule}}
-					<td>
+					<td style="border: solid 1px black;">
 						<span class="octicon octicon-file-submodule"></span>
 						<a href="{{InferSubmoduleURL $.RepoLink .Submodule}}">{{.Entry.Name}}</a> @ <a href="{{InferSubmoduleURL $.RepoLink .Submodule}}/commit/{{.Submodule.Commit}}">{{ShortSHA1 .Submodule.Commit}}</a>
 					</td>
 				{{else}}
-					<td class="name">
+					<td style="border: solid 1px black;">
 						{{if .Entry.IsSymlink}}
 							<span class="octicon octicon-file-symlink-file"></span>
 						{{else}}
@@ -84,7 +84,7 @@
 						<a href="{{EscapePound $.TreeLink}}/{{EscapePound .Entry.Name}}">{{.Entry.Name}}</a>
 					</td>
 				{{end}}
-					<td class="message collapsing has-emoji">
+					<td style="border: solid 1px black;">
 						<a id="content_address" href="ipfs://{{.ContentAddress}}">{{.ContentAddress | Str2HTML}}</a>
 					</td>
 			</tr>
