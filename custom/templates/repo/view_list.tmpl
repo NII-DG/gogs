@@ -61,7 +61,6 @@
 			<th class="name">
 				<p>'ファイル名 or フォルダ名'</P>
 			</th>
-			<th class="nine wide">
 			</th>
 			<th>
 				<p> コンテンツアドレス（BC登録済み時のみ表示）</P>
@@ -86,7 +85,6 @@
 						<a href="{{EscapePound $.TreeLink}}/{{EscapePound .Entry.Name}}">{{.Entry.Name}}</a>
 					</td>
 				{{end}}
-					<th class="nine wide">
 					<td class="message collapsing has-emoji">
 						<a id="content_address" href="ipfs://{{.ContentAddress}}">{{.ContentAddress | Str2HTML}}</a>
 					</td>
