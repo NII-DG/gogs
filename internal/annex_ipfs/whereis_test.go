@@ -35,7 +35,7 @@ func TestGetAnnexContentInfo_正常系(t *testing.T) {
 		Uuid        string   "json:\"uuid\""
 		Urls        []string "json:\"urls\""
 		Description string   "json:\"description\""
-	}{true, "whreis_uuid", []string{"ipfs: url"}, "ipfs where_Description"})
+	}{true, "whreis_uuid", []string{"ipfs:url"}, "ipfs where_Description"})
 
 	s, _ := json.Marshal(mockJson)
 
