@@ -55,7 +55,19 @@
 	<button id="dataset_button "type="submit">データセット登録</button>
 </table>
 </form>
-<table>
+<table id="repo-files-table" class="ui unstackable fixed single line table">
+	<thead>
+		<tr>
+			<th class="name">
+				<p>'ファイル名 or フォルダ名'</P>
+			</th>
+			<th class="nine wide">
+			</th>
+			<th>
+				<p> コンテンツアドレス（BC登録済み時のみ表示）</P>
+			</th>
+		</tr>
+	</thead>
 	<tbody>
 		{{range .Files}}
 			<tr>
@@ -66,7 +78,6 @@
 					</td>
 				{{else}}
 					<td class="name">
-						<input type="checkbox" name="dataset_list" value="{{.Entry.Name}}" />
 						{{if .Entry.IsSymlink}}
 							<span class="octicon octicon-file-symlink-file"></span>
 						{{else}}
@@ -75,6 +86,7 @@
 						<a href="{{EscapePound $.TreeLink}}/{{EscapePound .Entry.Name}}">{{.Entry.Name}}</a>
 					</td>
 				{{end}}
+					<th class="nine wide">
 					<td class="message collapsing has-emoji">
 						<a id="content_address" href="ipfs://{{.ContentAddress}}">{{.ContentAddress | Str2HTML}}</a>
 					</td>
