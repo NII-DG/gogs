@@ -30,13 +30,3 @@ func TestGetAnnexAddInfo_正常系(t *testing.T) {
 	}
 
 }
-
-func TestGetAnnexAddInfo_異常系(t *testing.T) {
-	var strJson = `{,"note":"note1","success":false,"key":"key1","file":"file1"}`
-	byteJson := []byte(strJson)
-	res, err := GetAnnexAddInfo(&byteJson)
-	if err == nil {
-		t.Fail()
-	}
-	assert.Nil(t, res)
-}
