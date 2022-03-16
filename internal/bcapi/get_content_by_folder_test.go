@@ -38,8 +38,6 @@ func TestGetContentByFolder_ok(t *testing.T) {
 	assert.Equal(t, resBody.ContentsInFolder[0].UserCode, res.ContentsInFolder[0].UserCode)
 	assert.Equal(t, resBody.ContentsInFolder[0].ContentLocation, res.ContentsInFolder[0].ContentLocation)
 	assert.Equal(t, resBody.ContentsInFolder[0].ContentAddress, res.ContentsInFolder[0].ContentAddress)
-	assert.Equal(t, resBody.ContentsInFolder[0].AddDateTime, res.ContentsInFolder[0].AddDateTime)
-
 }
 
 func TestGetContentByFolder_NG(t *testing.T) {
