@@ -96,9 +96,6 @@ func GetAnnexContentInfoListByDatasetNm(rawJson *[]byte, datasetNmList []string)
 }
 
 func isContainDatasetNm(fileNm string, datasetNm string) bool {
-	if strings.HasPrefix(fileNm, datasetNm) {
-		//FileNm(datasetフォルダーからのパス[datasetNm/folder/..../file])の左に指定データセット名があること
-		return true
-	}
-	return false
+	//FileNm(datasetフォルダーからのパス[datasetNm/folder/..../file])の左に指定データセット名があること
+	return strings.HasPrefix(fileNm, datasetNm)
 }
