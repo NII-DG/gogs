@@ -764,7 +764,7 @@ func CreateDataset(c *context.Context, f form.DatasetFrom) {
 	//登録依頼したデータセットの表示
 	isDisplaySubmitDataset := false
 	createDatasetListStr := ""
-	for k, _ := range uploadDatasetMap {
+	for k := range uploadDatasetMap {
 		isSumbitBc := true
 		for _, nonDataset := range notCreatedDataset.DatasetList {
 			if k == nonDataset.DatasetLocation {
