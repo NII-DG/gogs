@@ -9,7 +9,7 @@ import (
 
 	//logv2 "unknwon.dev/clog/v2"
 
-	"github.com/ivis-yoshida/gogs/internal/conf"
+	"github.com/NII-DG/gogs/internal/conf"
 )
 
 var API_URL_CREATE_CONTENT_HISTORY_TOKEN = "createContentHistoryToken"

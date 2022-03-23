@@ -6,9 +6,9 @@ import (
 
 	logv2 "unknwon.dev/clog/v2"
 
-	"github.com/ivis-yoshida/gogs/internal/bcapi"
-	"github.com/ivis-yoshida/gogs/internal/db"
-	"github.com/ivis-yoshida/gogs/internal/ipfs"
+	"github.com/NII-DG/gogs/internal/bcapi"
+	"github.com/NII-DG/gogs/internal/db"
+	"github.com/NII-DG/gogs/internal/ipfs"
 )
 
 func GetDatasetAddress(datasetPath string, datasetData db.DatasetInfo) (bcapi.UploadDatasetInfo, error) {

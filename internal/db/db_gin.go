@@ -13,9 +13,9 @@ import (
 
 	"github.com/G-Node/libgin/libgin"
 	"github.com/G-Node/libgin/libgin/annex"
+	"github.com/NII-DG/gogs/internal/annex_ipfs"
+	"github.com/NII-DG/gogs/internal/conf"
 	"github.com/gogs/git-module"
-	"github.com/ivis-yoshida/gogs/internal/annex_ipfs"
-	"github.com/ivis-yoshida/gogs/internal/conf"
 	"github.com/unknwon/com"
 	"golang.org/x/crypto/bcrypt"
 	log "gopkg.in/clog.v1"

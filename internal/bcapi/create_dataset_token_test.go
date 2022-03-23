@@ -3,7 +3,7 @@ package bcapi
 import (
 	"testing"
 
-	"github.com/ivis-yoshida/gogs/internal/conf"
+	"github.com/NII-DG/gogs/internal/conf"
 	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/assert"
 )
