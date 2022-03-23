@@ -378,6 +378,12 @@ var (
 	CLIConfig struct {
 		RSAHostKey string
 	}
+
+	//BCAPI server settings
+	BcApiServer struct {
+		ServerURL string `ini:"BCAPI_SERVER_URL"`
+		Token     string `ini:"BCAPI_TOKEN"`
+	}
 )
 
 type ServerOpts struct {

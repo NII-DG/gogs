@@ -1,3 +1,4 @@
+//go:build go1.14
 // +build go1.14
 
 // Copyright 2014 The Gogs Authors. All rights reserved.
@@ -13,8 +14,8 @@ import (
 	"github.com/urfave/cli"
 	log "unknwon.dev/clog/v2"
 
-	"github.com/ivis-yoshida/gogs/internal/cmd"
-	"github.com/ivis-yoshida/gogs/internal/conf"
+	"github.com/NII-DG/gogs/internal/cmd"
+	"github.com/NII-DG/gogs/internal/conf"
 )
 
 func init() {

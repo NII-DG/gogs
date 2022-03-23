@@ -12,7 +12,7 @@ import (
 	"github.com/unknwon/com"
 	"gopkg.in/macaron.v1"
 
-	"github.com/ivis-yoshida/gogs/internal/db"
+	"github.com/NII-DG/gogs/internal/db"
 )
 
 // _______________________________________    _________.______________________ _______________.___.
@@ -423,4 +423,17 @@ func (f *DeleteRepoFile) Validate(ctx *macaron.Context, errs binding.Errors) bin
 
 func (f *DeleteRepoFile) IsNewBrnach() bool {
 	return f.CommitChoice == "commit-to-new-branch"
+}
+
+//データセットフォーム
+type DatasetFrom struct {
+	DatasetList []string `binding:"Required"`
+}
+
+func (f *DatasetFrom) Validate(ctx *macaron.Context, errs binding.Errors) binding.Errors {
+	return validate(errs, ctx.Data, f, ctx.Locale)
+}
+
+func (d *DatasetFrom) getDatasets() []string {
+	return d.DatasetList
 }

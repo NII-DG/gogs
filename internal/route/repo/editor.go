@@ -12,18 +12,18 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/NII-DG/gogs/internal/bcapi"
+	"github.com/NII-DG/gogs/internal/conf"
+	"github.com/NII-DG/gogs/internal/context"
+	"github.com/NII-DG/gogs/internal/db"
+	"github.com/NII-DG/gogs/internal/db/errors"
+	"github.com/NII-DG/gogs/internal/form"
+	"github.com/NII-DG/gogs/internal/gitutil"
+	"github.com/NII-DG/gogs/internal/markup"
+	"github.com/NII-DG/gogs/internal/pathutil"
+	"github.com/NII-DG/gogs/internal/template"
+	"github.com/NII-DG/gogs/internal/tool"
 	log "unknwon.dev/clog/v2"
-
-	"github.com/ivis-yoshida/gogs/internal/conf"
-	"github.com/ivis-yoshida/gogs/internal/context"
-	"github.com/ivis-yoshida/gogs/internal/db"
-	"github.com/ivis-yoshida/gogs/internal/db/errors"
-	"github.com/ivis-yoshida/gogs/internal/form"
-	"github.com/ivis-yoshida/gogs/internal/gitutil"
-	"github.com/ivis-yoshida/gogs/internal/markup"
-	"github.com/ivis-yoshida/gogs/internal/pathutil"
-	"github.com/ivis-yoshida/gogs/internal/template"
-	"github.com/ivis-yoshida/gogs/internal/tool"
 )
 
 const (
@@ -432,6 +432,7 @@ func renderUploadSettings(c *context.Context) {
 }
 
 func UploadFile(c *context.Context) {
+
 	c.PageIs("Upload")
 	renderUploadSettings(c)
 
@@ -452,6 +453,7 @@ func UploadFile(c *context.Context) {
 }
 
 func UploadFilePost(c *context.Context, f form.UploadRepoFile) {
+
 	c.PageIs("Upload")
 	renderUploadSettings(c)
 
@@ -461,8 +463,9 @@ func UploadFilePost(c *context.Context, f form.UploadRepoFile) {
 	if f.IsNewBrnach() {
 		branchName = f.NewBranchName
 	}
-
+	log.Info("[f.TreePath before]%v", f.TreePath)
 	f.TreePath = pathutil.Clean(f.TreePath)
+	log.Info("[f.TreePath after]%v", f.TreePath)
 	treeNames, treePaths := getParentTreeFields(f.TreePath)
 	if len(treeNames) == 0 {
 		// We must at least have one element for user to input.
@@ -477,6 +480,8 @@ func UploadFilePost(c *context.Context, f form.UploadRepoFile) {
 	c.Data["commit_message"] = f.CommitMessage
 	c.Data["commit_choice"] = f.CommitChoice
 	c.Data["new_branch_name"] = branchName
+
+	log.Info("[c.Repo.RepoLink + /src/ + branchName] %v", c.Repo.RepoLink+"/src/"+branchName)
 
 	if c.HasError() {
 		c.Success(tmplEditorUpload)
@@ -523,17 +528,27 @@ func UploadFilePost(c *context.Context, f form.UploadRepoFile) {
 		message += "\n\n" + f.CommitMessage
 	}
 
-	if err := c.Repo.Repository.UploadRepoFiles(c.User, db.UploadRepoFileOptions{
-		LastCommitID: c.Repo.CommitID,
-		OldBranch:    oldBranchName,
-		NewBranch:    branchName,
-		TreePath:     f.TreePath,
-		Message:      message,
-		Files:        f.Files,
-	}); err != nil {
+	contentMap, err := c.Repo.Repository.UploadRepoFiles(c.User, db.UploadRepoFileOptions{
+		LastCommitID:  c.Repo.CommitID,
+		OldBranch:     oldBranchName,
+		NewBranch:     branchName,
+		TreePath:      f.TreePath,
+		Message:       message,
+		Files:         f.Files,
+		UpperRopoPath: c.Repo.RepoLink + "/" + branchName,
+	})
+	if err != nil {
 		log.Error("Failed to upload files: %v", err)
 		c.FormErr("TreePath")
 		c.RenderWithErr(c.Tr("repo.editor.unable_to_upload_files", f.TreePath, errors.InternalServerError), tmplEditorUpload, &f)
+		return
+	}
+	//アップロードしたコンテンツをBC登録
+	httpErr := bcapi.CreateContentHistory(c.User.Name, contentMap)
+	if httpErr != nil {
+		log.Error("[HTTP ERROR Create Content Hsitory] %v", httpErr)
+		c.FormErr("TreePath")
+		c.RenderWithErr("ブロックチェーンへの登録中にエラーが発生し、失敗しました", tmplEditorUpload, &f)
 		return
 	}
 
@@ -542,6 +557,10 @@ func UploadFilePost(c *context.Context, f form.UploadRepoFile) {
 	} else {
 		c.Redirect(c.Repo.RepoLink + "/src/" + branchName + "/" + f.TreePath)
 	}
+}
+
+func createContentHistory() {
+	panic("unimplemented")
 }
 
 func UploadFileToServer(c *context.Context) {

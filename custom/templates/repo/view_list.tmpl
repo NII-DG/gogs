@@ -1,3 +1,5 @@
+<form id="dataset_form" method="post" action="{{.DatasetLink}}">
+{{.CSRFTokenHTML}}
 <table id="repo-files-table" class="ui unstackable fixed single line table">
 	<thead>
 		<tr>
@@ -32,6 +34,7 @@
 					</td>
 				{{else}}
 					<td class="name">
+						<input type="checkbox" name="dataset_list" value="{{.Entry.Name}}" />
 						{{if .Entry.IsSymlink}}
 							<span class="octicon octicon-file-symlink-file"></span>
 						{{else}}
@@ -40,15 +43,18 @@
 						<a href="{{EscapePound $.TreeLink}}/{{EscapePound .Entry.Name}}">{{.Entry.Name}}</a>
 					</td>
 				{{end}}
-				<td class="message collapsing has-emoji">
-					<a rel="nofollow" class="ui sha label" href="{{$.RepoLink}}/commit/{{.Commit.ID}}">{{ShortSHA1 .Commit.ID.String}}</a>
-					{{RenderCommitMessage false .Commit.Summary $.RepoLink $.Repository.ComposeMetas | Str2HTML}}
-				</td>
-				<td class="text grey right age">{{TimeSince .Commit.Committer.When $.Lang}}</td>
+					<td class="message collapsing has-emoji">
+						<a rel="nofollow" class="ui sha label" href="{{$.RepoLink}}/commit/{{.Commit.ID}}">{{ShortSHA1 .Commit.ID.String}}</a>
+						{{RenderCommitMessage false .Commit.Summary $.RepoLink $.Repository.ComposeMetas | Str2HTML}}
+						<a id="content_address" href="ipfs://{{.ContentAddress}}">{{.ContentAddress | Str2HTML}}</a>
+					</td>
+					<td class="text grey right age">{{TimeSince .Commit.Committer.When $.Lang}}</td>
 			</tr>
 		{{end}}
 	</tbody>
+	<button id="dataset_button "type="submit">データセット登録</button>
 </table>
+</form>
 {{if and .ReadmeExist .IsTextFile}}
 	{{template "repo/view_file" .}}
 {{end}}

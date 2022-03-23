@@ -29,23 +29,23 @@ import (
 	"gopkg.in/macaron.v1"
 	log "unknwon.dev/clog/v2"
 
-	"github.com/ivis-yoshida/gogs/internal/app"
-	"github.com/ivis-yoshida/gogs/internal/assets/public"
-	"github.com/ivis-yoshida/gogs/internal/assets/templates"
-	"github.com/ivis-yoshida/gogs/internal/conf"
-	"github.com/ivis-yoshida/gogs/internal/context"
-	"github.com/ivis-yoshida/gogs/internal/db"
-	"github.com/ivis-yoshida/gogs/internal/form"
-	"github.com/ivis-yoshida/gogs/internal/osutil"
-	"github.com/ivis-yoshida/gogs/internal/route"
-	"github.com/ivis-yoshida/gogs/internal/route/admin"
-	apiv1 "github.com/ivis-yoshida/gogs/internal/route/api/v1"
-	"github.com/ivis-yoshida/gogs/internal/route/dev"
-	"github.com/ivis-yoshida/gogs/internal/route/lfs"
-	"github.com/ivis-yoshida/gogs/internal/route/org"
-	"github.com/ivis-yoshida/gogs/internal/route/repo"
-	"github.com/ivis-yoshida/gogs/internal/route/user"
-	"github.com/ivis-yoshida/gogs/internal/template"
+	"github.com/NII-DG/gogs/internal/app"
+	"github.com/NII-DG/gogs/internal/assets/public"
+	"github.com/NII-DG/gogs/internal/assets/templates"
+	"github.com/NII-DG/gogs/internal/conf"
+	"github.com/NII-DG/gogs/internal/context"
+	"github.com/NII-DG/gogs/internal/db"
+	"github.com/NII-DG/gogs/internal/form"
+	"github.com/NII-DG/gogs/internal/osutil"
+	"github.com/NII-DG/gogs/internal/route"
+	"github.com/NII-DG/gogs/internal/route/admin"
+	apiv1 "github.com/NII-DG/gogs/internal/route/api/v1"
+	"github.com/NII-DG/gogs/internal/route/dev"
+	"github.com/NII-DG/gogs/internal/route/lfs"
+	"github.com/NII-DG/gogs/internal/route/org"
+	"github.com/NII-DG/gogs/internal/route/repo"
+	"github.com/NII-DG/gogs/internal/route/user"
+	"github.com/NII-DG/gogs/internal/template"
 )
 
 var Web = cli.Command{
@@ -622,10 +622,13 @@ func runWeb(c *cli.Context) error {
 				m.Get("/commits/*", repo.RefCommits)
 				m.Get("/commit/:sha([a-f0-9]{7,40})$", repo.Diff)
 				m.Get("/forks", repo.Forks)
+				//dataset登録
+				m.Post("/dataset/*", bindIgnErr(form.DatasetFrom{}), repo.CreateDataset)
 			}, repo.MustBeNotBare, context.RepoRef())
 			m.Get("/commit/:sha([a-f0-9]{7,40})\\.:ext(patch|diff)", repo.MustBeNotBare, repo.RawDiff)
 
 			m.Get("/compare/:before([a-z0-9]{40})\\.\\.\\.:after([a-z0-9]{40})", repo.MustBeNotBare, context.RepoRef(), repo.CompareDiff)
+
 		}, ignSignIn, context.RepoAssignment())
 		m.Group("/:username/:reponame", func() {
 			m.Get("", context.ServeGoGet(), repo.Home)

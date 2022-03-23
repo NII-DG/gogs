@@ -22,9 +22,9 @@ import (
 	"gopkg.in/ini.v1"
 	log "unknwon.dev/clog/v2"
 
-	"github.com/ivis-yoshida/gogs/internal/assets/conf"
-	"github.com/ivis-yoshida/gogs/internal/osutil"
-	"github.com/ivis-yoshida/gogs/internal/semverutil"
+	"github.com/NII-DG/gogs/internal/assets/conf"
+	"github.com/NII-DG/gogs/internal/osutil"
+	"github.com/NII-DG/gogs/internal/semverutil"
 )
 
 func init() {
@@ -190,6 +190,13 @@ func Init(customConf string) error {
 		return errors.Wrap(err, "mapping [database] section")
 	}
 	Database.Path = ensureAbs(Database.Path)
+
+	// *****************************
+	// ------ BC-API settings ------
+	// *****************************
+	if err = File.Section("bcapi").MapTo(&BcApiServer); err != nil {
+		return errors.Wrap(err, "mapping [bcapi] section")
+	}
 
 	// *****************************
 	// ----- Security settings -----
