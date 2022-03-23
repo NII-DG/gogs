@@ -6,7 +6,7 @@ import (
 	"unsafe"
 
 	//logv2 "unknwon.dev/clog/v2"
-	"github.com/ivis-yoshida/gogs/internal/jsonfunc"
+	"github.com/NII-DG/gogs/internal/jsonfunc"
 )
 
 //git annex add --to --jsonの構造体
