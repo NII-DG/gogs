@@ -101,25 +101,18 @@ func renderDirectory(c *context.Context, treeLink string) {
 		return
 	}
 
-	logv2.Info("[currentFolederPath] %v ", currentFolederPath)
 	resList, err := bcapi.GetContentByFolder(c.User.Name, currentFolederPath)
 	if err != nil {
 		c.Error(err, "list entries")
 		return
 	}
+
 	logv2.Info("[resList] %v ", resList)
-	for index, data := range filesDataList {
+	for _, data := range filesDataList {
 		flg := false
-		logv2.Info("[index] %v", index)
-		logv2.Info("[data.Entry.Type()] %v ", data.Entry.Type())
-		logv2.Info("[data.Entry.Name()] %v ", data.Entry.Name())
-		logv2.Info("[currentFolederPath] %v ", currentFolederPath)
-		logv2.Info("[data.Entry.Type() == git.ObjectBlob] %v ", data.Entry.Type() == git.ObjectBlob)
 		if data.Entry.Type() == git.ObjectBlob {
 			for _, resData := range resList.ContentsInFolder {
 				fullPath := currentFolederPath + "/" + data.Entry.Name()
-				logv2.Info("[fullPath vs resData.ContentLocation] %v, %v ", fullPath, resData.ContentLocation)
-				logv2.Info("[fullPath == resData.ContentLocation] %v ", fullPath == resData.ContentLocation)
 				if fullPath == resData.ContentLocation {
 					altFileDataList = append(altFileDataList, AltEntryCommitInfo{
 						Entry:          data.Entry,
@@ -180,11 +173,7 @@ func renderDirectory(c *context.Context, treeLink string) {
 			})
 		}
 	}
-	for _, altData := range altFileDataList {
-		logv2.Info("[altData] %v", altData.Entry.Name())
-		logv2.Info("[altData] %v", altData.ContentAddress)
-	}
-	logv2.Info("[altFileDataList] %s", altFileDataList)
+
 	c.Data["Files"] = altFileDataList
 
 	if c.Data["HasDmpJson"].(bool) {
