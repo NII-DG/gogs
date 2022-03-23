@@ -6,7 +6,7 @@ import (
 	"strings"
 	"unsafe"
 
-	"github.com/ivis-yoshida/gogs/internal/jsonfunc"
+	"github.com/NII-DG/gogs/internal/jsonfunc"
 	//log "unknwon.dev/clog/v2"
 )
 
