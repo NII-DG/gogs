@@ -18,7 +18,7 @@ type IpfsOperation struct {
 func (i *IpfsOperation) FilesCopy(contentAddress, fullRepoFilePath string) error {
 	logv2.Info("[Copying IPFS Filse] Content Adress : %v, FullRepoFilePath : %v", contentAddress, fullRepoFilePath)
 	contentParam := "/ipfs/" + contentAddress
-	i.Command = i.Command.AddArgs("files", "cp", contentParam, "-p", fullRepoFilePath)
+	i.Command.AddArgs("files", "cp", contentParam, "-p", fullRepoFilePath)
 	logv2.Info("[i.Command] %v", i.Command)
 	if _, err := i.Command.Run(); err != nil {
 		return fmt.Errorf("[Failure ipfs files cp ...] Content Adress : %v, FullRepoFilePath : %v, err : %v", contentAddress, fullRepoFilePath, err)
@@ -30,7 +30,7 @@ func (i *IpfsOperation) FilesCopy(contentAddress, fullRepoFilePath string) error
 // ipfs files stat...コマンド
 // @param folderPath ex /RepoOwnerNm/RepoNm/BranchNm/DatasetFoleder/input
 func (i *IpfsOperation) FilesStatus(folderPath string) (string, error) {
-	i.Command = i.Command.AddArgs("files", "stat", folderPath)
+	i.Command.AddArgs("files", "stat", folderPath)
 	msg, err := i.Command.Run()
 	if err != nil {
 		return "", fmt.Errorf("[Failure ipfs files stat ...] FolderPath : %v", folderPath)
@@ -46,7 +46,7 @@ func (i *IpfsOperation) FilesStatus(folderPath string) (string, error) {
 // @param folderNm ex /RepoOwnerNm/RepoNm/BranchNm/DatasetFolederNm
 func (i *IpfsOperation) FilesRemove(folderPath string) error {
 	logv2.Info("[Removing IPFS Folder] FolderPath: %v", folderPath)
-	i.Command = i.Command.AddArgs("files", "rm", "-r", folderPath)
+	i.Command.AddArgs("files", "rm", "-r", folderPath)
 
 	if _, err := i.Command.Run(); err != nil {
 		return fmt.Errorf("[Failure ipfs file rm ...] FolderPath : %v", folderPath)
@@ -56,7 +56,7 @@ func (i *IpfsOperation) FilesRemove(folderPath string) error {
 }
 
 func (i *IpfsOperation) FilesIs(folderPath string) ([]string, error) {
-	i.Command = i.Command.AddArgs("files", "ls", folderPath)
+	i.Command.AddArgs("files", "ls", folderPath)
 	msg, err := i.Command.Run()
 	if err != nil {
 		return nil, fmt.Errorf("[Failure ipfs file is ...] <%v>, FolderPath : %v", err, folderPath)

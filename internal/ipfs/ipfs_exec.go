@@ -50,13 +50,13 @@ func NewCommand(args ...string) *IpfsCommand {
 		args: args,
 	}
 }
-func (c *IpfsCommand) AddArgs(args ...string) *IpfsCommand {
+func (c *IpfsCommand) AddArgs(args ...string) {
 	c.args = append(c.args, args...)
-	return c
+
 }
-func (c *IpfsCommand) AddEnvs(envs ...string) *IpfsCommand {
+func (c *IpfsCommand) AddEnvs(envs ...string) {
 	c.envs = append(c.envs, envs...)
-	return c
+
 }
 
 func (c *IpfsCommand) RunInDirPipelineWithTimeout(timeout time.Duration, stdout, stderr io.Writer, dir string) (err error) {

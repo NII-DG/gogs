@@ -1,13 +1,33 @@
-package ipfs
+package ipfs_test
 
-//自作Mock
-type IFIpfsCommandMock struct{}
+import (
+	"testing"
 
-func (*IFIpfsCommandMock) Run() ([]byte, error) {
+	"github.com/NII-DG/gogs/internal/ipfs"
+	mock_main "github.com/NII-DG/gogs/internal/ipfs/mock"
+	"github.com/golang/mock/gomock"
+)
 
-	strMsg := `item1
-	item2
-	item3`
-	vec := []byte(strMsg)
-	return vec, nil
+func TestFilesCopy(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockIFIpfsCommand := mock_main.NewMockIFIpfsCommand(ctrl)
+
+	contentAddress := "Qmflojfsidfljl"
+	fullRepoFilePath := "/owner/repo/branch/dataset1/innput/test1.txt"
+	contentParam := "/ipfs/" + contentAddress
+
+	mockIFIpfsCommand.EXPECT().AddArgs("files", "cp", contentParam, "-p", fullRepoFilePath)
+
+	msg := ""
+	rtn := []byte(msg)
+	mockIFIpfsCommand.EXPECT().Run().Return(rtn, nil)
+
+	i := ipfs.IpfsOperation{}
+	i.Command = mockIFIpfsCommand
+	err := i.FilesCopy(contentAddress, fullRepoFilePath)
+
+	if err != nil {
+		t.Fail()
+	}
 }
