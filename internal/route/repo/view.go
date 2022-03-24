@@ -720,7 +720,8 @@ func CreateDataset(c *context.Context, f form.DatasetFrom) {
 	//IPFS上でデータセット構築
 	uploadDatasetMap := map[string]bcapi.UploadDatasetInfo{}
 	for datasetPath, datasetData := range datasetNmToFileMap {
-		if uploadDataset, err := dataset.GetDatasetAddress(datasetPath, datasetData); err != nil {
+		datasetCreater := dataset.DatasetCreater{}
+		if uploadDataset, err := datasetCreater.GetDatasetAddress(datasetPath, datasetData); err != nil {
 			logv2.Error("[Get each Address IN Dataset] %v", err)
 			c.Error(err, "データセット内の各フォルダアドレスが取得できませんでした")
 			return

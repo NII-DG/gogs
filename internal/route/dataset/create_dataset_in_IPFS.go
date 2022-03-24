@@ -11,11 +11,22 @@ import (
 	"github.com/NII-DG/gogs/internal/ipfs"
 )
 
-func GetDatasetAddress(datasetPath string, datasetData db.DatasetInfo) (bcapi.UploadDatasetInfo, error) {
+type IFDatasetCreater interface {
+	GetDatasetAddress(datasetPath string, datasetData db.DatasetInfo) (bcapi.UploadDatasetInfo, error)
+	createDatasetStructure(contentList []db.ContentInfo) error
+	getUploadDatasetInfo(datasetPath string) (bcapi.UploadDatasetInfo, error)
+	isDatasetFolderOnIPFS(datasetPath string) (bool, error)
+}
+
+type DatasetCreater struct {
+	Operater ipfs.IFIpfsOperation
+}
+
+func (d *DatasetCreater) GetDatasetAddress(datasetPath string, datasetData db.DatasetInfo) (bcapi.UploadDatasetInfo, error) {
 
 	//指定にデータセットフォルダがIPFS上に存在しないことを確認する。
 	//存在している場合、実行ユーザ以外の者がデータセット登録をしようとしているか > 前回の同ディレクトリの削除がうまくいかなかった場合
-	is, err := isDatasetFolderOnIPFS(datasetPath)
+	is, err := d.isDatasetFolderOnIPFS(datasetPath)
 	if err != nil {
 		//内部エラー
 		return bcapi.UploadDatasetInfo{}, fmt.Errorf("<%v>", err)
@@ -27,63 +38,63 @@ func GetDatasetAddress(datasetPath string, datasetData db.DatasetInfo) (bcapi.Up
 	allContentList := datasetData.InputList
 	allContentList = append(allContentList, datasetData.SrcList...)
 	allContentList = append(allContentList, datasetData.OutputList...)
-	if err := createDatasetStructure(allContentList); err != nil {
+	if err := d.createDatasetStructure(allContentList); err != nil {
 		//IPFS上のフォルダー構成を削除する
-		rmCmd := ipfs.IpfsOperation{
-			Command: ipfs.NewCommand(),
+		d.Operater = &ipfs.IpfsOperation{
+			Commander: ipfs.NewCommand(),
 		}
-		if rmErr := rmCmd.FilesRemove(datasetPath); rmErr != nil {
+		if rmErr := d.Operater.FilesRemove(datasetPath); rmErr != nil {
 			return bcapi.UploadDatasetInfo{}, fmt.Errorf("[Failure Remove Creating Foleder on IPFS] <%v>,<%v>", err, rmErr)
 		}
 		return bcapi.UploadDatasetInfo{}, fmt.Errorf("[Failure Create Foleder on IPFS] <%v>, Than Remove Creating Foleder", err)
 	}
 
 	// /input/, /src/, /output/ フォルダのフォルダアドレスを取得
-	uploadDataset, err := getUploadDatasetInfo(datasetPath)
+	uploadDataset, err := d.getUploadDatasetInfo(datasetPath)
 	if err != nil {
 		return uploadDataset, err
 	}
 
 	//IPFS上のフォルダー構成を削除する
-	rmCmd := ipfs.IpfsOperation{
-		Command: ipfs.NewCommand(),
+	d.Operater = &ipfs.IpfsOperation{
+		Commander: ipfs.NewCommand(),
 	}
-	if rmErr := rmCmd.FilesRemove(datasetPath); rmErr != nil {
+	if rmErr := d.Operater.FilesRemove(datasetPath); rmErr != nil {
 		return bcapi.UploadDatasetInfo{}, fmt.Errorf("[Failure Remove Created Foleder on IPFS] %v", rmErr)
 	}
 	return uploadDataset, nil
 }
 
-func createDatasetStructure(contentList []db.ContentInfo) error {
+func (d *DatasetCreater) createDatasetStructure(contentList []db.ContentInfo) error {
 	for _, content := range contentList {
-		cpCmd := ipfs.IpfsOperation{
-			Command: ipfs.NewCommand(),
+		d.Operater = &ipfs.IpfsOperation{
+			Commander: ipfs.NewCommand(),
 		}
-		if err := cpCmd.FilesCopy(content.Address, content.File); err != nil {
+		if err := d.Operater.FilesCopy(content.Address, content.File); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func getUploadDatasetInfo(datasetPath string) (bcapi.UploadDatasetInfo, error) {
-	inputCmd := ipfs.IpfsOperation{
-		Command: ipfs.NewCommand(),
+func (d *DatasetCreater) getUploadDatasetInfo(datasetPath string) (bcapi.UploadDatasetInfo, error) {
+	d.Operater = &ipfs.IpfsOperation{
+		Commander: ipfs.NewCommand(),
 	}
 	inputPath := datasetPath + "/" + db.INPUT_FOLDER_NM
-	inputAddress, inputErr := inputCmd.FilesStatus(inputPath)
+	inputAddress, inputErr := d.Operater.FilesStatus(inputPath)
 
-	srcCmd := ipfs.IpfsOperation{
-		Command: ipfs.NewCommand(),
+	d.Operater = &ipfs.IpfsOperation{
+		Commander: ipfs.NewCommand(),
 	}
 	srcPath := datasetPath + "/" + db.SRC_FOLDER_NM
-	srcAddress, srcErr := srcCmd.FilesStatus(srcPath)
+	srcAddress, srcErr := d.Operater.FilesStatus(srcPath)
 
-	outputCmd := ipfs.IpfsOperation{
-		Command: ipfs.NewCommand(),
+	d.Operater = &ipfs.IpfsOperation{
+		Commander: ipfs.NewCommand(),
 	}
 	outputPath := datasetPath + "/" + db.OUTPUT_FOLDER_NM
-	outputAddress, outputErr := outputCmd.FilesStatus(outputPath)
+	outputAddress, outputErr := d.Operater.FilesStatus(outputPath)
 
 	if inputErr != nil || srcErr != nil || outputErr != nil {
 		return bcapi.UploadDatasetInfo{}, fmt.Errorf("[Failure Get Upload Dataset Address From IPFS] <INPUT : %v>, <SRC : %v>, <OUTPUT : %v>", inputErr, srcErr, outputErr)
@@ -96,11 +107,11 @@ func getUploadDatasetInfo(datasetPath string) (bcapi.UploadDatasetInfo, error) {
 	}, nil
 }
 
-func isDatasetFolderOnIPFS(datasetPath string) (bool, error) {
-	i := ipfs.IpfsOperation{
-		Command: ipfs.NewCommand(),
+func (d *DatasetCreater) isDatasetFolderOnIPFS(datasetPath string) (bool, error) {
+	d.Operater = &ipfs.IpfsOperation{
+		Commander: ipfs.NewCommand(),
 	}
-	_, err := i.FilesIs(datasetPath)
+	_, err := d.Operater.FilesIs(datasetPath)
 	if err != nil {
 		logv2.Info("[err.Error()] %v", err.Error())
 		if strings.Contains(err.Error(), "file does not exist") {
