@@ -5,7 +5,9 @@ type IFIpfsCommandMock struct{}
 
 func (*IFIpfsCommandMock) Run() ([]byte, error) {
 
-	// strMsg := `item1`
-	// return
-	return nil, nil
+	strMsg := `item1
+	item2
+	item3`
+	vec := []byte(strMsg)
+	return vec, nil
 }

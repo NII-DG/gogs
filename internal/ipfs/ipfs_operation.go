@@ -20,7 +20,7 @@ func (i *IpfsOperation) FilesCopy(contentAddress, fullRepoFilePath string) error
 	contentParam := "/ipfs/" + contentAddress
 	i.Command = i.Command.AddArgs("files", "cp", contentParam, "-p", fullRepoFilePath)
 	if _, err := i.Command.Run(); err != nil {
-		return fmt.Errorf("[Failure ipfs files cp ...] Content Adress : %v, FullRepoFilePath : %v", contentAddress, fullRepoFilePath)
+		return fmt.Errorf("[Failure ipfs files cp ...] Content Adress : %v, FullRepoFilePath : %v, err : %v", contentAddress, fullRepoFilePath, err)
 	}
 	logv2.Info("[Completion of Copy IPFS Filse] Content Adress : %v, FullRepoFilePath : %v", contentAddress, fullRepoFilePath)
 	return nil
