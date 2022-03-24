@@ -29,8 +29,8 @@ const (
 )
 
 type IFIpfsCommand interface {
-	AddArgs(args ...string) *IpfsCommand
-	AddEnvs(envs ...string) *IpfsCommand
+	AddArgs(args ...string)
+	AddEnvs(envs ...string)
 	RunInDirPipelineWithTimeout(timeout time.Duration, stdout, stderr io.Writer, dir string) (err error)
 	RunInDirWithTimeout(timeout time.Duration, dir string) ([]byte, error)
 	RunWithTimeout(timeout time.Duration) ([]byte, error)
