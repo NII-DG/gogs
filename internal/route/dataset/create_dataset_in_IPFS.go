@@ -67,16 +67,23 @@ func createDatasetStructure(contentList []db.ContentInfo) error {
 }
 
 func getUploadDatasetInfo(datasetPath string) (bcapi.UploadDatasetInfo, error) {
-	i := ipfs.IpfsOperation{
+	inputCmd := ipfs.IpfsOperation{
 		Command: ipfs.NewCommand(),
 	}
 	inputPath := datasetPath + "/" + db.INPUT_FOLDER_NM
-	srcPath := datasetPath + "/" + db.SRC_FOLDER_NM
-	outputPath := datasetPath + "/" + db.OUTPUT_FOLDER_NM
+	inputAddress, inputErr := inputCmd.FilesStatus(inputPath)
 
-	inputAddress, inputErr := i.FilesStatus(inputPath)
-	srcAddress, srcErr := i.FilesStatus(srcPath)
-	outputAddress, outputErr := i.FilesStatus(outputPath)
+	srcCmd := ipfs.IpfsOperation{
+		Command: ipfs.NewCommand(),
+	}
+	srcPath := datasetPath + "/" + db.SRC_FOLDER_NM
+	srcAddress, srcErr := srcCmd.FilesStatus(srcPath)
+
+	outputCmd := ipfs.IpfsOperation{
+		Command: ipfs.NewCommand(),
+	}
+	outputPath := datasetPath + "/" + db.OUTPUT_FOLDER_NM
+	outputAddress, outputErr := outputCmd.FilesStatus(outputPath)
 
 	if inputErr != nil || srcErr != nil || outputErr != nil {
 		return bcapi.UploadDatasetInfo{}, fmt.Errorf("[Failure Get Upload Dataset Address From IPFS] <INPUT : %v>, <SRC : %v>, <OUTPUT : %v>", inputErr, srcErr, outputErr)
