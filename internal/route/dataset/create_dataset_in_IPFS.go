@@ -12,9 +12,6 @@ import (
 )
 
 func GetDatasetAddress(datasetPath string, datasetData db.DatasetInfo) (bcapi.UploadDatasetInfo, error) {
-	i := ipfs.IpfsOperation{
-		Command: ipfs.NewCommand(),
-	}
 
 	//指定にデータセットフォルダがIPFS上に存在しないことを確認する。
 	//存在している場合、実行ユーザ以外の者がデータセット登録をしようとしているか > 前回の同ディレクトリの削除がうまくいかなかった場合
@@ -32,6 +29,9 @@ func GetDatasetAddress(datasetPath string, datasetData db.DatasetInfo) (bcapi.Up
 	allContentList = append(allContentList, datasetData.OutputList...)
 	if err := createDatasetStructure(allContentList); err != nil {
 		//IPFS上のフォルダー構成を削除する
+		i := ipfs.IpfsOperation{
+			Command: ipfs.NewCommand(),
+		}
 		if rmErr := i.FilesRemove(datasetPath); rmErr != nil {
 			return bcapi.UploadDatasetInfo{}, fmt.Errorf("[Failure Remove Creating Foleder on IPFS] <%v>,<%v>", err, rmErr)
 		}
@@ -45,6 +45,9 @@ func GetDatasetAddress(datasetPath string, datasetData db.DatasetInfo) (bcapi.Up
 	}
 
 	//IPFS上のフォルダー構成を削除する
+	i := ipfs.IpfsOperation{
+		Command: ipfs.NewCommand(),
+	}
 	if rmErr := i.FilesRemove(datasetPath); rmErr != nil {
 		return bcapi.UploadDatasetInfo{}, fmt.Errorf("[Failure Remove Created Foleder on IPFS] %v", rmErr)
 	}
@@ -52,10 +55,10 @@ func GetDatasetAddress(datasetPath string, datasetData db.DatasetInfo) (bcapi.Up
 }
 
 func createDatasetStructure(contentList []db.ContentInfo) error {
-	i := ipfs.IpfsOperation{
-		Command: ipfs.NewCommand(),
-	}
 	for _, content := range contentList {
+		i := ipfs.IpfsOperation{
+			Command: ipfs.NewCommand(),
+		}
 		if err := i.FilesCopy(content.Address, content.File); err != nil {
 			return err
 		}
