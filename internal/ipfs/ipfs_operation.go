@@ -8,6 +8,9 @@ import (
 	logv2 "unknwon.dev/clog/v2"
 )
 
+//mockファイルの生成
+//mockgen -source ipfs_operation.go -destination mock/mock_ipfs_opetation.go
+
 type IFIpfsOperation interface {
 	FilesCopy(contentAddress, fullRepoFilePath string) error
 	FilesStatus(folderPath string) (string, error)

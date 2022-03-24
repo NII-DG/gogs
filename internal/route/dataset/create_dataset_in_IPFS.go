@@ -11,6 +11,9 @@ import (
 	"github.com/NII-DG/gogs/internal/ipfs"
 )
 
+//mockファイルの生成
+//mockgen -source create_dataset_in_IPFS.go -destination mock/mock_create_dataset_in_IPFS.go
+
 type IFDatasetCreater interface {
 	GetDatasetAddress(datasetPath string, datasetData db.DatasetInfo) (bcapi.UploadDatasetInfo, error)
 	createDatasetStructure(contentList []db.ContentInfo) error
