@@ -192,7 +192,7 @@ func TestGetDatasetAddress_異常系_IPFSにフォルダが既に存在した場
 	if err == nil {
 		t.Fail()
 	}
-	expErr := fmt.Errorf("There Is A Possibility That Another User Upload Dataset To IPFS")
+	expErr := fmt.Errorf("[Error Msg]<There Is A Possibility That Another User Upload Dataset To IPFS>")
 	assert.Equal(t, expErr, err)
 }
 
