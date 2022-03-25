@@ -206,7 +206,6 @@ func fetchBlobOnGithub(blobPath string) ([]byte, error) {
 
 	resp, err := client.Do(req)
 	if err != nil {
-		logv2.Error("[is Error]")
 		return nil, err
 	}
 	defer resp.Body.Close()
