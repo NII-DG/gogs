@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/NII-DG/gogs/internal/ipfs"
-	mock_main "github.com/NII-DG/gogs/internal/ipfs/mock"
+	mock_ipfs "github.com/NII-DG/gogs/internal/ipfs/mock"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 )
@@ -13,7 +13,7 @@ import (
 func TestFilesCopy_正常系(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	mockIFIpfsCommand := mock_main.NewMockIFIpfsCommand(ctrl)
+	mockIFIpfsCommand := mock_ipfs.NewMockIFIpfsCommand(ctrl)
 
 	contentAddress := "Qmflojfsidfljl"
 	fullRepoFilePath := "/owner/repo/branch/dataset1/innput/test1.txt"
@@ -26,7 +26,7 @@ func TestFilesCopy_正常系(t *testing.T) {
 	mockIFIpfsCommand.EXPECT().Run().Return(rtn, nil)
 
 	i := ipfs.IpfsOperation{}
-	i.Command = mockIFIpfsCommand
+	i.Commander = mockIFIpfsCommand
 	err := i.FilesCopy(contentAddress, fullRepoFilePath)
 
 	if err != nil {
@@ -37,7 +37,7 @@ func TestFilesCopy_正常系(t *testing.T) {
 func TestFilesCopy_異常系(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	mockIFIpfsCommand := mock_main.NewMockIFIpfsCommand(ctrl)
+	mockIFIpfsCommand := mock_ipfs.NewMockIFIpfsCommand(ctrl)
 
 	contentAddress := "Qmflojfsidfljl"
 	fullRepoFilePath := "/owner/repo/branch/dataset1/innput/test1.txt"
@@ -51,7 +51,7 @@ func TestFilesCopy_異常系(t *testing.T) {
 	mockIFIpfsCommand.EXPECT().Run().Return(rtn, rtnErr)
 
 	i := ipfs.IpfsOperation{}
-	i.Command = mockIFIpfsCommand
+	i.Commander = mockIFIpfsCommand
 	err := i.FilesCopy(contentAddress, fullRepoFilePath)
 	if err == nil {
 		t.Fail()
