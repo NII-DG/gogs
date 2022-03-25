@@ -138,7 +138,7 @@ func TestGetDatasetAddress_異常系_意図しないエラーが発生した場�
 	if err == nil {
 		t.Fail()
 	}
-	expErr := fmt.Errorf("<%v>", fmt.Errorf("[Failure ipfs file is ...] <%v>, FolderPath : %v", rtnErr, datasetPath))
+	expErr := fmt.Errorf("<%v>", rtnErr)
 	assert.Equal(t, expErr, err)
 }
 
@@ -319,7 +319,7 @@ func TestGetDatasetAddress_異常系_IPFSへのフォルダ構築と削除を失
 	if err == nil {
 		t.Fail()
 	}
-	expErr := fmt.Errorf("[Failure Remove Creating Foleder on IPFS] <%v>,<%v>", rtnErrCp, rtnErrCp)
+	expErr := fmt.Errorf("[Failure Remove Creating Foleder on IPFS] <%v>,<%v>", rtnErrCp, rtnErrRm)
 	assert.Equal(t, expErr, err)
 }
 
@@ -385,9 +385,6 @@ func TestGetDatasetAddress_異常系_コンテンツアドレスの取得時エ�
 	outputPath := datasetPath + "/" + db.OUTPUT_FOLDER_NM
 	rtnOutputAddress := "QmUr3XYHNR1mRguGCG9z9jjAzG7P7XjBg38ubHBAWUUKdM"
 	mockIFIpfsOperation.EXPECT().FilesStatus(outputPath).Return(rtnOutputAddress, nil)
-
-	//GetDatasetAddress()におけるFilesRemove() mock  errを返さない
-	mockIFIpfsOperation.EXPECT().FilesRemove(datasetPath).Return(nil)
 
 	//実行
 	d := dataset.DatasetCreater{}
