@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/NII-DG/gogs/internal/db"
-	mock_ipfs "github.com/NII-DG/gogs/internal/ipfs/mock"
+	mock_ipfs "github.com/NII-DG/gogs/internal/mocks/ipfs"
 	"github.com/NII-DG/gogs/internal/route/dataset"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
