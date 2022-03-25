@@ -54,7 +54,11 @@ func TestGetDatasetAddress_正常系(t *testing.T) {
 	mockIFIpfsOperation.EXPECT().FilesIs(datasetPath).Return(rtnStrAry, rtnErr)
 
 	//createDatasetStructure() で nilを返すようにする。FilesCopy() mock
-	mockIFIpfsOperation.EXPECT().FilesCopy(gomock.Any(), gomock.Any()).Return(nil)
+	// mockIFIpfsOperation.EXPECT().FilesCopy(gomock.Any(), gomock.Any()).Return(nil)
+	mockIFIpfsOperation.EXPECT().FilesCopy(inputList[0].Address, inputList[0].File).Return(nil)
+	mockIFIpfsOperation.EXPECT().FilesCopy(srcList[0].Address, srcList[0].File).Return(nil)
+	mockIFIpfsOperation.EXPECT().FilesCopy(srcList[1].Address, srcList[1].File).Return(nil)
+	mockIFIpfsOperation.EXPECT().FilesCopy(outputList[0].Address, outputList[0].File).Return(nil)
 
 	//getUploadDatasetInfo()でinputフォルダのコンテンツを返すFilesStatus() Mock
 	inputPath := datasetPath + "/" + db.INPUT_FOLDER_NM

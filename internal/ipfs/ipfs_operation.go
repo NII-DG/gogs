@@ -27,6 +27,7 @@ type IpfsOperation struct {
 // @param fullFilePath コピー先ディレクトリ ex : /RepoOwnerNm/RepoNm/BranchNm/DatasetFoleder/...../FileNm.txt
 func (i *IpfsOperation) FilesCopy(contentAddress, fullRepoFilePath string) error {
 	logv2.Info("[Copying IPFS Filse] Content Adress : %v, FullRepoFilePath : %v", contentAddress, fullRepoFilePath)
+	i.Commander.RemoveArgs()
 	contentParam := "/ipfs/" + contentAddress
 	i.Commander.AddArgs("files", "cp", contentParam, "-p", fullRepoFilePath)
 	if _, err := i.Commander.Run(); err != nil {
@@ -39,6 +40,7 @@ func (i *IpfsOperation) FilesCopy(contentAddress, fullRepoFilePath string) error
 // ipfs files stat...コマンド
 // @param folderPath ex /RepoOwnerNm/RepoNm/BranchNm/DatasetFoleder/input
 func (i *IpfsOperation) FilesStatus(folderPath string) (string, error) {
+	i.Commander.RemoveArgs()
 	i.Commander.AddArgs("files", "stat", folderPath)
 	msg, err := i.Commander.Run()
 	if err != nil {
@@ -55,6 +57,7 @@ func (i *IpfsOperation) FilesStatus(folderPath string) (string, error) {
 // @param folderNm ex /RepoOwnerNm/RepoNm/BranchNm/DatasetFolederNm
 func (i *IpfsOperation) FilesRemove(folderPath string) error {
 	logv2.Info("[Removing IPFS Folder] FolderPath: %v", folderPath)
+	i.Commander.RemoveArgs()
 	i.Commander.AddArgs("files", "rm", "-r", folderPath)
 
 	if _, err := i.Commander.Run(); err != nil {
@@ -65,6 +68,7 @@ func (i *IpfsOperation) FilesRemove(folderPath string) error {
 }
 
 func (i *IpfsOperation) FilesIs(folderPath string) ([]string, error) {
+	i.Commander.RemoveArgs()
 	i.Commander.AddArgs("files", "ls", folderPath)
 	msg, err := i.Commander.Run()
 	if err != nil {

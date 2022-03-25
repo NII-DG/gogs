@@ -19,6 +19,7 @@ func TestFilesCopy_正常系(t *testing.T) {
 	fullRepoFilePath := "/owner/repo/branch/dataset1/innput/test1.txt"
 	contentParam := "/ipfs/" + contentAddress
 
+	mockIFIpfsCommand.EXPECT().RemoveArgs()
 	mockIFIpfsCommand.EXPECT().AddArgs("files", "cp", contentParam, "-p", fullRepoFilePath)
 
 	msg := ""
@@ -43,6 +44,7 @@ func TestFilesCopy_異常系(t *testing.T) {
 	fullRepoFilePath := "/owner/repo/branch/dataset1/innput/test1.txt"
 	contentParam := "/ipfs/" + contentAddress
 
+	mockIFIpfsCommand.EXPECT().RemoveArgs()
 	mockIFIpfsCommand.EXPECT().AddArgs("files", "cp", contentParam, "-p", fullRepoFilePath)
 
 	msg := ""

@@ -43,9 +43,6 @@ func (d *DatasetCreater) GetDatasetAddress(datasetPath string, datasetData db.Da
 	allContentList = append(allContentList, datasetData.OutputList...)
 	if err := d.createDatasetStructure(allContentList); err != nil {
 		//IPFS上のフォルダー構成を削除する
-		d.Operater = &ipfs.IpfsOperation{
-			Commander: ipfs.NewCommand(),
-		}
 		if rmErr := d.Operater.FilesRemove(datasetPath); rmErr != nil {
 			return bcapi.UploadDatasetInfo{}, fmt.Errorf("[Failure Remove Creating Foleder on IPFS] <%v>,<%v>", err, rmErr)
 		}
@@ -59,9 +56,6 @@ func (d *DatasetCreater) GetDatasetAddress(datasetPath string, datasetData db.Da
 	}
 
 	//IPFS上のフォルダー構成を削除する
-	d.Operater = &ipfs.IpfsOperation{
-		Commander: ipfs.NewCommand(),
-	}
 	if rmErr := d.Operater.FilesRemove(datasetPath); rmErr != nil {
 		return bcapi.UploadDatasetInfo{}, fmt.Errorf("[Failure Remove Created Foleder on IPFS] %v", rmErr)
 	}
@@ -70,9 +64,6 @@ func (d *DatasetCreater) GetDatasetAddress(datasetPath string, datasetData db.Da
 
 func (d *DatasetCreater) createDatasetStructure(contentList []db.ContentInfo) error {
 	for _, content := range contentList {
-		d.Operater = &ipfs.IpfsOperation{
-			Commander: ipfs.NewCommand(),
-		}
 		if err := d.Operater.FilesCopy(content.Address, content.File); err != nil {
 			return err
 		}
@@ -81,21 +72,12 @@ func (d *DatasetCreater) createDatasetStructure(contentList []db.ContentInfo) er
 }
 
 func (d *DatasetCreater) getUploadDatasetInfo(datasetPath string) (bcapi.UploadDatasetInfo, error) {
-	d.Operater = &ipfs.IpfsOperation{
-		Commander: ipfs.NewCommand(),
-	}
 	inputPath := datasetPath + "/" + db.INPUT_FOLDER_NM
 	inputAddress, inputErr := d.Operater.FilesStatus(inputPath)
 
-	d.Operater = &ipfs.IpfsOperation{
-		Commander: ipfs.NewCommand(),
-	}
 	srcPath := datasetPath + "/" + db.SRC_FOLDER_NM
 	srcAddress, srcErr := d.Operater.FilesStatus(srcPath)
 
-	d.Operater = &ipfs.IpfsOperation{
-		Commander: ipfs.NewCommand(),
-	}
 	outputPath := datasetPath + "/" + db.OUTPUT_FOLDER_NM
 	outputAddress, outputErr := d.Operater.FilesStatus(outputPath)
 
@@ -111,9 +93,6 @@ func (d *DatasetCreater) getUploadDatasetInfo(datasetPath string) (bcapi.UploadD
 }
 
 func (d *DatasetCreater) isDatasetFolderOnIPFS(datasetPath string) (bool, error) {
-	d.Operater = &ipfs.IpfsOperation{
-		Commander: ipfs.NewCommand(),
-	}
 	_, err := d.Operater.FilesIs(datasetPath)
 	if err != nil {
 		logv2.Info("[err.Error()] %v", err.Error())

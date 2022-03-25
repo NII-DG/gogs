@@ -67,6 +67,30 @@ func (mr *MockIFIpfsCommandMockRecorder) AddEnvs(envs ...interface{}) *gomock.Ca
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddEnvs", reflect.TypeOf((*MockIFIpfsCommand)(nil).AddEnvs), envs...)
 }
 
+// RemoveArgs mocks base method.
+func (m *MockIFIpfsCommand) RemoveArgs() {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "RemoveArgs")
+}
+
+// RemoveArgs indicates an expected call of RemoveArgs.
+func (mr *MockIFIpfsCommandMockRecorder) RemoveArgs() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveArgs", reflect.TypeOf((*MockIFIpfsCommand)(nil).RemoveArgs))
+}
+
+// RemoveEnvs mocks base method.
+func (m *MockIFIpfsCommand) RemoveEnvs() {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "RemoveEnvs")
+}
+
+// RemoveEnvs indicates an expected call of RemoveEnvs.
+func (mr *MockIFIpfsCommandMockRecorder) RemoveEnvs() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveEnvs", reflect.TypeOf((*MockIFIpfsCommand)(nil).RemoveEnvs))
+}
+
 // Run mocks base method.
 func (m *MockIFIpfsCommand) Run() ([]byte, error) {
 	m.ctrl.T.Helper()

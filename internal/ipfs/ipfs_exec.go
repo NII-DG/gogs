@@ -33,7 +33,9 @@ const (
 
 type IFIpfsCommand interface {
 	AddArgs(args ...string)
+	RemoveArgs()
 	AddEnvs(envs ...string)
+	RemoveEnvs()
 	RunInDirPipelineWithTimeout(timeout time.Duration, stdout, stderr io.Writer, dir string) (err error)
 	RunInDirWithTimeout(timeout time.Duration, dir string) ([]byte, error)
 	RunWithTimeout(timeout time.Duration) ([]byte, error)
@@ -57,9 +59,17 @@ func (c *IpfsCommand) AddArgs(args ...string) {
 	c.args = append(c.args, args...)
 
 }
+func (c *IpfsCommand) RemoveArgs() {
+	c.args = []string{}
+}
+
 func (c *IpfsCommand) AddEnvs(envs ...string) {
 	c.envs = append(c.envs, envs...)
 
+}
+
+func (c *IpfsCommand) RemoveEnvs() {
+	c.envs = []string{}
 }
 
 func (c *IpfsCommand) RunInDirPipelineWithTimeout(timeout time.Duration, stdout, stderr io.Writer, dir string) (err error) {
