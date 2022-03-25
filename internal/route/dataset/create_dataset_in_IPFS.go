@@ -34,7 +34,7 @@ func (d *DatasetCreater) GetDatasetAddress(datasetPath string, datasetData db.Da
 		//内部エラー
 		return bcapi.UploadDatasetInfo{}, fmt.Errorf("<%v>", err)
 	} else if is {
-		return bcapi.UploadDatasetInfo{}, fmt.Errorf("There Is A Possibility That Another User Upload Dataset To IPFS")
+		return bcapi.UploadDatasetInfo{}, fmt.Errorf("[Error Msg]<There Is A Possibility That Another User Upload Dataset To IPFS>")
 	}
 
 	//IPFS上でデータセットのフォルダー構成を再現
