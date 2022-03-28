@@ -13,6 +13,7 @@ import (
 	"gopkg.in/ini.v1"
 
 	"github.com/NII-DG/gogs/internal/testutil"
+	log "unknwon.dev/clog/v2"
 )
 
 func TestAsset(t *testing.T) {
@@ -48,7 +49,7 @@ func TestInit(t *testing.T) {
 	cfg := ini.Empty()
 	cfg.NameMapper = ini.SnackCase
 
-	for _, v := range []struct {
+	for key, v := range []struct {
 		section string
 		config  interface{}
 	}{
@@ -68,6 +69,7 @@ func TestInit(t *testing.T) {
 		{"mirror", &Mirror},
 		{"i18n", &I18n},
 	} {
+		log.Info("[index] : %v", key)
 		err := cfg.Section(v.section).ReflectFrom(v.config)
 		if err != nil {
 			t.Fatalf("%s: %v", v.section, err)

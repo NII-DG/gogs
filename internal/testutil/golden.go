@@ -15,6 +15,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	log "unknwon.dev/clog/v2"
 )
 
 var updateRegex = flag.String("update", "", "Update testdata of tests matching the given regex")
@@ -30,6 +31,12 @@ func Update(name string) bool {
 // AssertGolden compares what's got and what's in the golden file. It updates
 // the golden file on-demand. It does nothing when the runtime is "windows".
 func AssertGolden(t testing.TB, path string, update bool, got interface{}) {
+	log.Info("[t] %v", t)
+	log.Info("[path] %v", path)
+	log.Info("[update] %v", update)
+	log.Info("[got] %v", got)
+	log.Info("[got] %s", got)
+
 	if runtime.GOOS == "windows" {
 		t.Skip("Skipping testing on Windows")
 		return

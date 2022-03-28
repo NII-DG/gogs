@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"strings"
 
-	logv2 "unknwon.dev/clog/v2"
-
 	"github.com/NII-DG/gogs/internal/bcapi"
 	"github.com/NII-DG/gogs/internal/db"
 	"github.com/NII-DG/gogs/internal/ipfs"
@@ -95,7 +93,6 @@ func (d *DatasetCreater) getUploadDatasetInfo(datasetPath string) (bcapi.UploadD
 func (d *DatasetCreater) isDatasetFolderOnIPFS(datasetPath string) (bool, error) {
 	_, err := d.Operater.FilesIs(datasetPath)
 	if err != nil {
-		logv2.Info("[err.Error()] %v", err.Error())
 		if strings.Contains(err.Error(), "file does not exist") {
 			return false, nil
 		} else {

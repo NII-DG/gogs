@@ -108,7 +108,6 @@ func renderDirectory(c *context.Context, treeLink string) {
 		return
 	}
 
-	logv2.Info("[resList] %v ", resList)
 	for _, data := range filesDataList {
 		flg := false
 		if data.Entry.Type() == git.ObjectBlob {
@@ -742,7 +741,7 @@ func CreateDataset(c *context.Context, f form.DatasetFrom) {
 		//登録できなかったデータセットの表示
 		notCreatesDatasetList := ""
 		for _, dataset := range notCreatedDataset.DatasetList {
-			logv2.Warn("[Already Exist Dataset Token] %v", dataset.DatasetLocation)
+			logv2.Warn("[Already Exists Dataset Token] %v", dataset.DatasetLocation)
 			temStr := &notCreatesDatasetList
 			addDataset := "[" + dataset.DatasetLocation + "] "
 			*temStr = *temStr + addDataset
