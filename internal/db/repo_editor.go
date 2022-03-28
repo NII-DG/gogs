@@ -586,7 +586,7 @@ func (repo *Repository) UploadRepoFiles(doer *User, opts UploadRepoFileOptions) 
 	}
 
 	annexSetup(localPath) // Initialise annex and set configuration (with add filter for filesizes)
-	annexAddRes := []annex_ipfs.AnnexAddResponse{}
+	var annexAddRes []annex_ipfs.AnnexAddResponse
 	if annexAddRes, err = annexAdd(localPath, true); err != nil {
 		return nil, fmt.Errorf("git annex add: %v", err)
 	} else if err = git.RepoCommit(localPath, doer.NewGitSig(), opts.Message); err != nil {
