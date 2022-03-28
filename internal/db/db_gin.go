@@ -9,7 +9,6 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
-	"unsafe"
 
 	"github.com/G-Node/libgin/libgin"
 	"github.com/G-Node/libgin/libgin/annex"
@@ -181,26 +180,6 @@ func annexAdd(repoPath string, all bool, files ...string) ([]annex_ipfs.AnnexAdd
 		return reslist, nil
 	}
 	return nil, err
-}
-
-func lens(res []annex_ipfs.AnnexAddResponse) {
-	panic("unimplemented")
-}
-
-func getfilePath(msg []byte) []string {
-	pathList := []string{}
-	reg := "\r\n|\n"
-	strMsg := *(*string)(unsafe.Pointer(&msg))               //[]byte to string
-	splitByline := regexp.MustCompile(reg).Split(strMsg, -1) //改行分割
-	for _, s := range splitByline {
-		if strings.Contains(s, "add ") {
-			index := strings.LastIndex(s, "add ")
-			path := s[index+4:]
-			pathList = append(pathList, path)
-
-		}
-	}
-	return pathList
 }
 
 /**
