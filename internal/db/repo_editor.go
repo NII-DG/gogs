@@ -559,9 +559,6 @@ func (repo *Repository) UploadRepoFiles(doer *User, opts UploadRepoFileOptions) 
 
 	localPath := repo.LocalCopyPath()
 	dirPath := path.Join(localPath, opts.TreePath)
-	log.Info("[localPath]%v", localPath)
-	log.Info("[opts.TreePath]%v", opts.TreePath)
-	log.Info("[dirPath]%v", dirPath)
 	if err = os.MkdirAll(dirPath, os.ModePerm); err != nil {
 		return nil, err
 	}
@@ -579,7 +576,6 @@ func (repo *Repository) UploadRepoFiles(doer *User, opts UploadRepoFileOptions) 
 		}
 
 		targetPath := path.Join(dirPath, upload.Name)
-		log.Info("[targetPath] dirPath : %v, upload.Name", dirPath, upload.Name)
 		// GIN: Create subdirectory for dirtree uploads
 		if err = os.MkdirAll(filepath.Dir(targetPath), os.ModePerm); err != nil {
 			return nil, fmt.Errorf("mkdir: %v", err)
