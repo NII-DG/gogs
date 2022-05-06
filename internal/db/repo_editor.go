@@ -594,7 +594,8 @@ func (repo *Repository) PublicUploadRepoFiles(doer *User, opts UploadRepoFileOpt
 		if err = os.MkdirAll(filepath.Dir(targetPath), os.ModePerm); err != nil {
 			return nil, fmt.Errorf("mkdir: %v", err)
 		}
-		log.Info("[tmpPath] %v, [targetPath] %v", tmpPath, targetPath)
+		log.Info("[tmpPath] %v, to [targetPath] %v, [upload.Name] %v", tmpPath, targetPath, upload.Name)
+		//アップロードファイルをローカルレポジトリディレクトリにコピーする。
 		if err = com.Copy(tmpPath, targetPath); err != nil {
 			return nil, fmt.Errorf("copy: %v", err)
 		}
