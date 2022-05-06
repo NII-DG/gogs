@@ -182,14 +182,19 @@ func annexAdd(repoPath string, all bool, files ...string) ([]annex_ipfs.AnnexAdd
 	return nil, err
 }
 
+type AnnexUploadInfo struct {
+	FullContentHash string
+	IpfsCid         string
+}
+
 /**
 UPDATE : 2022/02/01
 AUTHOR : dai.tsukioka
 NOTE : methods : [sync and copy] locations are invert
 ToDo : IPFSへアップロードしたコンテンツアドレスをupploadFileMapに追加する。
 */
-func annexUpload(upperpath, repoPath, remote string, annexAddRes []annex_ipfs.AnnexAddResponse) (map[string]string, error) {
-	contentMap := map[string]string{}
+func annexUpload(upperpath, repoPath, remote string, annexAddRes []annex_ipfs.AnnexAddResponse, hashByFile map[string]string) (map[string]AnnexUploadInfo, error) {
+	contentMap := map[string]AnnexUploadInfo{}
 	//ipfsへ実データをコピーする。
 	logv2.Info("[Uploading annexed data to %v] path : %v", remote, repoPath)
 	for _, content := range annexAddRes {
@@ -209,7 +214,10 @@ func annexUpload(upperpath, repoPath, remote string, annexAddRes []annex_ipfs.An
 				return nil, fmt.Errorf("[JSON Convert] err : %v ,fromPath : %v", err, repoPath)
 			}
 			contentLocation := upperpath + "/" + content.File
-			contentMap[contentLocation] = contentInfo.Hash
+			contentMap[contentLocation] = AnnexUploadInfo{
+				FullContentHash: hashByFile[contentLocation],
+				IpfsCid:         contentInfo.Hash,
+			}
 		}
 	}
 	//IPFSへアップロードしたコンテンツロケーションを表示

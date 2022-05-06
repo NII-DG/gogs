@@ -526,7 +526,7 @@ func isRepositoryGitPath(path string) bool {
 }
 
 //TODO[2022-05-06]：プライベート or パブリック　レポジトリで異なる処理を行う
-func (repo *Repository) UploadRepoFiles(doer *User, opts UploadRepoFileOptions, isPrivate bool) (contentMap map[string]string, err error) {
+func (repo *Repository) UploadRepoFiles(doer *User, opts UploadRepoFileOptions, isPrivate bool) (contentMap map[string]AnnexUploadInfo, err error) {
 	//プライベート or パブリック　レポジトリで異なる処理を行う
 	if isPrivate {
 		//プライベートレポジトリの場合
@@ -541,7 +541,7 @@ func (repo *Repository) UploadRepoFiles(doer *User, opts UploadRepoFileOptions, 
 }
 
 //パブリックレポジトリのUploadRepoFiles
-func (repo *Repository) PublicUploadRepoFiles(doer *User, opts UploadRepoFileOptions) (contentMap map[string]string, err error) {
+func (repo *Repository) PublicUploadRepoFiles(doer *User, opts UploadRepoFileOptions) (contentMap map[string]AnnexUploadInfo, err error) {
 	if len(opts.Files) == 0 {
 		log.Error("Error 1: %v", len(opts.Files))
 		return nil, nil
@@ -577,6 +577,7 @@ func (repo *Repository) PublicUploadRepoFiles(doer *User, opts UploadRepoFileOpt
 		return nil, err
 	}
 
+	hashByFile := map[string]string{} //ファイルパスとファイルハッシュ値
 	// Copy uploaded files into repository
 	for _, upload := range uploads {
 		tmpPath := upload.LocalPath()
@@ -585,7 +586,7 @@ func (repo *Repository) PublicUploadRepoFiles(doer *User, opts UploadRepoFileOpt
 		}
 
 		// Prevent copying files into .git directory, see https://gogs.io/gogs/issues/5558.
-		if isRepositoryGitPath(upload.Name) {
+		if isRepositoryGitPath(upload.Name) { //upload.Name = ex. dataset1/src/main/src_data.txt
 			continue
 		}
 
@@ -594,11 +595,13 @@ func (repo *Repository) PublicUploadRepoFiles(doer *User, opts UploadRepoFileOpt
 		if err = os.MkdirAll(filepath.Dir(targetPath), os.ModePerm); err != nil {
 			return nil, fmt.Errorf("mkdir: %v", err)
 		}
-		log.Info("[tmpPath] %v, to [targetPath] %v, [upload.Name] %v", tmpPath, targetPath, upload.Name)
+
 		//アップロードファイルをローカルレポジトリディレクトリにコピーする。
 		if err = com.Copy(tmpPath, targetPath); err != nil {
 			return nil, fmt.Errorf("copy: %v", err)
 		}
+		filePath := path.Join(opts.UpperRopoPath, upload.Name)
+		hashByFile[filePath] = ""
 	}
 
 	annexSetup(localPath) // Initialise annex and set configuration (with add filter for filesizes)
@@ -620,7 +623,7 @@ func (repo *Repository) PublicUploadRepoFiles(doer *User, opts UploadRepoFileOpt
 	if err = git.RepoPush(localPath, "origin", opts.NewBranch, git.PushOptions{Envs: envs}); err != nil {
 		return nil, fmt.Errorf("git push origin %s: %v", opts.NewBranch, err)
 	}
-	contentMap, err = annexUpload(opts.UpperRopoPath, localPath, "ipfs", annexAddRes)
+	contentMap, err = annexUpload(opts.UpperRopoPath, localPath, "ipfs", annexAddRes, hashByFile)
 	if err != nil { // Copy new files
 		return nil, fmt.Errorf("annex copy %s: %v", localPath, err)
 	}
@@ -637,7 +640,7 @@ func (repo *Repository) PublicUploadRepoFiles(doer *User, opts UploadRepoFileOpt
 
 //プライベートレポジトリのUploadRepoFiles
 //TODO: ファイルを暗号化して取り扱う
-func (repo *Repository) PrivateUploadRepoFiles(doer *User, opts UploadRepoFileOptions) (contentMap map[string]string, err error) {
+func (repo *Repository) PrivateUploadRepoFiles(doer *User, opts UploadRepoFileOptions) (contentMap map[string]AnnexUploadInfo, err error) {
 	if len(opts.Files) == 0 {
 		log.Error("Error 1: %v", len(opts.Files))
 		return nil, nil
@@ -672,6 +675,8 @@ func (repo *Repository) PrivateUploadRepoFiles(doer *User, opts UploadRepoFileOp
 	if err = os.MkdirAll(dirPath, os.ModePerm); err != nil {
 		return nil, err
 	}
+
+	hashByFile := map[string]string{} //ファイルパスとファイルハッシュ値
 
 	// Copy uploaded files into repository
 	for _, upload := range uploads {
@@ -714,7 +719,7 @@ func (repo *Repository) PrivateUploadRepoFiles(doer *User, opts UploadRepoFileOp
 	if err = git.RepoPush(localPath, "origin", opts.NewBranch, git.PushOptions{Envs: envs}); err != nil {
 		return nil, fmt.Errorf("git push origin %s: %v", opts.NewBranch, err)
 	}
-	contentMap, err = annexUpload(opts.UpperRopoPath, localPath, "ipfs", annexAddRes)
+	contentMap, err = annexUpload(opts.UpperRopoPath, localPath, "ipfs", annexAddRes, hashByFile)
 	if err != nil { // Copy new files
 		return nil, fmt.Errorf("annex copy %s: %v", localPath, err)
 	}
