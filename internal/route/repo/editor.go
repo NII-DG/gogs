@@ -454,8 +454,10 @@ func UploadFile(c *context.Context) {
 
 func UploadFilePost(c *context.Context, f form.UploadRepoFile) {
 
-	isPri := c.Repo.Repository.IsPrivate
-	log.Info("[c.Repo.Repository.IsPrivate]%v", isPri)
+	isPrivate := c.Repo.Repository.IsPrivate
+	log.Info("[c.Repo.Repository.IsPrivate]%v", isPrivate)
+
+	//プライベート or パブリック　レポジトリで異なる処理を行う
 
 	c.PageIs("Upload")
 	renderUploadSettings(c)
@@ -539,10 +541,12 @@ func UploadFilePost(c *context.Context, f form.UploadRepoFile) {
 		Message:       message,
 		Files:         f.Files,
 		UpperRopoPath: c.Repo.RepoLink + "/" + branchName,
-	})
+	}, isPrivate)
 	if err != nil {
 		log.Error("Failed to upload files: %v", err)
+		//エラーエリアの指定
 		c.FormErr("TreePath")
+		//エラーメッセージの指定
 		c.RenderWithErr(c.Tr("repo.editor.unable_to_upload_files", f.TreePath, errors.InternalServerError), tmplEditorUpload, &f)
 		return
 	}
