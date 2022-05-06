@@ -11,9 +11,10 @@ import (
 var API_URL_GET_CONTENT_INFO_BY_LOCATION string = "getContentInfoByLocation"
 
 type ResContentInfo struct {
-	UserCode       string    `json:"user_code"`
-	ContentAddress string    `json:"content_address"`
-	AddDateTime    time.Time `json:"add_date_time"`
+	UserCode        string    `json:"user_code"`
+	FullContentHash string    `json:"full_content_hash"`
+	IpfsCid         string    `json:"ipfs_cid"`
+	AddDateTime     time.Time `json:"add_date_time"`
 }
 
 //[GET] /getContentInfoByLocation

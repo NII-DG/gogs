@@ -266,8 +266,8 @@ func resolveAnnexedContent(c *context.Context, buf []byte, contentLocation strin
 		return buf, err
 	}
 	//BC-IPFSハッシュ値とAnnex-IPFSハッシュ値を比較
-	if addressByAnnex != bcContentInfo.ContentAddress {
-		logv2.Error("[Not math AnnexContentAddress to BcContentAddress] AnnexContentAddress : %v, BcContentAddress : %v", addressByAnnex, bcContentInfo.ContentAddress)
+	if addressByAnnex != bcContentInfo.IpfsCid {
+		logv2.Error("[Not math AnnexContentAddress to BcContentAddress] AnnexContentAddress : %v, BcContentAddress : %v", addressByAnnex, bcContentInfo.IpfsCid)
 		c.Data["IsAnnexedFile"] = true
 		return buf, fmt.Errorf("[Not math AnnexContentAddress to BcContentAddress]")
 	}

@@ -18,7 +18,8 @@ type ReqCreateContentHistory struct {
 	UserCode        string `json:"user_code"`
 	ContentHistorys []struct {
 		ContentLocation string    `json:"content_location"`
-		ContentAddress  string    `json:"content_address"`
+		FullContentHash string    `json:"full_content_hash"`
+		IpfsCid         string    `json:"ipfs_cid"`
 		AddDateTime     time.Time `json:"add_date_time"`
 	} `json:"content_history_list"`
 }
@@ -33,9 +34,10 @@ func CreateContentHistory(user_code string, contentMap map[string]string) error 
 	for k, v := range contentMap {
 		reqStr.ContentHistorys = append(reqStr.ContentHistorys, struct {
 			ContentLocation string    "json:\"content_location\""
-			ContentAddress  string    "json:\"content_address\""
+			FullContentHash string    "json:\"full_content_hash\""
+			IpfsCid         string    "json:\"ipfs_cid\""
 			AddDateTime     time.Time "json:\"add_date_time\""
-		}{k, v, now})
+		}{k, "", v, now})
 	}
 	reqBody, err := json.Marshal(reqStr)
 	if err != nil {

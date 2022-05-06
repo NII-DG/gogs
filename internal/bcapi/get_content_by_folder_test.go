@@ -20,11 +20,13 @@ func TestGetContentByFolder_ok(t *testing.T) {
 	resBody.ContentsInFolder = append(resBody.ContentsInFolder, struct {
 		UserCode        string    "json:\"user_code\""
 		ContentLocation string    "json:\"content_location\""
-		ContentAddress  string    "json:\"content_address\""
+		FullContentHash string    "json:\"full_content_hash\""
+		IpfsCid         string    "json:\"ipfs_cid\""
 		AddDateTime     time.Time "json:\"add_date_time\""
 	}{
 		"usr01",
 		"location01",
+		"",
 		"fjlksjflkdmlkfjd",
 		now,
 	})
@@ -37,7 +39,7 @@ func TestGetContentByFolder_ok(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, resBody.ContentsInFolder[0].UserCode, res.ContentsInFolder[0].UserCode)
 	assert.Equal(t, resBody.ContentsInFolder[0].ContentLocation, res.ContentsInFolder[0].ContentLocation)
-	assert.Equal(t, resBody.ContentsInFolder[0].ContentAddress, res.ContentsInFolder[0].ContentAddress)
+	assert.Equal(t, resBody.ContentsInFolder[0].IpfsCid, res.ContentsInFolder[0].IpfsCid)
 }
 
 func TestGetContentByFolder_NG(t *testing.T) {
