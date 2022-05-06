@@ -119,7 +119,7 @@ func renderDirectory(c *context.Context, treeLink string) {
 						Index:          data.Index,
 						Commit:         data.Commit,
 						Submodule:      data.Submodule,
-						ContentAddress: resData.ContentAddress,
+						ContentAddress: resData.IpfsCid,
 					})
 					tmpFlg := &flg
 					*tmpFlg = true
@@ -798,7 +798,7 @@ func isContainDatasetFileInBC(datasetData db.DatasetInfo, bcContentList bcapi.Re
 
 func isContainFileInBc(contentData db.ContentInfo, bcContentList bcapi.ResContentsInFolder) bool {
 	for _, bcContent := range bcContentList.ContentsInFolder {
-		if contentData.File == bcContent.ContentLocation && contentData.Address == bcContent.ContentAddress {
+		if contentData.File == bcContent.ContentLocation && contentData.Address == bcContent.IpfsCid {
 			return true
 		}
 	}
