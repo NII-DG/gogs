@@ -528,9 +528,10 @@ func isRepositoryGitPath(path string) bool {
 //TODO[2022-05-06]：プライベート or パブリック　レポジトリで異なる処理を行う
 func (repo *Repository) UploadRepoFiles(doer *User, opts UploadRepoFileOptions, isPrivate bool) (contentMap map[string]string, err error) {
 	//プライベート or パブリック　レポジトリで異なる処理を行う
-	if isPrivate == true {
+	if isPrivate {
 		//プライベートレポジトリの場合
-
+		suberr := &err
+		contentMap, *suberr = repo.PrivateUploadRepoFiles(doer, opts)
 	} else {
 		//パブリックレポジトリの場合
 		suberr := &err
@@ -593,6 +594,7 @@ func (repo *Repository) PublicUploadRepoFiles(doer *User, opts UploadRepoFileOpt
 		if err = os.MkdirAll(filepath.Dir(targetPath), os.ModePerm); err != nil {
 			return nil, fmt.Errorf("mkdir: %v", err)
 		}
+		log.Info("[tmpPath] %v, [targetPath] %v", tmpPath, targetPath)
 		if err = com.Copy(tmpPath, targetPath); err != nil {
 			return nil, fmt.Errorf("copy: %v", err)
 		}
@@ -633,6 +635,7 @@ func (repo *Repository) PublicUploadRepoFiles(doer *User, opts UploadRepoFileOpt
 }
 
 //プライベートレポジトリのUploadRepoFiles
+//TODO: ファイルを暗号化して取り扱う
 func (repo *Repository) PrivateUploadRepoFiles(doer *User, opts UploadRepoFileOptions) (contentMap map[string]string, err error) {
 	if len(opts.Files) == 0 {
 		log.Error("Error 1: %v", len(opts.Files))
