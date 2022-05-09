@@ -111,6 +111,6 @@ func DirectlyAdd(data string) (string, error) {
 	io.WriteString(stdin, data)
 	stdin.Close()
 	out, _ := cmd.Output()
-	fmt.Printf("結果: %s", out)
+	logv2.Info("結果: %s", out)
 	return "", nil
 }
