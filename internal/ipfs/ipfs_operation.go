@@ -1,7 +1,10 @@
 package ipfs
 
 import (
+	"bytes"
 	"fmt"
+	"io"
+	"os"
 	"os/exec"
 	"regexp"
 	"strings"
@@ -88,22 +91,39 @@ func DirectlyAdd(data string) (string, error) {
 	echoCmd := exec.Command("echo", data)
 	addCmd := exec.Command("ipfs", "add")
 
-	pipe, err := echoCmd.StdoutPipe()
-	if err != nil {
-		return "", fmt.Errorf("Cannot getting StdoutPipe. Error Msg : [%v]", err)
-	}
-	defer pipe.Close()
+	r, w := io.Pipe()
+	echoCmd.Stdout = w
+	addCmd.Stdin = r
 
-	addCmd.Stdin = pipe
+	var b2 bytes.Buffer
+	addCmd.Stdout = &b2
+
+	// pipe, err := echoCmd.StdoutPipe()
+	// if err != nil {
+	// 	return "", fmt.Errorf("Cannot getting StdoutPipe. Error Msg : [%v]", err)
+	// }
+	// defer pipe.Close()
+
+	// addCmd.Stdin = pipe
+
+	// echoCmd.Start()
+
+	// res, err := addCmd.Output()
+	// if err != nil {
+	// 	return "", fmt.Errorf("Failure Running Command <echo data | ipfs add>. Error Msg : [%v]", err)
+	// }
+	// arrMsg := strings.Split(string(res), " ")
 
 	echoCmd.Start()
+	addCmd.Start()
 	echoCmd.Wait()
+	w.Close()
+	addCmd.Wait()
+	io.Copy(os.Stdout, &b2)
+	logv2.Info("b2.String() %s", b2.String())
 
-	res, err := addCmd.Output()
-	if err != nil {
-		return "", fmt.Errorf("Failure Running Command <echo data | ipfs add>. Error Msg : [%v]", err)
-	}
-	arrMsg := strings.Split(string(res), " ")
+	arrMsg := strings.Split(b2.String(), " ")
+	logv2.Info("arrMsg: %s", arrMsg)
 
-	return arrMsg[1], nil
+	return arrMsg[2], nil
 }
