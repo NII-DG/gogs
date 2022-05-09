@@ -251,13 +251,6 @@ func resolveAnnexedContent(c *context.Context, buf []byte, contentLocation strin
 	keyparts := strings.Split(strings.TrimSpace(string(buf)), "/")
 	key := keyparts[len(keyparts)-1]
 
-	addressByAnnex, err := GetIpfsHashValueByAnnexKey(key, repoPath)
-	if err != nil {
-		logv2.Error("[Cannot Get IPFS Hash] key : %v, err : %v", key, err)
-	} else {
-		logv2.Info("[Get IPFS Hash From AnnexKey] key : %v To hash : %v", key, addressByAnnex)
-	}
-
 	//BCAPI通信（コンテンツパスからIPFSハッシュ値を取得）
 	bcContentInfo, err := bcapi.GetContentInfoByLocation(c.User.Name, contentLocation)
 	if err != nil {
@@ -265,6 +258,33 @@ func resolveAnnexedContent(c *context.Context, buf []byte, contentLocation strin
 		c.Data["IsAnnexedFile"] = true
 		return buf, err
 	}
+
+	logv2.Trace("Annexkey : %v", key)
+
+	//指定のコンテンツの暗号化の有無の判定する。
+	// if len(bcContentInfo.FullContentHash) == 0 {
+	// 	//暗号化ファイルの処理
+	// 	if _, err := git.NewCommand("annex", "copy", "--from", "ipfs", "--key", key).RunInDir(repoPath); err != nil {
+	// 		logv2.Error("[Failure copy dataObject from ipfs] err : %v, repoPath : %v", err, repoPath)
+	// 	} else {
+	// 		logv2.Info("[Success copy dataObject from ipfs] key : %v, repoPath : %v, contentlocation: %v", key, repoPath, contentLocation)
+	// 	}
+	// 	contentPath, err := git.NewCommand("annex", "contentlocation", key).RunInDir(repoPath)
+	// 	if err != nil {
+	// 		logv2.Error("Failed to find content location for key %q, err : %v", key, err)
+	// 		c.Data["IsAnnexedFile"] = true
+	// 		return buf, err
+	// 	}
+
+	// }
+
+	addressByAnnex, err := GetIpfsHashValueByAnnexKey(key, repoPath)
+	if err != nil {
+		logv2.Error("[Cannot Get IPFS Hash] key : %v, err : %v", key, err)
+	} else {
+		logv2.Info("[Get IPFS Hash From AnnexKey] key : %v To hash : %v", key, addressByAnnex)
+	}
+
 	//BC-IPFSハッシュ値とAnnex-IPFSハッシュ値を比較
 	if addressByAnnex != bcContentInfo.IpfsCid {
 		logv2.Error("[Not math AnnexContentAddress to BcContentAddress] AnnexContentAddress : %v, BcContentAddress : %v", addressByAnnex, bcContentInfo.IpfsCid)
