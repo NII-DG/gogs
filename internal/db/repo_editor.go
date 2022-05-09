@@ -674,8 +674,6 @@ func (repo *Repository) PrivateUploadRepoFiles(doer *User, opts UploadRepoFileOp
 		return nil, err
 	}
 
-	uploadInfo := map[string]AnnexUploadInfo{} //ファイルパスとファイルハッシュ値
-
 	// Copy uploaded files into repository
 	for _, upload := range uploads {
 		tmpPath := upload.LocalPath()
@@ -707,7 +705,7 @@ func (repo *Repository) PrivateUploadRepoFiles(doer *User, opts UploadRepoFileOp
 		filePath := path.Join(opts.UpperRopoPath, upload.Name)
 		//コンテンツ情報のインスタンスを定義
 		log.Info("tmpPath[%v], targetPath[%v], fullContentHash[%v], Address[%v]", tmpPath, targetPath, fullContentHash, address)
-		uploadInfo[filePath] = AnnexUploadInfo{FullContentHash: fullContentHash, IpfsCid: address}
+		contentMap[filePath] = AnnexUploadInfo{FullContentHash: fullContentHash, IpfsCid: address}
 		//ハッシュ値にGit管轄ディレクトリに格納する。
 		wFile, err := os.Create(targetPath)
 		if err != nil {
@@ -723,7 +721,7 @@ func (repo *Repository) PrivateUploadRepoFiles(doer *User, opts UploadRepoFileOp
 		log.Info("Hash File %v", targetPath)
 	}
 
-	for k, v := range uploadInfo {
+	for k, v := range contentMap {
 		log.Info("Path[%v], fullContentHash[%v], Address[%v]", k, v.FullContentHash, v.IpfsCid)
 	}
 
