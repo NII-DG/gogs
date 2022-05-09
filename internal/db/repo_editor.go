@@ -676,6 +676,8 @@ func (repo *Repository) PrivateUploadRepoFiles(doer *User, opts UploadRepoFileOp
 		return nil, err
 	}
 
+	annexSetup(localPath) // Initialise annex and set configuration (with add filter for filesizes)
+
 	uploadInfo := map[string]AnnexUploadInfo{} //ファイルパスとファイルハッシュ値
 
 	// Copy uploaded files into repository
@@ -729,7 +731,6 @@ func (repo *Repository) PrivateUploadRepoFiles(doer *User, opts UploadRepoFileOp
 		log.Info("Path[%v], fullContentHash[%v], Address[%v]", k, v.FullContentHash, v.IpfsCid)
 	}
 
-	annexSetup(localPath) // Initialise annex and set configuration (with add filter for filesizes)
 	var annexAddRes []annex_ipfs.AnnexAddResponse
 	if annexAddRes, err = annexAdd(localPath, true); err != nil {
 		return nil, fmt.Errorf("git annex add: %v", err)
