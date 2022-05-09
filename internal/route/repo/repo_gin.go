@@ -275,6 +275,9 @@ func resolveAnnexedContent(c *context.Context, buf []byte, contentLocation strin
 		}
 		logv2.Trace("contentPath: %v", contentPath)
 		b, err := ioutil.ReadFile(filepath.Join(repoPath, string(contentPath)))
+		if err != nil {
+			logv2.Error("[ioutil.ReadFile(filepath.Join(repoPath, string(contentPath)))] err : %v, repoPath : %v", err, repoPath)
+		}
 		fullContentHash := string(b)
 
 		//ファイルコンテンツハッシュを比較
