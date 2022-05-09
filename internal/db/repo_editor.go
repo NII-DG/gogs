@@ -409,7 +409,7 @@ func DeleteUploads(uploads ...*Upload) (err error) {
 
 	for _, upload := range uploads {
 		localPath := upload.LocalPath()
-		log.Info("[DELETE upload.LocalPath] %v", localPath)
+		log.Trace("[DELETE upload.LocalPath] %v", localPath)
 		if !osutil.IsFile(localPath) {
 			continue
 		}
@@ -441,12 +441,12 @@ func RemoveFilesFromLocalRepository(dirPath string, uploads ...*Upload) (err err
 	for _, f := range files {
 		if !strings.Contains(f, ".git") {
 			if err := os.Remove(f); err != nil {
-				log.Warn("[Cannot remove file, this Path is directory] targetPath : %v", f)
+				log.Trace("[Cannot remove file, this Path is directory] targetPath : %v", f)
 				if err := os.RemoveAll(f); err != nil {
 					return fmt.Errorf("[Remove directory From Local Repository] targerPath: %v", err)
 				}
 			}
-			log.Info("[DELETE Upload Files or directory From Local Repository] %v", f)
+			log.Trace("[DELETE Upload Files or directory From Local Repository] %v", f)
 		}
 
 	}
