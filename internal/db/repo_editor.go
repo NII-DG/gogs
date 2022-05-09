@@ -695,7 +695,7 @@ func (repo *Repository) PrivateUploadRepoFiles(doer *User, opts UploadRepoFileOp
 		//ハッシュ値を取得(git annex calckey)
 		fullContentHash, err := annexCalcKey(localPath, tmpPath)
 		if err != nil {
-			return nil, fmt.Errorf("Failure Calculating Hash From Target File %v", err)
+			return nil, fmt.Errorf("[Failure Calculating Hash From Target File : %v. Error Msg : %v] ", tmpPath, err)
 		}
 
 		targetPath := path.Join(dirPath, upload.Name)
@@ -710,25 +710,19 @@ func (repo *Repository) PrivateUploadRepoFiles(doer *User, opts UploadRepoFileOp
 		}
 		filePath := path.Join(opts.UpperRopoPath, upload.Name)
 		//コンテンツ情報のインスタンスを定義
-		log.Info("tmpPath[%v], targetPath[%v], fullContentHash[%v], Address[%v]", tmpPath, targetPath, fullContentHash, address)
 		uploadInfo[filePath] = AnnexUploadInfo{FullContentHash: fullContentHash, IpfsCid: address}
 		//ハッシュ値にGit管轄ディレクトリに格納する。
 		wFile, err := os.Create(targetPath)
 		if err != nil {
-			return nil, fmt.Errorf("Failure Creating Hash File In %v. Error Msg [%v]", targetPath, err)
+			return nil, fmt.Errorf("[Failure Creating Hash File In %v. Error Msg : %v ]", targetPath, err)
 		}
 		defer wFile.Close()
 
 		b := []byte(fullContentHash)
 		_, err = wFile.Write(b)
 		if err != nil {
-			return nil, fmt.Errorf("Failure Writting Hash In %v. Error Msg [%v]", targetPath, err)
+			return nil, fmt.Errorf("[Failure Writting Hash In %v. Error Msg : %v ]", targetPath, err)
 		}
-		log.Info("Hash File %v", targetPath)
-	}
-
-	for k, v := range uploadInfo {
-		log.Info("Path[%v], fullContentHash[%v], Address[%v]", k, v.FullContentHash, v.IpfsCid)
 	}
 
 	var annexAddRes []annex_ipfs.AnnexAddResponse

@@ -89,16 +89,14 @@ func DirectlyAdd(data string) (string, error) {
 	cmd := exec.Command("ipfs", "add")
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
-		return "", fmt.Errorf("Cannot getting StdinPipe. Error Msg : [%v]", err)
+		return "", fmt.Errorf("[Cannot getting StdinPipe. Error Msg : %v]", err)
 	}
 	io.WriteString(stdin, data)
 	stdin.Close()
 	out, err := cmd.Output()
 	if err != nil {
-		return "", fmt.Errorf("Failure Running Command <ipfs add>. Error Msg : [%v]", err)
+		return "", fmt.Errorf("[Failure Running Command <ipfs add>. Error Msg : %v]", err)
 	}
-	logv2.Info("結果: %s", out)
-
 	arrMsg := strings.Split(string(out), " ")
 	return arrMsg[1], nil
 }
