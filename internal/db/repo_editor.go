@@ -638,7 +638,7 @@ func (repo *Repository) PublicUploadRepoFiles(doer *User, opts UploadRepoFileOpt
 
 //プライベートレポジトリのUploadRepoFiles
 //TODO: ファイルを暗号化して取り扱う
-func (repo *Repository) PrivateUploadRepoFiles(doer *User, opts UploadRepoFileOptions) (contentMap map[string]AnnexUploadInfo, err error) {
+func (repo *Repository) PrivateUploadRepoFiles(doer *User, opts UploadRepoFileOptions) (map[string]AnnexUploadInfo, error) {
 	if len(opts.Files) == 0 {
 		log.Error("Error 1: %v", len(opts.Files))
 		return nil, nil
@@ -757,7 +757,7 @@ func (repo *Repository) PrivateUploadRepoFiles(doer *User, opts UploadRepoFileOp
 		return nil, err
 	}
 
-	return contentMap, DeleteUploads(uploads...)
+	return uploadInfo, DeleteUploads(uploads...)
 
 }
 
