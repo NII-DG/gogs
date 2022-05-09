@@ -25,7 +25,7 @@ import (
 	"github.com/NII-DG/gogs/internal/conf"
 	"github.com/NII-DG/gogs/internal/cryptoutil"
 	"github.com/NII-DG/gogs/internal/db/errors"
-	"github.com/NII-DG/gogs/internal/encyrpt_file"
+	encyrptfile "github.com/NII-DG/gogs/internal/encyrpt_file"
 	"github.com/NII-DG/gogs/internal/gitutil"
 	"github.com/NII-DG/gogs/internal/osutil"
 	"github.com/NII-DG/gogs/internal/process"
@@ -689,6 +689,9 @@ func (repo *Repository) PrivateUploadRepoFiles(doer *User, opts UploadRepoFileOp
 
 		//ハッシュ値を取得(git annex calckey)
 		fullContentHash, err := annexCalcKey(localPath, tmpPath)
+		if err != nil {
+			return nil, fmt.Errorf("Failure Calculating Hash From Target File %v", err)
+		}
 
 		targetPath := path.Join(dirPath, upload.Name)
 		// GIN: Create subdirectory for dirtree uploads
@@ -696,11 +699,30 @@ func (repo *Repository) PrivateUploadRepoFiles(doer *User, opts UploadRepoFileOp
 			return nil, fmt.Errorf("mkdir: %v", err)
 		}
 		//ファイルの暗号化し、暗号化ファイルをIPFS上にアップロードする。
-		encyrpt_file.Encrypted(tmpPath)
-
-		if err = com.Copy(tmpPath, targetPath); err != nil {
-			return nil, fmt.Errorf("copy: %v", err)
+		address, err := encyrptfile.Encrypted(tmpPath)
+		if err != nil {
+			return nil, err
 		}
+		filePath := path.Join(opts.UpperRopoPath, upload.Name)
+		//コンテンツ情報のインスタンスを定義
+		log.Info("tmpPath[%v], targetPath[%v], fullContentHash[%v], Address[%v]", tmpPath, targetPath, fullContentHash, address)
+		uploadInfo[filePath] = AnnexUploadInfo{FullContentHash: fullContentHash, IpfsCid: address}
+		//ハッシュ値にGit管轄ディレクトリに格納する。
+		wFile, err := os.Create(targetPath)
+		if err != nil {
+			return nil, fmt.Errorf("Failure Creating Hash File In %v. Error Msg [%v]", targetPath, err)
+		}
+		defer wFile.Close()
+
+		b := []byte(fullContentHash)
+		_, err = wFile.Write(b)
+		if err != nil {
+			return nil, fmt.Errorf("Failure Writting Hash In %v. Error Msg [%v]", targetPath, err)
+		}
+	}
+
+	for k, v := range uploadInfo {
+		log.Info("Path[%v], fullContentHash[%v], Address[%v]", k, v.FullContentHash, v.IpfsCid)
 	}
 
 	annexSetup(localPath) // Initialise annex and set configuration (with add filter for filesizes)
