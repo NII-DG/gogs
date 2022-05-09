@@ -530,10 +530,12 @@ func isRepositoryGitPath(path string) bool {
 func (repo *Repository) UploadRepoFiles(doer *User, opts UploadRepoFileOptions, isPrivate bool) (contentMap map[string]AnnexUploadInfo, err error) {
 	//プライベート or パブリック　レポジトリで異なる処理を行う
 	if isPrivate {
+		log.Info("Private Repository Upload Files. User: %v", doer.FullName)
 		//プライベートレポジトリの場合
 		suberr := &err
 		contentMap, *suberr = repo.PrivateUploadRepoFiles(doer, opts)
 	} else {
+		log.Info("Public Repository Upload Files. User: %v", doer.FullName)
 		//パブリックレポジトリの場合
 		suberr := &err
 		contentMap, *suberr = repo.PublicUploadRepoFiles(doer, opts)
