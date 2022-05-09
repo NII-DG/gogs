@@ -104,5 +104,5 @@ func DirectlyAdd(data string) (string, error) {
 	}
 	arrMsg := strings.Split(string(res), " ")
 
-	return arrMsg[2], nil
+	return arrMsg[1], nil
 }
