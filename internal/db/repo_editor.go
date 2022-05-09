@@ -25,6 +25,7 @@ import (
 	"github.com/NII-DG/gogs/internal/conf"
 	"github.com/NII-DG/gogs/internal/cryptoutil"
 	"github.com/NII-DG/gogs/internal/db/errors"
+	"github.com/NII-DG/gogs/internal/encyrpt_file"
 	"github.com/NII-DG/gogs/internal/gitutil"
 	"github.com/NII-DG/gogs/internal/osutil"
 	"github.com/NII-DG/gogs/internal/process"
@@ -576,8 +577,6 @@ func (repo *Repository) PublicUploadRepoFiles(doer *User, opts UploadRepoFileOpt
 	if err = os.MkdirAll(dirPath, os.ModePerm); err != nil {
 		return nil, err
 	}
-
-	hashByFile := map[string]string{} //ファイルパスとファイルハッシュ値
 	// Copy uploaded files into repository
 	for _, upload := range uploads {
 		tmpPath := upload.LocalPath()
@@ -600,8 +599,6 @@ func (repo *Repository) PublicUploadRepoFiles(doer *User, opts UploadRepoFileOpt
 		if err = com.Copy(tmpPath, targetPath); err != nil {
 			return nil, fmt.Errorf("copy: %v", err)
 		}
-		filePath := path.Join(opts.UpperRopoPath, upload.Name)
-		hashByFile[filePath] = ""
 	}
 
 	annexSetup(localPath) // Initialise annex and set configuration (with add filter for filesizes)
@@ -623,7 +620,7 @@ func (repo *Repository) PublicUploadRepoFiles(doer *User, opts UploadRepoFileOpt
 	if err = git.RepoPush(localPath, "origin", opts.NewBranch, git.PushOptions{Envs: envs}); err != nil {
 		return nil, fmt.Errorf("git push origin %s: %v", opts.NewBranch, err)
 	}
-	contentMap, err = annexUpload(opts.UpperRopoPath, localPath, "ipfs", annexAddRes, hashByFile)
+	contentMap, err = PublicannexUpload(opts.UpperRopoPath, localPath, "ipfs", annexAddRes)
 	if err != nil { // Copy new files
 		return nil, fmt.Errorf("annex copy %s: %v", localPath, err)
 	}
@@ -676,7 +673,7 @@ func (repo *Repository) PrivateUploadRepoFiles(doer *User, opts UploadRepoFileOp
 		return nil, err
 	}
 
-	hashByFile := map[string]string{} //ファイルパスとファイルハッシュ値
+	uploadInfo := map[string]AnnexUploadInfo{} //ファイルパスとファイルハッシュ値
 
 	// Copy uploaded files into repository
 	for _, upload := range uploads {
@@ -690,11 +687,17 @@ func (repo *Repository) PrivateUploadRepoFiles(doer *User, opts UploadRepoFileOp
 			continue
 		}
 
+		//ハッシュ値を取得(git annex calckey)
+		fullContentHash, err := annexCalcKey(localPath, tmpPath)
+
 		targetPath := path.Join(dirPath, upload.Name)
 		// GIN: Create subdirectory for dirtree uploads
 		if err = os.MkdirAll(filepath.Dir(targetPath), os.ModePerm); err != nil {
 			return nil, fmt.Errorf("mkdir: %v", err)
 		}
+		//ファイルの暗号化し、暗号化ファイルをIPFS上にアップロードする。
+		encyrpt_file.Encrypted(tmpPath)
+
 		if err = com.Copy(tmpPath, targetPath); err != nil {
 			return nil, fmt.Errorf("copy: %v", err)
 		}
@@ -719,7 +722,7 @@ func (repo *Repository) PrivateUploadRepoFiles(doer *User, opts UploadRepoFileOp
 	if err = git.RepoPush(localPath, "origin", opts.NewBranch, git.PushOptions{Envs: envs}); err != nil {
 		return nil, fmt.Errorf("git push origin %s: %v", opts.NewBranch, err)
 	}
-	contentMap, err = annexUpload(opts.UpperRopoPath, localPath, "ipfs", annexAddRes, hashByFile)
+	err = PrivateAnnexUpload(opts.UpperRopoPath, localPath, "ipfs", annexAddRes)
 	if err != nil { // Copy new files
 		return nil, fmt.Errorf("annex copy %s: %v", localPath, err)
 	}

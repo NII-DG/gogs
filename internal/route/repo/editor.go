@@ -457,8 +457,6 @@ func UploadFilePost(c *context.Context, f form.UploadRepoFile) {
 	isPrivate := c.Repo.Repository.IsPrivate
 	log.Info("[c.Repo.Repository.IsPrivate]%v", isPrivate)
 
-	//プライベート or パブリック　レポジトリで異なる処理を行う
-
 	c.PageIs("Upload")
 	renderUploadSettings(c)
 

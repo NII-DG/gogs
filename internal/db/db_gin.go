@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+	"unsafe"
 
 	"github.com/G-Node/libgin/libgin"
 	"github.com/G-Node/libgin/libgin/annex"
@@ -182,6 +183,15 @@ func annexAdd(repoPath string, all bool, files ...string) ([]annex_ipfs.AnnexAdd
 	return nil, err
 }
 
+func annexCalcKey(repoPath, filePath string) (string, error) {
+	cmd := git.NewCommand("annex", "calckey")
+	msg, err := cmd.AddArgs(filePath).RunInDir(repoPath)
+	if err != nil {
+		return "", err
+	}
+	return *(*string)(unsafe.Pointer(&msg)), nil
+}
+
 type AnnexUploadInfo struct {
 	FullContentHash string
 	IpfsCid         string
@@ -193,7 +203,7 @@ AUTHOR : dai.tsukioka
 NOTE : methods : [sync and copy] locations are invert
 ToDo : IPFSへアップロードしたコンテンツアドレスをupploadFileMapに追加する。
 */
-func annexUpload(upperpath, repoPath, remote string, annexAddRes []annex_ipfs.AnnexAddResponse, hashByFile map[string]string) (map[string]AnnexUploadInfo, error) {
+func PublicannexUpload(upperpath, repoPath, remote string, annexAddRes []annex_ipfs.AnnexAddResponse) (map[string]AnnexUploadInfo, error) {
 	contentMap := map[string]AnnexUploadInfo{}
 	//ipfsへ実データをコピーする。
 	logv2.Info("[Uploading annexed data to %v] path : %v", remote, repoPath)
@@ -215,9 +225,10 @@ func annexUpload(upperpath, repoPath, remote string, annexAddRes []annex_ipfs.An
 			}
 			contentLocation := upperpath + "/" + content.File
 			contentMap[contentLocation] = AnnexUploadInfo{
-				FullContentHash: hashByFile[contentLocation],
+				FullContentHash: "",
 				IpfsCid:         contentInfo.Hash,
 			}
+
 		}
 	}
 	//IPFSへアップロードしたコンテンツロケーションを表示
@@ -237,6 +248,46 @@ func annexUpload(upperpath, repoPath, remote string, annexAddRes []annex_ipfs.An
 	}
 
 	return contentMap, nil
+}
+
+func PrivateAnnexUpload(upperpath, repoPath, remote string, annexAddRes []annex_ipfs.AnnexAddResponse) error {
+	upContentName := []string{}
+	//ipfsへ実データをコピーする。
+	logv2.Info("[Uploading annexed data to %v] path : %v", remote, repoPath)
+	for _, content := range annexAddRes {
+		cmd := git.NewCommand("annex", "copy", "--to", remote, "--key", content.Key)
+		if _, err := cmd.RunInDir(repoPath); err != nil {
+			return fmt.Errorf("[Failure git annex copy to %v] err : %v ,fromPath : %v", remote, err, repoPath)
+		}
+	}
+
+	//コンテンツアドレスの取得
+	for _, content := range annexAddRes {
+		if _, err := git.NewCommand("annex", "whereis", "--json", "--key", content.Key).RunInDir(repoPath); err != nil {
+			logv2.Error("[git annex whereis Error] err : %v", err)
+		} else {
+			contentLocation := upperpath + "/" + content.File
+			upContentName = append(upContentName, contentLocation)
+
+		}
+	}
+	//IPFSへアップロードしたコンテンツロケーションを表示
+	index := 1
+	for _, v := range upContentName {
+		logv2.Info("[Upload to IPFS] No.%v file : %v", index, v)
+		upload_No := &index
+		*upload_No++
+	}
+
+	//リモートと同期（メタデータを更新）
+	log.Info("Synchronising annex info : %v", repoPath)
+	if msg, err := git.NewCommand("annex", "sync").RunInDir(repoPath); err != nil {
+		return fmt.Errorf("[Failure git-annex sync] err : %v, msg : %s", err, msg)
+	} else {
+		logv2.Info("[Success git-annex sync] path : %v", repoPath)
+	}
+
+	return nil
 }
 
 // isAddressAllowed returns true if the email address is allowed to sign up
