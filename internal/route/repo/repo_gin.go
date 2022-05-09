@@ -259,24 +259,35 @@ func resolveAnnexedContent(c *context.Context, buf []byte, contentLocation strin
 		return buf, err
 	}
 
-	logv2.Trace("Annexkey : %v", key)
-
 	//指定のコンテンツの暗号化の有無の判定する。
-	// if len(bcContentInfo.FullContentHash) == 0 {
-	// 	//暗号化ファイルの処理
-	// 	if _, err := git.NewCommand("annex", "copy", "--from", "ipfs", "--key", key).RunInDir(repoPath); err != nil {
-	// 		logv2.Error("[Failure copy dataObject from ipfs] err : %v, repoPath : %v", err, repoPath)
-	// 	} else {
-	// 		logv2.Info("[Success copy dataObject from ipfs] key : %v, repoPath : %v, contentlocation: %v", key, repoPath, contentLocation)
-	// 	}
-	// 	contentPath, err := git.NewCommand("annex", "contentlocation", key).RunInDir(repoPath)
-	// 	if err != nil {
-	// 		logv2.Error("Failed to find content location for key %q, err : %v", key, err)
-	// 		c.Data["IsAnnexedFile"] = true
-	// 		return buf, err
-	// 	}
+	if len(bcContentInfo.FullContentHash) > 0 {
+		//暗号化ファイルの処理
+		if _, err := git.NewCommand("annex", "copy", "--from", "ipfs", "--key", key).RunInDir(repoPath); err != nil {
+			logv2.Error("[Failure copy dataObject from ipfs] err : %v, repoPath : %v", err, repoPath)
+		} else {
+			logv2.Info("[Success copy dataObject from ipfs] key : %v, repoPath : %v, contentlocation: %v", key, repoPath, contentLocation)
+		}
+		contentPath, err := git.NewCommand("annex", "contentlocation", key).RunInDir(repoPath)
+		if err != nil {
+			logv2.Error("Failed to find content location for key %q, err : %v", key, err)
+			c.Data["IsAnnexedFile"] = true
+			return buf, err
+		}
+		b, err := ioutil.ReadFile(filepath.Join(repoPath, string(contentPath)))
+		fullContentHash := string(b)
 
-	// }
+		//ファイルコンテンツハッシュを比較
+		if fullContentHash != bcContentInfo.FullContentHash {
+			logv2.Error("[Not math AnnexFullContentHash to BcFullContentHash] FullContentHash : %v, BcFullContentHash : %v", fullContentHash, bcContentInfo.FullContentHash)
+			c.Data["IsAnnexedFile"] = true
+			return buf, fmt.Errorf("[Not math AnnexContentAddress to BcContentAddress]")
+		}
+
+		//ファイルコンテンツハッシュが一致した場合
+		//IPFSから暗号データを取得して、復元する。
+		logv2.Trace("fullContentHash : %v, bcContentInfo.FullContentHash : %v", fullContentHash, bcContentInfo.FullContentHash)
+
+	}
 
 	addressByAnnex, err := GetIpfsHashValueByAnnexKey(key, repoPath)
 	if err != nil {
