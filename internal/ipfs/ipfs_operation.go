@@ -5,6 +5,7 @@ import (
 	"io"
 	"os/exec"
 	"regexp"
+	"strings"
 	"unsafe"
 
 	logv2 "unknwon.dev/clog/v2"
@@ -85,32 +86,19 @@ func (i *IpfsOperation) FilesIs(folderPath string) ([]string, error) {
 //直接、データをIPFSへのアップロードする。（echo [data] | ipfs add）
 func DirectlyAdd(data string) (string, error) {
 
-	// echoCmd := exec.Command("echo", data)
-	// addCmd := exec.Command("ipfs", "add")
-
-	// pipe, err := echoCmd.StdoutPipe()
-	// if err != nil {
-	// 	return "", fmt.Errorf("Cannot getting StdoutPipe. Error Msg : [%v]", err)
-	// }
-	// defer pipe.Close()
-
-	// addCmd.Stdin = pipe
-
-	// echoCmd.Start()
-
-	// res, err := addCmd.Output()
-	// if err != nil {
-	// 	return "", fmt.Errorf("Failure Running Command <echo data | ipfs add>. Error Msg : [%v]", err)
-	// }
-	// arrMsg := strings.Split(string(res), " ")
-
-	// return arrMsg[2], nil
-
 	cmd := exec.Command("ipfs", "add")
-	stdin, _ := cmd.StdinPipe()
+	stdin, err := cmd.StdinPipe()
+	if err != nil {
+		return "", fmt.Errorf("Cannot getting StdinPipe. Error Msg : [%v]", err)
+	}
 	io.WriteString(stdin, data)
 	stdin.Close()
-	out, _ := cmd.Output()
+	out, err := cmd.Output()
+	if err != nil {
+		return "", fmt.Errorf("Failure Running Command <ipfs add>. Error Msg : [%v]", err)
+	}
 	logv2.Info("結果: %s", out)
-	return "", nil
+
+	arrMsg := strings.Split(string(out), " ")
+	return arrMsg[1], nil
 }
