@@ -337,6 +337,7 @@ func resolveAnnexedContent(c *context.Context, buf []byte, contentLocation strin
 	annexBuf := make([]byte, 1024)
 	n, _ := annexDataReader.Read(annexBuf)
 	annexBuf = annexBuf[:n]
+	logv2.Trace("annexBuf: %v", string(annexBuf))
 	c.Data["FileSize"] = info.Size()
 	log.Trace("Annexed file size: %d B", info.Size())
 	//メモrepopath + /annex を削除する。
