@@ -89,7 +89,7 @@ func DirectlyAdd(data string) (string, error) {
 	logv2.Info("justString: %s", justString)
 	output, err := exec.Command("sh", "-c", justString).CombinedOutput()
 	if err != nil {
-		panic(err)
+		return "", fmt.Errorf("combine %v", err)
 	}
 
 	// pipe, err := echoCmd.StdoutPipe()
