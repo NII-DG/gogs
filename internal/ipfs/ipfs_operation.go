@@ -97,6 +97,7 @@ func DirectlyAdd(data string) (string, error) {
 	addCmd.Stdin = pipe
 
 	echoCmd.Start()
+	echoCmd.Wait()
 
 	res, err := addCmd.Output()
 	if err != nil {
