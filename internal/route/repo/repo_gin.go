@@ -262,10 +262,10 @@ func resolveAnnexedContent(c *context.Context, buf []byte, contentLocation strin
 	//指定のコンテンツの暗号化の有無の判定する。
 	if len(bcContentInfo.FullContentHash) > 0 {
 		//暗号化ファイルの処理
-		if _, err := git.NewCommand("annex", "copy", "--from", "ipfs", "--key", key).RunInDir(repoPath); err != nil {
+		if msg, err := git.NewCommand("annex", "copy", "--from", "ipfs", "--key", key).RunInDir(repoPath); err != nil {
 			logv2.Error("[Failure copy dataObject from ipfs] err : %v, repoPath : %v", err, repoPath)
 		} else {
-			logv2.Info("[Success copy dataObject from ipfs] key : %v, repoPath : %v, contentlocation: %v", key, repoPath, contentLocation)
+			logv2.Info("[Success copy dataObject from ipfs] key : %v, repoPath : %v, contentlocation: %s, msg", key, repoPath, contentLocation, msg)
 		}
 		contentPath, err := git.NewCommand("annex", "contentlocation", key).RunInDir(repoPath)
 		if err != nil {
