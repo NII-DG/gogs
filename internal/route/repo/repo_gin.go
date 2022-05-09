@@ -273,6 +273,7 @@ func resolveAnnexedContent(c *context.Context, buf []byte, contentLocation strin
 			c.Data["IsAnnexedFile"] = true
 			return buf, err
 		}
+		logv2.Trace("contentPath: %v", contentPath)
 		b, err := ioutil.ReadFile(filepath.Join(repoPath, string(contentPath)))
 		fullContentHash := string(b)
 
