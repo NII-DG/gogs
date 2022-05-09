@@ -274,6 +274,7 @@ func resolveAnnexedContent(c *context.Context, buf []byte, contentLocation strin
 			return buf, err
 		}
 		logv2.Trace("contentPath: %v", string(contentPath))
+		contentPath = bytes.TrimSpace(contentPath)
 		b, err := ioutil.ReadFile(filepath.Join(repoPath, string(contentPath)))
 		if err != nil {
 			logv2.Error("[ioutil.ReadFile(filepath.Join(repoPath, string(contentPath)))] err : %v, repoPath : %v", err, repoPath)
