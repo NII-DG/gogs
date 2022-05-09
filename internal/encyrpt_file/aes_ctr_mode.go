@@ -1,15 +1,15 @@
 package encyrptfile
 
 import (
-	"bytes"
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
 	"fmt"
 	"io"
 	"io/ioutil"
-	"os"
-	"os/exec"
+	"unsafe"
+
+	"github.com/NII-DG/gogs/internal/ipfs"
 )
 
 func Encrypted(filepath string) (string, error) {
@@ -39,40 +39,13 @@ func Encrypted(filepath string) (string, error) {
 	encryptStream.XORKeyStream(cipherText[aes.BlockSize:], plainText)
 
 	//cipherText(暗号化データ)をIPFSにアップロードする。
-
+	address, err := ipfs.DirectlyAdd(*(*string)(unsafe.Pointer(&cipherText)))
+	if err != nil {
+		return "", err
+	}
+	return address, nil
 }
 
-func encryptedDataToIpfs(encryptedData []byte) (string, error) {
-	//create command
-	echoCmd := exec.Command("echo", string(encryptedData))
-	addCmd := exec.Command("ipfs", "add")
+func Decrypted() {
 
-	//make a pipe
-	reader, writer := io.Pipe()
-	var buf bytes.Buffer
-
-	//set the output of "cat" command to pipe writer
-	echoCmd.Stdout = writer
-	//set the input of the "wc" command pipe reader
-
-	addCmd.Stdin = reader
-
-	//cache the output of "wc" to memory
-	addCmd.Stdout = &buf
-
-	//start to execute "cat" command
-	echoCmd.Start()
-
-	//start to execute "wc" command
-	addCmd.Start()
-
-	//waiting for "cat" command complete and close the writer
-	echoCmd.Wait()
-	writer.Close()
-
-	//waiting for the "wc" command complete and close the reader
-	addCmd.Wait()
-	reader.Close()
-	//copy the buf to the standard output
-	io.Copy(os.Stdout, &buf)
 }

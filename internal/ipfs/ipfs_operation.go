@@ -2,7 +2,9 @@ package ipfs
 
 import (
 	"fmt"
+	"os/exec"
 	"regexp"
+	"strings"
 	"unsafe"
 
 	logv2 "unknwon.dev/clog/v2"
@@ -78,4 +80,29 @@ func (i *IpfsOperation) FilesIs(folderPath string) ([]string, error) {
 	reg := "\r\n|\n"
 	splitByline := regexp.MustCompile(reg).Split(strMsg, -1)
 	return splitByline, nil
+}
+
+//直接、データをIPFSへのアップロードする。（echo [data] | ipfs add）
+func DirectlyAdd(data string) (string, error) {
+
+	echoCmd := exec.Command("echo", data)
+	addCmd := exec.Command("ipfs", "add")
+
+	pipe, err := echoCmd.StdoutPipe()
+	if err != nil {
+		return "", fmt.Errorf("Cannot getting StdoutPipe. Error Msg : [%v]", err)
+	}
+	defer pipe.Close()
+
+	addCmd.Stdin = pipe
+
+	echoCmd.Start()
+
+	res, err := addCmd.Output()
+	if err != nil {
+		return "", fmt.Errorf("Failure Running Command <echo data | ipfs add>. Error Msg : [%v]", err)
+	}
+	arrMsg := strings.Split(string(res), " ")
+
+	return arrMsg[2], nil
 }
