@@ -265,7 +265,7 @@ func resolveAnnexedContent(c *context.Context, buf []byte, contentLocation strin
 		if msg, err := git.NewCommand("annex", "copy", "--from", "ipfs", "--key", key).RunInDir(repoPath); err != nil {
 			logv2.Error("[Failure copy dataObject from ipfs] err : %v, repoPath : %v", err, repoPath)
 		} else {
-			logv2.Info("[Success copy dataObject from ipfs] key : %v, repoPath : %v, contentlocation: %s, msg", key, repoPath, contentLocation, msg)
+			logv2.Info("[Success copy dataObject from ipfs] key : %v, repoPath : %v, contentlocation: %v, msg", key, repoPath, contentLocation, string(msg))
 		}
 		contentPath, err := git.NewCommand("annex", "contentlocation", key).RunInDir(repoPath)
 		if err != nil {
@@ -273,7 +273,7 @@ func resolveAnnexedContent(c *context.Context, buf []byte, contentLocation strin
 			c.Data["IsAnnexedFile"] = true
 			return buf, err
 		}
-		logv2.Trace("contentPath: %v", contentPath)
+		logv2.Trace("contentPath: %v", string(contentPath))
 		b, err := ioutil.ReadFile(filepath.Join(repoPath, string(contentPath)))
 		if err != nil {
 			logv2.Error("[ioutil.ReadFile(filepath.Join(repoPath, string(contentPath)))] err : %v, repoPath : %v", err, repoPath)
