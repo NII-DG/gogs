@@ -84,9 +84,10 @@ func (i *IpfsOperation) FilesIs(folderPath string) ([]string, error) {
 
 //直接、データをIPFSへのアップロードする。（echo [data] | ipfs add）
 func DirectlyAdd(data string) (string, error) {
-
-	echoCmd := exec.Command("sh", "-c", "echo", data, "|", "ipfs", "add")
-	output, err := echoCmd.CombinedOutput()
+	sa := []string{"echo", data, "|", "ipfs", "add"}
+	justString := strings.Join(sa, " ")
+	logv2.Info("justString: %s", justString)
+	output, err := exec.Command("sh", "-c", justString).CombinedOutput()
 	if err != nil {
 		panic(err)
 	}
