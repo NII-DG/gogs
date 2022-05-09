@@ -189,7 +189,12 @@ func annexCalcKey(repoPath, filePath string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return *(*string)(unsafe.Pointer(&msg)), nil
+	hash := *(*string)(unsafe.Pointer(&msg))
+	hash = strings.TrimRight(hash, "\n")
+	if strings.HasSuffix(hash, "\r") {
+		hash = strings.TrimRight(hash, "\r")
+	}
+	return hash, nil
 }
 
 type AnnexUploadInfo struct {

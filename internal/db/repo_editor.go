@@ -596,6 +596,7 @@ func (repo *Repository) PublicUploadRepoFiles(doer *User, opts UploadRepoFileOpt
 		}
 
 		//アップロードファイルをローカルレポジトリディレクトリにコピーする。
+		log.Info("Copy %v TO %v", tmpPath, targetPath)
 		if err = com.Copy(tmpPath, targetPath); err != nil {
 			return nil, fmt.Errorf("copy: %v", err)
 		}
@@ -719,6 +720,7 @@ func (repo *Repository) PrivateUploadRepoFiles(doer *User, opts UploadRepoFileOp
 		if err != nil {
 			return nil, fmt.Errorf("Failure Writting Hash In %v. Error Msg [%v]", targetPath, err)
 		}
+		log.Info("Hash File %v", targetPath)
 	}
 
 	for k, v := range uploadInfo {
