@@ -1,10 +1,7 @@
 package ipfs
 
 import (
-	"bytes"
 	"fmt"
-	"io"
-	"os"
 	"os/exec"
 	"regexp"
 	"strings"
@@ -88,15 +85,11 @@ func (i *IpfsOperation) FilesIs(folderPath string) ([]string, error) {
 //直接、データをIPFSへのアップロードする。（echo [data] | ipfs add）
 func DirectlyAdd(data string) (string, error) {
 
-	echoCmd := exec.Command("echo", data)
-	addCmd := exec.Command("ipfs", "add")
-
-	r, w := io.Pipe()
-	echoCmd.Stdout = w
-	addCmd.Stdin = r
-
-	var b2 bytes.Buffer
-	addCmd.Stdout = &b2
+	echoCmd := exec.Command("sh", "-c", "echo", data, "|", "ipfs", "add")
+	output, err := echoCmd.CombinedOutput()
+	if err != nil {
+		panic(err)
+	}
 
 	// pipe, err := echoCmd.StdoutPipe()
 	// if err != nil {
@@ -114,16 +107,10 @@ func DirectlyAdd(data string) (string, error) {
 	// }
 	// arrMsg := strings.Split(string(res), " ")
 
-	echoCmd.Start()
-	addCmd.Start()
-	echoCmd.Wait()
-	w.Close()
-	addCmd.Wait()
-	io.Copy(os.Stdout, &b2)
-	logv2.Info("b2.String() %s", b2.String())
+	logv2.Info("output: %s", output)
 
-	arrMsg := strings.Split(b2.String(), " ")
+	arrMsg := strings.Split(string(output), " ")
 	logv2.Info("arrMsg: %s", arrMsg)
 
-	return arrMsg[2], nil
+	return "", nil
 }
