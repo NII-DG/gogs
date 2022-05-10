@@ -704,7 +704,7 @@ func (repo *Repository) PrivateUploadRepoFiles(doer *User, opts UploadRepoFileOp
 			return nil, fmt.Errorf("mkdir: %v", err)
 		}
 		//ファイルの暗号化し、暗号化ファイルをIPFS上にアップロードする。
-		address, err := encyrptfile.Encrypted(tmpPath)
+		address, err := encyrptfile.Encrypted(tmpPath, repo.Password)
 		if err != nil {
 			return nil, err
 		}

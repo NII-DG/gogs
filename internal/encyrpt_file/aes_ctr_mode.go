@@ -12,14 +12,14 @@ import (
 	"github.com/NII-DG/gogs/internal/ipfs"
 )
 
-func Encrypted(filepath string) (string, error) {
+func Encrypted(filepath, password string) (string, error) {
 	//原本ファイルの取得
 	plainText, err := ioutil.ReadFile(filepath)
 	if err != nil {
 		return "", fmt.Errorf("Cannot find file !!!, TARGET_FILE_PATH : %v", filepath)
 	}
 	//共通キーの取得
-	key := []byte("passw0rdpassw0rdpassw0rdpassw0rd")
+	key := []byte(password)
 
 	// Create new AES cipher block
 	block, err := aes.NewCipher(key)

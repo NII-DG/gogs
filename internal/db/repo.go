@@ -38,6 +38,7 @@ import (
 	"github.com/NII-DG/gogs/internal/osutil"
 	"github.com/NII-DG/gogs/internal/process"
 	"github.com/NII-DG/gogs/internal/semverutil"
+	"github.com/NII-DG/gogs/internal/strutil"
 	"github.com/NII-DG/gogs/internal/sync"
 )
 
@@ -1147,6 +1148,11 @@ func CreateRepository(doer, owner *User, opts CreateRepoOptions) (_ *Repository,
 	if !owner.CanCreateRepo() {
 		return nil, ErrReachLimitOfRepo{Limit: owner.RepoCreationNum()}
 	}
+	//共通キー生成
+	password, err := strutil.RandomChars(32)
+	if err != nil {
+		return nil, fmt.Errorf("[Cannot Generating Repository Password]]: %v", err)
+	}
 
 	repo := &Repository{
 		OwnerID:      owner.ID,
@@ -1159,6 +1165,7 @@ func CreateRepository(doer, owner *User, opts CreateRepoOptions) (_ *Repository,
 		EnableWiki:   true,
 		EnableIssues: true,
 		EnablePulls:  true,
+		Password:     password,
 	}
 
 	sess := x.NewSession()
