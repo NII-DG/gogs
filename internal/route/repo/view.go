@@ -317,6 +317,7 @@ func renderFile(c *context.Context, entry *git.TreeEntry, treeLink, rawLink stri
 	case isTextFile:
 		// GIN mod: Use c.Data["FileSize"] which is replaced by annexed content
 		// size in resolveAnnexedContent() when necessary
+		logv2.Trace("[FileSize] %v", c.Data["FileSize"].(int64))
 		if c.Data["FileSize"].(int64) >= conf.UI.MaxDisplayFileSize {
 			c.Data["IsFileTooLarge"] = true
 			break
