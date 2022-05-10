@@ -7,7 +7,9 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
+	"unsafe"
 
 	"github.com/NII-DG/gogs/internal/bcapi"
 	"github.com/NII-DG/gogs/internal/context"
@@ -176,4 +178,23 @@ func resolveEncyrptedContent(c *context.Context, buf []byte, bcContentInfo bcapi
 	c.Data["FileSize"] = info.Size()
 	log.Trace("Annexed file size: %d B", info.Size())
 	return annexBuf, nil
+}
+
+//Convert Annex Key to IPFS hash
+func GetIpfsHashValueByAnnexKey(key string, repoPath string) (string, error) {
+	var hash string
+	var err error
+	if msg, err := git.NewCommand("annex", "whereis", "--key", key).RunInDir(repoPath); err == nil {
+		strMsg := *(*string)(unsafe.Pointer(&msg)) //[]byte to string
+		reg := "\r\n|\n"
+		arr1 := regexp.MustCompile(reg).Split(strMsg, -1) //改行分割
+		for _, s := range arr1 {
+			if strings.Contains(s, "ipfs:") {
+				index := strings.LastIndex(s, ":")
+				trimStr := &hash
+				*trimStr = s[index+1:]
+			}
+		}
+	}
+	return hash, err
 }
