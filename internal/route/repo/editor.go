@@ -454,7 +454,7 @@ func UploadFile(c *context.Context) {
 
 func UploadFilePost(c *context.Context, f form.UploadRepoFile) {
 
-	isPrivate := c.Repo.Repository.IsPrivate //Alt 2022-5-10
+	isPrivate := c.Repo.Repository.IsPrivate //Alt 2022-5-10 By Tsukioka
 	log.Info("[c.Repo.Repository.IsPrivate]%v", isPrivate)
 
 	c.PageIs("Upload")
@@ -531,7 +531,7 @@ func UploadFilePost(c *context.Context, f form.UploadRepoFile) {
 		message += "\n\n" + f.CommitMessage
 	}
 
-	contentMap, err := c.Repo.Repository.UploadRepoFilesToIPFS(c.User, db.UploadRepoFileOptionsForIPFS{ //Alt 2022-5-10
+	contentMap, err := c.Repo.Repository.UploadRepoFilesToIPFS(c.User, db.UploadRepoFileOptionsForIPFS{ //Alt 2022-5-10 By Tsukioka
 		LastCommitID:  c.Repo.CommitID,
 		OldBranch:     oldBranchName,
 		NewBranch:     branchName,
@@ -564,7 +564,7 @@ func UploadFilePost(c *context.Context, f form.UploadRepoFile) {
 	// }
 
 	//アップロードしたコンテンツをBC登録
-	httpErr := bcapi.CreateContentHistory(c.User.Name, contentMap) //Alt 2022-5-10
+	httpErr := bcapi.CreateContentHistory(c.User.Name, contentMap) //Alt 2022-5-10 By Tsukioka
 	if httpErr != nil {
 		log.Error("[HTTP ERROR Create Content Hsitory] %v", httpErr)
 		c.FormErr("TreePath")

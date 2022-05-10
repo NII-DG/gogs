@@ -340,15 +340,15 @@ func Home(c *context.Context) {
 	c.Data["RequireHighlightJS"] = true
 
 	//コンテンツロケーションの定義
-	var contentLocation string // Alt 2022-5-10
+	var contentLocation string // Alt 2022-5-10 By Tsukioka
 
 	branchLink := c.Repo.RepoLink + "/src/" + c.Repo.BranchName
 	treeLink := branchLink
 	rawLink := c.Repo.RepoLink + "/raw/" + c.Repo.BranchName
-	datasetLink := c.Repo.RepoLink + "/dataset/" + c.Repo.BranchName // Alt 2022-5-10
+	datasetLink := c.Repo.RepoLink + "/dataset/" + c.Repo.BranchName // Alt 2022-5-10 By Tsukioka
 
 	isRootDir := false
-	if len(c.Repo.TreePath) > 0 { // Alt 2022-5-10
+	if len(c.Repo.TreePath) > 0 { // Alt 2022-5-10 By Tsukioka
 		treeLink += "/" + c.Repo.TreePath
 		log.Info("[Debug_1 Add treeLink] new path : %v, add path : %v", treeLink, c.Repo.TreePath)
 		temploc := &contentLocation
@@ -378,10 +378,10 @@ func Home(c *context.Context) {
 	}
 
 	if entry.IsTree() {
-		renderDirectoryFromBcapi(c, treeLink) // Alt 2022-5-10
+		renderDirectoryFromBcapi(c, treeLink) // Alt 2022-5-10 By Tsukioka
 		//renderDirectory(c, treeLink)
 	} else {
-		renderFileFromIPFS(c, entry, treeLink, rawLink, contentLocation) // Alt 2022-5-10
+		renderFileFromIPFS(c, entry, treeLink, rawLink, contentLocation) // Alt 2022-5-10 By Tsukioka
 		//renderFile(c, entry, treeLink, rawLink, contentLocation)
 	}
 	if c.Written() {
@@ -411,7 +411,7 @@ func Home(c *context.Context) {
 	c.Data["TreeLink"] = treeLink
 	c.Data["TreeNames"] = treeNames
 	c.Data["BranchLink"] = branchLink
-	c.Data["DatasetLink"] = datasetLink // Alt 2022-5-10
+	c.Data["DatasetLink"] = datasetLink // Alt 2022-5-10 By Tsukioka
 
 	c.Success(HOME)
 }
