@@ -58,7 +58,8 @@ func resolveAnnexedContentFromIPFS(c *context.Context, buf []byte, contentLocati
 		}
 		log.Trace("contentPath: %v", string(contentPath))
 		contentPath = bytes.TrimSpace(contentPath)
-		b, err := ioutil.ReadFile(filepath.Join(repoPath, string(contentPath)))
+		filepath := filepath.Join(repoPath, string(contentPath))
+		b, err := ioutil.ReadFile(filepath)
 		if err != nil {
 			log.Error("[ioutil.ReadFile(filepath.Join(repoPath, string(contentPath)))] err : %v, repoPath : %v", err, repoPath)
 		}
@@ -74,16 +75,30 @@ func resolveAnnexedContentFromIPFS(c *context.Context, buf []byte, contentLocati
 		//ファイルコンテンツハッシュが一致した場合
 		//IPFSから暗号データを取得して、復元する。
 		log.Trace("[Match AnnexFullContentHash to BcFullContentHash] fullContentHash : %v, BCFullContentHash : %v", fullContentHash, bcContentInfo.FullContentHash)
-		data, err := encyrptfile.Decrypted(bcContentInfo.IpfsCid, c.Repo.Repository.Password)
+		err = encyrptfile.Decrypted(bcContentInfo.IpfsCid, c.Repo.Repository.Password, filepath)
 		if err != nil {
 			log.Error("[Cannot Decrypting data] File : %v", contentLocation)
 			c.Data["IsAnnexedFile"] = true
 			return buf, fmt.Errorf("[Cannot Decrypting data] File : %v", contentLocation)
 		}
-		//復号成功後、処理
-		c.Data["FileSize"] = len(data)
-		log.Trace("Annexed file size: %d B", len(data))
-		return data, nil
+		//復号したデータをディレクトリに格納
+		afp, err := os.Open(filepath)
+		if err != nil {
+			c.Data["IsAnnexedFile"] = true
+			return buf, err
+		}
+		info, err := afp.Stat()
+		if err != nil {
+			c.Data["IsAnnexedFile"] = true
+			return buf, err
+		}
+		annexDataReader := bufio.NewReader(afp)
+		annexBuf := make([]byte, 1024)
+		n, _ := annexDataReader.Read(annexBuf)
+		annexBuf = annexBuf[:n]
+		c.Data["FileSize"] = info.Size()
+		log.Trace("Annexed file size: %d B", info.Size())
+		return annexBuf, nil
 	}
 
 	addressByAnnex, err := GetIpfsHashValueByAnnexKey(key, repoPath)

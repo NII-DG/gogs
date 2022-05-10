@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"os"
 	"unsafe"
 
 	"github.com/NII-DG/gogs/internal/ipfs"
@@ -56,14 +57,16 @@ func Encrypted(filepath, password string) (string, error) {
 //@param ipfsCid　暗号データを紐づくIPFSコンテンツアドレス
 //
 //@param password 復号キー
-func Decrypted(ipfsCid, password string) ([]byte, error) {
+//
+//@param filepath 復号したファイルの格納パス
+func Decrypted(ipfsCid, password, filepath string) error {
 	//暗号データの取得　from IPFS
 	operater := ipfs.IpfsOperation{
 		Commander: ipfs.NewCommand(),
 	}
 	cipherText, err := operater.Cat(ipfsCid)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	//共通キーの取得
@@ -72,11 +75,21 @@ func Decrypted(ipfsCid, password string) ([]byte, error) {
 	// Create new AES cipher block
 	block, err := aes.NewCipher(key)
 	if err != nil {
-		return nil, fmt.Errorf("[Failure Creating new AES cipher block in Dencrypting This IPFS CID : %v]", ipfsCid)
+		return fmt.Errorf("[Failure Creating new AES cipher block in Dencrypting This IPFS CID : %v]", ipfsCid)
 	}
 
 	decryptedText := make([]byte, len(cipherText[aes.BlockSize:]))
 	decryptStream := cipher.NewCTR(block, cipherText[:aes.BlockSize])
 	decryptStream.XORKeyStream(decryptedText, cipherText[aes.BlockSize:])
-	return decryptedText, nil
+
+	file, err := os.Create(filepath)
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+	_, err = file.Write(decryptedText)
+	if err != nil {
+		panic(err)
+	}
+	return nil
 }
