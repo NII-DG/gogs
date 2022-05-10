@@ -531,7 +531,7 @@ func UploadFilePost(c *context.Context, f form.UploadRepoFile) {
 		message += "\n\n" + f.CommitMessage
 	}
 
-	contentMap, err := c.Repo.Repository.UploadRepoFilesToIPFS(c.User, db.UploadRepoFileOptions{ //Alt 2022-05-10
+	contentMap, err := c.Repo.Repository.UploadRepoFiles(c.User, db.UploadRepoFileOptions{
 		LastCommitID:  c.Repo.CommitID,
 		OldBranch:     oldBranchName,
 		NewBranch:     branchName,
@@ -540,7 +540,6 @@ func UploadFilePost(c *context.Context, f form.UploadRepoFile) {
 		Files:         f.Files,
 		UpperRopoPath: c.Repo.RepoLink + "/" + branchName,
 	}, isPrivate)
-
 	if err != nil {
 		log.Error("Failed to upload files: %v", err)
 		//エラーエリアの指定
@@ -549,20 +548,6 @@ func UploadFilePost(c *context.Context, f form.UploadRepoFile) {
 		c.RenderWithErr(c.Tr("repo.editor.unable_to_upload_files", f.TreePath, errors.InternalServerError), tmplEditorUpload, &f)
 		return
 	}
-
-	// if err := c.Repo.Repository.UploadRepoFiles(c.User, db.UploadRepoFileOptions{
-	// 	LastCommitID: c.Repo.CommitID,
-	// 	OldBranch:    oldBranchName,
-	// 	NewBranch:    branchName,
-	// 	TreePath:     f.TreePath,
-	// 	Message:      message,
-	// 	Files:        f.Files,
-	// }); err != nil {
-	// 	log.Error("Failed to upload files: %v", err)
-	// 	c.FormErr("TreePath")
-	// 	c.RenderWithErr(c.Tr("repo.editor.unable_to_upload_files", f.TreePath, errors.InternalServerError), tmplEditorUpload, &f)
-	// 	return
-	// }
 
 	//アップロードしたコンテンツをBC登録
 	httpErr := bcapi.CreateContentHistory(c.User.Name, contentMap)
