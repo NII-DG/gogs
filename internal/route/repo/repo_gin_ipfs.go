@@ -75,11 +75,13 @@ func resolveAnnexedContentFromIPFS(c *context.Context, buf []byte, contentLocati
 		//ファイルコンテンツハッシュが一致した場合
 		//IPFSから暗号データを取得して、復元する。
 		log.Trace("[Match AnnexFullContentHash to BcFullContentHash] fullContentHash : %v, BCFullContentHash : %v", fullContentHash, bcContentInfo.FullContentHash)
-		err = encyrptfile.Decrypted(bcContentInfo.IpfsCid, c.Repo.Repository.Password, filepath)
+		//復号ファイルの格納ディレクトリパスの定義
+		dirDecryptedData := strings.Replace(filepath, "objects", "decrypt", 1)
+		err = encyrptfile.Decrypted(bcContentInfo.IpfsCid, c.Repo.Repository.Password, dirDecryptedData)
 		if err != nil {
-			log.Error("[Cannot Decrypting data] File : %v, Error Msg : %v", contentLocation, err)
+			log.Error("[Cannot Decrypting data] File : %v, Error Msg : %v", dirDecryptedData, err)
 			c.Data["IsAnnexedFile"] = true
-			return buf, fmt.Errorf("[Cannot Decrypting data] File : %v, Error Msg : %v", contentLocation, err)
+			return buf, fmt.Errorf("[Cannot Decrypting data] File : %v, Error Msg : %v", dirDecryptedData, err)
 		}
 		//復号したデータをディレクトリに格納
 		afp, err := os.Open(filepath)
