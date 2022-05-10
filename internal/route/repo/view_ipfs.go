@@ -10,7 +10,6 @@ import (
 
 	"github.com/G-Node/libgin/libgin/annex"
 	"github.com/gogs/git-module"
-	log "unknwon.dev/clog/v2"
 
 	"github.com/NII-DG/gogs/internal/bcapi"
 	"github.com/NII-DG/gogs/internal/conf"
@@ -299,7 +298,7 @@ func renderFileFromIPFS(c *context.Context, entry *git.TreeEntry, treeLink, rawL
 			var fileContent string
 			if err, content := template.ToUTF8WithErr(p); err != nil {
 				if err != nil {
-					log.Error("ToUTF8WithErr: %s", err)
+					logv2.Error("ToUTF8WithErr: %s", err)
 				}
 				fileContent = string(p)
 			} else {
