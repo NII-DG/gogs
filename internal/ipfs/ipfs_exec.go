@@ -1,7 +1,7 @@
 package ipfs
 
 //mockファイルの生成
-//mockgen -source ipfs_exec.go -destination mock/mock_ipfs_exec.go
+//gomockhandler -source /internal/ipfs/ipfs_exec.go -destination mocks/ipfs/ipfs_exec_mock.go
 
 import (
 	"bytes"

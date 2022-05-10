@@ -12,7 +12,7 @@ import (
 )
 
 //mockファイルの生成
-//mockgen -source ./internal/ipfs/ipfs_operation.go -destination mock/mock_ipfs_opetation.go
+//gomockhandler -source /internal/ipfs/ipfs_operation.go -destination mocks/ipfs/ipfs_operation_mock.go
 
 type IFIpfsOperation interface {
 	FilesCopy(contentAddress, fullRepoFilePath string) error
