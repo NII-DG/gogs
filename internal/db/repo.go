@@ -208,6 +208,7 @@ type Repository struct {
 	UpdatedUnix int64
 
 	Downloaded uint64 `xorm:"NOT NULL DEFAULT 0" gorm:"NOT NULL;DEFAULT:0"`
+	Password   string
 }
 
 func (repo *Repository) BeforeInsert() {
