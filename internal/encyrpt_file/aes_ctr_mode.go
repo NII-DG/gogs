@@ -8,6 +8,8 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"path/filepath"
+	"strings"
 	"unsafe"
 
 	"github.com/NII-DG/gogs/internal/ipfs"
@@ -60,7 +62,7 @@ func Encrypted(filepath, password string) (string, error) {
 //@param password 復号キー
 //
 //@param filepath 復号したファイルの格納パス
-func Decrypted(ipfsCid, password, filepath string) error {
+func Decrypted(ipfsCid, password, inputPath string) error {
 	//暗号データの取得　from IPFS
 	operater := ipfs.IpfsOperation{
 		Commander: ipfs.NewCommand(),
@@ -83,15 +85,23 @@ func Decrypted(ipfsCid, password, filepath string) error {
 	decryptStream := cipher.NewCTR(block, cipherText[:aes.BlockSize])
 	decryptStream.XORKeyStream(decryptedText, cipherText[aes.BlockSize:])
 
-	log.Trace("[Decrypted()]open file: %v", filepath)
-	file, err := os.Create(filepath)
+	//ディレクトリの作成
+	dir, _ := filepath.Split(inputPath)
+	dir = dir[:strings.LastIndex(dir, "/")]
+	log.Trace("dir : %v", dir)
+	if err := os.MkdirAll(dir, 0777); err != nil {
+		return fmt.Errorf("[Cannot Mike dir : %v, Error Msg : %v]", dir, err)
+	}
+	//復号ファイルの格納
+	log.Trace("[Decrypted()]open file: %v", inputPath)
+	file, err := os.Create(inputPath)
 	if err != nil {
-		return fmt.Errorf("[Cannot Open file : %v, Error Msg : %v]", filepath, err)
+		return fmt.Errorf("[Cannot Open file : %v, Error Msg : %v]", inputPath, err)
 	}
 	defer file.Close()
 	_, err = file.Write(decryptedText)
 	if err != nil {
-		return fmt.Errorf("[Cannot Write file : %v, Error Msg : %v]", filepath, err)
+		return fmt.Errorf("[Cannot Write file : %v, Error Msg : %v]", inputPath, err)
 	}
 	return nil
 }
