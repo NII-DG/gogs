@@ -84,7 +84,7 @@ func resolveAnnexedContentFromIPFS(c *context.Context, buf []byte, contentLocati
 			return buf, fmt.Errorf("[Cannot Decrypting data] File : %v, Error Msg : %v", dirDecryptedData, err)
 		}
 		//復号したデータをディレクトリに格納
-		afp, err := os.Open(filepath)
+		afp, err := os.Open(dirDecryptedData)
 		if err != nil {
 			c.Data["IsAnnexedFile"] = true
 			return buf, err
