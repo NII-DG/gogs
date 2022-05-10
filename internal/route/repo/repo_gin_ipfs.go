@@ -46,14 +46,17 @@ func resolveAnnexedContentFromIPFS(c *context.Context, buf []byte, contentLocati
 	//指定のコンテンツの暗号化の有無の判定する。
 	if len(bcContentInfo.FullContentHash) > 0 {
 		//暗号ファイルの処理
-		return resolveEncyrptedContent(c, contentLocation, buf, bcContentInfo)
+		return resolveEncyrptedContent(c, buf, bcContentInfo)
 	} else {
 		//公開データの処理
-		return resolvePublicContent(c, contentLocation, buf, bcContentInfo)
+		return resolvePublicContent(c, buf, bcContentInfo)
 	}
 }
 
-func resolvePublicContent(c *context.Context, contentLocation string, buf []byte, bcContentInfo bcapi.ResContentInfo) ([]byte, error) {
+//コンテンツの存在証明検証し、IPFSから暗号データを取得、復号して、復号データを返す。
+//
+//@param
+func resolvePublicContent(c *context.Context, buf []byte, bcContentInfo bcapi.ResContentInfo) ([]byte, error) {
 	repoPath := c.Repo.Repository.RepoPath()
 
 	keyparts := strings.Split(strings.TrimSpace(string(buf)), "/")
@@ -77,7 +80,7 @@ func resolvePublicContent(c *context.Context, contentLocation string, buf []byte
 	if _, err := git.NewCommand("annex", "copy", "--from", "ipfs", "--key", key).RunInDir(repoPath); err != nil {
 		log.Error("[Failure copy dataObject from ipfs] err : %v, repoPath : %v", err, repoPath)
 	} else {
-		log.Info("[Success copy dataObject from ipfs] key : %v, repoPath : %v, contentlocation: %v", key, repoPath, contentLocation)
+		log.Info("[Success copy dataObject from ipfs] key : %v, repoPath : %v", key, repoPath)
 	}
 
 	contentPath, err := git.NewCommand("annex", "contentlocation", key).RunInDir(repoPath)
@@ -110,17 +113,17 @@ func resolvePublicContent(c *context.Context, contentLocation string, buf []byte
 	return annexBuf, nil
 }
 
-func resolveEncyrptedContent(c *context.Context, contentLocation string, buf []byte, bcContentInfo bcapi.ResContentInfo) ([]byte, error) {
+func resolveEncyrptedContent(c *context.Context, buf []byte, bcContentInfo bcapi.ResContentInfo) ([]byte, error) {
 	repoPath := c.Repo.Repository.RepoPath()
 
 	keyparts := strings.Split(strings.TrimSpace(string(buf)), "/")
 	key := keyparts[len(keyparts)-1]
 
 	//暗号化ファイルの処理
-	if msg, err := git.NewCommand("annex", "copy", "--from", "ipfs", "--key", key).RunInDir(repoPath); err != nil {
+	if _, err := git.NewCommand("annex", "copy", "--from", "ipfs", "--key", key).RunInDir(repoPath); err != nil {
 		log.Error("[Failure copy dataObject from ipfs] err : %v, repoPath : %v", err, repoPath)
 	} else {
-		log.Info("[Success copy dataObject from ipfs] key : %v, repoPath : %v, contentlocation: %v, msg", key, repoPath, contentLocation, string(msg))
+		log.Info("[Success copy dataObject from ipfs] key : %v, repoPath : %v", key, repoPath)
 	}
 	contentPath, err := git.NewCommand("annex", "contentlocation", key).RunInDir(repoPath)
 	if err != nil {
