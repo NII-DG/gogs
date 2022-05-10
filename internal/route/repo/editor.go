@@ -548,6 +548,7 @@ func UploadFilePost(c *context.Context, f form.UploadRepoFile) {
 		c.RenderWithErr(c.Tr("repo.editor.unable_to_upload_files", f.TreePath, errors.InternalServerError), tmplEditorUpload, &f)
 		return
 	}
+
 	//アップロードしたコンテンツをBC登録
 	httpErr := bcapi.CreateContentHistory(c.User.Name, contentMap)
 	if httpErr != nil {

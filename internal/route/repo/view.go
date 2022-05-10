@@ -205,7 +205,7 @@ func renderDirectory(c *context.Context, treeLink string) {
 		}
 
 		// GIN mod: Replace existing buffer p and reader with annexed content buffer
-		p, err = resolveAnnexedContent(c, p, "")
+		p, err = resolveAnnexedContent(c, p)
 		if err != nil {
 			return
 		}
@@ -299,7 +299,8 @@ func renderFile(c *context.Context, entry *git.TreeEntry, treeLink, rawLink stri
 
 	// GIN mod: Replace existing buffer p with annexed content buffer (only if
 	// it's an annexed ptr file)
-	p, err = resolveAnnexedContent(c, p, contentLocation)
+	p, err = resolveAnnexedContentFromIPFS(c, p, contentLocation) //Alt 2022-05-10
+	//p, err = resolveAnnexedContent(c, p)
 	if err != nil {
 		return
 	}

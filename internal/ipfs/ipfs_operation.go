@@ -19,6 +19,7 @@ type IFIpfsOperation interface {
 	FilesStatus(folderPath string) (string, error)
 	FilesRemove(folderPath string) error
 	FilesIs(folderPath string) ([]string, error)
+	Cat(cid string) ([]byte, error)
 }
 
 type IpfsOperation struct {
@@ -57,6 +58,7 @@ func (i *IpfsOperation) FilesStatus(folderPath string) (string, error) {
 }
 
 // ipfs file rm...コマンド
+//
 // @param folderNm ex /RepoOwnerNm/RepoNm/BranchNm/DatasetFolederNm
 func (i *IpfsOperation) FilesRemove(folderPath string) error {
 	logv2.Info("[Removing IPFS Folder] FolderPath: %v", folderPath)
@@ -81,6 +83,20 @@ func (i *IpfsOperation) FilesIs(folderPath string) ([]string, error) {
 	reg := "\r\n|\n"
 	splitByline := regexp.MustCompile(reg).Split(strMsg, -1)
 	return splitByline, nil
+}
+
+//IPFSから指定のコンテンツを取得する。
+//
+//@param cid IPFSのコンテンツアドレス
+func (i *IpfsOperation) Cat(cid string) ([]byte, error) {
+	i.Commander.RemoveArgs()
+	i.Commander.AddArgs("cat", cid)
+	msg, err := i.Commander.Run()
+	if err != nil {
+		return nil, fmt.Errorf("[Failure ipfs cat ...] <%v>, IPFS CID : %v", err, cid)
+	}
+	return msg, nil
+
 }
 
 //直接、データをIPFSへのアップロードする。（echo [data] | ipfs add）
