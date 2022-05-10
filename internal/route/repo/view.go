@@ -180,7 +180,7 @@ func fetchDmpSchema(c *context.Context, filePath string) {
 	c.Data["Schema"] = string(scheme)
 }
 
-func renderFile(c *context.Context, entry *git.TreeEntry, treeLink, rawLink string, contentLocation string) {
+func renderFile(c *context.Context, entry *git.TreeEntry, treeLink, rawLink string) {
 	c.Data["IsViewFile"] = true
 
 	blob := entry.Blob()
@@ -197,8 +197,7 @@ func renderFile(c *context.Context, entry *git.TreeEntry, treeLink, rawLink stri
 
 	// GIN mod: Replace existing buffer p with annexed content buffer (only if
 	// it's an annexed ptr file)
-	p, err = resolveAnnexedContentFromIPFS(c, p, contentLocation) //Alt 2022-05-10
-	//p, err = resolveAnnexedContent(c, p)
+	p, err = resolveAnnexedContent(c, p)
 	if err != nil {
 		return
 	}
@@ -215,7 +214,6 @@ func renderFile(c *context.Context, entry *git.TreeEntry, treeLink, rawLink stri
 	case isTextFile:
 		// GIN mod: Use c.Data["FileSize"] which is replaced by annexed content
 		// size in resolveAnnexedContent() when necessary
-		logv2.Trace("[FileSize] %v", c.Data["FileSize"].(int64))
 		if c.Data["FileSize"].(int64) >= conf.UI.MaxDisplayFileSize {
 			c.Data["IsFileTooLarge"] = true
 			break
@@ -385,9 +383,11 @@ func Home(c *context.Context) {
 	}
 
 	if entry.IsTree() {
-		renderDirectoryFromBcapi(c, treeLink)
+		renderDirectoryFromBcapi(c, treeLink) // Alt 2022-5-10
+		//renderDirectory(c, treeLink)
 	} else {
-		renderFile(c, entry, treeLink, rawLink, contentLocation)
+		renderFileFromIPFS(c, entry, treeLink, rawLink, contentLocation) // Alt 2022-5-10
+		//renderFile(c, entry, treeLink, rawLink, contentLocation)
 	}
 	if c.Written() {
 		return
@@ -531,9 +531,9 @@ func CreateDataset(c *context.Context, f form.DatasetFrom) {
 	}
 
 	if entry.IsTree() {
-		renderDirectory(c, treeLink)
+		renderDirectoryFromBcapi(c, treeLink)
 	} else {
-		renderFile(c, entry, treeLink, rawLink, contentLocation)
+		renderFileFromIPFS(c, entry, treeLink, rawLink, contentLocation)
 	}
 	if c.Written() {
 		return

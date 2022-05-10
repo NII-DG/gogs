@@ -2,10 +2,15 @@ package repo
 
 import (
 	"bytes"
+	"fmt"
+	gotemplate "html/template"
 	"path"
+	"strings"
 	"time"
 
+	"github.com/G-Node/libgin/libgin/annex"
 	"github.com/gogs/git-module"
+	log "unknwon.dev/clog/v2"
 
 	"github.com/NII-DG/gogs/internal/bcapi"
 	"github.com/NII-DG/gogs/internal/conf"
@@ -13,7 +18,10 @@ import (
 	"github.com/NII-DG/gogs/internal/db"
 	"github.com/NII-DG/gogs/internal/gitutil"
 	"github.com/NII-DG/gogs/internal/markup"
+	"github.com/NII-DG/gogs/internal/template"
+	"github.com/NII-DG/gogs/internal/template/highlight"
 	"github.com/NII-DG/gogs/internal/tool"
+	logv2 "unknwon.dev/clog/v2"
 )
 
 func renderDirectoryFromBcapi(c *context.Context, treeLink string) {
@@ -214,5 +222,144 @@ func renderDirectoryFromBcapi(c *context.Context, treeLink string) {
 	if c.Repo.CanEnableEditor() {
 		c.Data["CanAddFile"] = true
 		c.Data["CanUploadFile"] = conf.Repository.Upload.Enabled
+	}
+}
+
+func renderFileFromIPFS(c *context.Context, entry *git.TreeEntry, treeLink, rawLink string, contentLocation string) {
+	c.Data["IsViewFile"] = true
+
+	blob := entry.Blob()
+	p, err := blob.Bytes()
+	if err != nil {
+		c.Error(err, "read blob")
+		return
+	}
+
+	c.Data["FileSize"] = blob.Size()
+	c.Data["FileName"] = blob.Name()
+	c.Data["HighlightClass"] = highlight.FileNameToHighlightClass(blob.Name())
+	c.Data["RawFileLink"] = rawLink + "/" + c.Repo.TreePath
+
+	// GIN mod: Replace existing buffer p with annexed content buffer (only if
+	// it's an annexed ptr file)
+	p, err = resolveAnnexedContentFromIPFS(c, p, contentLocation) //Alt 2022-05-10
+	//p, err = resolveAnnexedContent(c, p)
+	if err != nil {
+		return
+	}
+	isTextFile := tool.IsTextFile(p)
+	c.Data["IsTextFile"] = isTextFile
+
+	// Assume file is not editable first.
+	if !isTextFile {
+		c.Data["EditFileTooltip"] = c.Tr("repo.editor.cannot_edit_non_text_files")
+	}
+
+	canEnableEditor := c.Repo.CanEnableEditor()
+	switch {
+	case isTextFile:
+		// GIN mod: Use c.Data["FileSize"] which is replaced by annexed content
+		// size in resolveAnnexedContent() when necessary
+		logv2.Trace("[FileSize] %v", c.Data["FileSize"].(int64))
+		if c.Data["FileSize"].(int64) >= conf.UI.MaxDisplayFileSize {
+			c.Data["IsFileTooLarge"] = true
+			break
+		}
+
+		c.Data["ReadmeExist"] = markup.IsReadmeFile(blob.Name())
+
+		switch markup.Detect(blob.Name()) {
+		case markup.MARKDOWN:
+			c.Data["IsMarkdown"] = true
+			c.Data["FileContent"] = string(markup.Markdown(p, path.Dir(treeLink), c.Repo.Repository.ComposeMetas()))
+		case markup.ORG_MODE:
+			c.Data["IsMarkdown"] = true
+			c.Data["FileContent"] = string(markup.OrgMode(p, path.Dir(treeLink), c.Repo.Repository.ComposeMetas()))
+		case markup.IPYTHON_NOTEBOOK:
+			c.Data["IsIPythonNotebook"] = true
+			// GIN mod: JSON, YAML, and odML render support with jsTree
+		case markup.JSON:
+			c.Data["IsJSON"] = true
+			c.Data["RawFileContent"] = string(p)
+			fallthrough
+		case markup.YAML:
+			c.Data["IsYAML"] = true
+			c.Data["RawFileContent"] = string(p)
+			fallthrough
+		case markup.XML:
+			// pass XML down to ODML checker
+			fallthrough
+		case markup.ODML:
+			if tool.IsODMLFile(p) {
+				c.Data["IsODML"] = true
+				c.Data["ODML"] = string(markup.MarshalODML(p))
+			}
+			fallthrough
+		default:
+			// Building code view blocks with line number on server side.
+			var fileContent string
+			if err, content := template.ToUTF8WithErr(p); err != nil {
+				if err != nil {
+					log.Error("ToUTF8WithErr: %s", err)
+				}
+				fileContent = string(p)
+			} else {
+				fileContent = content
+			}
+
+			var output bytes.Buffer
+			lines := strings.Split(fileContent, "\n")
+			// Remove blank line at the end of file
+			if len(lines) > 0 && len(lines[len(lines)-1]) == 0 {
+				lines = lines[:len(lines)-1]
+			}
+			// > GIN
+			if len(lines) > conf.UI.MaxLineHighlight {
+				c.Data["HighlightClass"] = "nohighlight"
+			}
+			// < GIN
+			for index, line := range lines {
+				output.WriteString(fmt.Sprintf(`<li class="L%d" rel="L%d">%s</li>`, index+1, index+1, gotemplate.HTMLEscapeString(strings.TrimRight(line, "\r"))) + "\n")
+			}
+			c.Data["FileContent"] = gotemplate.HTML(output.String())
+
+			output.Reset()
+			for i := 0; i < len(lines); i++ {
+				output.WriteString(fmt.Sprintf(`<span id="L%d">%d</span>`, i+1, i+1))
+			}
+			c.Data["LineNums"] = gotemplate.HTML(output.String())
+		}
+
+		isannex := tool.IsAnnexedFile(p)
+		if canEnableEditor && !isannex {
+			c.Data["CanEditFile"] = true
+			c.Data["EditFileTooltip"] = c.Tr("repo.editor.edit_this_file")
+		} else if !c.Repo.IsViewBranch {
+			c.Data["EditFileTooltip"] = c.Tr("repo.editor.must_be_on_a_branch")
+		} else if !c.Repo.IsWriter() {
+			c.Data["EditFileTooltip"] = c.Tr("repo.editor.fork_before_edit")
+		}
+
+	case tool.IsPDFFile(p) && (c.Data["FileSize"].(int64) < conf.Repository.RawCaptchaMinFileSize*annex.MEGABYTE ||
+		c.IsLogged):
+		c.Data["IsPDFFile"] = true
+	case tool.IsVideoFile(p) && (c.Data["FileSize"].(int64) < conf.Repository.RawCaptchaMinFileSize*annex.MEGABYTE ||
+		c.IsLogged):
+		c.Data["IsVideoFile"] = true
+	case tool.IsImageFile(p) && (c.Data["FileSize"].(int64) < conf.Repository.RawCaptchaMinFileSize*annex.MEGABYTE ||
+		c.IsLogged):
+		c.Data["IsImageFile"] = true
+	case tool.IsAnnexedFile(p) && (c.Data["FileSize"].(int64) < conf.Repository.RawCaptchaMinFileSize*annex.MEGABYTE ||
+		c.IsLogged):
+		c.Data["IsAnnexedFile"] = true
+	}
+
+	if canEnableEditor {
+		c.Data["CanDeleteFile"] = true
+		c.Data["DeleteFileTooltip"] = c.Tr("repo.editor.delete_this_file")
+	} else if !c.Repo.IsViewBranch {
+		c.Data["DeleteFileTooltip"] = c.Tr("repo.editor.must_be_on_a_branch")
+	} else if !c.Repo.IsWriter() {
+		c.Data["DeleteFileTooltip"] = c.Tr("repo.editor.must_have_write_access")
 	}
 }
