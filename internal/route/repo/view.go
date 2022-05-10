@@ -63,118 +63,16 @@ func renderDirectory(c *context.Context, treeLink string) {
 	}
 	entries.Sort()
 
-	currentFolederPath := c.Repo.RepoLink + "/" + c.Repo.BranchName
-	if c.Repo.TreePath != "" {
-		tmpPath := &currentFolederPath
-		*tmpPath = *tmpPath + "/" + c.Repo.TreePath
-	}
-	//指定したフォルダーがデータセットであるか確認及び真の場合トークン情報を取得
-	res, err := bcapi.GetDatasetInfoByLocation(c.User.Name, currentFolederPath)
-	if err != nil {
-		c.Error(err, "exchange BC-API")
-		return
-	}
-	var inputAddress string
-	var srcCodeAddress string
-	var outputAddress string
-	isDataset := false
-	if res.DatasetLocation != "" {
-		tmpInput := &inputAddress
-		*tmpInput = res.InputAddress
-		tmpSrc := &srcCodeAddress
-		*tmpSrc = res.SrcCodeAddress
-		tmpOut := &outputAddress
-		*tmpOut = res.OutputAddress
-		tmpIsDataset := &isDataset
-		*tmpIsDataset = true
-	}
-
-	//フォルダーおよびファイルコンテンツアドレスを取得
-	altFileDataList := []AltEntryCommitInfo{}
-	var filesDataList []*git.EntryCommitInfo
-	filesDataList, err = entries.CommitsInfo(c.Repo.Commit, git.CommitsInfoOptions{
+	c.Data["Files"], err = entries.CommitsInfo(c.Repo.Commit, git.CommitsInfoOptions{
 		Path:           c.Repo.TreePath,
 		MaxConcurrency: conf.Repository.CommitsFetchConcurrency,
 		Timeout:        5 * time.Minute,
 	})
+
 	if err != nil {
 		c.Error(err, "get commits info")
 		return
 	}
-
-	resList, err := bcapi.GetContentByFolder(c.User.Name, currentFolederPath)
-	if err != nil {
-		c.Error(err, "list entries")
-		return
-	}
-
-	for _, data := range filesDataList {
-		flg := false
-		if data.Entry.Type() == git.ObjectBlob {
-			for _, resData := range resList.ContentsInFolder {
-				fullPath := currentFolederPath + "/" + data.Entry.Name()
-				if fullPath == resData.ContentLocation {
-					altFileDataList = append(altFileDataList, AltEntryCommitInfo{
-						Entry:          data.Entry,
-						Index:          data.Index,
-						Commit:         data.Commit,
-						Submodule:      data.Submodule,
-						ContentAddress: resData.IpfsCid,
-					})
-					tmpFlg := &flg
-					*tmpFlg = true
-				}
-			}
-		} else if data.Entry.Type() == git.ObjectTree && isDataset {
-			inputTreePath := res.DatasetLocation + "/" + db.INPUT_FOLDER_NM
-			srcTreePath := res.DatasetLocation + "/" + db.SRC_FOLDER_NM
-			outputTreePath := res.DatasetLocation + "/" + db.OUTPUT_FOLDER_NM
-			treePath := currentFolederPath + "/" + data.Entry.Name()
-			switch treePath {
-			case inputTreePath:
-				altFileDataList = append(altFileDataList, AltEntryCommitInfo{
-					Entry:          data.Entry,
-					Index:          data.Index,
-					Commit:         data.Commit,
-					Submodule:      data.Submodule,
-					ContentAddress: inputAddress,
-				})
-				tmpFlg := &flg
-				*tmpFlg = true
-			case srcTreePath:
-				altFileDataList = append(altFileDataList, AltEntryCommitInfo{
-					Entry:          data.Entry,
-					Index:          data.Index,
-					Commit:         data.Commit,
-					Submodule:      data.Submodule,
-					ContentAddress: srcCodeAddress,
-				})
-				tmpFlg := &flg
-				*tmpFlg = true
-			case outputTreePath:
-				altFileDataList = append(altFileDataList, AltEntryCommitInfo{
-					Entry:          data.Entry,
-					Index:          data.Index,
-					Commit:         data.Commit,
-					Submodule:      data.Submodule,
-					ContentAddress: outputAddress,
-				})
-				tmpFlg := &flg
-				*tmpFlg = true
-			}
-		}
-		if !flg {
-			altFileDataList = append(altFileDataList, AltEntryCommitInfo{
-				Entry:          data.Entry,
-				Index:          data.Index,
-				Commit:         data.Commit,
-				Submodule:      data.Submodule,
-				ContentAddress: "",
-			})
-		}
-	}
-
-	c.Data["Files"] = altFileDataList
 
 	if c.Data["HasDmpJson"].(bool) {
 		readDmpJson(c)
@@ -487,7 +385,7 @@ func Home(c *context.Context) {
 	}
 
 	if entry.IsTree() {
-		renderDirectory(c, treeLink)
+		renderDirectoryFromBcapi(c, treeLink)
 	} else {
 		renderFile(c, entry, treeLink, rawLink, contentLocation)
 	}
