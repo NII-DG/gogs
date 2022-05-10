@@ -12,7 +12,7 @@ import (
 	"github.com/gogs/git-module"
 
 	"github.com/NII-DG/gogs/internal/annex_ipfs"
-	"github.com/NII-DG/gogs/internal/encyrptfile"
+	encyrptfile "github.com/NII-DG/gogs/internal/encyrpt_file"
 	"github.com/NII-DG/gogs/internal/osutil"
 
 	log "unknwon.dev/clog/v2"
