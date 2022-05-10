@@ -10,9 +10,11 @@ import (
 	"unsafe"
 
 	"github.com/NII-DG/gogs/internal/ipfs"
+	log "unknwon.dev/clog/v2"
 )
 
 func Encrypted(filepath, password string) (string, error) {
+	log.Trace("pasword [%v]", password)
 	//原本ファイルの取得
 	plainText, err := ioutil.ReadFile(filepath)
 	if err != nil {
