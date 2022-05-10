@@ -33,6 +33,21 @@ func (m *MockIFIpfsOperation) EXPECT() *MockIFIpfsOperationMockRecorder {
 	return m.recorder
 }
 
+// Cat mocks base method.
+func (m *MockIFIpfsOperation) Cat(cid string) ([]byte, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Cat", cid)
+	ret0, _ := ret[0].([]byte)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Cat indicates an expected call of Cat.
+func (mr *MockIFIpfsOperationMockRecorder) Cat(cid interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Cat", reflect.TypeOf((*MockIFIpfsOperation)(nil).Cat), cid)
+}
+
 // FilesCopy mocks base method.
 func (m *MockIFIpfsOperation) FilesCopy(contentAddress, fullRepoFilePath string) error {
 	m.ctrl.T.Helper()
