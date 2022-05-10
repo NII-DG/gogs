@@ -454,7 +454,7 @@ func UploadFile(c *context.Context) {
 
 func UploadFilePost(c *context.Context, f form.UploadRepoFile) {
 
-	isPrivate := c.Repo.Repository.IsPrivate
+	isPrivate := c.Repo.Repository.IsPrivate //Alt 2022-5-10
 	log.Info("[c.Repo.Repository.IsPrivate]%v", isPrivate)
 
 	c.PageIs("Upload")
