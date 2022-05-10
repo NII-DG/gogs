@@ -580,10 +580,6 @@ func UploadFilePost(c *context.Context, f form.UploadRepoFile) {
 	}
 }
 
-func createContentHistory() {
-	panic("unimplemented")
-}
-
 func UploadFileToServer(c *context.Context) {
 	file, header, err := c.Req.FormFile("file")
 	fvalue := c.Req.Form
