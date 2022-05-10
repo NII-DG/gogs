@@ -148,6 +148,12 @@ func annexSetup(path string) {
 	//Setting initremote ipfs
 	if err := setRemoteIPFS(path); err != nil {
 		logv2.Warn("[Warn Initremoto IPFS] path : %v,  error : %v", path, err)
+
+		if _, err := git.NewCommand("annex", "enableremote", "ipfs").RunInDir(path); err != nil {
+			logv2.Error("[Failure enable remote(ipfs)] err : %v, path : %v", err, path)
+		} else {
+			logv2.Info("[Success enable remote(ipfs)] path : %v", path)
+		}
 		return
 	} else {
 		logv2.Info("[Initremoto IPFS] path : %v", path)
