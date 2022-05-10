@@ -10,7 +10,7 @@ import (
 )
 
 //mockファイルの生成
-//gomockhandler -source /internal/route/dataset/create_dataset_in_IPFS.go -destination mocks/route/dataset/create_dataset_in_IPFS_mock.go
+//gomockhandler -source ./internal/route/dataset/create_dataset_in_IPFS.go -destination ./internal/mocks/route/dataset/create_dataset_in_IPFS_mock.go
 
 type IFDatasetCreater interface {
 	GetDatasetAddress(datasetPath string, datasetData db.DatasetInfo) (bcapi.UploadDatasetInfo, error)
