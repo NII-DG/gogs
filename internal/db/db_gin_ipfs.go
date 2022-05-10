@@ -10,6 +10,11 @@ import (
 	logv2 "unknwon.dev/clog/v2"
 )
 
+type AnnexUploadInfo struct {
+	FullContentHash string
+	IpfsCid         string
+}
+
 //ToDo :upploadFileMap(map)にKeyを追加する。
 func annexAddAndGetInfo(repoPath string, all bool, files ...string) ([]annex_ipfs.AnnexAddResponse, error) {
 	cmd := git.NewCommand("annex", "add", "--json")

@@ -510,13 +510,12 @@ func DeleteUploadByUUID(uuid string) error {
 }
 
 type UploadRepoFileOptions struct {
-	LastCommitID  string
-	OldBranch     string
-	NewBranch     string
-	TreePath      string
-	Message       string
-	Files         []string // In UUID format
-	UpperRopoPath string   //RepoOwnerNm / RepoNm / branchNm
+	LastCommitID string
+	OldBranch    string
+	NewBranch    string
+	TreePath     string
+	Message      string
+	Files        []string // In UUID format
 }
 
 // isRepositoryGitPath returns true if given path is or resides inside ".git" path of the repository.

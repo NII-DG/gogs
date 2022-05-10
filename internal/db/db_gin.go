@@ -158,11 +158,6 @@ func annexCalcKey(repoPath, filePath string) (string, error) {
 	return hash, nil
 }
 
-type AnnexUploadInfo struct {
-	FullContentHash string
-	IpfsCid         string
-}
-
 func annexUpload(repoPath, remote string) error {
 	log.Trace("Synchronising annex info")
 	if msg, err := git.NewCommand("annex", "sync").RunInDir(repoPath); err != nil {

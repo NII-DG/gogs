@@ -18,8 +18,18 @@ import (
 	log "unknwon.dev/clog/v2"
 )
 
+type UploadRepoFileOptionsForIPFS struct {
+	LastCommitID  string
+	OldBranch     string
+	NewBranch     string
+	TreePath      string
+	Message       string
+	Files         []string // In UUID format
+	UpperRopoPath string   //RepoOwnerNm / RepoNm / branchNm
+}
+
 //TODO[2022-05-06]：プライベート or パブリック　レポジトリで異なる処理を行う
-func (repo *Repository) UploadRepoFilesToIPFS(doer *User, opts UploadRepoFileOptions, isPrivate bool) (contentMap map[string]AnnexUploadInfo, err error) {
+func (repo *Repository) UploadRepoFilesToIPFS(doer *User, opts UploadRepoFileOptionsForIPFS, isPrivate bool) (contentMap map[string]AnnexUploadInfo, err error) {
 	//プライベート or パブリック　レポジトリで異なる処理を行う
 	if isPrivate {
 		log.Info("Private Repository Upload Files. User: %v", doer.FullName)
@@ -36,7 +46,7 @@ func (repo *Repository) UploadRepoFilesToIPFS(doer *User, opts UploadRepoFileOpt
 }
 
 //パブリックレポジトリのUploadRepoFiles
-func (repo *Repository) PublicUploadRepoFiles(doer *User, opts UploadRepoFileOptions) (contentMap map[string]AnnexUploadInfo, err error) {
+func (repo *Repository) PublicUploadRepoFiles(doer *User, opts UploadRepoFileOptionsForIPFS) (contentMap map[string]AnnexUploadInfo, err error) {
 	if len(opts.Files) == 0 {
 		log.Error("Error 1: %v", len(opts.Files))
 		return nil, nil
@@ -132,7 +142,7 @@ func (repo *Repository) PublicUploadRepoFiles(doer *User, opts UploadRepoFileOpt
 
 //プライベートレポジトリのUploadRepoFiles
 //TODO: ファイルを暗号化して取り扱う
-func (repo *Repository) PrivateUploadRepoFiles(doer *User, opts UploadRepoFileOptions) (map[string]AnnexUploadInfo, error) {
+func (repo *Repository) PrivateUploadRepoFiles(doer *User, opts UploadRepoFileOptionsForIPFS) (map[string]AnnexUploadInfo, error) {
 	if len(opts.Files) == 0 {
 		log.Error("Error 1: %v", len(opts.Files))
 		return nil, nil

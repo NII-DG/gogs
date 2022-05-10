@@ -531,7 +531,7 @@ func UploadFilePost(c *context.Context, f form.UploadRepoFile) {
 		message += "\n\n" + f.CommitMessage
 	}
 
-	contentMap, err := c.Repo.Repository.UploadRepoFilesToIPFS(c.User, db.UploadRepoFileOptions{ //Alt 2022-5-10
+	contentMap, err := c.Repo.Repository.UploadRepoFilesToIPFS(c.User, db.UploadRepoFileOptionsForIPFS{ //Alt 2022-5-10
 		LastCommitID:  c.Repo.CommitID,
 		OldBranch:     oldBranchName,
 		NewBranch:     branchName,
