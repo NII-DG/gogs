@@ -6,7 +6,7 @@ import (
 
 	"github.com/NII-DG/gogs/internal/db"
 	"github.com/NII-DG/gogs/internal/route/dataset"
-	mock_ipfs "github.com/NII-DG/gogs/mocks/ipfs"
+	mock_ipfs "github.com/NII-DG/gogs/mock"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 )

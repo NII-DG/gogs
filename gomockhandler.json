@@ -17,15 +17,6 @@
 				"source": "D:\\Myrepository\\nii_dg_gin\\internal\\ipfs\\ipfs_operation.go",
 				"destination": "D:\\Myrepository\\nii_dg_gin\\mocks\\ipfs\\ipfs_operation_mock.go"
 			}
-		},
-		"D:\\Myrepository\\nii_dg_gin\\mocks\\route\\dataset\\create_dataset_in_IPFS_mock.go": {
-			"checksum": "nF8ix20hQZIPOuYJqNYoGg==",
-			"source_checksum": "STVO5t7tSDvyXKoPwgmYBg==",
-			"mode": "SOURCE_MODE",
-			"source_mode_runner": {
-				"source": "D:\\Myrepository\\nii_dg_gin\\internal\\route\\dataset\\create_dataset_in_IPFS.go",
-				"destination": "D:\\Myrepository\\nii_dg_gin\\mocks\\route\\dataset\\create_dataset_in_IPFS_mock.go"
-			}
 		}
 	}
 }
