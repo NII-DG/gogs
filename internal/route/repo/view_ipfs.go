@@ -242,8 +242,7 @@ func renderFileFromIPFS(c *context.Context, entry *git.TreeEntry, treeLink, rawL
 
 	// GIN mod: Replace existing buffer p with annexed content buffer (only if
 	// it's an annexed ptr file)
-	p, err = resolveAnnexedContentFromIPFS(c, p, contentLocation) //Alt 2022-05-10
-	//p, err = resolveAnnexedContent(c, p)
+	p, err = resolveAnnexedContentFromIPFS(c, p, contentLocation)
 	if err != nil {
 		return
 	}

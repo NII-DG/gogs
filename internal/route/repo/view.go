@@ -340,7 +340,7 @@ func Home(c *context.Context) {
 	c.Data["RequireHighlightJS"] = true
 
 	//コンテンツロケーションの定義
-	var contentLocation string
+	var contentLocation string // Alt 2022-5-10
 
 	branchLink := c.Repo.RepoLink + "/src/" + c.Repo.BranchName
 	treeLink := branchLink
@@ -348,7 +348,7 @@ func Home(c *context.Context) {
 	datasetLink := c.Repo.RepoLink + "/dataset/" + c.Repo.BranchName // Alt 2022-5-10
 
 	isRootDir := false
-	if len(c.Repo.TreePath) > 0 {
+	if len(c.Repo.TreePath) > 0 { // Alt 2022-5-10
 		treeLink += "/" + c.Repo.TreePath
 		log.Info("[Debug_1 Add treeLink] new path : %v, add path : %v", treeLink, c.Repo.TreePath)
 		temploc := &contentLocation
