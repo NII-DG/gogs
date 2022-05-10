@@ -11,6 +11,7 @@ import (
 	"unsafe"
 
 	"github.com/NII-DG/gogs/internal/ipfs"
+	log "unknwon.dev/clog/v2"
 )
 
 //AES CTRモードの暗号化メソッド
@@ -82,14 +83,15 @@ func Decrypted(ipfsCid, password, filepath string) error {
 	decryptStream := cipher.NewCTR(block, cipherText[:aes.BlockSize])
 	decryptStream.XORKeyStream(decryptedText, cipherText[aes.BlockSize:])
 
+	log.Trace("[Decrypted()]open file: %v", filepath)
 	file, err := os.Create(filepath)
 	if err != nil {
-		panic(err)
+		return fmt.Errorf("[Cannot Open file : %v]", filepath)
 	}
 	defer file.Close()
 	_, err = file.Write(decryptedText)
 	if err != nil {
-		panic(err)
+		return fmt.Errorf("[Cannot Write file : %v]", filepath)
 	}
 	return nil
 }
