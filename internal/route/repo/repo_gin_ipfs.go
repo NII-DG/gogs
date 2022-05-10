@@ -77,9 +77,9 @@ func resolveAnnexedContentFromIPFS(c *context.Context, buf []byte, contentLocati
 		log.Trace("[Match AnnexFullContentHash to BcFullContentHash] fullContentHash : %v, BCFullContentHash : %v", fullContentHash, bcContentInfo.FullContentHash)
 		err = encyrptfile.Decrypted(bcContentInfo.IpfsCid, c.Repo.Repository.Password, filepath)
 		if err != nil {
-			log.Error("[Cannot Decrypting data] File : %v", contentLocation)
+			log.Error("[Cannot Decrypting data] File : %v, Error Msg : %v", contentLocation, err)
 			c.Data["IsAnnexedFile"] = true
-			return buf, fmt.Errorf("[Cannot Decrypting data] File : %v", contentLocation)
+			return buf, fmt.Errorf("[Cannot Decrypting data] File : %v, Error Msg : %v", contentLocation, err)
 		}
 		//復号したデータをディレクトリに格納
 		afp, err := os.Open(filepath)

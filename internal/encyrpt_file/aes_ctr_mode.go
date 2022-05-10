@@ -86,12 +86,12 @@ func Decrypted(ipfsCid, password, filepath string) error {
 	log.Trace("[Decrypted()]open file: %v", filepath)
 	file, err := os.Create(filepath)
 	if err != nil {
-		return fmt.Errorf("[Cannot Open file : %v]", filepath)
+		return fmt.Errorf("[Cannot Open file : %v, Error Msg : %v]", filepath, err)
 	}
 	defer file.Close()
 	_, err = file.Write(decryptedText)
 	if err != nil {
-		return fmt.Errorf("[Cannot Write file : %v]", filepath)
+		return fmt.Errorf("[Cannot Write file : %v, Error Msg : %v]", filepath, err)
 	}
 	return nil
 }
