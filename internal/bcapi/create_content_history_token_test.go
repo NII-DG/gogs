@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/NII-DG/gogs/internal/conf"
-	"github.com/NII-DG/gogs/internal/db"
 	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/assert"
 )
@@ -19,8 +18,8 @@ func TestCreateContentHistory_正常系(t *testing.T) {
 		httpmock.NewStringResponder(200, "mocked"),
 	)
 
-	contentMap := map[string]db.AnnexUploadInfo{}
-	contentMap["dataset/test.txt"] = db.AnnexUploadInfo{FullContentHash: "", IpfsCid: "QmIKDHIJIFLF"}
+	contentMap := map[string]string{}
+	contentMap["dataset/test.txt"] = "QmIKDHIJIFLF"
 	err := CreateContentHistory("user01", contentMap)
 
 	assert.NoError(t, err)
@@ -37,8 +36,8 @@ func TestCreateContentHistory_異常系(t *testing.T) {
 		httpmock.NewStringResponder(2001, "mocked"),
 	)
 
-	contentMap := map[string]db.AnnexUploadInfo{}
-	contentMap["dataset/test.txt"] = db.AnnexUploadInfo{FullContentHash: "", IpfsCid: "QmIKDHIJIFLF"}
+	contentMap := map[string]string{}
+	contentMap["dataset/test.txt"] = "QmIKDHIJIFLF"
 	err := CreateContentHistory("user01", contentMap)
 
 	assert.Error(t, err)
