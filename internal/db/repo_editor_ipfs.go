@@ -468,11 +468,31 @@ func (repo *Repository) UpdateFilePrvToPub(opts UploadRepoOption) (map[string]An
 	} else {
 		log.Info("[Success enable remote(ipfs)] repoPath : %v", repoPath)
 	}
-	if msgWhereis, err := git.NewCommand("annex", "whereis", "--json").RunInDir(repoPath); err != nil {
+	//非公開データのAnnexキーを取得
+	msgWhereis, err := git.NewCommand("annex", "whereis", "--json").RunInDir(repoPath)
+	if err != nil {
 		log.Error("[git annex whereis Error] err : %v", err)
 	} else {
 		log.Trace("[msgWhereis] %s", string(msgWhereis))
 	}
+
+	var fileNmList []string
+	for _, v := range opts.BcContentInfoList {
+		fileNmList = append(fileNmList, v.File)
+	}
+	keyList, err := annex_ipfs.GetAnnexKeyListToPrvFileNmList(&msgWhereis, fileNmList)
+	if err != nil {
+		return nil, err
+	}
+	for _, key := range keyList {
+		log.Trace("Key %v", key)
+		cmd := git.NewCommand("annex", "copy", "--from", "ipfs", "--key", key)
+		if _, err := cmd.RunInDir(repoPath); err != nil {
+			return nil, fmt.Errorf("[Failure git annex copy to ipfs] err : %v ,fromPath : %v", err, repoPath)
+		}
+	}
+	//非公開データのハッシュ値をIPFSから取得
+
 	//ハッシュ値比較
 	// for _, v := range opts.BcContentInfoList {
 

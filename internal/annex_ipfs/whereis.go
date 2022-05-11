@@ -100,8 +100,23 @@ func isContainDatasetNm(fileNm string, datasetNm string) bool {
 	return strings.HasPrefix(fileNm, datasetNm)
 }
 
-func GetAnnexContentInfoList(rawJson *[]byte, datasetNmList []string) (map[string][]AnnexContentInfo, error) {
-	annexContentInfoMap := map[string][]AnnexContentInfo{}
+//git annex whereis (複数：JSON形式)をファイル名パス名と一致するAnnexキーを取得
+func GetAnnexKeyListToPrvFileNmList(rawJson *[]byte, fileNmList []string) ([]string, error) {
+	var keyList []string
+	dataList, err := resolveAnnexWhereisResponseList(rawJson)
+	if err != nil {
+		return nil, err
+	}
+	for _, fileNm := range fileNmList {
+		data := dataList[fileNm]
+		keyList = append(keyList, data.Key)
+	}
+	return keyList, nil
+}
+
+//git annex whereis (複数：JSON形式)をファイル名と各コンテンツ情報を紐づける
+func resolveAnnexWhereisResponseList(rawJson *[]byte) (map[string]AnnexWhereResponse, error) {
+	var fileNmMapToRes map[string]AnnexWhereResponse
 	reg := "\r\n|\n"
 	strJson := *(*string)(unsafe.Pointer(rawJson))            //[]byte to string
 	splitByline := regexp.MustCompile(reg).Split(strJson, -1) //改行分割
@@ -112,12 +127,8 @@ func GetAnnexContentInfoList(rawJson *[]byte, datasetNmList []string) (map[strin
 			if err := json.Unmarshal(byteJson, &data); err != nil {
 				return nil, err
 			}
-			for _, datasetNm := range datasetNmList {
-				if isContainDatasetNm(data.getFile(), datasetNm) {
-					annexContentInfoMap[datasetNm] = append(annexContentInfoMap[datasetNm], data.getAnnexContentInfo())
-				}
-			}
+			fileNmMapToRes[data.getFile()] = data
 		}
 	}
-	return annexContentInfoMap, nil
+	return fileNmMapToRes, nil
 }
