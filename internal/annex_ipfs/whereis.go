@@ -116,7 +116,7 @@ func GetAnnexKeyListToPrvFileNmList(rawJson *[]byte, fileNmList []string) ([]str
 
 //git annex whereis (複数：JSON形式)をファイル名と各コンテンツ情報を紐づける
 func resolveAnnexWhereisResponseList(rawJson *[]byte) (map[string]AnnexWhereResponse, error) {
-	var fileNmMapToRes map[string]AnnexWhereResponse
+	fileNmMapToRes := map[string]AnnexWhereResponse{}
 	reg := "\r\n|\n"
 	strJson := *(*string)(unsafe.Pointer(rawJson))            //[]byte to string
 	splitByline := regexp.MustCompile(reg).Split(strJson, -1) //改行分割

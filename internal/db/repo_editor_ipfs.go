@@ -472,8 +472,7 @@ func (repo *Repository) UpdateFilePrvToPub(opts UploadRepoOption) (map[string]An
 	msgWhereis, err := git.NewCommand("annex", "whereis", "--json").RunInDir(repoPath)
 	if err != nil {
 		log.Error("[git annex whereis Error] err : %v", err)
-	} else {
-		log.Trace("[msgWhereis] %s", string(msgWhereis))
+		return nil, fmt.Errorf("Cannot conduct <git annex whereis>. path : %v", repo)
 	}
 
 	var fileNmList []string
