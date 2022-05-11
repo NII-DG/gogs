@@ -44,6 +44,8 @@ func Settings(c *context.Context) {
 }
 
 func SettingsPost(c *context.Context, f form.RepoSetting) {
+	log.Trace("Updating Repository setttings")
+
 	c.Title("repo.settings")
 	c.PageIs("SettingsOptions")
 	c.RequireAutosize()
