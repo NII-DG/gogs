@@ -46,12 +46,15 @@ func Settings(c *context.Context) {
 
 func SettingsPost(c *context.Context, f form.RepoSetting) {
 	log.Trace("Updating Repository settings") //Alt 2022-5-11 By Tsukioka
+	log.Trace("Post IsPrivate : %v", c.Repo.Repository.IsPrivate)
+	log.Trace("New IsPrivate : %v", f.Private)
 
 	c.Title("repo.settings")
 	c.PageIs("SettingsOptions")
 	c.RequireAutosize()
 
 	repo := c.Repo.Repository
+	postIsPrivate := repo.IsPrivate
 
 	switch c.Query("action") {
 	case "update":
@@ -112,10 +115,9 @@ func SettingsPost(c *context.Context, f form.RepoSetting) {
 
 		//レポジトリが非公開から公開に更新された場合、非公開データの公開処理を行う。 Alt 2022-5-11 By Tsukioka
 		var contentMap map[string]db.AnnexUploadInfo
-		log.Trace("Post IsPrivate : %v", c.Repo.Repository.IsPrivate)
-		log.Trace("New IsPrivate : %v", f.Private)
+
 		log.Trace("IsUpdate : %v", (repo.IsPrivate && !f.Private))
-		if repo.IsPrivate && !f.Private { //レポジトリ設定　非公開から公開へ更新
+		if postIsPrivate && !repo.IsPrivate { //レポジトリ設定　非公開から公開へ更新
 			var err error
 			pContentMap := &contentMap
 			*pContentMap, err = repo.UpdateDataPrvToPub(db.UploadRepoOption{Branch: c.Repo.BranchName})
