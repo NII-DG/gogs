@@ -431,7 +431,7 @@ type UploadRepoOption struct {
 	LastCommitID  string
 	Branch        string
 	TreePath      string
-	UpperRopoPath string //RepoOwnerNm / RepoNm / branchNm
+	UpperRopoPath string //RepoOwnerNm / RepoNm
 }
 
 //非公開データを公開データして、IPFSへのアップロードをし、コンテンツ情報を返す。
@@ -456,7 +456,8 @@ func (repo *Repository) UpdateDataPrvToPub(opts UploadRepoOption) (map[string]An
 	// 	return nil, fmt.Errorf("update local copy branch[%s]: %v", opts.Branch, err)
 	// }
 
-	log.Trace("repo.LocalCopyPath()[%v]", repo.LocalCopyPath())
+	log.Trace("repo.LocalCopyPath()[%v]", repo.LocalCopyPath()) ///home/gogs/gogs/data/tmp/local-repo/71
+	log.Trace("opts.UpperRopoPath : %v", opts.UpperRopoPath)
 
 	//BCからコンテンツ情報を取得する。
 

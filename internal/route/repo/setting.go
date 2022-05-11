@@ -45,15 +45,15 @@ func Settings(c *context.Context) {
 }
 
 func SettingsPost(c *context.Context, f form.RepoSetting) {
-	log.Trace("Updating Repository settings") //Alt 2022-5-11 By Tsukioka
-	log.Trace("Post IsPrivate : %v", c.Repo.Repository.IsPrivate)
-	log.Trace("New IsPrivate : %v", f.Private)
-
 	c.Title("repo.settings")
 	c.PageIs("SettingsOptions")
 	c.RequireAutosize()
 
 	repo := c.Repo.Repository
+
+	//Alt 2022-5-11 By Tsukioka
+	ownerRepoNm := fmt.Sprintf("/%v/%v", c.Repo.Owner.Name, repo.Name) // /OwnerNm/RepoNm
+	log.Trace("Updating Repository[%v] settings", ownerRepoNm)
 	postIsPrivate := repo.IsPrivate
 
 	switch c.Query("action") {
@@ -120,7 +120,8 @@ func SettingsPost(c *context.Context, f form.RepoSetting) {
 		if postIsPrivate && !repo.IsPrivate { //レポジトリ設定　非公開から公開へ更新
 			var err error
 			pContentMap := &contentMap
-			*pContentMap, err = repo.UpdateDataPrvToPub(db.UploadRepoOption{Branch: c.Repo.BranchName})
+			*pContentMap, err = repo.UpdateDataPrvToPub(db.UploadRepoOption{Branch: c.Repo.BranchName,
+				UpperRopoPath: ownerRepoNm})
 			if err != nil {
 				log.Error("Failure Update Private Data To Public Data. Error Massage : %v", err)
 				c.RenderWithErr(c.Tr("非公開データの公開処理が失敗しました。"), SETTINGS_OPTIONS, &f)
