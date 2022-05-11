@@ -426,3 +426,45 @@ func CheckWithFileInFolder(folderPath string) (bool, string) {
 	}
 	return true, ""
 }
+
+type UploadRepoOption struct {
+	LastCommitID  string
+	Branch        string
+	TreePath      string
+	UpperRopoPath string //RepoOwnerNm / RepoNm / branchNm
+}
+
+//非公開データを公開データして、IPFSへのアップロードをし、コンテンツ情報を返す。
+//
+//@param　doer *User
+//
+//@param
+//
+//@param
+//
+//@param
+//
+//@param
+func (repo *Repository) UpdateDataPrvToPub(opts UploadRepoOption) (map[string]AnnexUploadInfo, error) {
+	//リモートレポジトリをクローンする。
+	// repoWorkingPool.CheckIn(com.ToStr(repo.ID))
+	// defer repoWorkingPool.CheckOut(com.ToStr(repo.ID))
+
+	// if err := repo.DiscardLocalRepoBranchChanges(opts.Branch); err != nil {
+	// 	return nil, fmt.Errorf("discard local repo branch[%s] changes: %v", opts.Branch, err)
+	// } else if err := repo.UpdateLocalCopyBranch(opts.Branch); err != nil {
+	// 	return nil, fmt.Errorf("update local copy branch[%s]: %v", opts.Branch, err)
+	// }
+
+	log.Trace("repo.LocalCopyPath()[%v]", repo.LocalCopyPath())
+
+	//BCからコンテンツ情報を取得する。
+
+	//非公開データ情報の選別
+
+	//ハッシュ値比較
+
+	//
+
+	return nil, nil
+}

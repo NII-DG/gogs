@@ -14,6 +14,7 @@ import (
 	"github.com/unknwon/com"
 	log "unknwon.dev/clog/v2"
 
+	//"github.com/NII-DG/gogs/internal/bcapi"
 	"github.com/NII-DG/gogs/internal/conf"
 	"github.com/NII-DG/gogs/internal/context"
 	"github.com/NII-DG/gogs/internal/db"
@@ -56,6 +57,7 @@ func SettingsPost(c *context.Context, f form.RepoSetting) {
 
 	switch c.Query("action") {
 	case "update":
+		//レポジトリ設定更新処理ケース
 		if c.HasError() {
 			c.Success(SETTINGS_OPTIONS)
 			return
@@ -109,6 +111,26 @@ func SettingsPost(c *context.Context, f form.RepoSetting) {
 				log.Error("RenameRepoAction: %v", err)
 			}
 		}
+
+		//レポジトリが非公開から公開に更新された場合、非公開データの公開処理を行う。 Alt 2022-5-11 By Tsukioka
+		var contentMap map[string]db.AnnexUploadInfo
+		if repo.IsPrivate && !f.Private { //レポジトリ設定　非公開から公開へ更新
+			var err error
+			pContentMap := &contentMap
+			*pContentMap, err = repo.UpdateDataPrvToPub(db.UploadRepoOption{Branch: c.Repo.BranchName})
+			if err != nil {
+				log.Error("Failure Update Private Data To Public Data. Error Massage : %v", err)
+				c.RenderWithErr(c.Tr("非公開データの公開処理が失敗しました。"), SETTINGS_OPTIONS, &f)
+			}
+		}
+		for k, v := range contentMap {
+			log.Trace("PrvToPub contentMap. location[%v], hash[%v], address[%v]", k, v.FullContentHash, v.IpfsCid)
+		}
+		//BCにコンテンツ情報を登録する。
+		// if err := bcapi.CreateContentHistory(c.User.Name, contentMap); err != nil {
+		// 	log.Error("Failure Update Private Data To Public Data. Error Massage : %v", err)
+		// 	c.RenderWithErr(c.Tr("ブロックチェーンへの登録中にエラーが発生し、失敗しました"), SETTINGS_OPTIONS, &f)
+		// }
 
 		c.Flash.Success(c.Tr("repo.settings.update_settings_success"))
 		c.Redirect(repo.Link() + "/settings")
