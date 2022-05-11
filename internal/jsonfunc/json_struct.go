@@ -1,4 +1,4 @@
-package json_struct
+package jsonfunc
 
 import "time"
 
