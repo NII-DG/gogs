@@ -445,7 +445,7 @@ type UploadRepoOption struct {
 //@param
 //
 //@param
-func (repo *Repository) UpdateDataPrvToPub(opts UploadRepoOption) (map[string]AnnexUploadInfo, error) {
+func (repo *Repository) UpdateDataPrvToPub(UserCode string, opts UploadRepoOption) (map[string]AnnexUploadInfo, error) {
 	//リモートレポジトリをクローンする。
 	// repoWorkingPool.CheckIn(com.ToStr(repo.ID))
 	// defer repoWorkingPool.CheckOut(com.ToStr(repo.ID))
@@ -457,11 +457,7 @@ func (repo *Repository) UpdateDataPrvToPub(opts UploadRepoOption) (map[string]An
 	// }
 
 	log.Trace("repo.LocalCopyPath()[%v]", repo.LocalCopyPath()) ///home/gogs/gogs/data/tmp/local-repo/71
-	log.Trace("opts.UpperRopoPath : %v", opts.UpperRopoPath)
-
-	//BCからコンテンツ情報を取得する。
-
-	//非公開データ情報の選別
+	log.Trace("opts.UpperRopoPath : %v", opts.UpperRopoPath)    // /OwnerNm/RepoNm
 
 	//ハッシュ値比較
 
