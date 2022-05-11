@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/NII-DG/gogs/internal/conf"
+	"github.com/NII-DG/gogs/internal/jsonfunc"
 	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/assert"
 )
@@ -16,7 +17,7 @@ func TestGetContentByFolder_ok(t *testing.T) {
 	URL := conf.BcApiServer.ServerURL + API_URL_GET_CONTENT_BY_FOLDER
 
 	now := time.Now()
-	resBody := ResContentsInFolder{}
+	resBody := jsonfunc.ResContentsInFolder{}
 	resBody.ContentsInFolder = append(resBody.ContentsInFolder, struct {
 		UserCode        string    "json:\"user_code\""
 		ContentLocation string    "json:\"content_location\""

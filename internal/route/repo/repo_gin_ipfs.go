@@ -30,7 +30,7 @@ func resolveAnnexedContentFromIPFS(c *context.Context, buf []byte, contentLocati
 	}
 	repoPath := c.Repo.Repository.RepoPath()
 
-	//ベアレポジトリをIPFSへ連携
+	//ベアレポジトリをIPFSへ連携有効化
 	if _, err := git.NewCommand("annex", "enableremote", "ipfs").RunInDir(repoPath); err != nil {
 		log.Error("[Failure enable remote(ipfs)] err : %v, repoPath : %v", err, repoPath)
 	} else {

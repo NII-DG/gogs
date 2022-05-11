@@ -12,6 +12,7 @@ import (
 	"github.com/NII-DG/gogs/internal/form"
 	"github.com/NII-DG/gogs/internal/gitutil"
 	"github.com/NII-DG/gogs/internal/ipfs"
+	"github.com/NII-DG/gogs/internal/jsonfunc"
 	"github.com/NII-DG/gogs/internal/route/dataset"
 	logv2 "unknwon.dev/clog/v2"
 )
@@ -220,7 +221,7 @@ func CreateDataset(c *context.Context, f form.DatasetFrom) {
 	c.Success(HOME)
 }
 
-func isContainDatasetFileInBC(datasetData db.DatasetInfo, bcContentList bcapi.ResContentsInFolder) bool {
+func isContainDatasetFileInBC(datasetData db.DatasetInfo, bcContentList jsonfunc.ResContentsInFolder) bool {
 	for _, inputData := range datasetData.InputList {
 		if !isContainFileInBc(inputData, bcContentList) {
 			return false
@@ -239,7 +240,7 @@ func isContainDatasetFileInBC(datasetData db.DatasetInfo, bcContentList bcapi.Re
 	return true
 }
 
-func isContainFileInBc(contentData db.ContentInfo, bcContentList bcapi.ResContentsInFolder) bool {
+func isContainFileInBc(contentData db.ContentInfo, bcContentList jsonfunc.ResContentsInFolder) bool {
 	for _, bcContent := range bcContentList.ContentsInFolder {
 		if contentData.File == bcContent.ContentLocation && contentData.Address == bcContent.IpfsCid {
 			return true

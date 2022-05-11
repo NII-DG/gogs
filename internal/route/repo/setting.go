@@ -116,7 +116,7 @@ func SettingsPost(c *context.Context, f form.RepoSetting) {
 		//レポジトリが非公開から公開に更新された場合、非公開データの公開処理を行う。 Alt 2022-5-11 By Tsukioka
 		log.Trace("IsUpdate : %v", (postIsPrivate && !repo.IsPrivate))
 		if postIsPrivate && !repo.IsPrivate { //レポジトリ設定　非公開から公開へ更新
-			UpdateDataPrvToPub(c, f)
+			UpdateDataPrvToPub(c)
 		}
 		c.Flash.Success(c.Tr("repo.settings.update_settings_success"))
 		c.Redirect(repo.Link() + "/settings")

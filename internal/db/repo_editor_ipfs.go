@@ -267,8 +267,9 @@ type DatasetInfo struct {
 }
 
 type ContentInfo struct {
-	File    string //ex : datasetNm/Folder/...../File
-	Address string
+	File            string //ex : datasetNm/Folder/...../File
+	FullContentHash string
+	Address         string
 }
 
 // @value input
@@ -342,11 +343,11 @@ func (repo *Repository) GetContentAddress(datasetNmList []string, repoBranchNm s
 			filePath := content.File                      // ex datasetNm/FolderNm/...../FileNm
 			fullFilePath := repoBranchNm + "/" + filePath // ex RepoOwnerNm/RepoNm/BranchNm/datasetNm/FolderNm/...../FileNm
 			if strings.HasPrefix(filePath, inputPath) {
-				datasetInfo.InputList = append(datasetInfo.InputList, ContentInfo{fullFilePath, content.Hash})
+				datasetInfo.InputList = append(datasetInfo.InputList, ContentInfo{File: fullFilePath, Address: content.Hash})
 			} else if strings.HasPrefix(filePath, srcPath) {
-				datasetInfo.SrcList = append(datasetInfo.SrcList, ContentInfo{fullFilePath, content.Hash})
+				datasetInfo.SrcList = append(datasetInfo.SrcList, ContentInfo{File: fullFilePath, Address: content.Hash})
 			} else if strings.HasPrefix(filePath, OutputPath) {
-				datasetInfo.OutputList = append(datasetInfo.OutputList, ContentInfo{fullFilePath, content.Hash})
+				datasetInfo.OutputList = append(datasetInfo.OutputList, ContentInfo{File: fullFilePath, Address: content.Hash})
 			}
 		}
 		datasetPath := repoBranchNm + "/" + datasetNm
@@ -428,16 +429,15 @@ func CheckWithFileInFolder(folderPath string) (bool, string) {
 }
 
 type UploadRepoOption struct {
-	LastCommitID  string
-	Branch        string
-	TreePath      string
-	UpperRopoPath string //RepoOwnerNm / RepoNm
+	LastCommitID      string
+	Branch            string
+	TreePath          string
+	UpperRopoPath     string //RepoOwnerNm / RepoNm
+	BcContentInfoList []ContentInfo
 }
 
 //非公開データを公開データして、IPFSへのアップロードをし、コンテンツ情報を返す。
 //
-//@param　doer *User
-//
 //@param
 //
 //@param
@@ -445,21 +445,38 @@ type UploadRepoOption struct {
 //@param
 //
 //@param
-func (repo *Repository) UpdateDataPrvToPub(UserCode string, opts UploadRepoOption) (map[string]AnnexUploadInfo, error) {
-	//リモートレポジトリをクローンする。
-	// repoWorkingPool.CheckIn(com.ToStr(repo.ID))
-	// defer repoWorkingPool.CheckOut(com.ToStr(repo.ID))
+//
+//@param
+func (repo *Repository) UpdateFilePrvToPub(opts UploadRepoOption) (map[string]AnnexUploadInfo, error) {
 
-	// if err := repo.DiscardLocalRepoBranchChanges(opts.Branch); err != nil {
-	// 	return nil, fmt.Errorf("discard local repo branch[%s] changes: %v", opts.Branch, err)
-	// } else if err := repo.UpdateLocalCopyBranch(opts.Branch); err != nil {
-	// 	return nil, fmt.Errorf("update local copy branch[%s]: %v", opts.Branch, err)
-	// }
+	//リモートレポジトリをクローンする。
+	repoWorkingPool.CheckIn(com.ToStr(repo.ID))
+	defer repoWorkingPool.CheckOut(com.ToStr(repo.ID))
+
+	if err := repo.DiscardLocalRepoBranchChanges(opts.Branch); err != nil {
+		return nil, fmt.Errorf("discard local repo branch[%s] changes: %v", opts.Branch, err)
+	} else if err := repo.UpdateLocalCopyBranch(opts.Branch); err != nil {
+		return nil, fmt.Errorf("update local copy branch[%s]: %v", opts.Branch, err)
+	}
 
 	log.Trace("repo.LocalCopyPath()[%v]", repo.LocalCopyPath()) ///home/gogs/gogs/data/tmp/local-repo/71
 	log.Trace("opts.UpperRopoPath : %v", opts.UpperRopoPath)    // /OwnerNm/RepoNm
-
+	repoPath := repo.LocalCopyPath()
+	//レポジトリをIPFSへ連携有効化
+	if _, err := git.NewCommand("annex", "enableremote", "ipfs").RunInDir(repoPath); err != nil {
+		log.Error("[Failure enable remote(ipfs)] err : %v, repoPath : %v", err, repoPath)
+	} else {
+		log.Info("[Success enable remote(ipfs)] repoPath : %v", repoPath)
+	}
+	if msgWhereis, err := git.NewCommand("annex", "whereis", "--json").RunInDir(repoPath); err != nil {
+		log.Error("[git annex whereis Error] err : %v", err)
+	} else {
+		log.Trace("[msgWhereis] %s", string(msgWhereis))
+	}
 	//ハッシュ値比較
+	// for _, v := range opts.BcContentInfoList {
+
+	// }
 
 	//
 

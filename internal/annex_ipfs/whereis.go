@@ -99,3 +99,25 @@ func isContainDatasetNm(fileNm string, datasetNm string) bool {
 	//FileNm(datasetフォルダーからのパス[datasetNm/folder/..../file])の左に指定データセット名があること
 	return strings.HasPrefix(fileNm, datasetNm)
 }
+
+func GetAnnexContentInfoList(rawJson *[]byte, datasetNmList []string) (map[string][]AnnexContentInfo, error) {
+	annexContentInfoMap := map[string][]AnnexContentInfo{}
+	reg := "\r\n|\n"
+	strJson := *(*string)(unsafe.Pointer(rawJson))            //[]byte to string
+	splitByline := regexp.MustCompile(reg).Split(strJson, -1) //改行分割
+	for _, unitData := range splitByline {
+		if jsonfunc.IsJSONString(unitData) {
+			byteJson := []byte(unitData)
+			var data AnnexWhereResponse
+			if err := json.Unmarshal(byteJson, &data); err != nil {
+				return nil, err
+			}
+			for _, datasetNm := range datasetNmList {
+				if isContainDatasetNm(data.getFile(), datasetNm) {
+					annexContentInfoMap[datasetNm] = append(annexContentInfoMap[datasetNm], data.getAnnexContentInfo())
+				}
+			}
+		}
+	}
+	return annexContentInfoMap, nil
+}
