@@ -44,7 +44,9 @@ func Settings(c *context.Context) {
 }
 
 func SettingsPost(c *context.Context, f form.RepoSetting) {
-	log.Trace("Updating Repository setttings")
+	log.Trace("Updating Repository setttings") //Alt 2022-5-11 By Tsukioka
+	log.Trace("Post Pub/Prv : %v", c.Repo.Repository.IsPrivate)
+	log.Trace("New Pub/Prv : %v", f.Private)
 
 	c.Title("repo.settings")
 	c.PageIs("SettingsOptions")
