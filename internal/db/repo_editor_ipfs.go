@@ -470,8 +470,13 @@ func (repo *Repository) UpdateFilePrvToPub(opts UploadRepoOption) (map[string]An
 	} else {
 		strMsg := *(*string)(unsafe.Pointer(&msg)) //[]byte to string
 		reg := "\r\n|\n"
-		arr1 := regexp.MustCompile(reg).Split(strMsg, -1) //改行分割
-		branchList = arr1
+		list := regexp.MustCompile(reg).Split(strMsg, -1) //改行分割
+		for _, unit := range list {
+			if !strings.Contains(unit, "synced/") {
+				unit = strings.TrimSpace(unit)
+				branchList = append(branchList, strings.Trim(unit, "*"))
+			}
+		}
 	}
 	for _, v := range branchList {
 		log.Trace("branchList : %v", v)
