@@ -11,6 +11,7 @@ import (
 
 //
 func UpdateDataPrvToPub(c *context.Context, f form.RepoSetting) {
+	c.RenderWithErr(c.Tr("ブロックチェーンへの登録中にエラーが発生し、失敗しました"), SETTINGS_OPTIONS, &f)
 	repo := c.Repo.Repository
 	ownerRepoNm := fmt.Sprintf("/%v/%v", c.Repo.Owner.Name, repo.Name) // /OwnerNm/RepoNm
 	//BCからコンテンツ情報を取得
