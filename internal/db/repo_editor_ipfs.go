@@ -5,7 +5,9 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"regexp"
 	"strings"
+	"unsafe"
 
 	"github.com/unknwon/com"
 
@@ -458,16 +460,33 @@ func (repo *Repository) UpdateFilePrvToPub(opts UploadRepoOption) (map[string]An
 	} else if err := repo.UpdateLocalCopyBranch(opts.Branch); err != nil {
 		return nil, fmt.Errorf("update local copy branch[%s]: %v", opts.Branch, err)
 	}
+	repoPath := repo.LocalCopyPath()
+
+	//付随ブランチ名取得
+	branchList := []string{}
+	msg, err := git.NewCommand("branch").RunInDir(repoPath)
+	if err != nil {
+		log.Error("[Failure enable remote(ipfs)] err : %v, repoPath : %v", err, repoPath)
+	} else {
+		strMsg := *(*string)(unsafe.Pointer(&msg)) //[]byte to string
+		reg := "\r\n|\n"
+		arr1 := regexp.MustCompile(reg).Split(strMsg, -1) //改行分割
+		branchList = arr1
+	}
+	for _, v := range branchList {
+		log.Trace("branchList : %v", v)
+	}
 
 	log.Trace("repo.LocalCopyPath()[%v]", repo.LocalCopyPath()) ///home/gogs/gogs/data/tmp/local-repo/71
 	log.Trace("opts.UpperRopoPath : %v", opts.UpperRopoPath)    // /OwnerNm/RepoNm
-	repoPath := repo.LocalCopyPath()
+
 	//レポジトリをIPFSへ連携有効化
 	if _, err := git.NewCommand("annex", "enableremote", "ipfs").RunInDir(repoPath); err != nil {
 		log.Error("[Failure enable remote(ipfs)] err : %v, repoPath : %v", err, repoPath)
 	} else {
 		log.Info("[Success enable remote(ipfs)] repoPath : %v", repoPath)
 	}
+
 	//非公開データのAnnexキーを取得
 	msgWhereis, err := git.NewCommand("annex", "whereis", "--json").RunInDir(repoPath)
 	if err != nil {
