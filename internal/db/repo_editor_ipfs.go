@@ -485,19 +485,13 @@ func (repo *Repository) UpdateFilePrvToPub(opts UploadRepoOption) (map[string]An
 	if err != nil {
 		return nil, err
 	}
-	for i, v := range keyList {
-		log.Trace("[%v] %v", i, v)
-	}
 
+	//非公開データのハッシュ値をIPFSからローカルレポジトリにコピー
 	for _, key := range keyList {
-		log.Trace("Key %v", key)
-		cmd := git.NewCommand("annex", "copy", "--from", "ipfs", "--key", key)
-		if _, err := cmd.RunInDir(repoPath); err != nil {
+		if err := annex_ipfs.CopyByKey("ipfs", key, repoPath); err != nil {
 			return nil, fmt.Errorf("[Failure git annex copy to ipfs] err : %v ,fromPath : %v", err, repoPath)
 		}
 	}
-	//非公開データのハッシュ値をIPFSから取得
-
 	//ハッシュ値比較
 	// for _, v := range opts.BcContentInfoList {
 
