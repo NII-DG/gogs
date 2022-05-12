@@ -474,8 +474,8 @@ func (repo *Repository) UpdateFilePrvToPub(opts UploadRepoOption) (map[string]An
 		for _, unit := range list {
 			log.Trace("branchNm : %v", unit)
 			if !strings.Contains(unit, "synced/") {
-				unit = strings.Trim(unit, " ")
-				unit = strings.Trim(unit, "*")
+				unit = strings.Replace(unit, " ", "", -1)
+				unit = strings.Replace(unit, "*", "", -1)
 				if len(unit) > 0 {
 					branchList = append(branchList, unit)
 				}
