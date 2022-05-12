@@ -532,7 +532,7 @@ func (repo *Repository) UpdateFilePrvToPub(opts UploadRepoOption) (map[string]An
 		}
 		log.Trace("[GIT-A ADD Responso] KEY[%v], File[%v],", res.Key, res.File)
 		//実データのIPFSへアップロード
-		if err := annex_ipfs.CopyToByKey(remote, repoPath, res.Key); err != nil {
+		if err := annex_ipfs.CopyToByKey(remote, res.Key, repoPath); err != nil {
 			return nil, err
 		}
 
