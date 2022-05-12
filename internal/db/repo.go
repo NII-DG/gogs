@@ -651,6 +651,11 @@ func (repo *Repository) UpdateLocalCopyBranch(branch string) error {
 	return UpdateLocalCopyBranch(repo.RepoPath(), repo.LocalCopyPath(), branch, false)
 }
 
+// UpdateLocalCopyBranch makes sure local copy of repository in given branch is up-to-date.
+func (repo *Repository) AltUpdateLocalCopyBranch(branch string) error {
+	return UpdateLocalCopyBranch(repo.RepoPath(), repo.LocalCopyPath(), branch, true)
+}
+
 //リモートレポジトリのローカルコピーを作成
 func (repo *Repository) LocalCopyBranch(branch string) error {
 	return UpdateLocalCopyBranch(repo.RepoPath(), repo.LocalCopyPath(), branch, false)

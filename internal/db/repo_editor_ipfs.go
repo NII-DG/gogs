@@ -457,7 +457,7 @@ func (repo *Repository) UpdateFilePrvToPub(opts UploadRepoOption) (map[string]An
 
 	if err := repo.DiscardLocalRepoBranchChanges(opts.Branch); err != nil {
 		return nil, fmt.Errorf("discard local repo branch[%s] changes: %v", opts.Branch, err)
-	} else if err := repo.UpdateLocalCopyBranch(opts.Branch); err != nil {
+	} else if err := repo.AltUpdateLocalCopyBranch(opts.Branch); err != nil {
 		return nil, fmt.Errorf("update local copy branch[%s]: %v", opts.Branch, err)
 	}
 	repoPath := repo.LocalCopyPath()
