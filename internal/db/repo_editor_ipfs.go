@@ -530,17 +530,20 @@ func (repo *Repository) UpdateFilePrvToPub(opts UploadRepoOption) (map[string]An
 		if err != nil {
 			return nil, err
 		}
+		log.Trace("[GIT-A ADD Responso] KEY[%v], File[%v],", res.Key, res.File)
 		//コンテンツ情報の取得
 		content, err := annex_ipfs.WhereisByKey(repoPath, res.Key)
 		if err != nil {
 			return nil, err
 		}
+		log.Trace("[GIT-A ADD Responso] KEY[%v], File[%v], Hash[%v]", content.Key, content.File, content.Hash)
 		contentLocation := filepath.Join(orbNm, content.File)
 		contentMap[contentLocation] = AnnexUploadInfo{
 			FullContentHash: "",
 			IpfsCid:         content.Hash,
 		}
 	}
+
 	//IPFSへアップロードしたコンテンツロケーションを表示
 	index := 1
 	for k := range contentMap {
