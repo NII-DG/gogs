@@ -8,10 +8,6 @@ import (
 	"path/filepath"
 	"strings"
 
-<<<<<<< HEAD
-	util "github.com/NII-DG/gogs/internal/util"
-=======
->>>>>>> parent of b07d5ab7a (byte変換)
 	"github.com/unknwon/com"
 
 	"github.com/gogs/git-module"
@@ -512,15 +508,6 @@ func (repo *Repository) UpdateFilePrvToPub(opts UploadRepoOption) (map[string]An
 			return nil, fmt.Errorf("[Failure Opening And Reading File] err : %v, Path : %v", err, tmpPath)
 		}
 		log.Trace("Hash[%v] from local Repo<%v>", string(bytes), tmpPath)
-<<<<<<< HEAD
-		localHash := util.BytesToString(bytes)
-		log.Trace("localHash != bcContentInfo.FullContentHash %v", localHash != bcContentInfo.FullContentHash)
-		if localHash != bcContentInfo.FullContentHash {
-			return nil, fmt.Errorf("[Not Match Full Content Hash] Path : %v, local[%v] vs BC[%v]", tmpPath, localHash, bcContentInfo.FullContentHash)
-		}
-=======
-
->>>>>>> parent of b07d5ab7a (byte変換)
 	}
 
 	return nil, nil
