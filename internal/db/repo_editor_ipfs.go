@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/go-redis/redis/v8/internal/util"
 	"github.com/unknwon/com"
 
 	"github.com/gogs/git-module"
@@ -498,9 +499,9 @@ func (repo *Repository) UpdateFilePrvToPub(opts UploadRepoOption) (map[string]An
 
 	//ハッシュ値比較
 	orbNmlength := len(orbNm)
-	for _, v := range opts.BcContentInfoList {
+	for _, bcContentInfo := range opts.BcContentInfoList {
 		//ローカルファイルからハッシュ値を取得
-		filePath := v.File[orbNmlength:]
+		filePath := bcContentInfo.File[orbNmlength:]
 		tmpPath := filepath.Join(repoPath, filePath)
 		log.Trace("temPath: %v", tmpPath)
 		bytes, err := ioutil.ReadFile(tmpPath)
@@ -508,6 +509,7 @@ func (repo *Repository) UpdateFilePrvToPub(opts UploadRepoOption) (map[string]An
 			return nil, fmt.Errorf("[Failure Opening And Reading File] err : %v, Path : %v", err, tmpPath)
 		}
 		log.Trace("Hash[%v] from local Repo<%v>", string(bytes), tmpPath)
+		localHash := util.BytesToString(bytes)
 
 	}
 
