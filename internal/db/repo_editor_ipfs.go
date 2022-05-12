@@ -536,7 +536,7 @@ func (repo *Repository) UpdateFilePrvToPub(opts UploadRepoOption) (map[string]An
 		if err != nil {
 			return nil, err
 		}
-		log.Trace("[GIT-A ADD Responso] KEY[%v], File[%v], Hash[%v]", content.Key, content.File, content.Hash)
+		log.Trace("[GIT-A WHEREIS Responso] KEY[%v], File[%v], Hash[%v]", content.Key, content.File, content.Hash)
 		contentLocation := filepath.Join(orbNm, content.File)
 		contentMap[contentLocation] = AnnexUploadInfo{
 			FullContentHash: "",

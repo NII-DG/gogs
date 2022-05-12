@@ -10,6 +10,7 @@ import (
 
 	"github.com/NII-DG/gogs/internal/jsonfunc"
 	"github.com/gogs/git-module"
+	log "unknwon.dev/clog/v2"
 	//log "unknwon.dev/clog/v2"
 )
 
@@ -154,6 +155,7 @@ func WhereisByKey(repoPath, key string) (AnnexContentInfo, error) {
 	if err != nil {
 		return AnnexContentInfo{}, fmt.Errorf("Failure git annex whereis by key[%v]", key)
 	}
+	log.Trace("[GIT-A WHEREIS Msg] %v", string(msg))
 	return GetAnnexContentInfo(&msg)
 
 }
