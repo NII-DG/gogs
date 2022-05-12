@@ -496,6 +496,9 @@ func (repo *Repository) UpdateFilePrvToPub(opts UploadRepoOption) (map[string]An
 	//ハッシュ値比較
 	for _, v := range opts.BcContentInfoList {
 		//ローカルファイルからハッシュ値を取得
+		filePath := v.File
+		index := len(opts.UpperRopoPath)
+		filePath = filePath[index:]
 		tmpPath := filepath.Join(repoPath, v.File)
 		log.Trace("temPath: %v", tmpPath)
 		bytes, err := ioutil.ReadFile(tmpPath)
