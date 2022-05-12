@@ -41,6 +41,9 @@ func UpdateDataPrvToPub(c *context.Context) {
 		log.Error("Failure Getting ContentInfo From BC In %v(%v). Error Massage : %v", ownerRepoNm, repo.LocalCopyPath(), err)
 		c.RenderWithErr(c.Tr("レポジトリファイルの公開化に失敗しました"), SETTINGS_OPTIONS, nil)
 	}
+	for k, v := range contentMap {
+		log.Trace("location[%v], hash[%v], address[%v]", k, v.FullContentHash, v.IpfsCid)
+	}
 	//BCにコンテンツ情報を登録する。
 	if err := bcapi.CreateContentHistory(c.User.Name, contentMap); err != nil {
 		log.Error("Failure Applying for Registering ContentHistory To BC In %v. Error Massage : %v", ownerRepoNm, err)
