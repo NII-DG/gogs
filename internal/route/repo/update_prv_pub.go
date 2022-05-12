@@ -30,6 +30,9 @@ func UpdateDataPrvToPub(c *context.Context) {
 				Address:         v.IpfsCid})
 		}
 	}
+	for _, v := range bcContentInfoList {
+		log.Trace("location[%v], hash[%v], address[%v]", v.File, v.FullContentHash, v.Address)
+	}
 
 	//非公開データを公開データして、IPFSへのアップロードする。
 	contentMap, err := repo.UpdateFilePrvToPub(db.UploadRepoOption{
