@@ -13,7 +13,7 @@ import (
 	"github.com/gogs/git-module"
 
 	"github.com/NII-DG/gogs/internal/annex_ipfs"
-	encyrptfile "github.com/NII-DG/gogs/internal/encyrpt_file"
+	encyrptfile "github.com/NII-DG/gogs/internal/ipfs/encyrpt_file"
 	"github.com/NII-DG/gogs/internal/osutil"
 	"github.com/NII-DG/gogs/internal/util"
 
@@ -498,6 +498,7 @@ func (repo *Repository) UpdateFilePrvToPub(opts UploadRepoOption) (map[string]An
 	}
 
 	//ハッシュ値比較
+	//一つでも一致しない場合はエラーを送出
 	orbNmlength := len(orbNm)
 	for _, bcContentInfo := range opts.BcContentInfoList {
 		//ローカルファイルからハッシュ値を取得
@@ -510,10 +511,24 @@ func (repo *Repository) UpdateFilePrvToPub(opts UploadRepoOption) (map[string]An
 		}
 		log.Trace("Hash[%v] from local Repo<%v>", string(bytes), tmpPath)
 		localHash := util.BytesToString(bytes)
-		log.Trace("localHash != bcContentInfo.FullContentHash %v", localHash != bcContentInfo.FullContentHash)
 		if localHash != bcContentInfo.FullContentHash {
 			return nil, fmt.Errorf("[Not Match Full Content Hash] Path : %v, local[%v] vs BC[%v]", tmpPath, localHash, bcContentInfo.FullContentHash)
 		}
+	}
+
+	//暗号データを復号して、実データIPFSにアップロード
+	for _, bcContentInfo := range opts.BcContentInfoList {
+		//対象ファイルを編集可能状態にする
+		filePath := bcContentInfo.File[orbNmlength:]
+		if err := annex_ipfs.EditByFilePath(filePath, repoPath); err != nil {
+			return nil, err
+		}
+		//暗号データをIPFSから直接取得する。
+		//レポジトリに紐づく共通鍵を用いでデータを復号し、ローカルレポジトリに格納する。
+		if err := encyrptfile.Decrypted(bcContentInfo.Address, repo.Password, filepath.Join(repoPath, filePath)); err != nil {
+			return nil, err
+		}
+
 	}
 
 	return nil, nil

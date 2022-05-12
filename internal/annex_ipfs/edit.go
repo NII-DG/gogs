@@ -12,7 +12,7 @@ import (
 //@param filePath string 編集可能ファイルのパス
 //
 //@param repoPath string　実行レポジトリパス
-func editByFilePath(filePath, repoPath string) error {
+func EditByFilePath(filePath, repoPath string) error {
 	log.Trace("Conducting <git annex edit %v> In %v", filePath, repoPath)
 	cmd := git.NewCommand("annex", "edit", filePath)
 	if _, err := cmd.RunInDir(repoPath); err != nil {
@@ -26,7 +26,7 @@ func editByFilePath(filePath, repoPath string) error {
 //@param filePath string 編集可能ファイルのパス
 //
 //@param repoPath string　実行レポジトリパス
-func editAll(filePath, repoPath string) error {
+func EditAll(filePath, repoPath string) error {
 	log.Trace("Conducting <git annex edit .> In %v", repoPath)
 	cmd := git.NewCommand("annex", "edit", ".")
 	if _, err := cmd.RunInDir(repoPath); err != nil {

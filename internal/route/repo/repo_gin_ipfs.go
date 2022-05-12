@@ -13,7 +13,7 @@ import (
 
 	"github.com/NII-DG/gogs/internal/bcapi"
 	"github.com/NII-DG/gogs/internal/context"
-	encyrptfile "github.com/NII-DG/gogs/internal/encyrpt_file"
+	encyrptfile "github.com/NII-DG/gogs/internal/ipfs/encyrpt_file"
 	"github.com/NII-DG/gogs/internal/tool"
 	"github.com/gogs/git-module"
 	log "unknwon.dev/clog/v2"
