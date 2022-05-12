@@ -519,8 +519,8 @@ func (repo *Repository) UpdateFilePrvToPub(opts UploadRepoOption) (map[string]An
 	//暗号データを復号して、実データIPFSにアップロード
 	for _, bcContentInfo := range opts.BcContentInfoList {
 		//対象ファイルを編集可能状態にする
-		filePath := bcContentInfo.File[orbNmlength:]
-		if err := annex_ipfs.EditByFilePath(filePath, repoPath); err != nil {
+		filePath := bcContentInfo.File[orbNmlength:] // /dirANm/dirBNm/fileNm
+		if err := annex_ipfs.EditByFilePath(filePath[1:], repoPath); err != nil {
 			return nil, err
 		}
 		//暗号データをIPFSから直接取得する。
