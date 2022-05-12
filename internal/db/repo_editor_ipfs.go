@@ -489,15 +489,20 @@ func (repo *Repository) UpdateFilePrvToPub(opts UploadRepoOption) (map[string]An
 	//非公開データのハッシュ値をIPFSからローカルレポジトリにコピー
 	for _, key := range keyList {
 		if err := annex_ipfs.CopyByKey("ipfs", key, repoPath); err != nil {
-			return nil, fmt.Errorf("[Failure git annex copy to ipfs] err : %v ,fromPath : %v", err, repoPath)
+			return nil, fmt.Errorf("[Failure git annex copy to ipfs] err : %v, Path : %v", err, repoPath)
 		}
 	}
 	//ハッシュ値比較
-	// for _, v := range opts.BcContentInfoList {
+	for _, v := range opts.BcContentInfoList {
+		//ローカルファイルからハッシュ値を取得
+		tmpPath := filepath.Join(repoPath, v.File)
+		log.Trace("temPath: %v", tmpPath)
+		// bytes, err := ioutil.ReadFile()
+		// if err != nil {
+		// 	panic(err)
+		// }
 
-	// }
-
-	//
+	}
 
 	return nil, nil
 }
