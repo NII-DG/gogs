@@ -464,6 +464,8 @@ func (repo *Repository) UpdateFilePrvToPub(opts UploadRepoOption) (map[string]An
 	log.Trace("repo.LocalCopyPath()[%v]", repo.LocalCopyPath()) ///home/gogs/gogs/data/tmp/local-repo/71
 	log.Trace("opts.UpperRopoPath : %v", opts.UpperRopoPath)    // /OwnerNm/RepoNm
 
+	// orbNm /OwnerNm/RepoNm/BranchNm
+	orbNm := filepath.Join(opts.UpperRopoPath, opts.Branch)
 	//レポジトリをIPFSへ連携有効化
 	if _, err := git.NewCommand("annex", "enableremote", "ipfs").RunInDir(repoPath); err != nil {
 		log.Error("[Failure enable remote(ipfs)] err : %v, repoPath : %v", err, repoPath)
@@ -482,7 +484,7 @@ func (repo *Repository) UpdateFilePrvToPub(opts UploadRepoOption) (map[string]An
 	for _, v := range opts.BcContentInfoList {
 		locList = append(locList, v.File)
 	}
-	keyList, err := annex_ipfs.GetAnnexKeyListToContentLoc(&msgWhereis, locList, filepath.Join(opts.UpperRopoPath, opts.Branch))
+	keyList, err := annex_ipfs.GetAnnexKeyListToContentLoc(&msgWhereis, locList, orbNm)
 	if err != nil {
 		return nil, err
 	}
@@ -493,12 +495,12 @@ func (repo *Repository) UpdateFilePrvToPub(opts UploadRepoOption) (map[string]An
 			return nil, fmt.Errorf("[Failure git annex copy to ipfs] err : %v, Path : %v", err, repoPath)
 		}
 	}
+
 	//ハッシュ値比較
+	orbNmlength := len(orbNm)
 	for _, v := range opts.BcContentInfoList {
 		//ローカルファイルからハッシュ値を取得
-		filePath := v.File
-		index := len(opts.UpperRopoPath)
-		filePath = filePath[index:]
+		filePath := v.File[orbNmlength:]
 		tmpPath := filepath.Join(repoPath, filePath)
 		log.Trace("temPath: %v", tmpPath)
 		bytes, err := ioutil.ReadFile(tmpPath)
