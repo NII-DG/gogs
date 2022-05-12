@@ -421,49 +421,6 @@ func DeleteUploads(uploads ...*Upload) (err error) {
 	return sess.Commit()
 }
 
-//新規にアップロードしたファイルのみ削除になる。前回までのアップロードされたファイルも削除する必要がある。
-//dirPath内のあるファイルおよび、ディレクトリ名を取得した後、削除する。
-func RemoveFilesFromLocalRepository(dirPath string, uploads ...*Upload) (err error) {
-	log.Info("[Deleting Upload Files or directory From Local Repository]")
-	if len(uploads) == 0 {
-		return nil
-	}
-
-	sess := x.NewSession()
-	defer sess.Close()
-	if err = sess.Begin(); err != nil {
-		return err
-	}
-
-	files, _ := filepath.Glob(dirPath + "/*")
-	for _, f := range files {
-		if !strings.Contains(f, ".git") {
-			if err := os.Remove(f); err != nil {
-				log.Trace("[Cannot remove file, this Path is directory] targetPath : %v", f)
-				if err := os.RemoveAll(f); err != nil {
-					return fmt.Errorf("[Remove directory From Local Repository] targerPath: %v", err)
-				}
-			}
-			log.Trace("[DELETE Upload Files or directory From Local Repository] %v", f)
-		}
-
-	}
-
-	// for _, upload := range uploads {
-	// 	targetPath := path.Join(dirPath, upload.Name)
-	// 	if !osutil.IsFile(targetPath) {
-	// 		continue
-	// 	}
-
-	// 	if err := os.Remove(targetPath); err != nil {
-	// 		return fmt.Errorf("[Remove Upload Files From Local Repository] targerPath: %v", err)
-	// 	}
-	// 	log.Info("[DELETE Upload Files From Local Repository] %v", targetPath)
-	// }
-
-	return sess.Commit()
-}
-
 func RemoveLocalRepository(dirPath string) (err error) {
 	log.Info("[Deleting Upload Files or directory From Local Repository]")
 

@@ -15,23 +15,6 @@ type AnnexUploadInfo struct {
 	IpfsCid         string
 }
 
-//ToDo :upploadFileMap(map)にKeyを追加する。
-func annexAddAndGetInfo(repoPath string, all bool, files ...string) ([]annex_ipfs.AnnexAddResponse, error) {
-	cmd := git.NewCommand("annex", "add", "--json")
-	if all {
-		cmd.AddArgs(".")
-	}
-	msg, err := cmd.AddArgs(files...).RunInDir(repoPath)
-	if err == nil {
-		reslist, err := annex_ipfs.GetAnnexAddInfo(&msg)
-		if err != nil {
-			return nil, fmt.Errorf("[Annex Add Json Error]: %v", err)
-		}
-		return reslist, nil
-	}
-	return nil, err
-}
-
 /**
 UPDATE : 2022/02/01
 AUTHOR : dai.tsukioka
@@ -52,7 +35,7 @@ func PublicannexUpload(upperpath, repoPath, remote string, annexAddRes []annex_i
 	//コンテンツアドレスの取得
 	for _, content := range annexAddRes {
 		if msgWhereis, err := git.NewCommand("annex", "whereis", "--json", "--key", content.Key).RunInDir(repoPath); err != nil {
-			logv2.Error("[git annex whereis Error] err : %v", err)
+			return nil, fmt.Errorf("[git annex whereis Error] err : %v", err)
 		} else {
 			contentInfo, err := annex_ipfs.GetAnnexContentInfo(&msgWhereis)
 			if err != nil {

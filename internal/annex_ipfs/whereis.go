@@ -2,12 +2,14 @@ package annex_ipfs
 
 import (
 	"encoding/json"
+	"fmt"
 	"path/filepath"
 	"regexp"
 	"strings"
 	"unsafe"
 
 	"github.com/NII-DG/gogs/internal/jsonfunc"
+	"github.com/gogs/git-module"
 	//log "unknwon.dev/clog/v2"
 )
 
@@ -145,4 +147,13 @@ func resolveAnnexWhereisResponseList(rawJson *[]byte, upperPath string) (map[str
 		}
 	}
 	return fileNmMapToRes, nil
+}
+
+func WhereisByKey(repoPath, key string) (AnnexContentInfo, error) {
+	msg, err := git.NewCommand("annex", "whereis", "--json", "--key", key).RunInDir(repoPath)
+	if err != nil {
+		return AnnexContentInfo{}, fmt.Errorf("Failure git annex whereis by key[%v]", key)
+	}
+	return GetAnnexContentInfo(&msg)
+
 }

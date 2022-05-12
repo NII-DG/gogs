@@ -110,7 +110,7 @@ func (repo *Repository) PublicUploadRepoFiles(doer *User, opts UploadRepoFileOpt
 
 	annexSetupForIPFS(localPath) // Initialise annex and set configuration (with add filter for filesizes)
 	var annexAddRes []annex_ipfs.AnnexAddResponse
-	if annexAddRes, err = annexAddAndGetInfo(localPath, true); err != nil {
+	if annexAddRes, err = annex_ipfs.Add(localPath, true); err != nil {
 		return nil, fmt.Errorf("git annex add: %v", err)
 	} else if err = git.RepoCommit(localPath, doer.NewGitSig(), opts.Message); err != nil {
 		return nil, fmt.Errorf("commit changes on %q: %v", localPath, err)
@@ -134,8 +134,10 @@ func (repo *Repository) PublicUploadRepoFiles(doer *User, opts UploadRepoFileOpt
 	AnnexUninit(localPath) // Uninitialise annex to prepare for deletion
 	StartIndexing(*repo)   // Index the new data
 	//localPathのディレクトリの削除
-	if err := RemoveFilesFromLocalRepository(dirPath, uploads...); err != nil {
-		return nil, err
+	if len(uploads) > 0 {
+		if err := RemoveAllFilesFromLocalRepository(dirPath); err != nil {
+			return nil, err
+		}
 	}
 
 	return contentMap, DeleteUploads(uploads...)
@@ -230,7 +232,7 @@ func (repo *Repository) PrivateUploadRepoFiles(doer *User, opts UploadRepoFileOp
 	}
 
 	var annexAddRes []annex_ipfs.AnnexAddResponse
-	if annexAddRes, err = annexAddAndGetInfo(localPath, true); err != nil {
+	if annexAddRes, err = annex_ipfs.Add(localPath, true); err != nil {
 		return nil, fmt.Errorf("git annex add: %v", err)
 	} else if err = git.RepoCommit(localPath, doer.NewGitSig(), opts.Message); err != nil {
 		return nil, fmt.Errorf("commit changes on %q: %v", localPath, err)
@@ -254,10 +256,11 @@ func (repo *Repository) PrivateUploadRepoFiles(doer *User, opts UploadRepoFileOp
 	AnnexUninit(localPath) // Uninitialise annex to prepare for deletion
 	StartIndexing(*repo)   // Index the new data
 	//localPathのディレクトリの削除
-	if err := RemoveFilesFromLocalRepository(dirPath, uploads...); err != nil {
-		return nil, err
+	if len(uploads) > 0 {
+		if err := RemoveAllFilesFromLocalRepository(dirPath); err != nil {
+			return nil, err
+		}
 	}
-
 	return uploadInfo, DeleteUploads(uploads...)
 
 }
@@ -440,15 +443,7 @@ type UploadRepoOption struct {
 
 //非公開データを公開データして、IPFSへのアップロードをし、コンテンツ情報を返す。
 //
-//@param
-//
-//@param
-//
-//@param
-//
-//@param
-//
-//@param
+//@param opts UploadRepoOption アップロードに必要な情報のインスタンス
 func (repo *Repository) UpdateFilePrvToPub(opts UploadRepoOption) (map[string]AnnexUploadInfo, error) {
 
 	//リモートレポジトリをクローンする。
@@ -517,10 +512,12 @@ func (repo *Repository) UpdateFilePrvToPub(opts UploadRepoOption) (map[string]An
 	}
 
 	//暗号データを復号して、実データIPFSにアップロード
+	contentMap := map[string]AnnexUploadInfo{}
 	for _, bcContentInfo := range opts.BcContentInfoList {
 		//対象ファイルを編集可能状態にする
 		filePath := bcContentInfo.File[orbNmlength:] // /dirANm/dirBNm/fileNm
-		if err := annex_ipfs.EditByFilePath(filePath[1:], repoPath); err != nil {
+		gitFilePath := filePath[1:]
+		if err := annex_ipfs.EditByFilePath(repoPath, gitFilePath); err != nil {
 			return nil, err
 		}
 		//暗号データをIPFSから直接取得する。
@@ -529,7 +526,67 @@ func (repo *Repository) UpdateFilePrvToPub(opts UploadRepoOption) (map[string]An
 			return nil, err
 		}
 
+		res, err := annex_ipfs.AddByFileNm(repoPath, gitFilePath)
+		if err != nil {
+			return nil, err
+		}
+		//コンテンツ情報の取得
+		content, err := annex_ipfs.WhereisByKey(repoPath, res.Key)
+		if err != nil {
+			return nil, err
+		}
+		contentLocation := filepath.Join(orbNm, content.File)
+		contentMap[contentLocation] = AnnexUploadInfo{
+			FullContentHash: "",
+			IpfsCid:         content.Hash,
+		}
+	}
+	//IPFSへアップロードしたコンテンツロケーションを表示
+	index := 1
+	for k := range contentMap {
+		log.Info("[Upload to IPFS] No.%v file : %v", index, k)
+		upload_No := &index
+		*upload_No++
+	}
+	//リモートと同期（メタデータを更新）
+	log.Info("Synchronising annex info : %v", repoPath)
+	if msg, err := git.NewCommand("annex", "sync").RunInDir(repoPath); err != nil {
+		return nil, fmt.Errorf("[Failure git-annex sync] err : %v, msg : %s", err, msg)
+	} else {
+		log.Info("[Success git-annex sync] path : %v", repoPath)
 	}
 
-	return nil, nil
+	AnnexUninit(repo.LocalCopyPath()) // Uninitialise annex to prepare for deletion
+	StartIndexing(*repo)              // Index the new data
+
+	if len(contentMap) > 0 {
+		//ローカルレポジトリにあるファイル・ディレクトリを全て削除
+		if err := RemoveAllFilesFromLocalRepository(repo.LocalCopyPath()); err != nil {
+			return nil, err
+		}
+	}
+	return contentMap, nil
+}
+
+func RemoveAllFilesFromLocalRepository(dirPath string) (err error) {
+	sess := x.NewSession()
+	defer sess.Close()
+	if err = sess.Begin(); err != nil {
+		return err
+	}
+
+	files, _ := filepath.Glob(dirPath + "/*")
+	for _, f := range files {
+		if !strings.Contains(f, ".git") {
+			if err := os.Remove(f); err != nil {
+				log.Trace("[Cannot remove file, this Path is directory] targetPath : %v", f)
+				if err := os.RemoveAll(f); err != nil {
+					return fmt.Errorf("[Remove directory From Local Repository] targerPath: %v", err)
+				}
+			}
+			log.Trace("[DELETE Upload Files or directory From Local Repository] %v", f)
+		}
+
+	}
+	return sess.Commit()
 }
