@@ -499,7 +499,7 @@ func (repo *Repository) UpdateFilePrvToPub(opts UploadRepoOption) (map[string]An
 		filePath := v.File
 		index := len(opts.UpperRopoPath)
 		filePath = filePath[index:]
-		tmpPath := filepath.Join(repoPath, v.File)
+		tmpPath := filepath.Join(repoPath, filePath)
 		log.Trace("temPath: %v", tmpPath)
 		bytes, err := ioutil.ReadFile(tmpPath)
 		if err != nil {
