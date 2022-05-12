@@ -5,9 +5,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
-	"regexp"
 	"strings"
-	"unsafe"
 
 	"github.com/unknwon/com"
 
@@ -457,34 +455,10 @@ func (repo *Repository) UpdateFilePrvToPub(opts UploadRepoOption) (map[string]An
 
 	if err := repo.DiscardLocalRepoBranchChanges(opts.Branch); err != nil {
 		return nil, fmt.Errorf("discard local repo branch[%s] changes: %v", opts.Branch, err)
-	} else if err := repo.AltUpdateLocalCopyBranch(opts.Branch); err != nil {
+	} else if err := repo.UpdateLocalCopyBranch(opts.Branch); err != nil {
 		return nil, fmt.Errorf("update local copy branch[%s]: %v", opts.Branch, err)
 	}
 	repoPath := repo.LocalCopyPath()
-
-	//付随ブランチ名取得
-	branchList := []string{}
-	msg, err := git.NewCommand("branch").RunInDir(repoPath)
-	if err != nil {
-		log.Error("[Failure enable remote(ipfs)] err : %v, repoPath : %v", err, repoPath)
-	} else {
-		strMsg := *(*string)(unsafe.Pointer(&msg)) //[]byte to string
-		reg := "\r\n|\n"
-		list := regexp.MustCompile(reg).Split(strMsg, -1) //改行分割
-		for _, unit := range list {
-			log.Trace("branchNm : %v", unit)
-			if !strings.Contains(unit, "synced/") {
-				unit = strings.Replace(unit, " ", "", -1)
-				unit = strings.Replace(unit, "*", "", -1)
-				if len(unit) > 0 {
-					branchList = append(branchList, unit)
-				}
-			}
-		}
-	}
-	for _, v := range branchList {
-		log.Trace("branchList : %v", v)
-	}
 
 	log.Trace("repo.LocalCopyPath()[%v]", repo.LocalCopyPath()) ///home/gogs/gogs/data/tmp/local-repo/71
 	log.Trace("opts.UpperRopoPath : %v", opts.UpperRopoPath)    // /OwnerNm/RepoNm
@@ -500,14 +474,14 @@ func (repo *Repository) UpdateFilePrvToPub(opts UploadRepoOption) (map[string]An
 	msgWhereis, err := git.NewCommand("annex", "whereis", "--json").RunInDir(repoPath)
 	if err != nil {
 		log.Error("[git annex whereis Error] err : %v", err)
-		return nil, fmt.Errorf("Cannot conduct <git annex whereis>. path : %v", repo)
+		return nil, fmt.Errorf("[annex whereis ]Cannot conduct <git annex whereis>. path : %v", repo)
 	}
 
-	var fileNmList []string
+	var locList []string
 	for _, v := range opts.BcContentInfoList {
-		fileNmList = append(fileNmList, v.File)
+		locList = append(locList, v.File)
 	}
-	keyList, err := annex_ipfs.GetAnnexKeyListToPrvFileNmList(&msgWhereis, fileNmList)
+	keyList, err := annex_ipfs.GetAnnexKeyListToContentLoc(&msgWhereis, locList, filepath.Join(opts.UpperRopoPath, opts.Branch))
 	if err != nil {
 		return nil, err
 	}
@@ -515,7 +489,7 @@ func (repo *Repository) UpdateFilePrvToPub(opts UploadRepoOption) (map[string]An
 		log.Trace("Key %v", key)
 		cmd := git.NewCommand("annex", "copy", "--from", "ipfs", "--key", key)
 		if _, err := cmd.RunInDir(repoPath); err != nil {
-			return nil, fmt.Errorf("[Failure git annex copy to ipfs] err : %v ,fromPath : %v\n", err, repoPath)
+			return nil, fmt.Errorf("[Failure git annex copy to ipfs] err : %v ,fromPath : %v", err, repoPath)
 		}
 	}
 	//非公開データのハッシュ値をIPFSから取得

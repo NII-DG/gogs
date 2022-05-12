@@ -2,6 +2,7 @@ package annex_ipfs
 
 import (
 	"encoding/json"
+	"path/filepath"
 	"regexp"
 	"strings"
 	"unsafe"
@@ -100,23 +101,31 @@ func isContainDatasetNm(fileNm string, datasetNm string) bool {
 	return strings.HasPrefix(fileNm, datasetNm)
 }
 
-//git annex whereis (複数：JSON形式)をファイル名パス名と一致するAnnexキーを取得
-func GetAnnexKeyListToPrvFileNmList(rawJson *[]byte, fileNmList []string) ([]string, error) {
+//git annex whereis (複数：JSON形式)をコンテンツロケーション名と一致するAnnexキーを取得
+//
+//@parame rawJson *[]byte git annex whereis のレスポンス
+//
+//@parame contentLocationList []string　抽出対象のコンテンツロケーション（ファイルパス）　完全一致の時のみ抽出
+//
+//@parame upperPath string　git annex whereis のレスポンスのファイル名項目の上部に追加する情報。 ない("")場合は、付けない
+//　　　　　　　　　　　　　　ex: /OwenerNm/RepoNM/BranchNm
+//　　　　　　　　　　　　　　ない("")場合は、付けない
+func GetAnnexKeyListToContentLoc(rawJson *[]byte, contentLocationList []string, upperPath string) ([]string, error) {
 	var keyList []string
-	dataList, err := resolveAnnexWhereisResponseList(rawJson)
+	dataList, err := resolveAnnexWhereisResponseList(rawJson, upperPath)
 	if err != nil {
 		return nil, err
 	}
-	for _, fileNm := range fileNmList {
-		log.Trace("fileNm : %v ddddd", fileNm)
-		data := dataList[fileNm]
+	for _, location := range contentLocationList {
+		log.Trace("fileNm : %v", location)
+		data := dataList[location]
 		keyList = append(keyList, data.Key)
 	}
 	return keyList, nil
 }
 
 //git annex whereis (複数：JSON形式)をファイル名と各コンテンツ情報を紐づける
-func resolveAnnexWhereisResponseList(rawJson *[]byte) (map[string]AnnexWhereResponse, error) {
+func resolveAnnexWhereisResponseList(rawJson *[]byte, upperPath string) (map[string]AnnexWhereResponse, error) {
 	fileNmMapToRes := map[string]AnnexWhereResponse{}
 	reg := "\r\n|\n"
 	strJson := *(*string)(unsafe.Pointer(rawJson))            //[]byte to string
@@ -128,8 +137,13 @@ func resolveAnnexWhereisResponseList(rawJson *[]byte) (map[string]AnnexWhereResp
 			if err := json.Unmarshal(byteJson, &data); err != nil {
 				return nil, err
 			}
-			log.Trace("data.getFile() : %v dddddd", data.getFile())
-			fileNmMapToRes[data.getFile()] = data
+			log.Trace("data.getFile() : %v", data.getFile())
+			fileNm := data.getFile()
+			if len(upperPath) > 0 {
+				s := &fileNm
+				*s = filepath.Join(upperPath, fileNm)
+			}
+			fileNmMapToRes[fileNm] = data
 		}
 	}
 	return fileNmMapToRes, nil

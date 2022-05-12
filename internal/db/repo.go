@@ -651,8 +651,8 @@ func (repo *Repository) UpdateLocalCopyBranch(branch string) error {
 	return UpdateLocalCopyBranch(repo.RepoPath(), repo.LocalCopyPath(), branch, false)
 }
 
-// UpdateLocalCopyBranch makes sure local copy of repository in given branch is up-to-date.
-func (repo *Repository) AltUpdateLocalCopyBranch(branch string) error {
+// ブランチ指定がなしのクローンメソッド（全てのブランチに操作がある場合に仕様）
+func (repo *Repository) LocalCopyNonBranch(branch string) error {
 	return UpdateLocalCopyBranch(repo.RepoPath(), repo.LocalCopyPath(), branch, true)
 }
 
