@@ -15,6 +15,7 @@ import (
 	"github.com/NII-DG/gogs/internal/annex_ipfs"
 	encyrptfile "github.com/NII-DG/gogs/internal/encyrpt_file"
 	"github.com/NII-DG/gogs/internal/osutil"
+	"github.com/NII-DG/gogs/internal/util"
 
 	log "unknwon.dev/clog/v2"
 )
@@ -498,9 +499,9 @@ func (repo *Repository) UpdateFilePrvToPub(opts UploadRepoOption) (map[string]An
 
 	//ハッシュ値比較
 	orbNmlength := len(orbNm)
-	for _, v := range opts.BcContentInfoList {
+	for _, bcContentInfo := range opts.BcContentInfoList {
 		//ローカルファイルからハッシュ値を取得
-		filePath := v.File[orbNmlength:]
+		filePath := bcContentInfo.File[orbNmlength:]
 		tmpPath := filepath.Join(repoPath, filePath)
 		log.Trace("temPath: %v", tmpPath)
 		bytes, err := ioutil.ReadFile(tmpPath)
@@ -508,6 +509,11 @@ func (repo *Repository) UpdateFilePrvToPub(opts UploadRepoOption) (map[string]An
 			return nil, fmt.Errorf("[Failure Opening And Reading File] err : %v, Path : %v", err, tmpPath)
 		}
 		log.Trace("Hash[%v] from local Repo<%v>", string(bytes), tmpPath)
+		localHash := util.BytesToString(bytes)
+		log.Trace("localHash != bcContentInfo.FullContentHash %v", localHash != bcContentInfo.FullContentHash)
+		if localHash != bcContentInfo.FullContentHash {
+			return nil, fmt.Errorf("[Not Match Full Content Hash] Path : %v, local[%v] vs BC[%v]", tmpPath, localHash, bcContentInfo.FullContentHash)
+		}
 	}
 
 	return nil, nil
