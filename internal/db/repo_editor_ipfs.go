@@ -434,9 +434,8 @@ func CheckWithFileInFolder(folderPath string) (bool, string) {
 }
 
 type UploadRepoOption struct {
-	LastCommitID      string
+	Doer              *User
 	Branch            string
-	TreePath          string
 	UpperRopoPath     string //RepoOwnerNm / RepoNm
 	BcContentInfoList []ContentInfo
 }
@@ -445,6 +444,7 @@ type UploadRepoOption struct {
 //
 //@param opts UploadRepoOption アップロードに必要な情報のインスタンス
 func (repo *Repository) UpdateFilePrvToPub(opts UploadRepoOption) (map[string]AnnexUploadInfo, error) {
+	remote := "ipfs"
 
 	//リモートレポジトリをクローンする。
 	repoWorkingPool.CheckIn(com.ToStr(repo.ID))
@@ -463,7 +463,7 @@ func (repo *Repository) UpdateFilePrvToPub(opts UploadRepoOption) (map[string]An
 	// orbNm /OwnerNm/RepoNm/BranchNm
 	orbNm := filepath.Join(opts.UpperRopoPath, opts.Branch)
 	//レポジトリをIPFSへ連携有効化
-	if _, err := git.NewCommand("annex", "enableremote", "ipfs").RunInDir(repoPath); err != nil {
+	if _, err := git.NewCommand("annex", "enableremote", remote).RunInDir(repoPath); err != nil {
 		log.Error("[Failure enable remote(ipfs)] err : %v, repoPath : %v", err, repoPath)
 	} else {
 		log.Info("[Success enable remote(ipfs)] repoPath : %v", repoPath)
@@ -487,7 +487,7 @@ func (repo *Repository) UpdateFilePrvToPub(opts UploadRepoOption) (map[string]An
 
 	//非公開データのハッシュ値をIPFSからローカルレポジトリにコピー
 	for _, key := range keyList {
-		if err := annex_ipfs.CopyByKey("ipfs", key, repoPath); err != nil {
+		if err := annex_ipfs.CopyFromByKey(remote, key, repoPath); err != nil {
 			return nil, fmt.Errorf("[Failure git annex copy to ipfs] err : %v, Path : %v", err, repoPath)
 		}
 	}
@@ -531,6 +531,11 @@ func (repo *Repository) UpdateFilePrvToPub(opts UploadRepoOption) (map[string]An
 			return nil, err
 		}
 		log.Trace("[GIT-A ADD Responso] KEY[%v], File[%v],", res.Key, res.File)
+		//実データのIPFSへアップロード
+		if err := annex_ipfs.CopyToByKey(remote, repoPath, res.Key); err != nil {
+			return nil, err
+		}
+
 		//コンテンツ情報の取得
 		content, err := annex_ipfs.WhereisByKey(repoPath, res.Key)
 		if err != nil {
@@ -544,6 +549,18 @@ func (repo *Repository) UpdateFilePrvToPub(opts UploadRepoOption) (map[string]An
 		}
 	}
 
+	// envs := ComposeHookEnvs(ComposeHookEnvsOptions{
+	// 	AuthUser:  opts.Doer,
+	// 	OwnerName: repo.MustOwner().Name,
+	// 	OwnerSalt: repo.MustOwner().Salt,
+	// 	RepoID:    repo.ID,
+	// 	RepoName:  repo.Name,
+	// 	RepoPath:  repo.RepoPath(),
+	// })
+	// if err = git.RepoPush(repo.LocalCopyPath(), "origin", opts.Branch, git.PushOptions{Envs: envs}); err != nil {
+	// 	return nil, fmt.Errorf("git push origin %s: %v", opts.Branch, err)
+	// }
+
 	//IPFSへアップロードしたコンテンツロケーションを表示
 	index := 1
 	for k := range contentMap {
@@ -553,8 +570,8 @@ func (repo *Repository) UpdateFilePrvToPub(opts UploadRepoOption) (map[string]An
 	}
 	//リモートと同期（メタデータを更新）
 	log.Info("Synchronising annex info : %v", repoPath)
-	if msg, err := git.NewCommand("annex", "sync").RunInDir(repoPath); err != nil {
-		return nil, fmt.Errorf("[Failure git-annex sync] err : %v, msg : %s", err, msg)
+	if _, err := git.NewCommand("annex", "sync").RunInDir(repoPath); err != nil {
+		return nil, fmt.Errorf("[Failure git-annex sync] err : %v", err)
 	} else {
 		log.Info("[Success git-annex sync] path : %v", repoPath)
 	}

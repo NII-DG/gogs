@@ -36,6 +36,7 @@ func UpdateDataPrvToPub(c *context.Context) {
 
 	//非公開データを公開データして、IPFSへのアップロードする。
 	contentMap, err := repo.UpdateFilePrvToPub(db.UploadRepoOption{
+		Doer:              c.User,
 		Branch:            c.Repo.BranchName,
 		UpperRopoPath:     ownerRepoNm,
 		BcContentInfoList: bcContentInfoList,
