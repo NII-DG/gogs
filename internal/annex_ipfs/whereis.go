@@ -8,7 +8,7 @@ import (
 	"unsafe"
 
 	"github.com/NII-DG/gogs/internal/jsonfunc"
-	log "unknwon.dev/clog/v2"
+	//log "unknwon.dev/clog/v2"
 )
 
 //git annex whereis --jsonの構造体
@@ -117,7 +117,6 @@ func GetAnnexKeyListToContentLoc(rawJson *[]byte, contentLocationList []string, 
 		return nil, err
 	}
 	for _, location := range contentLocationList {
-		log.Trace("fileNm : %v", location)
 		data := dataList[location]
 		keyList = append(keyList, data.Key)
 	}
@@ -137,7 +136,6 @@ func resolveAnnexWhereisResponseList(rawJson *[]byte, upperPath string) (map[str
 			if err := json.Unmarshal(byteJson, &data); err != nil {
 				return nil, err
 			}
-			log.Trace("data.getFile() : %v", data.getFile())
 			fileNm := data.getFile()
 			if len(upperPath) > 0 {
 				s := &fileNm
