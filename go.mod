@@ -17,7 +17,6 @@ require (
 	github.com/go-macaron/i18n v0.6.0
 	github.com/go-macaron/session v1.0.2
 	github.com/go-macaron/toolbox v0.0.0-20200329073429-4401f4ce0f55
-	github.com/go-redis/redis/v8 v8.11.5
 	github.com/gogs/chardet v0.0.0-20191104214054-4b6791f73a28
 	github.com/gogs/cron v0.0.0-20171120032916-9f6c956d3e14
 	github.com/gogs/git-module v1.1.2
