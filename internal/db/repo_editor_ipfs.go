@@ -510,6 +510,7 @@ func (repo *Repository) UpdateFilePrvToPub(opts UploadRepoOption) (map[string]An
 		}
 		log.Trace("Hash[%v] from local Repo<%v>", string(bytes), tmpPath)
 		localHash := util.BytesToString(bytes)
+		log.Trace("localHash != bcContentInfo.FullContentHash %v", localHash != bcContentInfo.FullContentHash)
 		if localHash != bcContentInfo.FullContentHash {
 			return nil, fmt.Errorf("[Not Match Full Content Hash] Path : %v, local[%v] vs BC[%v]", tmpPath, localHash, bcContentInfo.FullContentHash)
 		}
