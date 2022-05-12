@@ -2,6 +2,7 @@ package db
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
@@ -497,10 +498,11 @@ func (repo *Repository) UpdateFilePrvToPub(opts UploadRepoOption) (map[string]An
 		//ローカルファイルからハッシュ値を取得
 		tmpPath := filepath.Join(repoPath, v.File)
 		log.Trace("temPath: %v", tmpPath)
-		// bytes, err := ioutil.ReadFile()
-		// if err != nil {
-		// 	panic(err)
-		// }
+		bytes, err := ioutil.ReadFile(tmpPath)
+		if err != nil {
+			return nil, fmt.Errorf("[Failure Opening And Reading File] err : %v, Path : %v", err, tmpPath)
+		}
+		log.Trace("Hash[%v] from local Repo<%v>", string(bytes), tmpPath)
 
 	}
 
