@@ -24,7 +24,7 @@ func UpdateDataPrvToPub(c *context.Context) {
 	//非公開データ情報のみ抽出
 	var bcContentInfoList []db.ContentInfo
 	for _, v := range response.ContentsInFolder {
-		if len(v.FullContentHash) > 0 {
+		if v.IsPrivate {
 			bcContentInfoList = append(bcContentInfoList, db.ContentInfo{File: v.ContentLocation,
 				FullContentHash: v.FullContentHash,
 				Address:         v.IpfsCid})
