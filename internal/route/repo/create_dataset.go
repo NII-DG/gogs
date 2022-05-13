@@ -20,18 +20,19 @@ import (
 func CreateDataset(c *context.Context, f form.DatasetFrom) {
 
 	c.Data["PageIsViewFiles"] = true
+	repository := c.Repo.Repository
 
-	if c.Repo.Repository.IsBare {
+	if repository.IsBare {
 		c.Success(BARE)
 		return
 	}
 
-	title := c.Repo.Repository.Owner.Name + "/" + c.Repo.Repository.Name
+	title := repository.Owner.Name + "/" + repository.Name
 	if len(c.Repo.Repository.Description) > 0 {
-		title += ": " + c.Repo.Repository.Description
+		title += ": " + repository.Description
 	}
 	c.Data["Title"] = title
-	if c.Repo.BranchName != c.Repo.Repository.DefaultBranch {
+	if c.Repo.BranchName != repository.DefaultBranch {
 		c.Data["Title"] = title + " @ " + c.Repo.BranchName
 	}
 	c.Data["RequireHighlightJS"] = true
@@ -118,28 +119,30 @@ func CreateDataset(c *context.Context, f form.DatasetFrom) {
 	branchNm := c.Repo.BranchName
 
 	//レポジトリのクローン
-	if err := c.Repo.Repository.CloneRepo(branchNm); err != nil {
+	repository.CheckIn()
+	defer repository.CheckOut()
+	if err := repository.CloneRepo(branchNm); err != nil {
 		c.Error(err, "[Error] CheckDatadetAndGetContentAddress()")
 		return
 	}
 
 	//データセットフォーマットのチェック（datasetFolder : [input, src, output]フォルダーがあること、かつ、その配下にファイルがあること）
-	if err := c.Repo.Repository.CheckDatasetFormat(datasetList); err != nil {
+	if err := repository.CheckDatasetFormat(datasetList); err != nil {
 		msg := fmt.Sprint(err)
 		c.RenderWithErr(msg, HOME, &f)
 		return
 	}
 
 	//各データセットパスとその内のフォルダ内のコンテンツ情報を持つMapを取得する。
-	datasetNmToFileMap, err := c.Repo.Repository.GetContentAddress(datasetList, repoBranchPath)
+	datasetNmToFileMap, err := repository.GetContentAddress(datasetList, repoBranchPath)
 	if err != nil {
 		c.Error(err, "[Error] CheckDatadetAndGetContentAddress()")
 		return
 	}
 
 	//ローカルレポジトリの削除
-	db.AnnexUninit(c.Repo.Repository.LocalCopyPath()) // Uninitialise annex to prepare for deletion
-	if err := db.RemoveLocalRepository(c.Repo.Repository.LocalCopyPath()); err != nil {
+	db.AnnexUninit(repository.LocalCopyPath()) // Uninitialise annex to prepare for deletion
+	if err := db.RemoveLocalRepository(repository.LocalCopyPath()); err != nil {
 		c.Error(err, "[Error] Cannot Remove Local Repository")
 		return
 	}
@@ -217,8 +220,17 @@ func CreateDataset(c *context.Context, f form.DatasetFrom) {
 		c.Flash.InfoMsg = fmt.Sprintf("%vをブロックチェーンへ登録申請しました。", createDatasetListStr)
 
 	}
+
 	c.Data["Flash"] = c.Flash
 	c.Success(HOME)
+}
+
+func CreateDatasetForPublicData(c *context.Context, f form.DatasetFrom) {
+
+}
+
+func CreateDatasetForPrivateData(c *context.Context, f form.DatasetFrom) {
+
 }
 
 func isContainDatasetFileInBC(datasetData db.DatasetInfo, bcContentList jsonfunc.ResContentsInFolder) bool {

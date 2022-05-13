@@ -20,6 +20,23 @@ import (
 	log "unknwon.dev/clog/v2"
 )
 
+func (repo *Repository) CheckIn() {
+	repoWorkingPool.CheckIn(com.ToStr(repo.ID))
+}
+
+func (repo *Repository) CheckOut() {
+	repoWorkingPool.CheckOut(com.ToStr(repo.ID))
+}
+
+func (repo *Repository) CloneRepo(branch string) (err error) {
+	if err = repo.DiscardLocalRepoBranchChanges(branch); err != nil {
+		return fmt.Errorf("discard local repo branch[%s] changes: %v", branch, err)
+	} else if err = repo.LocalCopyBranch(branch); err != nil {
+		return fmt.Errorf("update local copy branch[%s]: %v", branch, err)
+	}
+	return nil
+}
+
 type UploadRepoFileOptionsForIPFS struct {
 	LastCommitID  string
 	OldBranch     string
@@ -286,17 +303,6 @@ var SRC_FOLDER_NM string = "src"
 // @value output
 var OUTPUT_FOLDER_NM string = "output"
 
-func (repo *Repository) CloneRepo(branch string) (err error) {
-	repoWorkingPool.CheckIn(com.ToStr(repo.ID))
-	defer repoWorkingPool.CheckOut(com.ToStr(repo.ID))
-	if err = repo.DiscardLocalRepoBranchChanges(branch); err != nil {
-		return fmt.Errorf("discard local repo branch[%s] changes: %v", branch, err)
-	} else if err = repo.LocalCopyBranch(branch); err != nil {
-		return fmt.Errorf("update local copy branch[%s]: %v", branch, err)
-	}
-	return nil
-}
-
 func (repo *Repository) CheckDatasetFormat(datasetNmList []string) (err error) {
 	//ローカルレポジトリの操作するためのディレクトリ取得
 	localPath := repo.LocalCopyPath()
@@ -347,6 +353,7 @@ func (repo *Repository) GetContentAddress(datasetNmList []string, repoBranchNm s
 
 			filePath := content.File                      // ex datasetNm/FolderNm/...../FileNm
 			fullFilePath := repoBranchNm + "/" + filePath // ex RepoOwnerNm/RepoNm/BranchNm/datasetNm/FolderNm/...../FileNm
+			log.Trace("Create dataset fullFilePath : %v", fullFilePath)
 			if strings.HasPrefix(filePath, inputPath) {
 				datasetInfo.InputList = append(datasetInfo.InputList, ContentInfo{File: fullFilePath, Address: content.Hash})
 			} else if strings.HasPrefix(filePath, srcPath) {
