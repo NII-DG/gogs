@@ -530,6 +530,7 @@ func (repo *Repository) UpdateFilePrvToPub(opts UploadRepoOption) (map[string]An
 		if err != nil {
 			return nil, err
 		}
+
 		log.Trace("[GIT-A ADD Responso] KEY[%v], File[%v],", res.Key, res.File)
 		//実データのIPFSへアップロード
 		if err := annex_ipfs.CopyToByKey(remote, res.Key, repoPath); err != nil {
@@ -549,17 +550,21 @@ func (repo *Repository) UpdateFilePrvToPub(opts UploadRepoOption) (map[string]An
 		}
 	}
 
-	// envs := ComposeHookEnvs(ComposeHookEnvsOptions{
-	// 	AuthUser:  opts.Doer,
-	// 	OwnerName: repo.MustOwner().Name,
-	// 	OwnerSalt: repo.MustOwner().Salt,
-	// 	RepoID:    repo.ID,
-	// 	RepoName:  repo.Name,
-	// 	RepoPath:  repo.RepoPath(),
-	// })
-	// if err = git.RepoPush(repo.LocalCopyPath(), "origin", opts.Branch, git.PushOptions{Envs: envs}); err != nil {
-	// 	return nil, fmt.Errorf("git push origin %s: %v", opts.Branch, err)
-	// }
+	if err = git.RepoCommit(repoPath, opts.Doer.NewGitSig(), "Published Repository"); err != nil {
+		return nil, fmt.Errorf("commit changes on %q: %v", repoPath, err)
+	}
+
+	envs := ComposeHookEnvs(ComposeHookEnvsOptions{
+		AuthUser:  opts.Doer,
+		OwnerName: repo.MustOwner().Name,
+		OwnerSalt: repo.MustOwner().Salt,
+		RepoID:    repo.ID,
+		RepoName:  repo.Name,
+		RepoPath:  repo.RepoPath(),
+	})
+	if err = git.RepoPush(repo.LocalCopyPath(), "origin", opts.Branch, git.PushOptions{Envs: envs}); err != nil {
+		return nil, fmt.Errorf("git push origin %s: %v", opts.Branch, err)
+	}
 
 	//IPFSへアップロードしたコンテンツロケーションを表示
 	index := 1
