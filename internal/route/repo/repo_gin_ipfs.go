@@ -46,7 +46,7 @@ func resolveAnnexedContentFromIPFS(c *context.Context, buf []byte, contentLocati
 	}
 
 	//指定のコンテンツの暗号化の有無の判定する。
-	if len(bcContentInfo.FullContentHash) > 0 {
+	if bcContentInfo.IsPrivate {
 		//暗号ファイルの処理
 		return resolveEncyrptedContent(c, buf, bcContentInfo)
 	} else {
