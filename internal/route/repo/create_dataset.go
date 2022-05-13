@@ -109,6 +109,12 @@ func CreateDataset(c *context.Context, f form.DatasetFrom) {
 	c.Data["BranchLink"] = branchLink
 	c.Data["DatasetLink"] = datasetLink
 
+	c.Data["Flash"] = c.Flash
+	c.Success(HOME)
+}
+
+func CreateDatasetForPublicData(c *context.Context, f form.DatasetFrom) {
+	repository := c.Repo.Repository
 	//実行ユーザ
 	userCode := c.User.Name
 	//レポジトリパス
@@ -220,12 +226,6 @@ func CreateDataset(c *context.Context, f form.DatasetFrom) {
 		c.Flash.InfoMsg = fmt.Sprintf("%vをブロックチェーンへ登録申請しました。", createDatasetListStr)
 
 	}
-
-	c.Data["Flash"] = c.Flash
-	c.Success(HOME)
-}
-
-func CreateDatasetForPublicData(c *context.Context, f form.DatasetFrom) {
 
 }
 

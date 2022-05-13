@@ -318,7 +318,7 @@ func (repo *Repository) CheckDatasetFormat(datasetNmList []string) (err error) {
 	return nil
 }
 
-//データセットフォーマットのチェックとコンテンツアドレスの取得(map[stirng]DatasetInfo)
+//フォルダーごとにコンテンツアドレスの取得(map[stirng]DatasetInfo)
 func (repo *Repository) GetContentAddress(datasetNmList []string, repoBranchNm string) (datasetNmToFileMap map[string]DatasetInfo, err error) {
 
 	//ローカルレポジトリの操作するためのディレクトリ取得
