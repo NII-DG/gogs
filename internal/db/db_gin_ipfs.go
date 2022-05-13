@@ -13,6 +13,7 @@ import (
 type AnnexUploadInfo struct {
 	FullContentHash string
 	IpfsCid         string
+	IsPrivate       bool
 }
 
 /**
@@ -21,7 +22,7 @@ AUTHOR : dai.tsukioka
 NOTE : methods : [sync and copy] locations are invert
 ToDo : IPFSへアップロードしたコンテンツアドレスをupploadFileMapに追加する。
 */
-func PublicannexUpload(upperpath, repoPath, remote string, annexAddRes []annex_ipfs.AnnexAddResponse) (map[string]AnnexUploadInfo, error) {
+func PublicAnnexUpload(upperpath, repoPath, remote string, annexAddRes []annex_ipfs.AnnexAddResponse) (map[string]AnnexUploadInfo, error) {
 	contentMap := map[string]AnnexUploadInfo{}
 	//ipfsへ実データをコピーする。
 	logv2.Info("[Uploading annexed data to %v] path : %v", remote, repoPath)
@@ -43,8 +44,9 @@ func PublicannexUpload(upperpath, repoPath, remote string, annexAddRes []annex_i
 			}
 			contentLocation := upperpath + "/" + content.File
 			contentMap[contentLocation] = AnnexUploadInfo{
-				FullContentHash: "",
+				FullContentHash: content.Key,
 				IpfsCid:         contentInfo.Hash,
+				IsPrivate:       false,
 			}
 
 		}

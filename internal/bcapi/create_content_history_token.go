@@ -21,6 +21,7 @@ type ReqCreateContentHistory struct {
 		ContentLocation string    `json:"content_location"`
 		FullContentHash string    `json:"full_content_hash"`
 		IpfsCid         string    `json:"ipfs_cid"`
+		IsPrivate       bool      `json:"is_private"`
 		AddDateTime     time.Time `json:"add_date_time"`
 	} `json:"content_history_list"`
 }
@@ -37,8 +38,9 @@ func CreateContentHistory(user_code string, contentMap map[string]db.AnnexUpload
 			ContentLocation string    "json:\"content_location\""
 			FullContentHash string    "json:\"full_content_hash\""
 			IpfsCid         string    "json:\"ipfs_cid\""
+			IsPrivate       bool      "json:\"is_private\""
 			AddDateTime     time.Time "json:\"add_date_time\""
-		}{k, v.FullContentHash, v.IpfsCid, now})
+		}{k, v.FullContentHash, v.IpfsCid, v.IsPrivate, now})
 	}
 	reqBody, err := json.Marshal(reqStr)
 	if err != nil {

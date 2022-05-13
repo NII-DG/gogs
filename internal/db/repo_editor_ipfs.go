@@ -144,7 +144,7 @@ func (repo *Repository) PublicUploadRepoFiles(doer *User, opts UploadRepoFileOpt
 	if err = git.RepoPush(localPath, "origin", opts.NewBranch, git.PushOptions{Envs: envs}); err != nil {
 		return nil, fmt.Errorf("git push origin %s: %v", opts.NewBranch, err)
 	}
-	contentMap, err = PublicannexUpload(opts.UpperRopoPath, localPath, "ipfs", annexAddRes)
+	contentMap, err = PublicAnnexUpload(opts.UpperRopoPath, localPath, "ipfs", annexAddRes)
 	if err != nil { // Copy new files
 		return nil, fmt.Errorf("annex copy %s: %v", localPath, err)
 	}
@@ -233,7 +233,7 @@ func (repo *Repository) PrivateUploadRepoFiles(doer *User, opts UploadRepoFileOp
 		}
 		filePath := path.Join(opts.UpperRopoPath, upload.Name)
 		//コンテンツ情報のインスタンスを定義
-		uploadInfo[filePath] = AnnexUploadInfo{FullContentHash: fullContentHash, IpfsCid: address}
+		uploadInfo[filePath] = AnnexUploadInfo{FullContentHash: fullContentHash, IpfsCid: address, IsPrivate: true}
 		//ハッシュ値にGit管轄ディレクトリに格納する。
 		wFile, err := os.Create(targetPath)
 		if err != nil {
