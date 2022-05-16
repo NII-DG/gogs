@@ -23,12 +23,14 @@ func TestGetContentByFolder_ok(t *testing.T) {
 		ContentLocation string    "json:\"content_location\""
 		FullContentHash string    "json:\"full_content_hash\""
 		IpfsCid         string    "json:\"ipfs_cid\""
+		IsPrivate       bool      "json:\"is_private\""
 		AddDateTime     time.Time "json:\"add_date_time\""
 	}{
 		"usr01",
 		"location01",
 		"",
 		"fjlksjflkdmlkfjd",
+		false,
 		now,
 	})
 
