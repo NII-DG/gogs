@@ -49,6 +49,31 @@ type UploadRepoFileOptionsForIPFS struct {
 
 //TODO[2022-05-06]：プライベート or パブリック　レポジトリで異なる処理を行う
 func (repo *Repository) UploadRepoFilesToIPFS(doer *User, opts UploadRepoFileOptionsForIPFS, isPrivate bool) (contentMap map[string]AnnexUploadInfo, err error) {
+
+	if len(opts.Files) == 0 {
+		log.Error("Error 1: %v", len(opts.Files))
+		return nil, nil
+	}
+
+	for _, fi := range opts.Files {
+		log.Info("[opts.Files] %v", fi)
+	}
+
+	repoWorkingPool.CheckIn(com.ToStr(repo.ID))
+	defer repoWorkingPool.CheckOut(com.ToStr(repo.ID))
+
+	if err = repo.DiscardLocalRepoBranchChanges(opts.OldBranch); err != nil {
+		return nil, fmt.Errorf("discard local repo branch[%s] changes: %v", opts.OldBranch, err)
+	} else if err = repo.UpdateLocalCopyBranch(opts.OldBranch); err != nil {
+		return nil, fmt.Errorf("update local copy branch[%s]: %v", opts.OldBranch, err)
+	}
+
+	if opts.OldBranch != opts.NewBranch {
+		if err = repo.CheckoutNewBranch(opts.OldBranch, opts.NewBranch); err != nil {
+			return nil, fmt.Errorf("checkout new branch[%s] from old branch[%s]: %v", opts.NewBranch, opts.OldBranch, err)
+		}
+	}
+
 	//プライベート or パブリック　レポジトリで異なる処理を行う
 	if isPrivate {
 		log.Info("Private Repository Upload Files. User: %v", doer.FullName)
@@ -66,33 +91,10 @@ func (repo *Repository) UploadRepoFilesToIPFS(doer *User, opts UploadRepoFileOpt
 
 //パブリックレポジトリのUploadRepoFiles
 func (repo *Repository) PublicUploadRepoFiles(doer *User, opts UploadRepoFileOptionsForIPFS) (contentMap map[string]AnnexUploadInfo, err error) {
-	if len(opts.Files) == 0 {
-		log.Error("Error 1: %v", len(opts.Files))
-		return nil, nil
-	}
-
-	for _, fi := range opts.Files {
-		log.Info("[opts.Files] %v", fi)
-	}
 
 	uploads, err := GetUploadsByUUIDs(opts.Files)
 	if err != nil {
 		return nil, fmt.Errorf("get uploads by UUIDs[%v]: %v", opts.Files, err)
-	}
-
-	repoWorkingPool.CheckIn(com.ToStr(repo.ID))
-	defer repoWorkingPool.CheckOut(com.ToStr(repo.ID))
-
-	if err = repo.DiscardLocalRepoBranchChanges(opts.OldBranch); err != nil {
-		return nil, fmt.Errorf("discard local repo branch[%s] changes: %v", opts.OldBranch, err)
-	} else if err = repo.UpdateLocalCopyBranch(opts.OldBranch); err != nil {
-		return nil, fmt.Errorf("update local copy branch[%s]: %v", opts.OldBranch, err)
-	}
-
-	if opts.OldBranch != opts.NewBranch {
-		if err = repo.CheckoutNewBranch(opts.OldBranch, opts.NewBranch); err != nil {
-			return nil, fmt.Errorf("checkout new branch[%s] from old branch[%s]: %v", opts.NewBranch, opts.OldBranch, err)
-		}
 	}
 
 	localPath := repo.LocalCopyPath()
@@ -164,33 +166,10 @@ func (repo *Repository) PublicUploadRepoFiles(doer *User, opts UploadRepoFileOpt
 //プライベートレポジトリのUploadRepoFiles
 //TODO: ファイルを暗号化して取り扱う
 func (repo *Repository) PrivateUploadRepoFiles(doer *User, opts UploadRepoFileOptionsForIPFS) (map[string]AnnexUploadInfo, error) {
-	if len(opts.Files) == 0 {
-		log.Error("Error 1: %v", len(opts.Files))
-		return nil, nil
-	}
-
-	for _, fi := range opts.Files {
-		log.Info("[opts.Files] %v", fi)
-	}
 
 	uploads, err := GetUploadsByUUIDs(opts.Files)
 	if err != nil {
 		return nil, fmt.Errorf("get uploads by UUIDs[%v]: %v", opts.Files, err)
-	}
-
-	repoWorkingPool.CheckIn(com.ToStr(repo.ID))
-	defer repoWorkingPool.CheckOut(com.ToStr(repo.ID))
-
-	if err = repo.DiscardLocalRepoBranchChanges(opts.OldBranch); err != nil {
-		return nil, fmt.Errorf("discard local repo branch[%s] changes: %v", opts.OldBranch, err)
-	} else if err = repo.UpdateLocalCopyBranch(opts.OldBranch); err != nil {
-		return nil, fmt.Errorf("update local copy branch[%s]: %v", opts.OldBranch, err)
-	}
-
-	if opts.OldBranch != opts.NewBranch {
-		if err = repo.CheckoutNewBranch(opts.OldBranch, opts.NewBranch); err != nil {
-			return nil, fmt.Errorf("checkout new branch[%s] from old branch[%s]: %v", opts.NewBranch, opts.OldBranch, err)
-		}
 	}
 
 	localPath := repo.LocalCopyPath()
@@ -289,9 +268,9 @@ type DatasetInfo struct {
 }
 
 type ContentInfo struct {
-	File            string //ex : datasetNm/Folder/...../File
-	FullContentHash string
-	Address         string
+	File    string //ex : datasetNm/Folder/...../File
+	Key     string
+	Address string
 }
 
 // @value input
@@ -319,7 +298,7 @@ func (repo *Repository) CheckDatasetFormat(datasetNmList []string) (err error) {
 }
 
 //フォルダーごとにコンテンツアドレスの取得(map[stirng]DatasetInfo)
-func (repo *Repository) GetContentAddress(datasetNmList []string, repoBranchNm string) (datasetNmToFileMap map[string]DatasetInfo, err error) {
+func (repo *Repository) GetContentInfoByDatasetNm(datasetNmList []string, repoBranchNm string) (datasetToContentsMap map[string][]annex_ipfs.AnnexContentInfo, err error) {
 
 	//ローカルレポジトリの操作するためのディレクトリ取得
 	localPath := repo.LocalCopyPath()
@@ -333,40 +312,18 @@ func (repo *Repository) GetContentAddress(datasetNmList []string, repoBranchNm s
 	}
 
 	//コンテンツアドレスの取得
-	datasetToContentsMap := map[string][]annex_ipfs.AnnexContentInfo{}
-	if msgWhereis, err := git.NewCommand("annex", "whereis", "--json").RunInDir(localPath); err != nil {
-		log.Error("[git annex whereis Error] err : %v", err)
-	} else {
-		if datasetToContentsMap, err = annex_ipfs.GetAnnexContentInfoListByDatasetNm(&msgWhereis, datasetNmList); err != nil {
-			return nil, fmt.Errorf("[JSON Convert] err : %v ,fromPath : %v", err, localPath)
-		}
+	datasetToContentsMap = map[string][]annex_ipfs.AnnexContentInfo{}
+	msgWhereis, err := git.NewCommand("annex", "whereis", "--json").RunInDir(localPath)
+
+	if err != nil {
+		return nil, fmt.Errorf("[git annex whereis Error] err : %v", err)
 	}
 
-	datasetNmToFileMap = map[string]DatasetInfo{}
-	for datasetNm, annexContentInfoList := range datasetToContentsMap {
-		datasetInfo := DatasetInfo{}
-		log.Trace("[Picking up annex content info] dataset name : %v", datasetNm)
-		for _, content := range annexContentInfoList {
-			inputPath := datasetNm + "/" + INPUT_FOLDER_NM //ex : datasetNm/input
-			srcPath := datasetNm + "/" + SRC_FOLDER_NM
-			OutputPath := datasetNm + "/" + OUTPUT_FOLDER_NM
-
-			filePath := content.File                      // ex datasetNm/FolderNm/...../FileNm
-			fullFilePath := repoBranchNm + "/" + filePath // ex RepoOwnerNm/RepoNm/BranchNm/datasetNm/FolderNm/...../FileNm
-			log.Trace("Create dataset fullFilePath : %v", fullFilePath)
-			if strings.HasPrefix(filePath, inputPath) {
-				datasetInfo.InputList = append(datasetInfo.InputList, ContentInfo{File: fullFilePath, Address: content.Hash})
-			} else if strings.HasPrefix(filePath, srcPath) {
-				datasetInfo.SrcList = append(datasetInfo.SrcList, ContentInfo{File: fullFilePath, Address: content.Hash})
-			} else if strings.HasPrefix(filePath, OutputPath) {
-				datasetInfo.OutputList = append(datasetInfo.OutputList, ContentInfo{File: fullFilePath, Address: content.Hash})
-			}
-		}
-		datasetPath := repoBranchNm + "/" + datasetNm
-		datasetNmToFileMap[datasetPath] = datasetInfo
-		log.Trace("[datasetNmToFileMap] %v", datasetNmToFileMap)
+	if datasetToContentsMap, err = annex_ipfs.GetAnnexContentInfoListByDatasetNm(&msgWhereis, datasetNmList); err != nil {
+		return nil, fmt.Errorf("[JSON Convert] err : %v ,fromPath : %v", err, localPath)
 	}
-	return datasetNmToFileMap, nil
+
+	return datasetToContentsMap, nil
 }
 
 func CheckDatasetFormat(localPath string, datasetNm string) (err error) {
@@ -513,8 +470,8 @@ func (repo *Repository) UpdateFilePrvToPub(opts UploadRepoOption) (map[string]An
 		}
 		log.Trace("Hash[%v] from local Repo<%v>", string(bytes), tmpPath)
 		localHash := util.BytesToString(bytes)
-		if localHash != bcContentInfo.FullContentHash {
-			return nil, fmt.Errorf("[Not Match Full Content Hash] Path : %v, local[%v] vs BC[%v]", tmpPath, localHash, bcContentInfo.FullContentHash)
+		if localHash != bcContentInfo.Key {
+			return nil, fmt.Errorf("[Not Match Full Content Hash] Path : %v, local[%v] vs BC[%v]", tmpPath, localHash, bcContentInfo.Key)
 		}
 	}
 
@@ -549,11 +506,11 @@ func (repo *Repository) UpdateFilePrvToPub(opts UploadRepoOption) (map[string]An
 		if err != nil {
 			return nil, err
 		}
-		log.Trace("[GIT-A WHEREIS Responso] KEY[%v], File[%v], Hash[%v]", content.Key, content.File, content.Hash)
+		log.Trace("[GIT-A WHEREIS Responso] KEY[%v], File[%v], Hash[%v]", content.Key, content.FileNm, content.IpfsCid)
 		//contentLocation := filepath.Join(orbNm, content.File)
 		contentMap[bcContentInfo.File] = AnnexUploadInfo{
 			FullContentHash: content.Key,
-			IpfsCid:         content.Hash,
+			IpfsCid:         content.IpfsCid,
 			IsPrivate:       false,
 		}
 	}
