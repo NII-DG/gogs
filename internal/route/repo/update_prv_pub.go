@@ -26,12 +26,12 @@ func UpdateDataPrvToPub(c *context.Context) {
 	for _, v := range response.ContentsInFolder {
 		if v.IsPrivate {
 			bcContentInfoList = append(bcContentInfoList, db.ContentInfo{File: v.ContentLocation,
-				FullContentHash: v.FullContentHash,
-				Address:         v.IpfsCid})
+				Key:     v.FullContentHash,
+				Address: v.IpfsCid})
 		}
 	}
 	for _, v := range bcContentInfoList {
-		log.Trace("location[%v], hash[%v], address[%v]", v.File, v.FullContentHash, v.Address)
+		log.Trace("location[%v], Key[%v], IPFS CID[%v]", v.File, v.Key, v.Address)
 	}
 
 	//非公開データを公開データして、IPFSへのアップロードする。

@@ -23,7 +23,12 @@ type DatasetCreater struct {
 	Operater ipfs.IFIpfsOperation
 }
 
-func (d *DatasetCreater) GetDatasetAddress(datasetPath string, datasetData db.DatasetInfo) (bcapi.UploadDatasetInfo, error) {
+type CheckedContent struct {
+	ContentLocation string
+	Hash            string
+}
+
+func (d *DatasetCreater) GetDatasetAddress(datasetPath string, datasetData []CheckedContent) (bcapi.UploadDatasetInfo, error) {
 
 	//指定にデータセットフォルダがIPFS上に存在しないことを確認する。
 	//存在している場合、実行ユーザ以外の者がデータセット登録をしようとしているか > 前回の同ディレクトリの削除がうまくいかなかった場合
@@ -36,10 +41,7 @@ func (d *DatasetCreater) GetDatasetAddress(datasetPath string, datasetData db.Da
 	}
 
 	//IPFS上でデータセットのフォルダー構成を再現
-	allContentList := datasetData.InputList
-	allContentList = append(allContentList, datasetData.SrcList...)
-	allContentList = append(allContentList, datasetData.OutputList...)
-	if err := d.createDatasetStructure(allContentList); err != nil {
+	if err := d.createDatasetStructure(datasetData); err != nil {
 		//IPFS上のフォルダー構成を削除する
 		if rmErr := d.Operater.FilesRemove(datasetPath); rmErr != nil {
 			return bcapi.UploadDatasetInfo{}, fmt.Errorf("[Failure Remove Creating Foleder on IPFS] <%v>,<%v>", err, rmErr)
@@ -60,9 +62,15 @@ func (d *DatasetCreater) GetDatasetAddress(datasetPath string, datasetData db.Da
 	return uploadDataset, nil
 }
 
-func (d *DatasetCreater) createDatasetStructure(contentList []db.ContentInfo) error {
+func (d *DatasetCreater) createDatasetStructure(contentList []CheckedContent) error {
 	for _, content := range contentList {
-		if err := d.Operater.FilesCopy(content.Address, content.File); err != nil {
+		//ハッシュ値をIPFSにアップロード
+		cid, err := ipfs.DirectlyAdd(content.Hash)
+		if err != nil {
+			return err
+		}
+		//ハッシュ値のIPFS CIDを基にデータセットのフォルダー構成を再現
+		if err := d.Operater.FilesCopy(cid, content.ContentLocation); err != nil {
 			return err
 		}
 	}

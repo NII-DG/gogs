@@ -2,6 +2,7 @@ package repo
 
 import (
 	"fmt"
+	"path/filepath"
 	"strings"
 
 	log "unknwon.dev/clog/v2"
@@ -14,6 +15,7 @@ import (
 	"github.com/NII-DG/gogs/internal/ipfs"
 	"github.com/NII-DG/gogs/internal/jsonfunc"
 	"github.com/NII-DG/gogs/internal/route/dataset"
+	"github.com/NII-DG/gogs/internal/util"
 	logv2 "unknwon.dev/clog/v2"
 )
 
@@ -113,7 +115,7 @@ func CreateDataset(c *context.Context, f form.DatasetFrom) {
 	c.Success(HOME)
 }
 
-func CreateDatasetForPublicData(c *context.Context, f form.DatasetFrom) {
+func UploadDataset(c *context.Context, f form.DatasetFrom) {
 	repository := c.Repo.Repository
 	//実行ユーザ
 	userCode := c.User.Name
@@ -123,6 +125,12 @@ func CreateDatasetForPublicData(c *context.Context, f form.DatasetFrom) {
 	datasetList := f.DatasetList
 	//ブランチ
 	branchNm := c.Repo.BranchName
+
+	datasetCreater := dataset.DatasetCreater{
+		Operater: &ipfs.IpfsOperation{
+			Commander: ipfs.NewCommand(),
+		},
+	}
 
 	//レポジトリのクローン
 	repository.CheckIn()
@@ -140,10 +148,65 @@ func CreateDatasetForPublicData(c *context.Context, f form.DatasetFrom) {
 	}
 
 	//各データセットパスとその内のフォルダ内のコンテンツ情報を持つMapを取得する。
-	datasetNmToFileMap, err := repository.GetContentAddress(datasetList, repoBranchPath)
+	datasetNmToContentInfo, err := repository.GetContentInfoByDatasetNm(datasetList, repoBranchPath)
 	if err != nil {
 		c.Error(err, "[Error] CheckDatadetAndGetContentAddress()")
 		return
+	}
+
+	//データセット内のコンテンツがBC上に存在するかをチェック
+	//チェックをパスしたコンテンツのコンテンツロケーションとハッシュ値の組リストを取得
+	checkOKContentList := map[string][]dataset.CheckedContent{}
+	for datasetNm, dataList := range datasetNmToContentInfo {
+		datasetPath := filepath.Join(repoBranchPath, datasetNm)
+		bcContentList, err := bcapi.GetContentByFolder(userCode, datasetPath)
+		if err != nil {
+			c.Error(err, "Error In Exchanging BCAPI ")
+			return
+		}
+		//BC取得情報をコンテンツロケーションベースのMapを作成
+		LocToInfo := exchangeLocationMapToContentInfo(bcContentList)
+
+		//検証対象のBC登録情報を取得
+		for _, annexInfo := range dataList {
+			fullPath := filepath.Join(repoBranchPath, annexInfo.FileNm)
+			bcInfo, is := LocToInfo[fullPath]
+			if !is {
+				//BCに登録されてない場合エラー
+				c.Flash.ErrorMsg = fmt.Sprintf("ブロックチェーンにコンテンツ[%v]の情報がありません", fullPath)
+				return
+			}
+			//コンテンツが公開データか非公開データにを判定
+			if bcInfo.IsPrivate {
+				//非公開データ
+				bHash, err := datasetCreater.Operater.Cat(annexInfo.IpfsCid)
+				if err != nil {
+					c.Flash.ErrorMsg = fmt.Sprintf("IPFSからコンテンツ[%v]のハッシュ値の取得に失敗しました。", fullPath)
+					return
+				}
+				hash := util.BytesToString(bHash)
+				if hash == bcInfo.FullContentHash {
+
+					checkOKContentList[datasetPath] = append(checkOKContentList[datasetPath], dataset.CheckedContent{ContentLocation: bcInfo.ContentLocation, Hash: bcInfo.FullContentHash})
+				} else {
+					//コンテンツのハッシュ値が一致しない場合はエラー
+					logv2.Error("Not Match Private Content Hash. git annex [%v] VS BC [%v]", hash, bcInfo.FullContentHash)
+					c.Flash.ErrorMsg = fmt.Sprintf("コンテンツ[%v]の情報がBC登録情報を一致しません", fullPath)
+					return
+				}
+			} else {
+				//公開データ
+				if bcInfo.FullContentHash == annexInfo.Key {
+					checkOKContentList[datasetPath] = append(checkOKContentList[datasetPath], dataset.CheckedContent{ContentLocation: bcInfo.ContentLocation, Hash: bcInfo.FullContentHash})
+				} else {
+					//コンテンツのハッシュ値が一致しない場合はエラー
+					logv2.Error("Not Match Public Content Hash. git annex [%v] VS BC [%v]", annexInfo.Key, bcInfo.FullContentHash)
+					c.Flash.ErrorMsg = fmt.Sprintf("コンテンツ[%v]の情報がBC登録情報を一致しません", fullPath)
+					return
+				}
+			}
+		}
+
 	}
 
 	//ローカルレポジトリの削除
@@ -153,28 +216,11 @@ func CreateDatasetForPublicData(c *context.Context, f form.DatasetFrom) {
 		return
 	}
 
-	//データセット内のコンテンツがBC上に存在するかをチェック
-	for datasetPath, datasetData := range datasetNmToFileMap {
-		if bcContentList, err := bcapi.GetContentByFolder(userCode, datasetPath); err != nil {
-			c.Error(err, "Error In Exchanging BCAPI ")
-			return
-		} else if !isContainDatasetFileInBC(datasetData, bcContentList) {
-			logv2.Error("[A Part Of Dataset File Is Not Registered In BC] Dataset Name : %v", datasetPath)
-			msg := fmt.Sprintf("アップロードされたファイルがブロックチェーンに未登録または登録処理中の可能性があります。再度、データセット登録を申請してください。")
-			c.RenderWithErr(msg, HOME, &f)
-			return
-		}
-	}
-
 	//IPFS上でデータセット構築
 	uploadDatasetMap := map[string]bcapi.UploadDatasetInfo{}
-	for datasetPath, datasetData := range datasetNmToFileMap {
-		datasetCreater := dataset.DatasetCreater{
-			Operater: &ipfs.IpfsOperation{
-				Commander: ipfs.NewCommand(),
-			},
-		}
-		if uploadDataset, err := datasetCreater.GetDatasetAddress(datasetPath, datasetData); err != nil {
+	for datasetPath, dataList := range checkOKContentList {
+
+		if uploadDataset, err := datasetCreater.GetDatasetAddress(datasetPath, dataList); err != nil {
 			logv2.Error("[Get each Address IN Dataset] %v", err)
 			c.Error(err, "データセット内の各フォルダアドレスが取得できませんでした")
 			return
@@ -229,27 +275,24 @@ func CreateDatasetForPublicData(c *context.Context, f form.DatasetFrom) {
 
 }
 
-func CreateDatasetForPrivateData(c *context.Context, f form.DatasetFrom) {
-
+type BcContentInfo struct {
+	ContentLocation string
+	FullContentHash string
+	IpfsCid         string
+	IsPrivate       bool
 }
 
-func isContainDatasetFileInBC(datasetData db.DatasetInfo, bcContentList jsonfunc.ResContentsInFolder) bool {
-	for _, inputData := range datasetData.InputList {
-		if !isContainFileInBc(inputData, bcContentList) {
-			return false
+func exchangeLocationMapToContentInfo(raw jsonfunc.ResContentsInFolder) map[string]BcContentInfo {
+	bcContentInfo := map[string]BcContentInfo{}
+	for _, v := range raw.ContentsInFolder {
+		bcContentInfo[v.ContentLocation] = BcContentInfo{
+			ContentLocation: v.ContentLocation,
+			FullContentHash: v.FullContentHash,
+			IpfsCid:         v.IpfsCid,
+			IsPrivate:       v.IsPrivate,
 		}
 	}
-	for _, srcData := range datasetData.SrcList {
-		if !isContainFileInBc(srcData, bcContentList) {
-			return false
-		}
-	}
-	for _, outData := range datasetData.OutputList {
-		if !isContainFileInBc(outData, bcContentList) {
-			return false
-		}
-	}
-	return true
+	return bcContentInfo
 }
 
 func isContainFileInBc(contentData db.ContentInfo, bcContentList jsonfunc.ResContentsInFolder) bool {

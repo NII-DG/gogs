@@ -14,33 +14,27 @@ import (
 func TestGetDatasetAddress_正常系(t *testing.T) {
 	//GetDatasetAddress()の引数の定義
 	datasetPath := "/user01/demo01/master/dataset1"
-	inputList := []db.ContentInfo{
-		{
-			File:    "/user01/demo01/master/dataset1/input/input_data.txt",
-			Address: "QmWs4uF1aseAtAXMNwhmE2sX9qENbWjSz98m48QWZk9gjw",
-		},
+	datasetData := []dataset.CheckedContent{}
+	data1 := dataset.CheckedContent{
+		ContentLocation: "/user01/demo01/master/dataset1/input/input_data.txt",
+		Hash:            "MD5-17-HFJIKLDSjn9fdknafdiaod",
 	}
-	srcList := []db.ContentInfo{
-		{
-			File:    "/user01/demo01/master/dataset1/src/main/src_data.txt",
-			Address: "Qmf13tWcQt471ckdf3RX7zbhBbZq1KurX9zbNvWeFZFFKM",
-		},
-		{
-			File:    "/user01/demo01/master/dataset1/src/main/src_data2.txt",
-			Address: "QmdpvhPobPzsCwB793PhP2RLUFdqFqBjhKyoJ8uQ1Qeuq4",
-		},
+	datasetData = append(datasetData, data1)
+	data2 := dataset.CheckedContent{
+		ContentLocation: "/user01/demo01/master/dataset1/src/main/src_data.txt",
+		Hash:            "MD5-8-HFJIKLDSjn9fdknafdiaod",
 	}
-	outputList := []db.ContentInfo{
-		{
-			File:    "/user01/demo01/master/dataset1/output/output_data.txt",
-			Address: "QmTfoE7CGczRcm32h5hDAxpqiCW3uyxvsx3NgWPUHEFETX",
-		},
+	datasetData = append(datasetData, data2)
+	data3 := dataset.CheckedContent{
+		ContentLocation: "/user01/demo01/master/dataset1/src/main/src_data2.txt",
+		Hash:            "MD5-10-HFJIKLDSjn9fdknafdiaod",
 	}
-	datasetData := db.DatasetInfo{
-		InputList:  inputList,
-		SrcList:    srcList,
-		OutputList: outputList,
+	datasetData = append(datasetData, data3)
+	data4 := dataset.CheckedContent{
+		ContentLocation: "/user01/demo01/master/dataset1/output/output_data.txt",
+		Hash:            "MD5-18-HFJIKLDSjn9fdknafdiaod",
 	}
+	datasetData = append(datasetData, data4)
 
 	//Mock IFIpfsOperation定義
 	ctrl := gomock.NewController(t)
@@ -54,10 +48,10 @@ func TestGetDatasetAddress_正常系(t *testing.T) {
 	mockIFIpfsOperation.EXPECT().FilesIs(datasetPath).Return(rtnStrAry, rtnErr)
 
 	//createDatasetStructure() で nilを返すようにする。FilesCopy() mock
-	mockIFIpfsOperation.EXPECT().FilesCopy(inputList[0].Address, inputList[0].File).Return(nil)
-	mockIFIpfsOperation.EXPECT().FilesCopy(srcList[0].Address, srcList[0].File).Return(nil)
-	mockIFIpfsOperation.EXPECT().FilesCopy(srcList[1].Address, srcList[1].File).Return(nil)
-	mockIFIpfsOperation.EXPECT().FilesCopy(outputList[0].Address, outputList[0].File).Return(nil)
+	mockIFIpfsOperation.EXPECT().FilesCopy(gomock.Any(), data1.ContentLocation).Return(nil)
+	mockIFIpfsOperation.EXPECT().FilesCopy(gomock.Any(), data2.ContentLocation).Return(nil)
+	mockIFIpfsOperation.EXPECT().FilesCopy(gomock.Any(), data3.ContentLocation).Return(nil)
+	mockIFIpfsOperation.EXPECT().FilesCopy(gomock.Any(), data4.ContentLocation).Return(nil)
 
 	//getUploadDatasetInfo()でinputフォルダのコンテンツを返すFilesStatus() Mock
 	inputPath := datasetPath + "/" + db.INPUT_FOLDER_NM
@@ -92,33 +86,27 @@ func TestGetDatasetAddress_正常系(t *testing.T) {
 func TestGetDatasetAddress_異常系_意図しないエラーが発生した場合(t *testing.T) {
 	//GetDatasetAddress()の引数の定義
 	datasetPath := "/user01/demo01/master/dataset1"
-	inputList := []db.ContentInfo{
-		{
-			File:    "/user01/demo01/master/dataset1/input/input_data.txt",
-			Address: "QmWs4uF1aseAtAXMNwhmE2sX9qENbWjSz98m48QWZk9gjw",
-		},
+	datasetData := []dataset.CheckedContent{}
+	data1 := dataset.CheckedContent{
+		ContentLocation: "/user01/demo01/master/dataset1/input/input_data.txt",
+		Hash:            "MD5-17-HFJIKLDSjn9fdknafdiaod",
 	}
-	srcList := []db.ContentInfo{
-		{
-			File:    "/user01/demo01/master/dataset1/src/main/src_data.txt",
-			Address: "Qmf13tWcQt471ckdf3RX7zbhBbZq1KurX9zbNvWeFZFFKM",
-		},
-		{
-			File:    "/user01/demo01/master/dataset1/src/main/src_data2.txt",
-			Address: "QmdpvhPobPzsCwB793PhP2RLUFdqFqBjhKyoJ8uQ1Qeuq4",
-		},
+	datasetData = append(datasetData, data1)
+	data2 := dataset.CheckedContent{
+		ContentLocation: "/user01/demo01/master/dataset1/src/main/src_data.txt",
+		Hash:            "MD5-8-HFJIKLDSjn9fdknafdiaod",
 	}
-	outputList := []db.ContentInfo{
-		{
-			File:    "/user01/demo01/master/dataset1/output/output_data.txt",
-			Address: "QmTfoE7CGczRcm32h5hDAxpqiCW3uyxvsx3NgWPUHEFETX",
-		},
+	datasetData = append(datasetData, data2)
+	data3 := dataset.CheckedContent{
+		ContentLocation: "/user01/demo01/master/dataset1/src/main/src_data2.txt",
+		Hash:            "MD5-10-HFJIKLDSjn9fdknafdiaod",
 	}
-	datasetData := db.DatasetInfo{
-		InputList:  inputList,
-		SrcList:    srcList,
-		OutputList: outputList,
+	datasetData = append(datasetData, data3)
+	data4 := dataset.CheckedContent{
+		ContentLocation: "/user01/demo01/master/dataset1/output/output_data.txt",
+		Hash:            "MD5-18-HFJIKLDSjn9fdknafdiaod",
 	}
+	datasetData = append(datasetData, data4)
 
 	//Mock IFIpfsOperation定義
 	ctrl := gomock.NewController(t)
@@ -145,33 +133,27 @@ func TestGetDatasetAddress_異常系_意図しないエラーが発生した場�
 func TestGetDatasetAddress_異常系_IPFSにフォルダが既に存在した場合(t *testing.T) {
 	//GetDatasetAddress()の引数の定義
 	datasetPath := "/user01/demo01/master/dataset1"
-	inputList := []db.ContentInfo{
-		{
-			File:    "/user01/demo01/master/dataset1/input/input_data.txt",
-			Address: "QmWs4uF1aseAtAXMNwhmE2sX9qENbWjSz98m48QWZk9gjw",
-		},
+	datasetData := []dataset.CheckedContent{}
+	data1 := dataset.CheckedContent{
+		ContentLocation: "/user01/demo01/master/dataset1/input/input_data.txt",
+		Hash:            "MD5-17-HFJIKLDSjn9fdknafdiaod",
 	}
-	srcList := []db.ContentInfo{
-		{
-			File:    "/user01/demo01/master/dataset1/src/main/src_data.txt",
-			Address: "Qmf13tWcQt471ckdf3RX7zbhBbZq1KurX9zbNvWeFZFFKM",
-		},
-		{
-			File:    "/user01/demo01/master/dataset1/src/main/src_data2.txt",
-			Address: "QmdpvhPobPzsCwB793PhP2RLUFdqFqBjhKyoJ8uQ1Qeuq4",
-		},
+	datasetData = append(datasetData, data1)
+	data2 := dataset.CheckedContent{
+		ContentLocation: "/user01/demo01/master/dataset1/src/main/src_data.txt",
+		Hash:            "MD5-8-HFJIKLDSjn9fdknafdiaod",
 	}
-	outputList := []db.ContentInfo{
-		{
-			File:    "/user01/demo01/master/dataset1/output/output_data.txt",
-			Address: "QmTfoE7CGczRcm32h5hDAxpqiCW3uyxvsx3NgWPUHEFETX",
-		},
+	datasetData = append(datasetData, data2)
+	data3 := dataset.CheckedContent{
+		ContentLocation: "/user01/demo01/master/dataset1/src/main/src_data2.txt",
+		Hash:            "MD5-10-HFJIKLDSjn9fdknafdiaod",
 	}
-	datasetData := db.DatasetInfo{
-		InputList:  inputList,
-		SrcList:    srcList,
-		OutputList: outputList,
+	datasetData = append(datasetData, data3)
+	data4 := dataset.CheckedContent{
+		ContentLocation: "/user01/demo01/master/dataset1/output/output_data.txt",
+		Hash:            "MD5-18-HFJIKLDSjn9fdknafdiaod",
 	}
+	datasetData = append(datasetData, data4)
 
 	//Mock IFIpfsOperation定義
 	ctrl := gomock.NewController(t)
@@ -199,33 +181,27 @@ func TestGetDatasetAddress_異常系_IPFSにフォルダが既に存在した場
 func TestGetDatasetAddress_異常系_IPFSへのフォルダ構築の失敗(t *testing.T) {
 	//GetDatasetAddress()の引数の定義
 	datasetPath := "/user01/demo01/master/dataset1"
-	inputList := []db.ContentInfo{
-		{
-			File:    "/user01/demo01/master/dataset1/input/input_data.txt",
-			Address: "QmWs4uF1aseAtAXMNwhmE2sX9qENbWjSz98m48QWZk9gjw",
-		},
+	datasetData := []dataset.CheckedContent{}
+	data1 := dataset.CheckedContent{
+		ContentLocation: "/user01/demo01/master/dataset1/input/input_data.txt",
+		Hash:            "MD5-17-HFJIKLDSjn9fdknafdiaod",
 	}
-	srcList := []db.ContentInfo{
-		{
-			File:    "/user01/demo01/master/dataset1/src/main/src_data.txt",
-			Address: "Qmf13tWcQt471ckdf3RX7zbhBbZq1KurX9zbNvWeFZFFKM",
-		},
-		{
-			File:    "/user01/demo01/master/dataset1/src/main/src_data2.txt",
-			Address: "QmdpvhPobPzsCwB793PhP2RLUFdqFqBjhKyoJ8uQ1Qeuq4",
-		},
+	datasetData = append(datasetData, data1)
+	data2 := dataset.CheckedContent{
+		ContentLocation: "/user01/demo01/master/dataset1/src/main/src_data.txt",
+		Hash:            "MD5-8-HFJIKLDSjn9fdknafdiaod",
 	}
-	outputList := []db.ContentInfo{
-		{
-			File:    "/user01/demo01/master/dataset1/output/output_data.txt",
-			Address: "QmTfoE7CGczRcm32h5hDAxpqiCW3uyxvsx3NgWPUHEFETX",
-		},
+	datasetData = append(datasetData, data2)
+	data3 := dataset.CheckedContent{
+		ContentLocation: "/user01/demo01/master/dataset1/src/main/src_data2.txt",
+		Hash:            "MD5-10-HFJIKLDSjn9fdknafdiaod",
 	}
-	datasetData := db.DatasetInfo{
-		InputList:  inputList,
-		SrcList:    srcList,
-		OutputList: outputList,
+	datasetData = append(datasetData, data3)
+	data4 := dataset.CheckedContent{
+		ContentLocation: "/user01/demo01/master/dataset1/output/output_data.txt",
+		Hash:            "MD5-18-HFJIKLDSjn9fdknafdiaod",
 	}
+	datasetData = append(datasetData, data4)
 
 	//Mock IFIpfsOperation定義
 	ctrl := gomock.NewController(t)
@@ -240,7 +216,7 @@ func TestGetDatasetAddress_異常系_IPFSへのフォルダ構築の失敗(t *te
 
 	//createDatasetStructure() で errを返すようにする。FilesCopy() mock
 	rtnErrCp := fmt.Errorf("Fail Copy")
-	mockIFIpfsOperation.EXPECT().FilesCopy(inputList[0].Address, inputList[0].File).Return(rtnErrCp)
+	mockIFIpfsOperation.EXPECT().FilesCopy(gomock.Any(), data1.ContentLocation).Return(rtnErrCp)
 
 	//GetDatasetAddress()におけるFilesRemove() mock  errを返さない
 	mockIFIpfsOperation.EXPECT().FilesRemove(datasetPath).Return(nil)
@@ -262,33 +238,27 @@ func TestGetDatasetAddress_異常系_IPFSへのフォルダ構築の失敗(t *te
 func TestGetDatasetAddress_異常系_IPFSへのフォルダ構築と削除を失敗(t *testing.T) {
 	//GetDatasetAddress()の引数の定義
 	datasetPath := "/user01/demo01/master/dataset1"
-	inputList := []db.ContentInfo{
-		{
-			File:    "/user01/demo01/master/dataset1/input/input_data.txt",
-			Address: "QmWs4uF1aseAtAXMNwhmE2sX9qENbWjSz98m48QWZk9gjw",
-		},
+	datasetData := []dataset.CheckedContent{}
+	data1 := dataset.CheckedContent{
+		ContentLocation: "/user01/demo01/master/dataset1/input/input_data.txt",
+		Hash:            "MD5-17-HFJIKLDSjn9fdknafdiaod",
 	}
-	srcList := []db.ContentInfo{
-		{
-			File:    "/user01/demo01/master/dataset1/src/main/src_data.txt",
-			Address: "Qmf13tWcQt471ckdf3RX7zbhBbZq1KurX9zbNvWeFZFFKM",
-		},
-		{
-			File:    "/user01/demo01/master/dataset1/src/main/src_data2.txt",
-			Address: "QmdpvhPobPzsCwB793PhP2RLUFdqFqBjhKyoJ8uQ1Qeuq4",
-		},
+	datasetData = append(datasetData, data1)
+	data2 := dataset.CheckedContent{
+		ContentLocation: "/user01/demo01/master/dataset1/src/main/src_data.txt",
+		Hash:            "MD5-8-HFJIKLDSjn9fdknafdiaod",
 	}
-	outputList := []db.ContentInfo{
-		{
-			File:    "/user01/demo01/master/dataset1/output/output_data.txt",
-			Address: "QmTfoE7CGczRcm32h5hDAxpqiCW3uyxvsx3NgWPUHEFETX",
-		},
+	datasetData = append(datasetData, data2)
+	data3 := dataset.CheckedContent{
+		ContentLocation: "/user01/demo01/master/dataset1/src/main/src_data2.txt",
+		Hash:            "MD5-10-HFJIKLDSjn9fdknafdiaod",
 	}
-	datasetData := db.DatasetInfo{
-		InputList:  inputList,
-		SrcList:    srcList,
-		OutputList: outputList,
+	datasetData = append(datasetData, data3)
+	data4 := dataset.CheckedContent{
+		ContentLocation: "/user01/demo01/master/dataset1/output/output_data.txt",
+		Hash:            "MD5-18-HFJIKLDSjn9fdknafdiaod",
 	}
+	datasetData = append(datasetData, data4)
 
 	//Mock IFIpfsOperation定義
 	ctrl := gomock.NewController(t)
@@ -303,7 +273,7 @@ func TestGetDatasetAddress_異常系_IPFSへのフォルダ構築と削除を失
 
 	//createDatasetStructure() で errを返すようにする。FilesCopy() mock
 	rtnErrCp := fmt.Errorf("Fail Copy")
-	mockIFIpfsOperation.EXPECT().FilesCopy(inputList[0].Address, inputList[0].File).Return(rtnErrCp)
+	mockIFIpfsOperation.EXPECT().FilesCopy(gomock.Any(), data1.ContentLocation).Return(rtnErrCp)
 
 	//GetDatasetAddress()におけるFilesRemove() mock  errを返さない
 	rtnErrRm := fmt.Errorf("Fail Remove")
@@ -326,33 +296,27 @@ func TestGetDatasetAddress_異常系_IPFSへのフォルダ構築と削除を失
 func TestGetDatasetAddress_異常系_コンテンツアドレスの取得時エラー(t *testing.T) {
 	//GetDatasetAddress()の引数の定義
 	datasetPath := "/user01/demo01/master/dataset1"
-	inputList := []db.ContentInfo{
-		{
-			File:    "/user01/demo01/master/dataset1/input/input_data.txt",
-			Address: "QmWs4uF1aseAtAXMNwhmE2sX9qENbWjSz98m48QWZk9gjw",
-		},
+	datasetData := []dataset.CheckedContent{}
+	data1 := dataset.CheckedContent{
+		ContentLocation: "/user01/demo01/master/dataset1/input/input_data.txt",
+		Hash:            "MD5-17-HFJIKLDSjn9fdknafdiaod",
 	}
-	srcList := []db.ContentInfo{
-		{
-			File:    "/user01/demo01/master/dataset1/src/main/src_data.txt",
-			Address: "Qmf13tWcQt471ckdf3RX7zbhBbZq1KurX9zbNvWeFZFFKM",
-		},
-		{
-			File:    "/user01/demo01/master/dataset1/src/main/src_data2.txt",
-			Address: "QmdpvhPobPzsCwB793PhP2RLUFdqFqBjhKyoJ8uQ1Qeuq4",
-		},
+	datasetData = append(datasetData, data1)
+	data2 := dataset.CheckedContent{
+		ContentLocation: "/user01/demo01/master/dataset1/src/main/src_data.txt",
+		Hash:            "MD5-8-HFJIKLDSjn9fdknafdiaod",
 	}
-	outputList := []db.ContentInfo{
-		{
-			File:    "/user01/demo01/master/dataset1/output/output_data.txt",
-			Address: "QmTfoE7CGczRcm32h5hDAxpqiCW3uyxvsx3NgWPUHEFETX",
-		},
+	datasetData = append(datasetData, data2)
+	data3 := dataset.CheckedContent{
+		ContentLocation: "/user01/demo01/master/dataset1/src/main/src_data2.txt",
+		Hash:            "MD5-10-HFJIKLDSjn9fdknafdiaod",
 	}
-	datasetData := db.DatasetInfo{
-		InputList:  inputList,
-		SrcList:    srcList,
-		OutputList: outputList,
+	datasetData = append(datasetData, data3)
+	data4 := dataset.CheckedContent{
+		ContentLocation: "/user01/demo01/master/dataset1/output/output_data.txt",
+		Hash:            "MD5-18-HFJIKLDSjn9fdknafdiaod",
 	}
+	datasetData = append(datasetData, data4)
 
 	//Mock IFIpfsOperation定義
 	ctrl := gomock.NewController(t)
@@ -366,10 +330,10 @@ func TestGetDatasetAddress_異常系_コンテンツアドレスの取得時エ�
 	mockIFIpfsOperation.EXPECT().FilesIs(datasetPath).Return(rtnStrAry, rtnErr)
 
 	//createDatasetStructure() で nilを返すようにする。FilesCopy() mock
-	mockIFIpfsOperation.EXPECT().FilesCopy(inputList[0].Address, inputList[0].File).Return(nil)
-	mockIFIpfsOperation.EXPECT().FilesCopy(srcList[0].Address, srcList[0].File).Return(nil)
-	mockIFIpfsOperation.EXPECT().FilesCopy(srcList[1].Address, srcList[1].File).Return(nil)
-	mockIFIpfsOperation.EXPECT().FilesCopy(outputList[0].Address, outputList[0].File).Return(nil)
+	mockIFIpfsOperation.EXPECT().FilesCopy(gomock.Any(), data1.ContentLocation).Return(nil)
+	mockIFIpfsOperation.EXPECT().FilesCopy(gomock.Any(), data2.ContentLocation).Return(nil)
+	mockIFIpfsOperation.EXPECT().FilesCopy(gomock.Any(), data3.ContentLocation).Return(nil)
+	mockIFIpfsOperation.EXPECT().FilesCopy(gomock.Any(), data4.ContentLocation).Return(nil)
 
 	//getUploadDatasetInfo()でinputフォルダのコンテンツを返すFilesStatus() Mock
 	inputPath := datasetPath + "/" + db.INPUT_FOLDER_NM
@@ -403,33 +367,27 @@ func TestGetDatasetAddress_異常系_コンテンツアドレスの取得時エ�
 func TestGetDatasetAddress_異常系_フォルダー構成削除が失敗(t *testing.T) {
 	//GetDatasetAddress()の引数の定義
 	datasetPath := "/user01/demo01/master/dataset1"
-	inputList := []db.ContentInfo{
-		{
-			File:    "/user01/demo01/master/dataset1/input/input_data.txt",
-			Address: "QmWs4uF1aseAtAXMNwhmE2sX9qENbWjSz98m48QWZk9gjw",
-		},
+	datasetData := []dataset.CheckedContent{}
+	data1 := dataset.CheckedContent{
+		ContentLocation: "/user01/demo01/master/dataset1/input/input_data.txt",
+		Hash:            "MD5-17-HFJIKLDSjn9fdknafdiaod",
 	}
-	srcList := []db.ContentInfo{
-		{
-			File:    "/user01/demo01/master/dataset1/src/main/src_data.txt",
-			Address: "Qmf13tWcQt471ckdf3RX7zbhBbZq1KurX9zbNvWeFZFFKM",
-		},
-		{
-			File:    "/user01/demo01/master/dataset1/src/main/src_data2.txt",
-			Address: "QmdpvhPobPzsCwB793PhP2RLUFdqFqBjhKyoJ8uQ1Qeuq4",
-		},
+	datasetData = append(datasetData, data1)
+	data2 := dataset.CheckedContent{
+		ContentLocation: "/user01/demo01/master/dataset1/src/main/src_data.txt",
+		Hash:            "MD5-8-HFJIKLDSjn9fdknafdiaod",
 	}
-	outputList := []db.ContentInfo{
-		{
-			File:    "/user01/demo01/master/dataset1/output/output_data.txt",
-			Address: "QmTfoE7CGczRcm32h5hDAxpqiCW3uyxvsx3NgWPUHEFETX",
-		},
+	datasetData = append(datasetData, data2)
+	data3 := dataset.CheckedContent{
+		ContentLocation: "/user01/demo01/master/dataset1/src/main/src_data2.txt",
+		Hash:            "MD5-10-HFJIKLDSjn9fdknafdiaod",
 	}
-	datasetData := db.DatasetInfo{
-		InputList:  inputList,
-		SrcList:    srcList,
-		OutputList: outputList,
+	datasetData = append(datasetData, data3)
+	data4 := dataset.CheckedContent{
+		ContentLocation: "/user01/demo01/master/dataset1/output/output_data.txt",
+		Hash:            "MD5-18-HFJIKLDSjn9fdknafdiaod",
 	}
+	datasetData = append(datasetData, data4)
 
 	//Mock IFIpfsOperation定義
 	ctrl := gomock.NewController(t)
@@ -443,10 +401,10 @@ func TestGetDatasetAddress_異常系_フォルダー構成削除が失敗(t *tes
 	mockIFIpfsOperation.EXPECT().FilesIs(datasetPath).Return(rtnStrAry, rtnErr)
 
 	//createDatasetStructure() で nilを返すようにする。FilesCopy() mock
-	mockIFIpfsOperation.EXPECT().FilesCopy(inputList[0].Address, inputList[0].File).Return(nil)
-	mockIFIpfsOperation.EXPECT().FilesCopy(srcList[0].Address, srcList[0].File).Return(nil)
-	mockIFIpfsOperation.EXPECT().FilesCopy(srcList[1].Address, srcList[1].File).Return(nil)
-	mockIFIpfsOperation.EXPECT().FilesCopy(outputList[0].Address, outputList[0].File).Return(nil)
+	mockIFIpfsOperation.EXPECT().FilesCopy(gomock.Any(), data1.ContentLocation).Return(nil)
+	mockIFIpfsOperation.EXPECT().FilesCopy(gomock.Any(), data2.ContentLocation).Return(nil)
+	mockIFIpfsOperation.EXPECT().FilesCopy(gomock.Any(), data3.ContentLocation).Return(nil)
+	mockIFIpfsOperation.EXPECT().FilesCopy(gomock.Any(), data4.ContentLocation).Return(nil)
 
 	//getUploadDatasetInfo()でinputフォルダのコンテンツを返すFilesStatus() Mock
 	inputPath := datasetPath + "/" + db.INPUT_FOLDER_NM
