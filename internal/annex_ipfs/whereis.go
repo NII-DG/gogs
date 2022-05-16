@@ -32,9 +32,9 @@ type AnnexWhereResponse struct {
 
 type AnnexWhereResponses []AnnexWhereResponse
 type AnnexContentInfo struct {
-	Key  string
-	Hash string
-	File string
+	Key     string
+	IpfsCid string
+	FileNm  string
 }
 
 func (a AnnexWhereResponse) getKey() string {
@@ -63,8 +63,8 @@ func (a AnnexWhereResponse) getHashValueInIPFS() string {
 func (a AnnexWhereResponse) getAnnexContentInfo() AnnexContentInfo {
 	info := new(AnnexContentInfo)
 	info.Key = a.getKey()
-	info.Hash = a.getHashValueInIPFS()
-	info.File = a.getFile()
+	info.IpfsCid = a.getHashValueInIPFS()
+	info.FileNm = a.getFile()
 	return *info
 }
 
@@ -77,6 +77,7 @@ func GetAnnexContentInfo(rawJson *[]byte) (AnnexContentInfo, error) {
 	return data.getAnnexContentInfo(), nil
 }
 
+//データセット名に対するAnnxeのメタ情報をMapを取得
 func GetAnnexContentInfoListByDatasetNm(rawJson *[]byte, datasetNmList []string) (map[string][]AnnexContentInfo, error) {
 	annexContentInfoMap := map[string][]AnnexContentInfo{}
 	reg := "\r\n|\n"
