@@ -2,9 +2,11 @@ package db
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/G-Node/libgin/libgin/annex"
 	"github.com/NII-DG/gogs/internal/annex_ipfs"
+	"github.com/NII-DG/gogs/internal/util"
 	"github.com/gogs/git-module"
 	log "gopkg.in/clog.v1"
 	logv2 "unknwon.dev/clog/v2"
@@ -178,4 +180,18 @@ func setRemoteIPFS(path string) error {
 	cmd.AddArgs("ipfs", "type=external", "externaltype=ipfs", "encryption=none")
 	_, err := cmd.RunInDir(path)
 	return err
+}
+
+func annexCalcKey(repoPath, filePath string) (string, error) {
+	cmd := git.NewCommand("annex", "calckey")
+	msg, err := cmd.AddArgs(filePath).RunInDir(repoPath)
+	if err != nil {
+		return "", err
+	}
+	hash := util.BytesToString(msg)
+	hash = strings.TrimRight(hash, "\n")
+	if strings.HasSuffix(hash, "\r") {
+		hash = strings.TrimRight(hash, "\r")
+	}
+	return hash, nil
 }

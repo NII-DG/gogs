@@ -6,9 +6,9 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
-	"unsafe"
 
 	"github.com/NII-DG/gogs/internal/jsonfunc"
+	"github.com/NII-DG/gogs/internal/util"
 	"github.com/gogs/git-module"
 	log "unknwon.dev/clog/v2"
 	//log "unknwon.dev/clog/v2"
@@ -78,10 +78,10 @@ func GetAnnexContentInfo(rawJson *[]byte) (AnnexContentInfo, error) {
 }
 
 //データセット名に対するAnnxeのメタ情報をMapを取得
-func GetAnnexContentInfoListByDatasetNm(rawJson *[]byte, datasetNmList []string) (map[string][]AnnexContentInfo, error) {
+func GetAnnexContentInfoListByDatasetNm(rawJson []byte, datasetNmList []string) (map[string][]AnnexContentInfo, error) {
 	annexContentInfoMap := map[string][]AnnexContentInfo{}
 	reg := "\r\n|\n"
-	strJson := *(*string)(unsafe.Pointer(rawJson))            //[]byte to string
+	strJson := util.BytesToString(rawJson)                    //[]byte to string
 	splitByline := regexp.MustCompile(reg).Split(strJson, -1) //改行分割
 	for _, unitData := range splitByline {
 		if jsonfunc.IsJSONString(unitData) {
@@ -114,7 +114,7 @@ func isContainDatasetNm(fileNm string, datasetNm string) bool {
 //@parame upperPath string　git annex whereis のレスポンスのファイル名項目の上部に追加する情報。 ない("")場合は、付けない
 //　　　　　　　　　　　　　　ex: /OwenerNm/RepoNM/BranchNm
 //　　　　　　　　　　　　　　ない("")場合は、付けない
-func GetAnnexKeyListToContentLoc(rawJson *[]byte, contentLocationList []string, upperPath string) ([]string, error) {
+func GetAnnexKeyListToContentLoc(rawJson []byte, contentLocationList []string, upperPath string) ([]string, error) {
 	var keyList []string
 	dataList, err := resolveAnnexWhereisResponseList(rawJson, upperPath)
 	if err != nil {
@@ -128,10 +128,10 @@ func GetAnnexKeyListToContentLoc(rawJson *[]byte, contentLocationList []string, 
 }
 
 //git annex whereis (複数：JSON形式)をファイル名と各コンテンツ情報を紐づける
-func resolveAnnexWhereisResponseList(rawJson *[]byte, upperPath string) (map[string]AnnexWhereResponse, error) {
+func resolveAnnexWhereisResponseList(rawJson []byte, upperPath string) (map[string]AnnexWhereResponse, error) {
 	fileNmMapToRes := map[string]AnnexWhereResponse{}
 	reg := "\r\n|\n"
-	strJson := *(*string)(unsafe.Pointer(rawJson))            //[]byte to string
+	strJson := util.BytesToString(rawJson)                    //[]byte to string
 	splitByline := regexp.MustCompile(reg).Split(strJson, -1) //改行分割
 	for _, unitData := range splitByline {
 		if jsonfunc.IsJSONString(unitData) {

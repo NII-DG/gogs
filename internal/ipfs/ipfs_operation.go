@@ -6,8 +6,8 @@ import (
 	"os/exec"
 	"regexp"
 	"strings"
-	"unsafe"
 
+	"github.com/NII-DG/gogs/internal/util"
 	logv2 "unknwon.dev/clog/v2"
 )
 
@@ -51,7 +51,7 @@ func (i *IpfsOperation) FilesStatus(folderPath string) (string, error) {
 		return "", fmt.Errorf("[Failure ipfs files stat ...] FolderPath : %v", folderPath)
 	}
 	//msgからフォルダーアドレスを取得
-	strMsg := *(*string)(unsafe.Pointer(&msg))
+	strMsg := util.BytesToString(msg)
 	reg := "\r\n|\n"
 	splitByline := regexp.MustCompile(reg).Split(strMsg, -1)
 	return splitByline[0], nil
@@ -79,7 +79,7 @@ func (i *IpfsOperation) FilesIs(folderPath string) ([]string, error) {
 	if err != nil {
 		return nil, fmt.Errorf("[Failure ipfs file is ...] <%v>, FolderPath : %v", err, folderPath)
 	}
-	strMsg := *(*string)(unsafe.Pointer(&msg))
+	strMsg := util.BytesToString(msg)
 	reg := "\r\n|\n"
 	splitByline := regexp.MustCompile(reg).Split(strMsg, -1)
 	return splitByline, nil

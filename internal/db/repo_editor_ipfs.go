@@ -319,7 +319,7 @@ func (repo *Repository) GetContentInfoByDatasetNm(datasetNmList []string, repoBr
 		return nil, fmt.Errorf("[git annex whereis Error] err : %v", err)
 	}
 
-	if datasetToContentsMap, err = annex_ipfs.GetAnnexContentInfoListByDatasetNm(&msgWhereis, datasetNmList); err != nil {
+	if datasetToContentsMap, err = annex_ipfs.GetAnnexContentInfoListByDatasetNm(msgWhereis, datasetNmList); err != nil {
 		return nil, fmt.Errorf("[JSON Convert] err : %v ,fromPath : %v", err, localPath)
 	}
 
@@ -444,7 +444,7 @@ func (repo *Repository) UpdateFilePrvToPub(opts UploadRepoOption) (map[string]An
 	for _, v := range opts.BcContentInfoList {
 		locList = append(locList, v.File)
 	}
-	keyList, err := annex_ipfs.GetAnnexKeyListToContentLoc(&msgWhereis, locList, orbNm)
+	keyList, err := annex_ipfs.GetAnnexKeyListToContentLoc(msgWhereis, locList, orbNm)
 	if err != nil {
 		return nil, err
 	}

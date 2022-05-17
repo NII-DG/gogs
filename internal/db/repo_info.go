@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
-	"unsafe"
 
+	"github.com/NII-DG/gogs/internal/util"
 	"github.com/gogs/git-module"
 	log "unknwon.dev/clog/v2"
 )
@@ -18,7 +18,7 @@ func GetBranchList(repoPath string) ([]string, error) {
 	if err != nil {
 		return nil, fmt.Errorf("[git branch] Failure Getting Branch List. Error Mag[%v]", err)
 	} else {
-		strMsg := *(*string)(unsafe.Pointer(&msg)) //[]byte to string
+		strMsg := util.BytesToString(msg) //[]byte to string
 		reg := "\r\n|\n"
 		list := regexp.MustCompile(reg).Split(strMsg, -1) //改行分割
 		for _, unit := range list {

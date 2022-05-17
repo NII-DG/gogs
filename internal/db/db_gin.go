@@ -9,7 +9,6 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
-	"unsafe"
 
 	"github.com/G-Node/libgin/libgin"
 	"github.com/G-Node/libgin/libgin/annex"
@@ -142,20 +141,6 @@ func annexAdd(repoPath string, all bool, files ...string) error {
 	}
 	_, err := cmd.AddArgs(files...).RunInDir(repoPath)
 	return err
-}
-
-func annexCalcKey(repoPath, filePath string) (string, error) {
-	cmd := git.NewCommand("annex", "calckey")
-	msg, err := cmd.AddArgs(filePath).RunInDir(repoPath)
-	if err != nil {
-		return "", err
-	}
-	hash := *(*string)(unsafe.Pointer(&msg))
-	hash = strings.TrimRight(hash, "\n")
-	if strings.HasSuffix(hash, "\r") {
-		hash = strings.TrimRight(hash, "\r")
-	}
-	return hash, nil
 }
 
 func annexUpload(repoPath, remote string) error {

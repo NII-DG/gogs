@@ -10,9 +10,9 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"unsafe"
 
 	"github.com/NII-DG/gogs/internal/ipfs"
+	"github.com/NII-DG/gogs/internal/util"
 	log "unknwon.dev/clog/v2"
 )
 
@@ -48,7 +48,7 @@ func Encrypted(filepath, password string) (string, error) {
 	encryptStream.XORKeyStream(cipherText[aes.BlockSize:], plainText)
 
 	//cipherText(暗号化データ)をIPFSにアップロードする。
-	address, err := ipfs.DirectlyAdd(*(*string)(unsafe.Pointer(&cipherText)))
+	address, err := ipfs.DirectlyAdd(util.BytesToString(cipherText))
 	if err != nil {
 		return "", err
 	}

@@ -4,10 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"regexp"
-	"unsafe"
 
 	//logv2 "unknwon.dev/clog/v2"
 	"github.com/NII-DG/gogs/internal/jsonfunc"
+	"github.com/NII-DG/gogs/internal/util"
 	"github.com/gogs/git-module"
 )
 
@@ -21,10 +21,10 @@ type AnnexAddResponse struct {
 	File    string `json:"file"`
 }
 
-func GetAnnexAddInfo(rawJson *[]byte) ([]AnnexAddResponse, error) {
+func GetAnnexAddInfo(rawJson []byte) ([]AnnexAddResponse, error) {
 	annexAddResponseList := []AnnexAddResponse{}
 	reg := "\r\n|\n"
-	strMsg := *(*string)(unsafe.Pointer(rawJson))            //[]byte to string
+	strMsg := util.BytesToString(rawJson)                    //[]byte to string
 	splitByline := regexp.MustCompile(reg).Split(strMsg, -1) //改行分割
 	for _, unitData := range splitByline {
 		if jsonfunc.IsJSONString(unitData) {
@@ -46,7 +46,7 @@ func Add(repoPath string, all bool, files ...string) ([]AnnexAddResponse, error)
 	}
 	msg, err := cmd.AddArgs(files...).RunInDir(repoPath)
 	if err == nil {
-		reslist, err := GetAnnexAddInfo(&msg)
+		reslist, err := GetAnnexAddInfo(msg)
 		if err != nil {
 			return nil, fmt.Errorf("[Annex Add Json Error]: %v", err)
 		}
