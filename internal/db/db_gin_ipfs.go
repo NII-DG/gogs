@@ -45,7 +45,7 @@ func PublicAnnexUpload(upperpath, repoPath, remote string, annexAddRes []annex_i
 			contentLocation := upperpath + "/" + content.File
 			contentMap[contentLocation] = AnnexUploadInfo{
 				FullContentHash: content.Key,
-				IpfsCid:         contentInfo.Key,
+				IpfsCid:         contentInfo.IpfsCid,
 				IsPrivate:       false,
 			}
 
