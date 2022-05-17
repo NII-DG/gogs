@@ -67,6 +67,10 @@ func PublicAnnexUpload(upperpath, repoPath, remote string, annexAddRes []annex_i
 		logv2.Info("[Success git-annex sync] path : %v", repoPath)
 	}
 
+	for k, v := range contentMap {
+		logv2.Trace("[contentMap] key : %v, FullContentHash : %v, IpfsCid: %v, IsPrivate : %v", k, v.FullContentHash, v.IpfsCid, v.IsPrivate)
+	}
+
 	return contentMap, nil
 }
 
