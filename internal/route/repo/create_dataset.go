@@ -111,6 +111,9 @@ func CreateDataset(c *context.Context, f form.DatasetFrom) {
 	c.Data["BranchLink"] = branchLink
 	c.Data["DatasetLink"] = datasetLink
 
+	//データセットの構築
+	UploadDataset(c, f)
+
 	c.Data["Flash"] = c.Flash
 	c.Success(HOME)
 }
