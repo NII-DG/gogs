@@ -157,6 +157,13 @@ func UploadDataset(c *context.Context, f form.DatasetFrom) {
 		return
 	}
 
+	//ローカルレポジトリの削除
+	db.AnnexUninit(repository.LocalCopyPath()) // Uninitialise annex to prepare for deletion
+	if err := db.RemoveLocalRepository(repository.LocalCopyPath()); err != nil {
+		c.Error(err, "[Error] Cannot Remove Local Repository")
+		return
+	}
+
 	//データセット内のコンテンツがBC上に存在するかをチェック
 	//チェックをパスしたコンテンツのコンテンツロケーションとハッシュ値の組リストを取得
 	checkOKContentList := map[string][]dataset.CheckedContent{}
@@ -210,13 +217,6 @@ func UploadDataset(c *context.Context, f form.DatasetFrom) {
 			}
 		}
 
-	}
-
-	//ローカルレポジトリの削除
-	db.AnnexUninit(repository.LocalCopyPath()) // Uninitialise annex to prepare for deletion
-	if err := db.RemoveLocalRepository(repository.LocalCopyPath()); err != nil {
-		c.Error(err, "[Error] Cannot Remove Local Repository")
-		return
 	}
 
 	//IPFS上でデータセット構築
@@ -296,13 +296,4 @@ func exchangeLocationMapToContentInfo(raw jsonfunc.ResContentsInFolder) map[stri
 		}
 	}
 	return bcContentInfo
-}
-
-func isContainFileInBc(contentData db.ContentInfo, bcContentList jsonfunc.ResContentsInFolder) bool {
-	for _, bcContent := range bcContentList.ContentsInFolder {
-		if contentData.File == bcContent.ContentLocation && contentData.Address == bcContent.IpfsCid {
-			return true
-		}
-	}
-	return false
 }
