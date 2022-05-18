@@ -27,102 +27,45 @@ var N = 9
 
 var result string
 
-func BenchmarkEncrypted_1k(b *testing.B) {
-
+func bench(b *testing.B, filePath string, f func(string, string) (string, error)) {
 	password := "cekYSYu3cTQL3yiKFoEwTWC4YATazRcL"
-	b.ResetTimer()
-	var address string
-	var err error
+	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
-		address, err = ef.Encrypted("D:/Myrepository/testdata/gogs/1_1kbyte.txt", password)
+		_, err := f(filePath, password)
 		if err != nil {
 			log.Error("Fialure Encrypted(). Error : %v\n", err)
 		}
 	}
-
-	result = address
 }
 
-// func BenchmarkEncrypted_10k(b *testing.B) {
+func BenchmarkEncrypted_1k(b *testing.B) {
+	bench(b, "D:/Myrepository/testdata/gogs/1_1kbyte.txt", ef.Encrypted)
+}
 
-// 	password := "cekYSYu3cTQL3yiKFoEwTWC4YATazRcL"
+func BenchmarkEncrypted_10k(b *testing.B) {
+	bench(b, "D:/Myrepository/testdata/gogs/2_10kbyte.txt", ef.Encrypted)
+}
 
-// 	for i := 0; i < b.N; i++ {
-// 		_, err := ef.Encrypted("D:/Myrepository/testdata/gogs/2_10kbyte.txt", password)
-// 		if err != nil {
-// 			log.Error("Fialure Encrypted(). Error : %v\n", err)
-// 		}
-// 	}
-// }
+func BenchmarkEncrypted_100k(b *testing.B) {
+	bench(b, "D:/Myrepository/testdata/gogs/3_100kbyte.txt", ef.Encrypted)
+}
 
-// func BenchmarkEncrypted_100k(b *testing.B) {
+func BenchmarkEncrypted_1M(b *testing.B) {
+	bench(b, "D:/Myrepository/testdata/gogs/4_1Mbyte.txt", ef.Encrypted)
+}
 
-// 	password := "cekYSYu3cTQL3yiKFoEwTWC4YATazRcL"
+func BenchmarkEncrypted_10M(b *testing.B) {
+	bench(b, "D:/Myrepository/testdata/gogs/5_10Mbyte.txt", ef.Encrypted)
+}
 
-// 	for i := 0; i < b.N; i++ {
-// 		_, err := ef.Encrypted("D:/Myrepository/testdata/gogs/3_100kbyte.txt", password)
-// 		if err != nil {
-// 			log.Error("Fialure Encrypted(). Error : %v\n", err)
-// 		}
-// 	}
-// }
+func BenchmarkEncrypted_100M(b *testing.B) {
+	bench(b, "D:/Myrepository/testdata/gogs/6_100Mbyte.txt", ef.Encrypted)
+}
 
-// func BenchmarkEncrypted_1M(b *testing.B) {
+func BenchmarkEncrypted_1G(b *testing.B) {
+	bench(b, "D:/Myrepository/testdata/gogs/7_1Gbyte.txt", ef.Encrypted)
+}
 
-// 	password := "cekYSYu3cTQL3yiKFoEwTWC4YATazRcL"
-
-// 	for i := 0; i < b.N; i++ {
-// 		_, err := ef.Encrypted("D:/Myrepository/testdata/gogs/4_1Mbyte.txt", password)
-// 		if err != nil {
-// 			log.Error("Fialure Encrypted(). Error : %v\n", err)
-// 		}
-// 	}
-// }
-
-// func BenchmarkEncrypted_10M(b *testing.B) {
-
-// 	password := "cekYSYu3cTQL3yiKFoEwTWC4YATazRcL"
-
-// 	for i := 0; i < b.N; i++ {
-// 		_, err := ef.Encrypted("D:/Myrepository/testdata/gogs/5_10Mbyte.txt", password)
-// 		if err != nil {
-// 			log.Error("Fialure Encrypted(). Error : %v\n", err)
-// 		}
-// 	}
-// }
-
-// func BenchmarkEncrypted_100M(b *testing.B) {
-
-// 	password := "cekYSYu3cTQL3yiKFoEwTWC4YATazRcL"
-
-// 	for i := 0; i < b.N; i++ {
-// 		_, err := ef.Encrypted("D:/Myrepository/testdata/gogs/6_100Mbyte.txt", password)
-// 		if err != nil {
-// 			log.Error("Fialure Encrypted(). Error : %v\n", err)
-// 		}
-// 	}
-// }
-
-// func BenchmarkEncrypted_1G(b *testing.B) {
-
-// 	password := "cekYSYu3cTQL3yiKFoEwTWC4YATazRcL"
-
-// 	for i := 0; i < b.N; i++ {
-// 		_, err := ef.Encrypted("D:/Myrepository/testdata/gogs/7_1Gbyte.txt", password)
-// 		if err != nil {
-// 			log.Error("Fialure Encrypted(). Error : %v\n", err)
-// 		}
-// 	}
-// }
-
-// func BenchmarkEncrypted_10G(b *testing.B) {
-
-// 	password := "cekYSYu3cTQL3yiKFoEwTWC4YATazRcL"
-
-// 	for i := 0; i < b.N; i++ {
-// 		_, err := ef.Encrypted("D:/Myrepository/testdata/gogs/8_10Gbyte.txt", password)
-// 		if err != nil {
-// 			log.Error("Fialure Encrypted(). Error : %v\n", err)
-// 		}
-// 	}
-// }
+func BenchmarkEncrypted_10G(b *testing.B) {
+	bench(b, "D:/Myrepository/testdata/gogs/8_10Gbyte.txt", ef.Encrypted)
+}
