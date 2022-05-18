@@ -35,6 +35,8 @@ func TestEncrypted_1k(t *testing.T) {
 
 var N = 100
 
+// 定数N回を繰り返して、処理速度、メモリの割当量、アロケーションした回数を出力
+//出力された数値は　Nで割ることで1回の数値とする。
 func bench(b *testing.B, filePath string, f func(string, string) (string, error)) {
 	for i := 0; i < N; i++ {
 		_, err := f(filePath, password)
