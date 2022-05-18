@@ -25,7 +25,7 @@ func TestEncrypted_1k(t *testing.T) {
 	t.Logf("Sucess TestEncrypted_1k(t *testing.T). time[%v ns]\n", since)
 }
 
-var N = 10
+var N = 100
 
 func bench(b *testing.B, filePath string, f func(string, string) (string, error)) {
 	for i := 0; i < N; i++ {
