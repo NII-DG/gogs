@@ -2,7 +2,11 @@ package encyrptfile_test
 
 //実行コマンド
 //cd internal\ipfs\encyrpt_file
-//go.exe test -benchmem -bench . -timeout 24h
+//go.exe test -benchmem -bench . -timeout 24h -count 3 -trace a.trace -cpuprofile a.prof
+
+//go tool trace --http localhost:6060 a.trace
+
+//go tool pprof -http :6060 a.prof
 
 import (
 	"testing"
