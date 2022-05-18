@@ -22,7 +22,7 @@ func TestEncrypted_1k(t *testing.T) {
 	t.Logf("Sucess TestEncrypted_1k(t *testing.T)\n")
 }
 
-var N = 1000
+var N = 100
 
 func bench(b *testing.B, filePath string, f func(string, string) (string, error)) {
 	password := "cekYSYu3cTQL3yiKFoEwTWC4YATazRcL"
