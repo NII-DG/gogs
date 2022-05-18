@@ -20,6 +20,8 @@ type IFIpfsOperation interface {
 	FilesIs(folderPath string) ([]string, error)
 	Cat(cid string) ([]byte, error)
 	Add(filePath string) (string, error)
+	PinRm(cid string) error
+	RepoGc() error
 }
 
 type IpfsOperation struct {
@@ -109,6 +111,26 @@ func (i *IpfsOperation) Add(filePath string) (string, error) {
 	arrMsg := strings.Split(string(msg), " ")
 	return arrMsg[1], nil
 
+}
+
+func (i *IpfsOperation) PinRm(cid string) error {
+	i.Commander.RemoveArgs()
+	i.Commander.AddArgs("pin", "rm", cid)
+	_, err := i.Commander.Run()
+	if err != nil {
+		return fmt.Errorf("[Failure ipfs pin  rm ...] <%v>, IPFS CID : %v", err, cid)
+	}
+	return nil
+}
+
+func (i *IpfsOperation) RepoGc() error {
+	i.Commander.RemoveArgs()
+	i.Commander.AddArgs("repo", "gc")
+	_, err := i.Commander.Run()
+	if err != nil {
+		return fmt.Errorf("[Failure ipfs repo gc ...] <%v>,", err)
+	}
+	return nil
 }
 
 //直接、データをIPFSへのアップロードする。（echo [data] | ipfs add）
