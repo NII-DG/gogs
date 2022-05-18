@@ -11,7 +11,7 @@ func TestGetAnnexAddInfo_正常系(t *testing.T) {
 	var strJson = `{"command":"add1","note":"note1","success":false,"key":"key1","file":"file1"}
 	{"command":"add2","note":"note2","success":false,"key":"key2","file":"file2"}`
 	byteJson := []byte(strJson)
-	res, err := GetAnnexAddInfo(&byteJson)
+	res, err := GetAnnexAddInfo(byteJson)
 	if err != nil {
 		fmt.Println(err)
 		t.Fail()
