@@ -113,8 +113,21 @@ func (i *IpfsOperation) Add(filePath string) (string, error) {
 
 //直接、データをIPFSへのアップロードする。（echo [data] | ipfs add）
 func DirectlyAdd(data string) (string, error) {
+
 	cmd := exec.Command("ipfs", "add")
 	cmd.Stdin = strings.NewReader(data)
+	// stdin, err := cmd.StdinPipe()
+	// if err != nil {
+	// 	return "", fmt.Errorf("[Cannot getting StdinPipe. Error Msg : %v]", err)
+	// }
+	// c, err := io.WriteString(stdin, data)
+	// if err != nil {
+	// 	return "", fmt.Errorf("[io.WriteString(stdin, data). Error Msg : %v]", err)
+	// } else {
+	// 	logv2.Trace("io.WriteString(stdin, data) %v", c)
+	// }
+	// stdin.Close()
+
 	out, err := cmd.Output()
 	if err != nil {
 		return "", fmt.Errorf("[Failure Running Command <ipfs add>. Error Msg : %v]", err)
