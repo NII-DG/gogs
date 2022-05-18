@@ -2,7 +2,7 @@ package encyrptfile_test
 
 //実行コマンド
 //cd internal\ipfs\encyrpt_file
-//PS D:\Myrepository\nii_dg_gin\internal\ipfs\encyrpt_file> go.exe test -benchmem -bench .
+//go.exe test -benchmem -bench . -timeout 24h
 
 import (
 	"testing"
