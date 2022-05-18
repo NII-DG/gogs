@@ -24,8 +24,9 @@ func TestEncrypted_1k(t *testing.T) {
 
 var N = 100
 
+var password = "cekYSYu3cTQL3yiKFoEwTWC4YATazRcL"
+
 func bench(b *testing.B, filePath string, f func(string, string) (string, error)) {
-	password := "cekYSYu3cTQL3yiKFoEwTWC4YATazRcL"
 	for i := 0; i < N; i++ {
 		_, err := f(filePath, password)
 		if err != nil {
