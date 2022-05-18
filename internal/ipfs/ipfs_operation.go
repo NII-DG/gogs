@@ -123,7 +123,12 @@ func DirectlyAdd(data string) (string, error) {
 		return "", fmt.Errorf("[Cannot getting StdinPipe. Error Msg : %v]", err)
 	}
 	logv2.Trace("4")
-	io.WriteString(stdin, data)
+	c, err := io.WriteString(stdin, data)
+	if err != nil {
+		return "", fmt.Errorf("[io.WriteString(stdin, data). Error Msg : %v]", err)
+	} else {
+		logv2.Trace("io.WriteString(stdin, data) %v", c)
+	}
 	logv2.Trace("5")
 	stdin.Close()
 	logv2.Trace("6")
