@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	ef "github.com/NII-DG/gogs/internal/ipfs/encyrpt_file"
-	log "unknwon.dev/clog/v2"
 )
 
 func TestEncrypted_1k(t *testing.T) {
@@ -13,26 +12,24 @@ func TestEncrypted_1k(t *testing.T) {
 
 	address, err := ef.Encrypted("D:/Myrepository/testdata/gogs/1_1kbyte.txt", password)
 	if err != nil {
-		log.Error("Fialure Encrypted(). Error : %v\n", err)
+		t.Logf("Fialure Encrypted(). Error : %v\n", err)
 		t.Fail()
 	}
 
 	if len(address) == 0 {
 		t.Fail()
 	}
-	log.Info("Sucess TestEncrypted_1k(t *testing.T)\n")
+	t.Logf("Sucess TestEncrypted_1k(t *testing.T)\n")
 }
 
-var N = 9
+var N = 1000
 
 func bench(b *testing.B, filePath string, f func(string, string) (string, error)) {
 	password := "cekYSYu3cTQL3yiKFoEwTWC4YATazRcL"
-	b.ReportAllocs()
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for i := 0; i < N; i++ {
 		_, err := f(filePath, password)
 		if err != nil {
-			log.Error("Fialure Encrypted(). Error : %v\n", err)
+			b.Logf("Fialure Encrypted(). Error : %v\n", err)
 		}
 	}
 }
