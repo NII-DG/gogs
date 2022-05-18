@@ -10,6 +10,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/NII-DG/gogs/internal/ipfs"
 	"github.com/NII-DG/gogs/internal/util"
@@ -22,11 +23,14 @@ import (
 //
 //@param password 暗号キー
 func Encrypted(filepath, password string) (string, error) {
+	log.Trace("Start Encrypted in %v", filepath)
+	now := time.Now()
 	//原本ファイルの取得
 	plainText, err := ioutil.ReadFile(filepath)
 	if err != nil {
 		return "", fmt.Errorf("[Cannot find file !!!, TARGET_FILE_PATH : %v]", filepath)
 	}
+	log.Trace("Finish Read File in %v. time[%v ns]", filepath, time.Since(now).Nanoseconds())
 	//共通キーの取得
 	key := []byte(password)
 
@@ -46,12 +50,14 @@ func Encrypted(filepath, password string) (string, error) {
 	// Encrypt
 	encryptStream := cipher.NewCTR(block, iv)
 	encryptStream.XORKeyStream(cipherText[aes.BlockSize:], plainText)
+	log.Trace("Finish Encrypt File in %v. time[%v ns]", filepath, time.Since(now).Nanoseconds())
 
 	//cipherText(暗号化データ)をIPFSにアップロードする。
 	address, err := ipfs.DirectlyAdd(util.BytesToString(cipherText))
 	if err != nil {
 		return "", err
 	}
+	log.Trace("Finish Uploading To IPFS in %v. time[%v ns]", filepath, time.Since(now).Nanoseconds())
 	return address, nil
 }
 

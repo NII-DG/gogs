@@ -2,15 +2,17 @@ package encyrptfile_test
 
 import (
 	"testing"
+	"time"
 
 	ef "github.com/NII-DG/gogs/internal/ipfs/encyrpt_file"
 )
 
+var password = "cekYSYu3cTQL3yiKFoEwTWC4YATazRcL"
+
 func TestEncrypted_1k(t *testing.T) {
-
-	password := "cekYSYu3cTQL3yiKFoEwTWC4YATazRcL"
-
-	address, err := ef.Encrypted("D:/Myrepository/testdata/gogs/1_1kbyte.txt", password)
+	filePath := "D:/Myrepository/testdata/gogs/2_10kbyte.txt"
+	now := time.Now()
+	address, err := ef.Encrypted(filePath, password)
 	if err != nil {
 		t.Logf("Fialure Encrypted(). Error : %v\n", err)
 		t.Fail()
@@ -19,12 +21,11 @@ func TestEncrypted_1k(t *testing.T) {
 	if len(address) == 0 {
 		t.Fail()
 	}
-	t.Logf("Sucess TestEncrypted_1k(t *testing.T)\n")
+	since := time.Since(now).Nanoseconds()
+	t.Logf("Sucess TestEncrypted_1k(t *testing.T). time[%v ns]\n", since)
 }
 
-var N = 1
-
-var password = "cekYSYu3cTQL3yiKFoEwTWC4YATazRcL"
+var N = 10
 
 func bench(b *testing.B, filePath string, f func(string, string) (string, error)) {
 	for i := 0; i < N; i++ {
