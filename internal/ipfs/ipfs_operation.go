@@ -20,6 +20,7 @@ type IFIpfsOperation interface {
 	FilesRemove(folderPath string) error
 	FilesIs(folderPath string) ([]string, error)
 	Cat(cid string) ([]byte, error)
+	Add(filePath string) (string, error)
 }
 
 type IpfsOperation struct {
@@ -99,20 +100,40 @@ func (i *IpfsOperation) Cat(cid string) ([]byte, error) {
 
 }
 
+func (i *IpfsOperation) Add(filePath string) (string, error) {
+	i.Commander.RemoveArgs()
+	i.Commander.AddArgs("add", filePath)
+	msg, err := i.Commander.Run()
+	if err != nil {
+		return "", fmt.Errorf("[Failure ipfs add ...] <%v>, File Path : %v", err, filePath)
+	}
+	arrMsg := strings.Split(string(msg), " ")
+	return arrMsg[1], nil
+
+}
+
 //直接、データをIPFSへのアップロードする。（echo [data] | ipfs add）
 func DirectlyAdd(data string) (string, error) {
-
+	logv2.Trace("1")
 	cmd := exec.Command("ipfs", "add")
+	logv2.Trace("2")
 	stdin, err := cmd.StdinPipe()
+	logv2.Trace("3")
 	if err != nil {
 		return "", fmt.Errorf("[Cannot getting StdinPipe. Error Msg : %v]", err)
 	}
+	logv2.Trace("4")
 	io.WriteString(stdin, data)
+	logv2.Trace("5")
 	stdin.Close()
+	logv2.Trace("6")
 	out, err := cmd.Output()
+	logv2.Trace("7")
 	if err != nil {
 		return "", fmt.Errorf("[Failure Running Command <ipfs add>. Error Msg : %v]", err)
 	}
+	logv2.Trace("8")
 	arrMsg := strings.Split(string(out), " ")
+	logv2.Trace("9")
 	return arrMsg[1], nil
 }

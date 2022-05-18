@@ -22,42 +22,67 @@ import (
 //@param filepath　暗号化するファイルのパス
 //
 //@param password 暗号キー
-func Encrypted(filepath, password string) (string, error) {
-	log.Trace("Start Encrypted in %v", filepath)
+func Encrypted(filePath, password string) (string, error) {
+	log.Trace("Start Encrypted in %v", filePath)
 	now := time.Now()
 	//原本ファイルの取得
-	plainText, err := ioutil.ReadFile(filepath)
+	plainText, err := ioutil.ReadFile(filePath)
 	if err != nil {
-		return "", fmt.Errorf("[Cannot find file !!!, TARGET_FILE_PATH : %v]", filepath)
+		return "", fmt.Errorf("[Cannot find file !!!, TARGET_FILE_PATH : %v]", filePath)
 	}
-	log.Trace("Finish Read File in %v. time[%v ns]", filepath, time.Since(now).Nanoseconds())
+	log.Trace("Finish Read File in %v. time[%v ns]", filePath, time.Since(now).Nanoseconds())
 	//共通キーの取得
 	key := []byte(password)
 
 	// Create new AES cipher block
 	block, err := aes.NewCipher(key)
 	if err != nil {
-		return "", fmt.Errorf("[Failure Creating new AES cipher block in Encrypting This FilePath : %v]", filepath)
+		return "", fmt.Errorf("[Failure Creating new AES cipher block in Encrypting This FilePath : %v]", filePath)
 	}
 
 	// Create IV (cipherText : 暗号化データ)
 	cipherText := make([]byte, aes.BlockSize+len(plainText))
 	iv := cipherText[:aes.BlockSize]
 	if _, err := io.ReadFull(rand.Reader, iv); err != nil {
-		return "", fmt.Errorf("[Failure Creating new IV in Encrypting This FilePath : %v]", filepath)
+		return "", fmt.Errorf("[Failure Creating new IV in Encrypting This FilePath : %v]", filePath)
 	}
 
 	// Encrypt
 	encryptStream := cipher.NewCTR(block, iv)
 	encryptStream.XORKeyStream(cipherText[aes.BlockSize:], plainText)
-	log.Trace("Finish Encrypt File in %v. time[%v ns]", filepath, time.Since(now).Nanoseconds())
+	log.Trace("Finish Encrypt File in %v. time[%v ns]", filePath, time.Since(now).Nanoseconds())
 
-	//cipherText(暗号化データ)をIPFSにアップロードする。
+	//暗号データの書き出し
+	//暗号データのディレクトリを作成
+	// beforeDir := "uploads"
+	// afterDir := "encrypt"
+	// tmpDirPath := strings.Replace(filepath.Dir(filePath), beforeDir, afterDir, 1)
+	// if err = os.MkdirAll(tmpDirPath, os.ModePerm); err != nil {
+	// 	return "", fmt.Errorf("Failure mkdir: %v", err)
+	// }
+
+	// encryptedFilePath := strings.Replace(filePath, beforeDir, afterDir, 1)
+	// file, err := os.Create(encryptedFilePath)
+	// if err != nil {
+	// 	return "", fmt.Errorf("Failure Create Encrypt File: %v", err)
+	// }
+	// defer file.Close()
+
+	// _, err = file.Write(cipherText)
+	// if err != nil {
+	// 	return "", fmt.Errorf("Failure Write Encrypt File: %v", err)
+	// }
+
+	// //cipherText(暗号化データ)をIPFSにアップロードする。
+	// op := ipfs.IpfsOperation{
+	// 	Commander: ipfs.NewCommand(),
+	// }
+
 	address, err := ipfs.DirectlyAdd(util.BytesToString(cipherText))
 	if err != nil {
 		return "", err
 	}
-	log.Trace("Finish Uploading To IPFS in %v. time[%v ns]", filepath, time.Since(now).Nanoseconds())
+	log.Trace("Finish Uploading To IPFS in %v. time[%v ns]", filePath, time.Since(now).Nanoseconds())
 	return address, nil
 }
 
