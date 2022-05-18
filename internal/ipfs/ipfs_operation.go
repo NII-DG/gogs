@@ -2,7 +2,6 @@ package ipfs
 
 import (
 	"fmt"
-	"io"
 	"os/exec"
 	"regexp"
 	"strings"
@@ -117,20 +116,21 @@ func DirectlyAdd(data string) (string, error) {
 	logv2.Trace("1")
 	cmd := exec.Command("ipfs", "add")
 	logv2.Trace("2")
-	stdin, err := cmd.StdinPipe()
-	logv2.Trace("3")
-	if err != nil {
-		return "", fmt.Errorf("[Cannot getting StdinPipe. Error Msg : %v]", err)
-	}
-	logv2.Trace("4")
-	c, err := io.WriteString(stdin, data)
-	if err != nil {
-		return "", fmt.Errorf("[io.WriteString(stdin, data). Error Msg : %v]", err)
-	} else {
-		logv2.Trace("io.WriteString(stdin, data) %v", c)
-	}
-	logv2.Trace("5")
-	stdin.Close()
+	cmd.Stdin = strings.NewReader(data)
+	//stdin, err := cmd.StdinPipe()
+	// logv2.Trace("3")
+	// if err != nil {
+	// 	return "", fmt.Errorf("[Cannot getting StdinPipe. Error Msg : %v]", err)
+	// }
+	// logv2.Trace("4")
+	// c, err := io.WriteString(stdin, data)
+	// if err != nil {
+	// 	return "", fmt.Errorf("[io.WriteString(stdin, data). Error Msg : %v]", err)
+	// } else {
+	// 	logv2.Trace("io.WriteString(stdin, data) %v", c)
+	// }
+	// logv2.Trace("5")
+	// stdin.Close()
 	logv2.Trace("6")
 	out, err := cmd.Output()
 	logv2.Trace("7")
