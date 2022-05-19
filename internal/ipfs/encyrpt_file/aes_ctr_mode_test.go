@@ -24,6 +24,9 @@ import (
 
 var password = "cekYSYu3cTQL3yiKFoEwTWC4YATazRcL"
 
+var testDataDir = "D:/Myrepository/testdata/gogs/"
+var tmpDir = "D:/Myrepository/testdata/gogs/tmp/"
+
 func TestEncrypted_1k(t *testing.T) {
 	filePath := "D:/Myrepository/testdata/gogs/2_10kbyte.txt"
 	now := time.Now()
@@ -44,61 +47,72 @@ var op = ipfs.IpfsOperation{
 	Commander: ipfs.NewCommand(),
 }
 
-func benchEncrypt(b *testing.B, filePath string, f func(string, string) (string, error)) {
+func benchEncrypt(b *testing.B, fileNm string, f func(string, string) (string, error)) {
+	filePath := filepath.Join(testDataDir, fileNm)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		address, err := f(filePath, password)
 		if err != nil {
 			b.Logf("Fialure Encrypted(). Error : %v\n", err)
+		} else {
+			//IPFSのGCを実行
+			b.StopTimer()
+			if err := op.PinRm(address); err != nil {
+				b.Logf("Fialure PinRm(). Error : %v\n", err)
+			}
+			if err := op.RepoGc(); err != nil {
+				b.Logf("Fialure RepoGc(). Error : %v\n", err)
+			}
+			b.StartTimer()
 		}
-		//IPFSのGCを実行
-		b.StopTimer()
-		if err := op.PinRm(address); err != nil {
-			b.Logf("Fialure PinRm(). Error : %v\n", err)
-		}
-		if err := op.RepoGc(); err != nil {
-			b.Logf("Fialure RepoGc(). Error : %v\n", err)
-		}
-		b.StartTimer()
 	}
 }
 
 func BenchmarkEncrypted_1k(b *testing.B) {
-	benchEncrypt(b, "D:/Myrepository/testdata/gogs/1_1kbyte.txt", ef.Encrypted)
+	benchEncrypt(b, "1_1kbyte.txt", ef.Encrypted)
 }
 
 func BenchmarkEncrypted_10k(b *testing.B) {
-	benchEncrypt(b, "D:/Myrepository/testdata/gogs/2_10kbyte.txt", ef.Encrypted)
+	benchEncrypt(b, "2_10kbyte.txt", ef.Encrypted)
 }
 
 func BenchmarkEncrypted_100k(b *testing.B) {
-	benchEncrypt(b, "D:/Myrepository/testdata/gogs/3_100kbyte.txt", ef.Encrypted)
+	benchEncrypt(b, "3_100kbyte.txt", ef.Encrypted)
 }
 
 func BenchmarkEncrypted_1M(b *testing.B) {
-	benchEncrypt(b, "D:/Myrepository/testdata/gogs/4_1Mbyte.txt", ef.Encrypted)
+	benchEncrypt(b, "4_1Mbyte.txt", ef.Encrypted)
 }
 
 func BenchmarkEncrypted_10M(b *testing.B) {
-	benchEncrypt(b, "D:/Myrepository/testdata/gogs/5_10Mbyte.txt", ef.Encrypted)
+	benchEncrypt(b, "5_10Mbyte.txt", ef.Encrypted)
 }
 
 func BenchmarkEncrypted_100M(b *testing.B) {
-	benchEncrypt(b, "D:/Myrepository/testdata/gogs/6_100Mbyte.txt", ef.Encrypted)
+	benchEncrypt(b, "6_100Mbyte.txt", ef.Encrypted)
 }
 
 func BenchmarkEncrypted_1G(b *testing.B) {
-	benchEncrypt(b, "D:/Myrepository/testdata/gogs/7_1Gbyte.txt", ef.Encrypted)
+	benchEncrypt(b, "7_1Gbyte.txt", ef.Encrypted)
 }
 
 func BenchmarkEncrypted_10G(b *testing.B) {
-	benchEncrypt(b, "D:/Myrepository/testdata/gogs/8_10Gbyte.txt", ef.Encrypted)
+	benchEncrypt(b, "8_10Gbyte.txt", ef.Encrypted)
 }
 
 //以下、Decrypt()のベンチマークテストコード
 
-var testDataDir = "D:/Myrepository/testdata/gogs/"
-var tmpDir = "D:/Myrepository/testdata/gogs/tmp/"
+//実行コマンド
+//cd internal\ipfs\encyrpt_file
+//全て実行
+//go.exe test -benchmem -run=^$ -bench . -timeout 24h -count 3 -trace <fileNm>.trace -cpuprofile <fileNm>.prof -benchtime 100x
+
+//go tool trace --http localhost:6060 a.trace
+
+//go tool pprof -http :6060 a.prof
+
+//一つのベンチマークテストのみ実行の場合（例）
+//go.exe test -benchmem -run=^$ -bench ^BenchmarkEncrypted_1k$ github.com/NII-DG/gogs/internal/ipfs/encyrpt_file -benchtime 100x -timeout 24h -count 6 -trace <fileNm>.trace -cpuprofile <fileNm>.prof
 
 func benchDecrypt(b *testing.B, testFileNm string, f func(string, string, string) error) {
 	testfilePath := filepath.Join(testDataDir, testFileNm)
@@ -128,5 +142,40 @@ func benchDecrypt(b *testing.B, testFileNm string, f func(string, string, string
 
 func BenchmarkDecrypted_1k(b *testing.B) {
 	testFileNm := "1_1kbyte.txt"
+	benchDecrypt(b, testFileNm, ef.Decrypted)
+}
+
+func BenchmarkDecrypted_10k(b *testing.B) {
+	testFileNm := "2_10kbyte.txt"
+	benchDecrypt(b, testFileNm, ef.Decrypted)
+}
+
+func BenchmarkDecrypted_100k(b *testing.B) {
+	testFileNm := "3_100kbyte.txt"
+	benchDecrypt(b, testFileNm, ef.Decrypted)
+}
+
+func BenchmarkDecrypted_1M(b *testing.B) {
+	testFileNm := "4_1Mbyte.txt"
+	benchDecrypt(b, testFileNm, ef.Decrypted)
+}
+
+func BenchmarkDecrypted_10M(b *testing.B) {
+	testFileNm := "5_10Mbyte.txt"
+	benchDecrypt(b, testFileNm, ef.Decrypted)
+}
+
+func BenchmarkDecrypted_100M(b *testing.B) {
+	testFileNm := "6_100Mbyte.txt"
+	benchDecrypt(b, testFileNm, ef.Decrypted)
+}
+
+func BenchmarkDecrypted_1G(b *testing.B) {
+	testFileNm := "7_1Gbyte.txt"
+	benchDecrypt(b, testFileNm, ef.Decrypted)
+}
+
+func BenchmarkDecrypted_10G(b *testing.B) {
+	testFileNm := "8_10Gbyte.txt"
 	benchDecrypt(b, testFileNm, ef.Decrypted)
 }
