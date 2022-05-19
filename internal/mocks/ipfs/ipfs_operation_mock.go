@@ -120,3 +120,31 @@ func (mr *MockIFIpfsOperationMockRecorder) FilesStatus(folderPath interface{}) *
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FilesStatus", reflect.TypeOf((*MockIFIpfsOperation)(nil).FilesStatus), folderPath)
 }
+
+// PinRm mocks base method.
+func (m *MockIFIpfsOperation) PinRm(cid string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "PinRm", cid)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// PinRm indicates an expected call of PinRm.
+func (mr *MockIFIpfsOperationMockRecorder) PinRm(cid interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PinRm", reflect.TypeOf((*MockIFIpfsOperation)(nil).PinRm), cid)
+}
+
+// RepoGc mocks base method.
+func (m *MockIFIpfsOperation) RepoGc() error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RepoGc")
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// RepoGc indicates an expected call of RepoGc.
+func (mr *MockIFIpfsOperationMockRecorder) RepoGc() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RepoGc", reflect.TypeOf((*MockIFIpfsOperation)(nil).RepoGc))
+}

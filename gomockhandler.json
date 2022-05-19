@@ -10,8 +10,8 @@
 			}
 		},
 		"D:\\Myrepository\\nii_dg_gin\\internal\\mocks\\ipfs\\ipfs_operation_mock.go": {
-			"checksum": "BO/Bya2sWdvuHR4GrOxWPw==",
-			"source_checksum": "d1+AJbwOKKF1x3HIbCXHvg==",
+			"checksum": "4bvJ1phMeypweeZ0sjbz5w==",
+			"source_checksum": "ELQM4OPD9Rk/8XGEfeRSjg==",
 			"mode": "SOURCE_MODE",
 			"source_mode_runner": {
 				"source": "D:\\Myrepository\\nii_dg_gin\\internal\\ipfs\\ipfs_operation.go",
