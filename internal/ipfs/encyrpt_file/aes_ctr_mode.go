@@ -12,7 +12,6 @@ import (
 
 	"github.com/NII-DG/gogs/internal/ipfs"
 	"github.com/NII-DG/gogs/internal/util"
-	log "unknwon.dev/clog/v2"
 )
 
 //AES CTRモードの暗号化メソッド
@@ -89,7 +88,6 @@ func Decrypted(ipfsCid, password, outputPath string) error {
 		return fmt.Errorf("[Cannot Mike dir : %v, Error Msg : %v]", dir, err)
 	}
 	//復号ファイルの格納
-	log.Trace("[Decrypted()]open file: %v", outputPath)
 	file, err := os.Create(outputPath)
 	if err != nil {
 		return fmt.Errorf("[Cannot Open file : %v, Error Msg : %v]", outputPath, err)

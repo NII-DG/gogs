@@ -95,7 +95,14 @@ func BenchmarkEncrypted_10G(b *testing.B) {
 	benchEncrypt(b, "D:/Myrepository/testdata/gogs/8_10Gbyte.txt", ef.Encrypted)
 }
 
-func benchDecrypt(b *testing.B, testfilePath string, outputPath string, f func(string, string, string) error) {
+//以下、Decrypt()のベンチマークテストコード
+
+var testDataDir = "D:/Myrepository/testdata/gogs/"
+var tmpDir = "D:/Myrepository/testdata/gogs/tmp/"
+
+func benchDecrypt(b *testing.B, testFileNm string, f func(string, string, string) error) {
+	testfilePath := filepath.Join(testDataDir, testFileNm)
+	outputPath := filepath.Join(tmpDir, testFileNm)
 	address, err := ef.Encrypted(testfilePath, password)
 	if err != nil {
 		b.Logf("Fialure Encrypted(). Error : %v\n", err)
@@ -119,14 +126,7 @@ func benchDecrypt(b *testing.B, testfilePath string, outputPath string, f func(s
 	}
 }
 
-var testDataDir = "D:/Myrepository/testdata/gogs/"
-var tmpDir = "D:/Myrepository/testdata/gogs/tmp/"
-
 func BenchmarkDecrypted_1k(b *testing.B) {
 	testFileNm := "1_1kbyte.txt"
-	testfilePath := filepath.Join(testDataDir, testFileNm)
-	outputPath := filepath.Join(tmpDir, testFileNm)
-	b.Log(testfilePath)
-	b.Log(outputPath)
-	benchDecrypt(b, testfilePath, outputPath, ef.Decrypted)
+	benchDecrypt(b, testFileNm, ef.Decrypted)
 }
