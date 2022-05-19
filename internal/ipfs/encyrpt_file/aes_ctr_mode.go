@@ -9,7 +9,6 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/NII-DG/gogs/internal/ipfs"
 	"github.com/NII-DG/gogs/internal/util"
@@ -88,7 +87,7 @@ func Decrypted(ipfsCid, password, outputPath string) error {
 	log.Trace("outputPath : %v", outputPath)
 	dir, _ := filepath.Split(outputPath)
 	log.Trace("pre dir : %v", dir)
-	dir = dir[:strings.LastIndex(dir, "/")]
+	//dir = dir[:strings.LastIndex(dir, "/")]
 	log.Trace("dir : %v", dir)
 	if err := os.MkdirAll(dir, 0777); err != nil {
 		return fmt.Errorf("[Cannot Mike dir : %v, Error Msg : %v]", dir, err)
