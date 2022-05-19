@@ -85,6 +85,7 @@ func Decrypted(ipfsCid, password, outputPath string) error {
 	decryptStream.XORKeyStream(decryptedText, cipherText[aes.BlockSize:])
 
 	//ディレクトリの作成
+	log.Trace("outputPath : %v", outputPath)
 	dir, _ := filepath.Split(outputPath)
 	log.Trace("pre dir : %v", dir)
 	dir = dir[:strings.LastIndex(dir, "/")]

@@ -120,7 +120,7 @@ func benchDecrypt(b *testing.B, testfilePath string, outputPath string, f func(s
 }
 
 var testDataDir = "D:/Myrepository/testdata/gogs/"
-var tmpDir = "D:/Myrepository/testdata/gogs/tmp"
+var tmpDir = "D:/Myrepository/testdata/gogs/tmp/"
 
 func BenchmarkDecrypted_1k(b *testing.B) {
 	testFileNm := "1_1kbyte.txt"
