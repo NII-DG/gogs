@@ -13,6 +13,8 @@ package encyrptfile_test
 //go.exe test -benchmem -run=^$ -bench ^BenchmarkEncrypted_1k$ github.com/NII-DG/gogs/internal/ipfs/encyrpt_file -benchtime 100x -timeout 24h -count 6 -trace <fileNm>.trace -cpuprofile <fileNm>.prof
 
 import (
+	"os"
+	"path/filepath"
 	"testing"
 	"time"
 
@@ -42,7 +44,7 @@ var op = ipfs.IpfsOperation{
 	Commander: ipfs.NewCommand(),
 }
 
-func bench(b *testing.B, filePath string, f func(string, string) (string, error)) {
+func benchEncrypt(b *testing.B, filePath string, f func(string, string) (string, error)) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		address, err := f(filePath, password)
@@ -62,33 +64,69 @@ func bench(b *testing.B, filePath string, f func(string, string) (string, error)
 }
 
 func BenchmarkEncrypted_1k(b *testing.B) {
-	bench(b, "D:/Myrepository/testdata/gogs/1_1kbyte.txt", ef.Encrypted)
+	benchEncrypt(b, "D:/Myrepository/testdata/gogs/1_1kbyte.txt", ef.Encrypted)
 }
 
 func BenchmarkEncrypted_10k(b *testing.B) {
-	bench(b, "D:/Myrepository/testdata/gogs/2_10kbyte.txt", ef.Encrypted)
+	benchEncrypt(b, "D:/Myrepository/testdata/gogs/2_10kbyte.txt", ef.Encrypted)
 }
 
 func BenchmarkEncrypted_100k(b *testing.B) {
-	bench(b, "D:/Myrepository/testdata/gogs/3_100kbyte.txt", ef.Encrypted)
+	benchEncrypt(b, "D:/Myrepository/testdata/gogs/3_100kbyte.txt", ef.Encrypted)
 }
 
 func BenchmarkEncrypted_1M(b *testing.B) {
-	bench(b, "D:/Myrepository/testdata/gogs/4_1Mbyte.txt", ef.Encrypted)
+	benchEncrypt(b, "D:/Myrepository/testdata/gogs/4_1Mbyte.txt", ef.Encrypted)
 }
 
 func BenchmarkEncrypted_10M(b *testing.B) {
-	bench(b, "D:/Myrepository/testdata/gogs/5_10Mbyte.txt", ef.Encrypted)
+	benchEncrypt(b, "D:/Myrepository/testdata/gogs/5_10Mbyte.txt", ef.Encrypted)
 }
 
 func BenchmarkEncrypted_100M(b *testing.B) {
-	bench(b, "D:/Myrepository/testdata/gogs/6_100Mbyte.txt", ef.Encrypted)
+	benchEncrypt(b, "D:/Myrepository/testdata/gogs/6_100Mbyte.txt", ef.Encrypted)
 }
 
 func BenchmarkEncrypted_1G(b *testing.B) {
-	bench(b, "D:/Myrepository/testdata/gogs/7_1Gbyte.txt", ef.Encrypted)
+	benchEncrypt(b, "D:/Myrepository/testdata/gogs/7_1Gbyte.txt", ef.Encrypted)
 }
 
 func BenchmarkEncrypted_10G(b *testing.B) {
-	bench(b, "D:/Myrepository/testdata/gogs/8_10Gbyte.txt", ef.Encrypted)
+	benchEncrypt(b, "D:/Myrepository/testdata/gogs/8_10Gbyte.txt", ef.Encrypted)
+}
+
+func benchDecrypt(b *testing.B, testfilePath string, outputPath string, f func(string, string, string) error) {
+	address, err := ef.Encrypted(testfilePath, password)
+	if err != nil {
+		b.Logf("Fialure Encrypted(). Error : %v\n", err)
+	}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		err := f(address, password, outputPath)
+		if err != nil {
+			b.Logf("Fialure Decrypted(). Error : %v\n", err)
+		}
+		b.StopTimer()
+		os.Remove(outputPath)
+		b.StartTimer()
+	}
+	if err := op.PinRm(address); err != nil {
+		b.Logf("Fialure PinRm(). Error : %v\n", err)
+	}
+	if err := op.RepoGc(); err != nil {
+		b.Logf("Fialure RepoGc(). Error : %v\n", err)
+	}
+}
+
+var testDataDir = "D:/Myrepository/testdata/gogs/"
+var tmpDir = "D:/Myrepository/testdata/gogs/tmp"
+
+func BenchmarkDecrypted_1k(b *testing.B) {
+	testFileNm := "1_1kbyte.txt"
+	testfilePath := filepath.Join(testDataDir, testFileNm)
+	outputPath := filepath.Join(tmpDir, testFileNm)
+	b.Log(testfilePath)
+	b.Log(outputPath)
+	benchDecrypt(b, testfilePath, outputPath, ef.Decrypted)
 }

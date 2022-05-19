@@ -47,32 +47,6 @@ func Encrypted(filePath, password string) (string, error) {
 	encryptStream := cipher.NewCTR(block, iv)
 	encryptStream.XORKeyStream(cipherText[aes.BlockSize:], plainText)
 
-	//暗号データの書き出し
-	//暗号データのディレクトリを作成
-	// beforeDir := "uploads"
-	// afterDir := "encrypt"
-	// tmpDirPath := strings.Replace(filepath.Dir(filePath), beforeDir, afterDir, 1)
-	// if err = os.MkdirAll(tmpDirPath, os.ModePerm); err != nil {
-	// 	return "", fmt.Errorf("Failure mkdir: %v", err)
-	// }
-
-	// encryptedFilePath := strings.Replace(filePath, beforeDir, afterDir, 1)
-	// file, err := os.Create(encryptedFilePath)
-	// if err != nil {
-	// 	return "", fmt.Errorf("Failure Create Encrypt File: %v", err)
-	// }
-	// defer file.Close()
-
-	// _, err = file.Write(cipherText)
-	// if err != nil {
-	// 	return "", fmt.Errorf("Failure Write Encrypt File: %v", err)
-	// }
-
-	// //cipherText(暗号化データ)をIPFSにアップロードする。
-	// op := ipfs.IpfsOperation{
-	// 	Commander: ipfs.NewCommand(),
-	// }
-
 	address, err := ipfs.DirectlyAdd(util.BytesToString(cipherText))
 	if err != nil {
 		return "", err
@@ -86,8 +60,8 @@ func Encrypted(filePath, password string) (string, error) {
 //
 //@param password 復号キー
 //
-//@param filepath 復号したファイルの格納パス
-func Decrypted(ipfsCid, password, inputPath string) error {
+//@param outputPath 復号したファイルの格納パス
+func Decrypted(ipfsCid, password, outputPath string) error {
 	//暗号データの取得　from IPFS
 	operater := ipfs.IpfsOperation{
 		Commander: ipfs.NewCommand(),
@@ -111,22 +85,23 @@ func Decrypted(ipfsCid, password, inputPath string) error {
 	decryptStream.XORKeyStream(decryptedText, cipherText[aes.BlockSize:])
 
 	//ディレクトリの作成
-	dir, _ := filepath.Split(inputPath)
+	dir, _ := filepath.Split(outputPath)
+	log.Trace("pre dir : %v", dir)
 	dir = dir[:strings.LastIndex(dir, "/")]
 	log.Trace("dir : %v", dir)
 	if err := os.MkdirAll(dir, 0777); err != nil {
 		return fmt.Errorf("[Cannot Mike dir : %v, Error Msg : %v]", dir, err)
 	}
 	//復号ファイルの格納
-	log.Trace("[Decrypted()]open file: %v", inputPath)
-	file, err := os.Create(inputPath)
+	log.Trace("[Decrypted()]open file: %v", outputPath)
+	file, err := os.Create(outputPath)
 	if err != nil {
-		return fmt.Errorf("[Cannot Open file : %v, Error Msg : %v]", inputPath, err)
+		return fmt.Errorf("[Cannot Open file : %v, Error Msg : %v]", outputPath, err)
 	}
 	defer file.Close()
 	_, err = file.Write(decryptedText)
 	if err != nil {
-		return fmt.Errorf("[Cannot Write file : %v, Error Msg : %v]", inputPath, err)
+		return fmt.Errorf("[Cannot Write file : %v, Error Msg : %v]", outputPath, err)
 	}
 	return nil
 }
