@@ -69,35 +69,35 @@ func benchEncrypt(b *testing.B, fileNm string, f func(string, string) (string, e
 }
 
 func BenchmarkEncrypted_1k(b *testing.B) {
-	benchEncrypt(b, "1_1kbyte.txt", ef.Encrypted)
+	benchEncrypt(b, "1K.txt", ef.Encrypted)
 }
 
 func BenchmarkEncrypted_10k(b *testing.B) {
-	benchEncrypt(b, "2_10kbyte.txt", ef.Encrypted)
+	benchEncrypt(b, "10K.txt", ef.Encrypted)
 }
 
 func BenchmarkEncrypted_100k(b *testing.B) {
-	benchEncrypt(b, "3_100kbyte.txt", ef.Encrypted)
+	benchEncrypt(b, "100K.txt", ef.Encrypted)
 }
 
 func BenchmarkEncrypted_1M(b *testing.B) {
-	benchEncrypt(b, "4_1Mbyte.txt", ef.Encrypted)
+	benchEncrypt(b, "1M.txt", ef.Encrypted)
 }
 
 func BenchmarkEncrypted_10M(b *testing.B) {
-	benchEncrypt(b, "5_10Mbyte.txt", ef.Encrypted)
+	benchEncrypt(b, "10M.txt", ef.Encrypted)
 }
 
 func BenchmarkEncrypted_100M(b *testing.B) {
-	benchEncrypt(b, "6_100Mbyte.txt", ef.Encrypted)
+	benchEncrypt(b, "100M.txt", ef.Encrypted)
 }
 
 func BenchmarkEncrypted_1G(b *testing.B) {
-	benchEncrypt(b, "7_1Gbyte.txt", ef.Encrypted)
+	benchEncrypt(b, "1G.txt", ef.Encrypted)
 }
 
 func BenchmarkEncrypted_10G(b *testing.B) {
-	benchEncrypt(b, "8_10Gbyte.txt", ef.Encrypted)
+	benchEncrypt(b, "10G.txt", ef.Encrypted)
 }
 
 //以下、Decrypt()のベンチマークテストコード
@@ -132,50 +132,52 @@ func benchDecrypt(b *testing.B, testFileNm string, f func(string, string, string
 		os.Remove(outputPath)
 		b.StartTimer()
 	}
+	b.StopTimer()
 	if err := op.PinRm(address); err != nil {
 		b.Logf("Fialure PinRm(). Error : %v\n", err)
 	}
 	if err := op.RepoGc(); err != nil {
 		b.Logf("Fialure RepoGc(). Error : %v\n", err)
 	}
+	b.StartTimer()
 }
 
 func BenchmarkDecrypted_1k(b *testing.B) {
-	testFileNm := "1_1kbyte.txt"
+	testFileNm := "1K.txt"
 	benchDecrypt(b, testFileNm, ef.Decrypted)
 }
 
 func BenchmarkDecrypted_10k(b *testing.B) {
-	testFileNm := "2_10kbyte.txt"
+	testFileNm := "10K.txt"
 	benchDecrypt(b, testFileNm, ef.Decrypted)
 }
 
 func BenchmarkDecrypted_100k(b *testing.B) {
-	testFileNm := "3_100kbyte.txt"
+	testFileNm := "100K.txt"
 	benchDecrypt(b, testFileNm, ef.Decrypted)
 }
 
 func BenchmarkDecrypted_1M(b *testing.B) {
-	testFileNm := "4_1Mbyte.txt"
+	testFileNm := "1M.txt"
 	benchDecrypt(b, testFileNm, ef.Decrypted)
 }
 
 func BenchmarkDecrypted_10M(b *testing.B) {
-	testFileNm := "5_10Mbyte.txt"
+	testFileNm := "10M.txt"
 	benchDecrypt(b, testFileNm, ef.Decrypted)
 }
 
 func BenchmarkDecrypted_100M(b *testing.B) {
-	testFileNm := "6_100Mbyte.txt"
+	testFileNm := "100M.txt"
 	benchDecrypt(b, testFileNm, ef.Decrypted)
 }
 
 func BenchmarkDecrypted_1G(b *testing.B) {
-	testFileNm := "7_1Gbyte.txt"
+	testFileNm := "1G.txt"
 	benchDecrypt(b, testFileNm, ef.Decrypted)
 }
 
 func BenchmarkDecrypted_10G(b *testing.B) {
-	testFileNm := "8_10Gbyte.txt"
+	testFileNm := "10G.txt"
 	benchDecrypt(b, testFileNm, ef.Decrypted)
 }
