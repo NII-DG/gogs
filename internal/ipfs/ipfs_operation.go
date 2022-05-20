@@ -138,22 +138,11 @@ func (i *IpfsOperation) RepoGc() error {
 	return nil
 }
 
-//直接、データをIPFSへのアップロードする。（echo [data] | ipfs add）
+//直接、データをIPFSへのアップロードする。（ipfs add）
 func DirectlyAdd(data string) (string, error) {
 
 	cmd := exec.Command("ipfs", "add")
 	cmd.Stdin = strings.NewReader(data)
-	// stdin, err := cmd.StdinPipe()
-	// if err != nil {
-	// 	return "", fmt.Errorf("[Cannot getting StdinPipe. Error Msg : %v]", err)
-	// }
-	// c, err := io.WriteString(stdin, data)
-	// if err != nil {
-	// 	return "", fmt.Errorf("[io.WriteString(stdin, data). Error Msg : %v]", err)
-	// } else {
-	// 	logv2.Trace("io.WriteString(stdin, data) %v", c)
-	// }
-	// stdin.Close()
 
 	out, err := cmd.Output()
 	if err != nil {
