@@ -19,11 +19,24 @@ import (
 //@param filepath　暗号化するファイルのパス
 //
 //@param password 暗号キー
-func Encrypted(filePath, password string) (string, error) {
+func EncryptedToIPFS(filePath, password string) (string, error) {
+
+	cipherText, err := Encrypted(filePath, password)
+	if err != nil {
+		return "", err
+	}
+	address, err := ipfs.DirectlyAdd(util.BytesToString(cipherText))
+	if err != nil {
+		return "", err
+	}
+	return address, nil
+}
+
+func Encrypted(filePath, password string) ([]byte, error) {
 	//原本ファイルの取得
 	plainText, err := ioutil.ReadFile(filePath)
 	if err != nil {
-		return "", fmt.Errorf("[Cannot find file !!!, TARGET_FILE_PATH : %v]", filePath)
+		return nil, fmt.Errorf("[Cannot find file !!!, TARGET_FILE_PATH : %v]", filePath)
 	}
 	//共通キーの取得
 	key := []byte(password)
@@ -31,25 +44,21 @@ func Encrypted(filePath, password string) (string, error) {
 	// Create new AES cipher block
 	block, err := aes.NewCipher(key)
 	if err != nil {
-		return "", fmt.Errorf("[Failure Creating new AES cipher block in Encrypting This FilePath : %v]", filePath)
+		return nil, fmt.Errorf("[Failure Creating new AES cipher block in Encrypting This FilePath : %v]", filePath)
 	}
 
 	// Create IV (cipherText : 暗号化データ)
 	cipherText := make([]byte, aes.BlockSize+len(plainText))
 	iv := cipherText[:aes.BlockSize]
 	if _, err := io.ReadFull(rand.Reader, iv); err != nil {
-		return "", fmt.Errorf("[Failure Creating new IV in Encrypting This FilePath : %v]", filePath)
+		return nil, fmt.Errorf("[Failure Creating new IV in Encrypting This FilePath : %v]", filePath)
 	}
 
 	// Encrypt
 	encryptStream := cipher.NewCTR(block, iv)
 	encryptStream.XORKeyStream(cipherText[aes.BlockSize:], plainText)
 
-	address, err := ipfs.DirectlyAdd(util.BytesToString(cipherText))
-	if err != nil {
-		return "", err
-	}
-	return address, nil
+	return cipherText, nil
 }
 
 //AES CTRモードの復号化メソッド
@@ -59,7 +68,7 @@ func Encrypted(filePath, password string) (string, error) {
 //@param password 復号キー
 //
 //@param outputPath 復号したファイルの格納パス
-func Decrypted(ipfsCid, password, outputPath string) error {
+func DecryptedFromIPFS(ipfsCid, password, outputPath string) error {
 	//暗号データの取得　from IPFS
 	operater := ipfs.IpfsOperation{
 		Commander: ipfs.NewCommand(),
@@ -69,13 +78,21 @@ func Decrypted(ipfsCid, password, outputPath string) error {
 		return err
 	}
 
+	err = Decrypted(cipherText, password, outputPath)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func Decrypted(cipherText []byte, password, outputPath string) error {
 	//共通キーの取得
 	key := []byte(password)
 
 	// Create new AES cipher block
 	block, err := aes.NewCipher(key)
 	if err != nil {
-		return fmt.Errorf("[Failure Creating new AES cipher block in Dencrypting This IPFS CID : %v]", ipfsCid)
+		return fmt.Errorf("[Failure Creating new AES cipher block in Dencrypting]")
 	}
 
 	decryptedText := make([]byte, len(cipherText[aes.BlockSize:]))

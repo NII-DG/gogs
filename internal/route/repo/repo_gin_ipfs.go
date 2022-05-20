@@ -154,7 +154,7 @@ func resolveEncyrptedContent(c *context.Context, buf []byte, bcContentInfo bcapi
 	log.Trace("[Match AnnexFullContentHash to BcFullContentHash] fullContentHash : %v, BCFullContentHash : %v", fullContentHash, bcContentInfo.FullContentHash)
 	//復号ファイルの格納ディレクトリパスの定義
 	dirDecryptedData := strings.Replace(filepath, "objects", "decrypt", 1)
-	err = encyrptfile.Decrypted(bcContentInfo.IpfsCid, c.Repo.Repository.Password, dirDecryptedData)
+	err = encyrptfile.DecryptedFromIPFS(bcContentInfo.IpfsCid, c.Repo.Repository.Password, dirDecryptedData)
 	if err != nil {
 		log.Error("[Cannot Decrypting data] File : %v, Error Msg : %v", dirDecryptedData, err)
 		c.Data["IsAnnexedFile"] = true

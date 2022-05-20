@@ -206,7 +206,7 @@ func (repo *Repository) PrivateUploadRepoFiles(doer *User, opts UploadRepoFileOp
 			return nil, fmt.Errorf("mkdir: %v", err)
 		}
 		//ファイルの暗号化し、暗号化ファイルをIPFS上にアップロードする。
-		address, err := encyrptfile.Encrypted(tmpPath, repo.Password)
+		address, err := encyrptfile.EncryptedToIPFS(tmpPath, repo.Password)
 		if err != nil {
 			return nil, err
 		}
@@ -486,7 +486,7 @@ func (repo *Repository) UpdateFilePrvToPub(opts UploadRepoOption) (map[string]An
 		}
 		//暗号データをIPFSから直接取得する。
 		//レポジトリに紐づく共通鍵を用いでデータを復号し、ローカルレポジトリに格納する。
-		if err := encyrptfile.Decrypted(bcContentInfo.Address, repo.Password, filepath.Join(repoPath, filePath)); err != nil {
+		if err := encyrptfile.DecryptedFromIPFS(bcContentInfo.Address, repo.Password, filepath.Join(repoPath, filePath)); err != nil {
 			return nil, err
 		}
 
