@@ -101,6 +101,9 @@ func (i *IpfsOperation) Cat(cid string) ([]byte, error) {
 
 }
 
+//IPFSに指定ファイルパスにあるファイルをアップロードするメソッド
+//
+//@Param filePath string アップロードしたファイルのパス
 func (i *IpfsOperation) Add(filePath string) (string, error) {
 	i.Commander.RemoveArgs()
 	i.Commander.AddArgs("add", filePath)
@@ -113,6 +116,7 @@ func (i *IpfsOperation) Add(filePath string) (string, error) {
 
 }
 
+//IPFS上のコンテンツのピン留めをリリースするメソッド
 func (i *IpfsOperation) PinRm(cid string) error {
 	i.Commander.RemoveArgs()
 	i.Commander.AddArgs("pin", "rm", cid)
@@ -123,6 +127,7 @@ func (i *IpfsOperation) PinRm(cid string) error {
 	return nil
 }
 
+//IPFSのガーベッジコレクションを実行するメソッド
 func (i *IpfsOperation) RepoGc() error {
 	i.Commander.RemoveArgs()
 	i.Commander.AddArgs("repo", "gc")
