@@ -12,18 +12,14 @@ import (
 	"os"
 	"path"
 	"path/filepath"
-	"regexp"
 	"strings"
-	"unsafe"
 
-	"github.com/NII-DG/gogs/internal/bcapi"
 	"github.com/NII-DG/gogs/internal/conf"
 	"github.com/NII-DG/gogs/internal/context"
 	"github.com/NII-DG/gogs/internal/db"
 	"github.com/NII-DG/gogs/internal/tool"
 	"github.com/gogs/git-module"
 	log "gopkg.in/clog.v1"
-	logv2 "unknwon.dev/clog/v2"
 )
 
 func serveAnnexedData(ctx *context.Context, name string, buf []byte) error {
@@ -234,67 +230,32 @@ func failedGenereteMaDmp(c *context.Context, msg string) {
 // the two variables without modifications.
 // Any errors that occur during processing are stored in the provided context.
 // The FileSize of the annexed content is also saved in the context (c.Data["FileSize"]).
-func resolveAnnexedContent(c *context.Context, buf []byte, contentLocation string) ([]byte, error) {
+func resolveAnnexedContent(c *context.Context, buf []byte) ([]byte, error) {
 	if !tool.IsAnnexedFile(buf) {
 		// not an annex pointer file; return as is
 		return buf, nil
 	}
-	repoPath := c.Repo.Repository.RepoPath()
-
-	//ベアレポジトリをIPFSへ連携
-	if _, err := git.NewCommand("annex", "enableremote", "ipfs").RunInDir(repoPath); err != nil {
-		logv2.Error("[Failure enable remote(ipfs)] err : %v, repoPath : %v", err, repoPath)
-	} else {
-		logv2.Info("[Success enable remote(ipfs)] repoPath : %v", repoPath)
-	}
+	log.Trace("Annexed file requested: Resolving content for %q", bytes.TrimSpace(buf))
 
 	keyparts := strings.Split(strings.TrimSpace(string(buf)), "/")
 	key := keyparts[len(keyparts)-1]
-
-	addressByAnnex, err := GetIpfsHashValueByAnnexKey(key, repoPath)
+	contentPath, err := git.NewCommand("annex", "contentlocation", key).RunInDir(c.Repo.Repository.RepoPath())
 	if err != nil {
-		logv2.Error("[Cannot Get IPFS Hash] key : %v, err : %v", key, err)
-	} else {
-		logv2.Info("[Get IPFS Hash From AnnexKey] key : %v To hash : %v", key, addressByAnnex)
-	}
-
-	//BCAPI通信（コンテンツパスからIPFSハッシュ値を取得）
-	bcContentInfo, err := bcapi.GetContentInfoByLocation(c.User.Name, contentLocation)
-	if err != nil {
-		logv2.Error("[BC-API HTTP error] %v", err)
-		c.Data["IsAnnexedFile"] = true
-		return buf, err
-	}
-	//BC-IPFSハッシュ値とAnnex-IPFSハッシュ値を比較
-	if addressByAnnex != bcContentInfo.ContentAddress {
-		logv2.Error("[Not math AnnexContentAddress to BcContentAddress] AnnexContentAddress : %v, BcContentAddress : %v", addressByAnnex, bcContentInfo.ContentAddress)
-		c.Data["IsAnnexedFile"] = true
-		return buf, fmt.Errorf("[Not math AnnexContentAddress to BcContentAddress]")
-	}
-
-	//ipfsからオブジェクトを取得
-	if _, err := git.NewCommand("annex", "copy", "--from", "ipfs", "--key", key).RunInDir(repoPath); err != nil {
-		logv2.Error("[Failure copy dataObject from ipfs] err : %v, repoPath : %v", err, repoPath)
-	} else {
-		logv2.Info("[Success copy dataObject from ipfs] key : %v, repoPath : %v, contentlocation: %v", key, repoPath, contentLocation)
-	}
-
-	contentPath, err := git.NewCommand("annex", "contentlocation", key).RunInDir(repoPath)
-	if err != nil {
-		logv2.Error("Failed to find content location for key %q, err : %v", key, err)
+		log.Error(2, "Failed to find content location for key %q", key)
 		c.Data["IsAnnexedFile"] = true
 		return buf, err
 	}
 	// always trim space from output for git command
 	contentPath = bytes.TrimSpace(contentPath)
-	///home/ivis/gogs-repositories/user1/demo2.git +
-	afp, err := os.Open(filepath.Join(repoPath, string(contentPath)))
+	afp, err := os.Open(filepath.Join(c.Repo.Repository.RepoPath(), string(contentPath)))
 	if err != nil {
+		log.Trace("Could not open annex file: %v", err)
 		c.Data["IsAnnexedFile"] = true
 		return buf, err
 	}
 	info, err := afp.Stat()
 	if err != nil {
+		log.Trace("Could not stat annex file: %v", err)
 		c.Data["IsAnnexedFile"] = true
 		return buf, err
 	}
@@ -304,8 +265,6 @@ func resolveAnnexedContent(c *context.Context, buf []byte, contentLocation strin
 	annexBuf = annexBuf[:n]
 	c.Data["FileSize"] = info.Size()
 	log.Trace("Annexed file size: %d B", info.Size())
-	//メモrepopath + /annex を削除する。
-	//gogs-repositories/user1/demo4.git/annex
 	return annexBuf, nil
 }
 
@@ -330,23 +289,4 @@ func AnnexGetKey(c *context.Context) {
 	if err != nil {
 		c.Error(err, "AnnexGetKey")
 	}
-}
-
-//Convert Annex Key to IPFS hash
-func GetIpfsHashValueByAnnexKey(key string, repoPath string) (string, error) {
-	var hash string
-	var err error
-	if msg, err := git.NewCommand("annex", "whereis", "--key", key).RunInDir(repoPath); err == nil {
-		strMsg := *(*string)(unsafe.Pointer(&msg)) //[]byte to string
-		reg := "\r\n|\n"
-		arr1 := regexp.MustCompile(reg).Split(strMsg, -1) //改行分割
-		for _, s := range arr1 {
-			if strings.Contains(s, "ipfs:") {
-				index := strings.LastIndex(s, ":")
-				trimStr := &hash
-				*trimStr = s[index+1:]
-			}
-		}
-	}
-	return hash, err
 }

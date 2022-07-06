@@ -16,7 +16,8 @@ func TestGetContentInfoByLocation_正常系(t *testing.T) {
 
 	resBody := ResContentInfo{}
 	resBody.UserCode = "usr01"
-	resBody.ContentAddress = "fnslksjdflkfk"
+	resBody.FullContentHash = ""
+	resBody.IpfsCid = "fnslksjdflkfk"
 	resBody.AddDateTime = time.Now()
 
 	resder, _ := httpmock.NewJsonResponder(200, resBody)
@@ -26,7 +27,7 @@ func TestGetContentInfoByLocation_正常系(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.Equal(t, resBody.UserCode, res.UserCode)
-	assert.Equal(t, resBody.ContentAddress, res.ContentAddress)
+	assert.Equal(t, resBody.IpfsCid, res.IpfsCid)
 }
 
 func TestGetContentInfoByLocation_異常系(t *testing.T) {
@@ -36,7 +37,8 @@ func TestGetContentInfoByLocation_異常系(t *testing.T) {
 
 	resBody := ResContentInfo{}
 	resBody.UserCode = "usr01"
-	resBody.ContentAddress = "fnslksjdflkfk"
+	resBody.FullContentHash = ""
+	resBody.IpfsCid = "fnslksjdflkfk"
 	resBody.AddDateTime = time.Now()
 
 	resder := httpmock.NewStringResponder(400, "mocked")
@@ -46,5 +48,5 @@ func TestGetContentInfoByLocation_異常系(t *testing.T) {
 
 	assert.Error(t, err)
 	assert.Empty(t, res.UserCode)
-	assert.Empty(t, res.ContentAddress)
+	assert.Empty(t, res.IpfsCid)
 }

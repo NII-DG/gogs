@@ -10,6 +10,7 @@ import (
 	//logv2 "unknwon.dev/clog/v2"
 
 	"github.com/NII-DG/gogs/internal/conf"
+	"github.com/NII-DG/gogs/internal/db"
 )
 
 var API_URL_CREATE_CONTENT_HISTORY_TOKEN = "createContentHistoryToken"
@@ -18,13 +19,15 @@ type ReqCreateContentHistory struct {
 	UserCode        string `json:"user_code"`
 	ContentHistorys []struct {
 		ContentLocation string    `json:"content_location"`
-		ContentAddress  string    `json:"content_address"`
+		FullContentHash string    `json:"full_content_hash"`
+		IpfsCid         string    `json:"ipfs_cid"`
+		IsPrivate       bool      `json:"is_private"`
 		AddDateTime     time.Time `json:"add_date_time"`
 	} `json:"content_history_list"`
 }
 
 //[POST] /createContentHistory
-func CreateContentHistory(user_code string, contentMap map[string]string) error {
+func CreateContentHistory(user_code string, contentMap map[string]db.AnnexUploadInfo) error {
 	//登録日時の取得
 	now := time.Now()
 	//リクエストボディ定義
@@ -33,9 +36,11 @@ func CreateContentHistory(user_code string, contentMap map[string]string) error 
 	for k, v := range contentMap {
 		reqStr.ContentHistorys = append(reqStr.ContentHistorys, struct {
 			ContentLocation string    "json:\"content_location\""
-			ContentAddress  string    "json:\"content_address\""
+			FullContentHash string    "json:\"full_content_hash\""
+			IpfsCid         string    "json:\"ipfs_cid\""
+			IsPrivate       bool      "json:\"is_private\""
 			AddDateTime     time.Time "json:\"add_date_time\""
-		}{k, v, now})
+		}{k, v.FullContentHash, v.IpfsCid, v.IsPrivate, now})
 	}
 	reqBody, err := json.Marshal(reqStr)
 	if err != nil {

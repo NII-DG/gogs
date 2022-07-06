@@ -5,22 +5,14 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"time"
+
+	"github.com/NII-DG/gogs/internal/jsonfunc"
 )
 
 var API_URL_GET_CONTENT_BY_FOLDER string = "getContentByFolder"
 
-type ResContentsInFolder struct {
-	ContentsInFolder []struct {
-		UserCode        string    `json:"user_code"`
-		ContentLocation string    `json:"content_location"`
-		ContentAddress  string    `json:"content_address"`
-		AddDateTime     time.Time `json:"add_date_time"`
-	} `json:"contents_in_folder"`
-}
-
 //[GET] /getContentByFolder
-func GetContentByFolder(userCode, folderPath string) (ResContentsInFolder, error) {
+func GetContentByFolder(userCode, folderPath string) (jsonfunc.ResContentsInFolder, error) {
 	//リクエスト生成
 	req, _ := createNewRequest(http.MethodGet, API_URL_GET_CONTENT_BY_FOLDER, nil)
 	//ヘッダー設定
@@ -36,15 +28,15 @@ func GetContentByFolder(userCode, folderPath string) (ResContentsInFolder, error
 	client := new(http.Client)
 	resp, err := client.Do(req)
 	if err != nil {
-		return ResContentsInFolder{}, fmt.Errorf("[HTTP conection error] url : %v, error msg : %v", API_URL_GET_CONTENT_BY_FOLDER, err)
+		return jsonfunc.ResContentsInFolder{}, fmt.Errorf("[HTTP conection error] url : %v, error msg : %v", API_URL_GET_CONTENT_BY_FOLDER, err)
 	}
 	defer resp.Body.Close()
 	//リクエストボディの取得
 	byteArray, _ := ioutil.ReadAll(resp.Body)
 	jsonBytes := ([]byte)(byteArray)
-	data := new(ResContentsInFolder)
+	data := new(jsonfunc.ResContentsInFolder)
 	if err := json.Unmarshal(jsonBytes, data); err != nil {
-		return ResContentsInFolder{}, fmt.Errorf("[JSON Unmarshal error] error msg : %v", err)
+		return jsonfunc.ResContentsInFolder{}, fmt.Errorf("[JSON Unmarshal error] error msg : %v", err)
 	}
 	return *data, nil
 }

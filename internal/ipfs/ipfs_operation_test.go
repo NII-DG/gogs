@@ -63,7 +63,6 @@ func TestFilesCopy_異常系(t *testing.T) {
 }
 
 func TestFilesStatus_正常系(t *testing.T) {
-	//FilesStatus()の引数の定義
 	folderPath := "/urs01/repo01/master/dataset1"
 
 	ctrl := gomock.NewController(t)
@@ -88,7 +87,6 @@ func TestFilesStatus_正常系(t *testing.T) {
 }
 
 func TestFilesStatus_異常系(t *testing.T) {
-	//FilesStatus()の引数の定義
 	folderPath := "/urs01/repo01/master/dataset1"
 
 	ctrl := gomock.NewController(t)
@@ -113,7 +111,6 @@ func TestFilesStatus_異常系(t *testing.T) {
 }
 
 func TestFilesRemove_正常系(t *testing.T) {
-	//FilesStatus()の引数の定義
 	folderPath := "/urs01/repo01/master/dataset1"
 
 	ctrl := gomock.NewController(t)
@@ -136,7 +133,6 @@ func TestFilesRemove_正常系(t *testing.T) {
 }
 
 func TestFilesRemove_異常系(t *testing.T) {
-	//FilesStatus()の引数の定義
 	folderPath := "/urs01/repo01/master/dataset1"
 
 	ctrl := gomock.NewController(t)
@@ -161,7 +157,6 @@ func TestFilesRemove_異常系(t *testing.T) {
 }
 
 func TestFilesIs_正常系(t *testing.T) {
-	//FilesStatus()の引数の定義
 	folderPath := "/urs01/repo01/master/dataset1"
 
 	ctrl := gomock.NewController(t)
@@ -186,7 +181,6 @@ func TestFilesIs_正常系(t *testing.T) {
 }
 
 func TestFilesIs_異常系(t *testing.T) {
-	//FilesStatus()の引数の定義
 	folderPath := "/urs01/repo01/master/dataset1"
 
 	ctrl := gomock.NewController(t)
@@ -208,4 +202,163 @@ func TestFilesIs_異常系(t *testing.T) {
 	exErr := fmt.Errorf("[Failure ipfs file is ...] <%v>, FolderPath : %v", rtnErr, folderPath)
 	assert.Equal(t, exErr, err)
 
+}
+
+func TestCat_正常系(t *testing.T) {
+	cid := "QmfidILHFJ8Fho8dfyHfdo8yhOFDYHUDUOf"
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockIFIpfsCommand := mock_ipfs.NewMockIFIpfsCommand(ctrl)
+	mockIFIpfsCommand.EXPECT().RemoveArgs()
+	mockIFIpfsCommand.EXPECT().AddArgs("cat", cid)
+	msg := `Success`
+	rtn := []byte(msg)
+	mockIFIpfsCommand.EXPECT().Run().Return(rtn, nil)
+
+	i := ipfs.IpfsOperation{}
+	i.Commander = mockIFIpfsCommand
+	result, err := i.Cat(cid)
+	if err != nil {
+		t.Fail()
+	}
+	assert.Equal(t, rtn, result)
+}
+
+func TestCat_異常系(t *testing.T) {
+	cid := "QmfidILHFJ8Fho8dfyHfdo8yhOFDYHUDUOf"
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockIFIpfsCommand := mock_ipfs.NewMockIFIpfsCommand(ctrl)
+	mockIFIpfsCommand.EXPECT().RemoveArgs()
+	mockIFIpfsCommand.EXPECT().AddArgs("cat", cid)
+	rtnErr := fmt.Errorf("return error")
+	mockIFIpfsCommand.EXPECT().Run().Return(nil, rtnErr)
+
+	i := ipfs.IpfsOperation{}
+	i.Commander = mockIFIpfsCommand
+	_, err := i.Cat(cid)
+	if err == nil {
+		t.Fail()
+	}
+	exErr := fmt.Errorf("[Failure ipfs cat ...] <%v>, IPFS CID : %v", rtnErr, cid)
+	assert.Equal(t, exErr, err)
+}
+
+func TestAdd_正常系(t *testing.T) {
+	path := "/urs01/repo01/master/dataset1/test1.txt"
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockIFIpfsCommand := mock_ipfs.NewMockIFIpfsCommand(ctrl)
+	mockIFIpfsCommand.EXPECT().RemoveArgs()
+	mockIFIpfsCommand.EXPECT().AddArgs("add", path)
+
+	address := "QmUk85iAyvz4iMxgrQcsHvoPUVDa3M4PWZ5xoD8maV4wX6"
+	rtn := []byte(fmt.Sprintf("added %v text1.txt", address))
+	mockIFIpfsCommand.EXPECT().Run().Return(rtn, nil)
+
+	i := ipfs.IpfsOperation{}
+	i.Commander = mockIFIpfsCommand
+	result, err := i.Add(path)
+	if err != nil {
+		t.Fail()
+	}
+	assert.Equal(t, address, result)
+}
+
+func TestAdd_異常系(t *testing.T) {
+	path := "/urs01/repo01/master/dataset1/test1.txt"
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockIFIpfsCommand := mock_ipfs.NewMockIFIpfsCommand(ctrl)
+	mockIFIpfsCommand.EXPECT().RemoveArgs()
+	mockIFIpfsCommand.EXPECT().AddArgs("add", path)
+	rtnErr := fmt.Errorf("return error")
+	mockIFIpfsCommand.EXPECT().Run().Return(nil, rtnErr)
+
+	i := ipfs.IpfsOperation{}
+	i.Commander = mockIFIpfsCommand
+	_, err := i.Add(path)
+	if err == nil {
+		t.Fail()
+	}
+	exErr := fmt.Errorf("[Failure ipfs add ...] <%v>, File Path : %v", rtnErr, path)
+	assert.Equal(t, exErr, err)
+}
+
+func TestPinRm_正常系(t *testing.T) {
+	cid := "QmfidILHFJ8Fho8dfyHfdo8yhOFDYHUDUOf"
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockIFIpfsCommand := mock_ipfs.NewMockIFIpfsCommand(ctrl)
+	mockIFIpfsCommand.EXPECT().RemoveArgs()
+	mockIFIpfsCommand.EXPECT().AddArgs("pin", "rm", cid)
+	mockIFIpfsCommand.EXPECT().Run().Return(nil, nil)
+
+	i := ipfs.IpfsOperation{}
+	i.Commander = mockIFIpfsCommand
+	err := i.PinRm(cid)
+	if err != nil {
+		t.Fail()
+	}
+}
+
+func TestPinRm_異常系(t *testing.T) {
+	cid := "QmfidILHFJ8Fho8dfyHfdo8yhOFDYHUDUOf"
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockIFIpfsCommand := mock_ipfs.NewMockIFIpfsCommand(ctrl)
+	mockIFIpfsCommand.EXPECT().RemoveArgs()
+	mockIFIpfsCommand.EXPECT().AddArgs("pin", "rm", cid)
+	rtnErr := fmt.Errorf("return error")
+	mockIFIpfsCommand.EXPECT().Run().Return(nil, rtnErr)
+
+	i := ipfs.IpfsOperation{}
+	i.Commander = mockIFIpfsCommand
+	err := i.PinRm(cid)
+	if err == nil {
+		t.Fail()
+	}
+	exErr := fmt.Errorf("[Failure ipfs pin  rm ...] <%v>, IPFS CID : %v", rtnErr, cid)
+	assert.Equal(t, exErr, err)
+}
+
+func TestRepoGc_正常系(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockIFIpfsCommand := mock_ipfs.NewMockIFIpfsCommand(ctrl)
+	mockIFIpfsCommand.EXPECT().RemoveArgs()
+	mockIFIpfsCommand.EXPECT().AddArgs("repo", "gc")
+	mockIFIpfsCommand.EXPECT().Run().Return(nil, nil)
+
+	i := ipfs.IpfsOperation{}
+	i.Commander = mockIFIpfsCommand
+	err := i.RepoGc()
+	if err != nil {
+		t.Fail()
+	}
+}
+
+func TestRepoGc_異常系(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockIFIpfsCommand := mock_ipfs.NewMockIFIpfsCommand(ctrl)
+	mockIFIpfsCommand.EXPECT().RemoveArgs()
+	mockIFIpfsCommand.EXPECT().AddArgs("repo", "gc")
+	rtnErr := fmt.Errorf("return error")
+	mockIFIpfsCommand.EXPECT().Run().Return(nil, rtnErr)
+
+	i := ipfs.IpfsOperation{}
+	i.Commander = mockIFIpfsCommand
+	err := i.RepoGc()
+	if err == nil {
+		t.Fail()
+	}
+	exErr := fmt.Errorf("[Failure ipfs repo gc ...] <%v>,", rtnErr)
+	assert.Equal(t, exErr, err)
 }

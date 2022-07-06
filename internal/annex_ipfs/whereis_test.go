@@ -41,7 +41,7 @@ func TestGetAnnexContentInfo_正常系(t *testing.T) {
 
 	res, err := GetAnnexContentInfo(&s)
 	assert.NoError(t, err)
-	assert.Equal(t, mockJson.File, res.File)
-	assert.Equal(t, "url", res.Hash)
+	assert.Equal(t, mockJson.File, res.FileNm)
+	assert.Equal(t, "url", res.IpfsCid)
 	assert.Equal(t, mockJson.Key, res.Key)
 }

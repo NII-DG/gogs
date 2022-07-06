@@ -454,6 +454,9 @@ func UploadFile(c *context.Context) {
 
 func UploadFilePost(c *context.Context, f form.UploadRepoFile) {
 
+	isPrivate := c.Repo.Repository.IsPrivate //Alt 2022-5-10 By Tsukioka
+	log.Info("[c.Repo.Repository.IsPrivate]%v", isPrivate)
+
 	c.PageIs("Upload")
 	renderUploadSettings(c)
 
@@ -481,7 +484,7 @@ func UploadFilePost(c *context.Context, f form.UploadRepoFile) {
 	c.Data["commit_choice"] = f.CommitChoice
 	c.Data["new_branch_name"] = branchName
 
-	log.Info("[c.Repo.RepoLink + /src/ + branchName] %v", c.Repo.RepoLink+"/src/"+branchName)
+	log.Trace("[c.Repo.RepoLink + /src/ + branchName] %v", c.Repo.RepoLink+"/src/"+branchName)
 
 	if c.HasError() {
 		c.Success(tmplEditorUpload)
@@ -528,7 +531,7 @@ func UploadFilePost(c *context.Context, f form.UploadRepoFile) {
 		message += "\n\n" + f.CommitMessage
 	}
 
-	contentMap, err := c.Repo.Repository.UploadRepoFiles(c.User, db.UploadRepoFileOptions{
+	contentMap, err := c.Repo.Repository.UploadRepoFilesToIPFS(c.User, db.UploadRepoFileOptionsForIPFS{ //Alt 2022-5-10 By Tsukioka
 		LastCommitID:  c.Repo.CommitID,
 		OldBranch:     oldBranchName,
 		NewBranch:     branchName,
@@ -536,15 +539,32 @@ func UploadFilePost(c *context.Context, f form.UploadRepoFile) {
 		Message:       message,
 		Files:         f.Files,
 		UpperRopoPath: c.Repo.RepoLink + "/" + branchName,
-	})
+	}, isPrivate)
 	if err != nil {
 		log.Error("Failed to upload files: %v", err)
+		//エラーエリアの指定
 		c.FormErr("TreePath")
+		//エラーメッセージの指定
 		c.RenderWithErr(c.Tr("repo.editor.unable_to_upload_files", f.TreePath, errors.InternalServerError), tmplEditorUpload, &f)
 		return
 	}
+
+	// if err := c.Repo.Repository.UploadRepoFiles(c.User, db.UploadRepoFileOptions{
+	// 	LastCommitID: c.Repo.CommitID,
+	// 	OldBranch:    oldBranchName,
+	// 	NewBranch:    branchName,
+	// 	TreePath:     f.TreePath,
+	// 	Message:      message,
+	// 	Files:        f.Files,
+	// }); err != nil {
+	// 	log.Error("Failed to upload files: %v", err)
+	// 	c.FormErr("TreePath")
+	// 	c.RenderWithErr(c.Tr("repo.editor.unable_to_upload_files", f.TreePath, errors.InternalServerError), tmplEditorUpload, &f)
+	// 	return
+	// }
+
 	//アップロードしたコンテンツをBC登録
-	httpErr := bcapi.CreateContentHistory(c.User.Name, contentMap)
+	httpErr := bcapi.CreateContentHistory(c.User.Name, contentMap) //Alt 2022-5-10 By Tsukioka
 	if httpErr != nil {
 		log.Error("[HTTP ERROR Create Content Hsitory] %v", httpErr)
 		c.FormErr("TreePath")

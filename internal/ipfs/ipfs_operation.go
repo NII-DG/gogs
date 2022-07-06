@@ -2,9 +2,11 @@ package ipfs
 
 import (
 	"fmt"
+	"os/exec"
 	"regexp"
-	"unsafe"
+	"strings"
 
+	"github.com/NII-DG/gogs/internal/util"
 	logv2 "unknwon.dev/clog/v2"
 )
 
@@ -16,6 +18,10 @@ type IFIpfsOperation interface {
 	FilesStatus(folderPath string) (string, error)
 	FilesRemove(folderPath string) error
 	FilesIs(folderPath string) ([]string, error)
+	Cat(cid string) ([]byte, error)
+	Add(filePath string) (string, error)
+	PinRm(cid string) error
+	RepoGc() error
 }
 
 type IpfsOperation struct {
@@ -47,13 +53,14 @@ func (i *IpfsOperation) FilesStatus(folderPath string) (string, error) {
 		return "", fmt.Errorf("[Failure ipfs files stat ...] FolderPath : %v", folderPath)
 	}
 	//msgからフォルダーアドレスを取得
-	strMsg := *(*string)(unsafe.Pointer(&msg))
+	strMsg := util.BytesToString(msg)
 	reg := "\r\n|\n"
 	splitByline := regexp.MustCompile(reg).Split(strMsg, -1)
 	return splitByline[0], nil
 }
 
 // ipfs file rm...コマンド
+//
 // @param folderNm ex /RepoOwnerNm/RepoNm/BranchNm/DatasetFolederNm
 func (i *IpfsOperation) FilesRemove(folderPath string) error {
 	logv2.Info("[Removing IPFS Folder] FolderPath: %v", folderPath)
@@ -74,8 +81,73 @@ func (i *IpfsOperation) FilesIs(folderPath string) ([]string, error) {
 	if err != nil {
 		return nil, fmt.Errorf("[Failure ipfs file is ...] <%v>, FolderPath : %v", err, folderPath)
 	}
-	strMsg := *(*string)(unsafe.Pointer(&msg))
+	strMsg := util.BytesToString(msg)
 	reg := "\r\n|\n"
 	splitByline := regexp.MustCompile(reg).Split(strMsg, -1)
 	return splitByline, nil
+}
+
+//IPFSから指定のコンテンツを取得する。
+//
+//@param cid IPFSのコンテンツアドレス
+func (i *IpfsOperation) Cat(cid string) ([]byte, error) {
+	i.Commander.RemoveArgs()
+	i.Commander.AddArgs("cat", cid)
+	msg, err := i.Commander.Run()
+	if err != nil {
+		return nil, fmt.Errorf("[Failure ipfs cat ...] <%v>, IPFS CID : %v", err, cid)
+	}
+	return msg, nil
+
+}
+
+//IPFSに指定ファイルパスにあるファイルをアップロードするメソッド
+//
+//@Param filePath string アップロードしたファイルのパス
+func (i *IpfsOperation) Add(filePath string) (string, error) {
+	i.Commander.RemoveArgs()
+	i.Commander.AddArgs("add", filePath)
+	msg, err := i.Commander.Run()
+	if err != nil {
+		return "", fmt.Errorf("[Failure ipfs add ...] <%v>, File Path : %v", err, filePath)
+	}
+	arrMsg := strings.Split(string(msg), " ")
+	return arrMsg[1], nil
+
+}
+
+//IPFS上のコンテンツのピン留めをリリースするメソッド
+func (i *IpfsOperation) PinRm(cid string) error {
+	i.Commander.RemoveArgs()
+	i.Commander.AddArgs("pin", "rm", cid)
+	_, err := i.Commander.Run()
+	if err != nil {
+		return fmt.Errorf("[Failure ipfs pin  rm ...] <%v>, IPFS CID : %v", err, cid)
+	}
+	return nil
+}
+
+//IPFSのガーベッジコレクションを実行するメソッド
+func (i *IpfsOperation) RepoGc() error {
+	i.Commander.RemoveArgs()
+	i.Commander.AddArgs("repo", "gc")
+	_, err := i.Commander.Run()
+	if err != nil {
+		return fmt.Errorf("[Failure ipfs repo gc ...] <%v>,", err)
+	}
+	return nil
+}
+
+//直接、データをIPFSへのアップロードする。（ipfs add）
+func DirectlyAdd(data string) (string, error) {
+
+	cmd := exec.Command("ipfs", "add")
+	cmd.Stdin = strings.NewReader(data)
+
+	out, err := cmd.Output()
+	if err != nil {
+		return "", fmt.Errorf("[Failure Running Command <ipfs add>. Error Msg : %v]", err)
+	}
+	arrMsg := strings.Split(string(out), " ")
+	return arrMsg[1], nil
 }

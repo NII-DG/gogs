@@ -1,24 +1,17 @@
-// Copyright 2014 The Gogs Authors. All rights reserved.
-// Use of this source code is governed by a MIT-style
-// license that can be found in the LICENSE file.
-
 package repo
 
 import (
 	"bytes"
 	"fmt"
 	gotemplate "html/template"
-	"io/ioutil"
 	"path"
 	"strings"
 	"time"
 
 	"github.com/G-Node/libgin/libgin/annex"
 	"github.com/gogs/git-module"
-	"github.com/pkg/errors"
-	"github.com/unknwon/paginater"
-	log "unknwon.dev/clog/v2"
 
+	"github.com/NII-DG/gogs/internal/bcapi"
 	"github.com/NII-DG/gogs/internal/conf"
 	"github.com/NII-DG/gogs/internal/context"
 	"github.com/NII-DG/gogs/internal/db"
@@ -27,24 +20,10 @@ import (
 	"github.com/NII-DG/gogs/internal/template"
 	"github.com/NII-DG/gogs/internal/template/highlight"
 	"github.com/NII-DG/gogs/internal/tool"
+	logv2 "unknwon.dev/clog/v2"
 )
 
-const (
-	BARE     = "repo/bare"
-	HOME     = "repo/home"
-	WATCHERS = "repo/watchers"
-	FORKS    = "repo/forks"
-)
-
-type AltEntryCommitInfo struct {
-	Entry          *git.TreeEntry
-	Index          int
-	Commit         *git.Commit
-	Submodule      *git.Submodule
-	ContentAddress string
-}
-
-func renderDirectory(c *context.Context, treeLink string) {
+func renderDirectoryFromBcapi(c *context.Context, treeLink string) {
 	tree, err := c.Repo.Commit.Subtree(c.Repo.TreePath)
 	if err != nil {
 		c.NotFoundOrError(gitutil.NewError(err), "get subtree")
@@ -58,16 +37,118 @@ func renderDirectory(c *context.Context, treeLink string) {
 	}
 	entries.Sort()
 
-	c.Data["Files"], err = entries.CommitsInfo(c.Repo.Commit, git.CommitsInfoOptions{
+	currentFolederPath := c.Repo.RepoLink + "/" + c.Repo.BranchName
+	if c.Repo.TreePath != "" {
+		tmpPath := &currentFolederPath
+		*tmpPath = *tmpPath + "/" + c.Repo.TreePath
+	}
+	//指定したフォルダーがデータセットであるか確認及び真の場合トークン情報を取得
+	res, err := bcapi.GetDatasetInfoByLocation(c.User.Name, currentFolederPath)
+	if err != nil {
+		c.Error(err, "exchange BC-API")
+		return
+	}
+	var inputAddress string
+	var srcCodeAddress string
+	var outputAddress string
+	isDataset := false
+	if res.DatasetLocation != "" {
+		tmpInput := &inputAddress
+		*tmpInput = res.InputAddress
+		tmpSrc := &srcCodeAddress
+		*tmpSrc = res.SrcCodeAddress
+		tmpOut := &outputAddress
+		*tmpOut = res.OutputAddress
+		tmpIsDataset := &isDataset
+		*tmpIsDataset = true
+	}
+
+	//フォルダーおよびファイルコンテンツアドレスを取得
+	altFileDataList := []AltEntryCommitInfo{}
+	var filesDataList []*git.EntryCommitInfo
+	filesDataList, err = entries.CommitsInfo(c.Repo.Commit, git.CommitsInfoOptions{
 		Path:           c.Repo.TreePath,
 		MaxConcurrency: conf.Repository.CommitsFetchConcurrency,
 		Timeout:        5 * time.Minute,
 	})
-
 	if err != nil {
 		c.Error(err, "get commits info")
 		return
 	}
+
+	resList, err := bcapi.GetContentByFolder(c.User.Name, currentFolederPath)
+	if err != nil {
+		c.Error(err, "list entries")
+		return
+	}
+
+	for _, data := range filesDataList {
+		flg := false
+		if data.Entry.Type() == git.ObjectBlob {
+			for _, resData := range resList.ContentsInFolder {
+				fullPath := currentFolederPath + "/" + data.Entry.Name()
+				if fullPath == resData.ContentLocation {
+					altFileDataList = append(altFileDataList, AltEntryCommitInfo{
+						Entry:          data.Entry,
+						Index:          data.Index,
+						Commit:         data.Commit,
+						Submodule:      data.Submodule,
+						ContentAddress: resData.IpfsCid,
+					})
+					tmpFlg := &flg
+					*tmpFlg = true
+				}
+			}
+		} else if data.Entry.Type() == git.ObjectTree && isDataset {
+			inputTreePath := res.DatasetLocation + "/" + db.INPUT_FOLDER_NM
+			srcTreePath := res.DatasetLocation + "/" + db.SRC_FOLDER_NM
+			outputTreePath := res.DatasetLocation + "/" + db.OUTPUT_FOLDER_NM
+			treePath := currentFolederPath + "/" + data.Entry.Name()
+			switch treePath {
+			case inputTreePath:
+				altFileDataList = append(altFileDataList, AltEntryCommitInfo{
+					Entry:          data.Entry,
+					Index:          data.Index,
+					Commit:         data.Commit,
+					Submodule:      data.Submodule,
+					ContentAddress: inputAddress,
+				})
+				tmpFlg := &flg
+				*tmpFlg = true
+			case srcTreePath:
+				altFileDataList = append(altFileDataList, AltEntryCommitInfo{
+					Entry:          data.Entry,
+					Index:          data.Index,
+					Commit:         data.Commit,
+					Submodule:      data.Submodule,
+					ContentAddress: srcCodeAddress,
+				})
+				tmpFlg := &flg
+				*tmpFlg = true
+			case outputTreePath:
+				altFileDataList = append(altFileDataList, AltEntryCommitInfo{
+					Entry:          data.Entry,
+					Index:          data.Index,
+					Commit:         data.Commit,
+					Submodule:      data.Submodule,
+					ContentAddress: outputAddress,
+				})
+				tmpFlg := &flg
+				*tmpFlg = true
+			}
+		}
+		if !flg {
+			altFileDataList = append(altFileDataList, AltEntryCommitInfo{
+				Entry:          data.Entry,
+				Index:          data.Index,
+				Commit:         data.Commit,
+				Submodule:      data.Submodule,
+				ContentAddress: "",
+			})
+		}
+	}
+
+	c.Data["Files"] = altFileDataList
 
 	if c.Data["HasDmpJson"].(bool) {
 		readDmpJson(c)
@@ -143,39 +224,7 @@ func renderDirectory(c *context.Context, treeLink string) {
 	}
 }
 
-// bidingDmpSchemaList is RCOS specific code.
-// This function bind DMP template file.
-func bidingDmpSchemaList(c *context.Context, dirPath string) {
-	files, err := ioutil.ReadDir(dirPath)
-	if err != nil {
-		panic(err)
-	}
-
-	var schemaList []string
-	for _, file := range files {
-		// ignore directory
-		if file.IsDir() {
-			continue
-		}
-		schemaList = append(schemaList, file.Name())
-	}
-
-	c.Data["SchemaList"] = schemaList
-}
-
-// fetchDmpSchema is RCOS specific code.
-// This function fetch&bind JSON Schema of DMP for validation.
-func fetchDmpSchema(c *context.Context, filePath string) {
-	scheme, err := ioutil.ReadFile(filePath)
-	if err != nil {
-		panic(err)
-	}
-
-	c.Data["IsDmpJson"] = true
-	c.Data["Schema"] = string(scheme)
-}
-
-func renderFile(c *context.Context, entry *git.TreeEntry, treeLink, rawLink string) {
+func renderFileFromIPFS(c *context.Context, entry *git.TreeEntry, treeLink, rawLink string, contentLocation string) {
 	c.Data["IsViewFile"] = true
 
 	blob := entry.Blob()
@@ -192,7 +241,7 @@ func renderFile(c *context.Context, entry *git.TreeEntry, treeLink, rawLink stri
 
 	// GIN mod: Replace existing buffer p with annexed content buffer (only if
 	// it's an annexed ptr file)
-	p, err = resolveAnnexedContent(c, p)
+	p, err = resolveAnnexedContentFromIPFS(c, p, contentLocation)
 	if err != nil {
 		return
 	}
@@ -209,6 +258,7 @@ func renderFile(c *context.Context, entry *git.TreeEntry, treeLink, rawLink stri
 	case isTextFile:
 		// GIN mod: Use c.Data["FileSize"] which is replaced by annexed content
 		// size in resolveAnnexedContent() when necessary
+		logv2.Trace("[FileSize] %v", c.Data["FileSize"].(int64))
 		if c.Data["FileSize"].(int64) >= conf.UI.MaxDisplayFileSize {
 			c.Data["IsFileTooLarge"] = true
 			break
@@ -248,7 +298,7 @@ func renderFile(c *context.Context, entry *git.TreeEntry, treeLink, rawLink stri
 			var fileContent string
 			if err, content := template.ToUTF8WithErr(p); err != nil {
 				if err != nil {
-					log.Error("ToUTF8WithErr: %s", err)
+					logv2.Error("ToUTF8WithErr: %s", err)
 				}
 				fileContent = string(p)
 			} else {
@@ -310,160 +360,4 @@ func renderFile(c *context.Context, entry *git.TreeEntry, treeLink, rawLink stri
 	} else if !c.Repo.IsWriter() {
 		c.Data["DeleteFileTooltip"] = c.Tr("repo.editor.must_have_write_access")
 	}
-}
-
-func setEditorconfigIfExists(c *context.Context) {
-	ec, err := c.Repo.Editorconfig()
-	if err != nil && !gitutil.IsErrRevisionNotExist(errors.Cause(err)) {
-		log.Warn("setEditorconfigIfExists.Editorconfig [repo_id: %d]: %v", c.Repo.Repository.ID, err)
-		return
-	}
-	c.Data["Editorconfig"] = ec
-}
-
-func Home(c *context.Context) {
-	c.Data["PageIsViewFiles"] = true
-
-	if c.Repo.Repository.IsBare {
-		c.Success(BARE)
-		return
-	}
-
-	title := c.Repo.Repository.Owner.Name + "/" + c.Repo.Repository.Name
-	if len(c.Repo.Repository.Description) > 0 {
-		title += ": " + c.Repo.Repository.Description
-	}
-	c.Data["Title"] = title
-	if c.Repo.BranchName != c.Repo.Repository.DefaultBranch {
-		c.Data["Title"] = title + " @ " + c.Repo.BranchName
-	}
-	c.Data["RequireHighlightJS"] = true
-
-	//コンテンツロケーションの定義
-	var contentLocation string // Alt 2022-5-10 By Tsukioka
-
-	branchLink := c.Repo.RepoLink + "/src/" + c.Repo.BranchName
-	treeLink := branchLink
-	rawLink := c.Repo.RepoLink + "/raw/" + c.Repo.BranchName
-	datasetLink := c.Repo.RepoLink + "/dataset/" + c.Repo.BranchName // Alt 2022-5-10 By Tsukioka
-
-	isRootDir := false
-	if len(c.Repo.TreePath) > 0 { // Alt 2022-5-10 By Tsukioka
-		treeLink += "/" + c.Repo.TreePath
-		log.Info("[Debug_1 Add treeLink] new path : %v, add path : %v", treeLink, c.Repo.TreePath)
-		temploc := &contentLocation
-		*temploc = c.Repo.RepoLink + "/" + c.Repo.BranchName + "/" + c.Repo.TreePath
-
-	} else {
-		isRootDir = true
-
-		// Only show Git stats panel when view root directory
-		var err error
-		c.Repo.CommitsCount, err = c.Repo.Commit.CommitsCount()
-		if err != nil {
-			c.Error(err, "count commits")
-			return
-		}
-		c.Data["CommitsCount"] = c.Repo.CommitsCount
-	}
-	c.Data["PageIsRepoHome"] = isRootDir
-
-	// Get current entry user currently looking at.
-	//選択フォルダーの下にフォルダー、ファイルの確認
-	entry, err := c.Repo.Commit.TreeEntry(c.Repo.TreePath)
-
-	if err != nil {
-		c.NotFoundOrError(gitutil.NewError(err), "get tree entry")
-		return
-	}
-
-	if entry.IsTree() {
-		renderDirectoryFromBcapi(c, treeLink) // Alt 2022-5-10 By Tsukioka
-		//renderDirectory(c, treeLink)
-	} else {
-		renderFileFromIPFS(c, entry, treeLink, rawLink, contentLocation) // Alt 2022-5-10 By Tsukioka
-		//renderFile(c, entry, treeLink, rawLink, contentLocation)
-	}
-	if c.Written() {
-		return
-	}
-
-	setEditorconfigIfExists(c)
-	if c.Written() {
-		return
-	}
-
-	var treeNames []string
-	paths := make([]string, 0, 5)
-	if len(c.Repo.TreePath) > 0 {
-		treeNames = strings.Split(c.Repo.TreePath, "/")
-		for i := range treeNames {
-			paths = append(paths, strings.Join(treeNames[:i+1], "/"))
-		}
-
-		c.Data["HasParentPath"] = true
-		if len(paths)-2 >= 0 {
-			c.Data["ParentPath"] = "/" + paths[len(paths)-2]
-		}
-	}
-
-	c.Data["Paths"] = paths
-	c.Data["TreeLink"] = treeLink
-	c.Data["TreeNames"] = treeNames
-	c.Data["BranchLink"] = branchLink
-	c.Data["DatasetLink"] = datasetLink // Alt 2022-5-10 By Tsukioka
-
-	c.Success(HOME)
-}
-
-func RenderUserCards(c *context.Context, total int, getter func(page int) ([]*db.User, error), tpl string) {
-	page := c.QueryInt("page")
-	if page <= 0 {
-		page = 1
-	}
-	pager := paginater.New(total, db.ItemsPerPage, page, 5)
-	c.Data["Page"] = pager
-
-	items, err := getter(pager.Current())
-	if err != nil {
-		c.Error(err, "getter")
-		return
-	}
-	c.Data["Cards"] = items
-
-	c.Success(tpl)
-}
-
-func Watchers(c *context.Context) {
-	c.Data["Title"] = c.Tr("repo.watchers")
-	c.Data["CardsTitle"] = c.Tr("repo.watchers")
-	c.Data["PageIsWatchers"] = true
-	RenderUserCards(c, c.Repo.Repository.NumWatches, c.Repo.Repository.GetWatchers, WATCHERS)
-}
-
-func Stars(c *context.Context) {
-	c.Data["Title"] = c.Tr("repo.stargazers")
-	c.Data["CardsTitle"] = c.Tr("repo.stargazers")
-	c.Data["PageIsStargazers"] = true
-	RenderUserCards(c, c.Repo.Repository.NumStars, c.Repo.Repository.GetStargazers, WATCHERS)
-}
-
-func Forks(c *context.Context) {
-	c.Data["Title"] = c.Tr("repos.forks")
-
-	forks, err := c.Repo.Repository.GetForks()
-	if err != nil {
-		c.Error(err, "get forks")
-		return
-	}
-
-	for _, fork := range forks {
-		if err = fork.GetOwner(); err != nil {
-			c.Error(err, "get owner")
-			return
-		}
-	}
-	c.Data["Forks"] = forks
-
-	c.Success(FORKS)
 }

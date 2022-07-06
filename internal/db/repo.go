@@ -208,6 +208,7 @@ type Repository struct {
 	UpdatedUnix int64
 
 	Downloaded uint64 `xorm:"NOT NULL DEFAULT 0" gorm:"NOT NULL;DEFAULT:0"`
+	Password   string //Alt 2022-5-10 By Tsukioka
 }
 
 func (repo *Repository) BeforeInsert() {
@@ -648,6 +649,11 @@ func UpdateLocalCopyBranch(repoPath, localPath, branch string, isWiki bool) (err
 // UpdateLocalCopyBranch makes sure local copy of repository in given branch is up-to-date.
 func (repo *Repository) UpdateLocalCopyBranch(branch string) error {
 	return UpdateLocalCopyBranch(repo.RepoPath(), repo.LocalCopyPath(), branch, false)
+}
+
+// ブランチ指定がなしのクローンメソッド（全てのブランチに操作がある場合に仕様）
+func (repo *Repository) LocalCopyNonBranch(branch string) error {
+	return UpdateLocalCopyBranch(repo.RepoPath(), repo.LocalCopyPath(), branch, true)
 }
 
 //リモートレポジトリのローカルコピーを作成

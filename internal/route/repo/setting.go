@@ -14,6 +14,7 @@ import (
 	"github.com/unknwon/com"
 	log "unknwon.dev/clog/v2"
 
+	//"github.com/NII-DG/gogs/internal/bcapi"
 	"github.com/NII-DG/gogs/internal/conf"
 	"github.com/NII-DG/gogs/internal/context"
 	"github.com/NII-DG/gogs/internal/db"
@@ -50,8 +51,14 @@ func SettingsPost(c *context.Context, f form.RepoSetting) {
 
 	repo := c.Repo.Repository
 
+	//Alt 2022-5-11 By Tsukioka
+	ownerRepoNm := fmt.Sprintf("/%v/%v", c.Repo.Owner.Name, repo.Name) // /OwnerNm/RepoNm
+	log.Trace("Updating Repository[%v] settings", ownerRepoNm)
+	postIsPrivate := repo.IsPrivate
+
 	switch c.Query("action") {
 	case "update":
+		//レポジトリ設定更新処理ケース
 		if c.HasError() {
 			c.Success(SETTINGS_OPTIONS)
 			return
@@ -106,6 +113,11 @@ func SettingsPost(c *context.Context, f form.RepoSetting) {
 			}
 		}
 
+		//レポジトリが非公開から公開に更新された場合、非公開データの公開処理を行う。 Alt 2022-5-11 By Tsukioka
+		if postIsPrivate && !repo.IsPrivate { //レポジトリ設定　非公開から公開へ更新
+			log.Info("Private Data Publishing. Repository : %v", ownerRepoNm)
+			UpdateDataPrvToPub(c)
+		}
 		c.Flash.Success(c.Tr("repo.settings.update_settings_success"))
 		c.Redirect(repo.Link() + "/settings")
 

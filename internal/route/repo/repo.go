@@ -121,7 +121,7 @@ func CreatePost(c *context.Context, f form.CreateRepo) {
 		return
 	}
 
-	repo, err := db.CreateRepository(c.User, ctxUser, db.CreateRepoOptions{
+	repo, err := db.AltCreateRepository(c.User, ctxUser, db.CreateRepoOptions{ //Alt 2022-5-10 By Tsukioka
 		Name:        f.RepoName,
 		Description: f.Description,
 		Gitignores:  f.Gitignores,
@@ -131,6 +131,16 @@ func CreatePost(c *context.Context, f form.CreateRepo) {
 		IsUnlisted:  f.Unlisted,
 		AutoInit:    f.AutoInit,
 	})
+	// repo, err := db.AltCreateRepository(c.User, ctxUser, db.CreateRepoOptions{
+	// 	Name:        f.RepoName,
+	// 	Description: f.Description,
+	// 	Gitignores:  f.Gitignores,
+	// 	License:     f.License,
+	// 	Readme:      f.Readme,
+	// 	IsPrivate:   f.Private || conf.Repository.ForcePrivate,
+	// 	IsUnlisted:  f.Unlisted,
+	// 	AutoInit:    f.AutoInit,
+	// })
 	if err == nil {
 		log.Trace("Repository created [%d]: %s/%s", repo.ID, ctxUser.Name, repo.Name)
 		c.Redirect(conf.Server.Subpath + "/" + ctxUser.Name + "/" + repo.Name)
