@@ -1,0 +1,31 @@
+{
+	"mocks": {
+		"D:\\Myrepository\\nii_dg_gin\\internal\\mocks\\ipfs\\ipfs_exec_mock.go": {
+			"checksum": "WqloX5E+o3U6t/SEW9ZhPQ==",
+			"source_checksum": "nZdCvLt400q3WE082RKKfA==",
+			"mode": "SOURCE_MODE",
+			"source_mode_runner": {
+				"source": "D:\\Myrepository\\nii_dg_gin\\internal\\ipfs\\ipfs_exec.go",
+				"destination": "D:\\Myrepository\\nii_dg_gin\\internal\\mocks\\ipfs\\ipfs_exec_mock.go"
+			}
+		},
+		"D:\\Myrepository\\nii_dg_gin\\internal\\mocks\\ipfs\\ipfs_operation_mock.go": {
+			"checksum": "oAlSIrYGQskNDLAaIUuppg==",
+			"source_checksum": "svZAOI50QaY25PJOpb14EA==",
+			"mode": "SOURCE_MODE",
+			"source_mode_runner": {
+				"source": "D:\\Myrepository\\nii_dg_gin\\internal\\ipfs\\ipfs_operation.go",
+				"destination": "D:\\Myrepository\\nii_dg_gin\\internal\\mocks\\ipfs\\ipfs_operation_mock.go"
+			}
+		},
+		"D:\\Myrepository\\nii_dg_gin\\internal\\mocks\\route\\dataset\\create_dataset_in_IPFS_mock.go": {
+			"checksum": "nF8ix20hQZIPOuYJqNYoGg==",
+			"source_checksum": "TQPlj4Qb5RBNCUgiBXKVJg==",
+			"mode": "SOURCE_MODE",
+			"source_mode_runner": {
+				"source": "D:\\Myrepository\\nii_dg_gin\\internal\\route\\dataset\\create_dataset_in_IPFS.go",
+				"destination": "D:\\Myrepository\\nii_dg_gin\\internal\\mocks\\route\\dataset\\create_dataset_in_IPFS_mock.go"
+			}
+		}
+	}
+}

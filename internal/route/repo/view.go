@@ -25,6 +25,7 @@ import (
 	"github.com/NII-DG/gogs/internal/db"
 	"github.com/NII-DG/gogs/internal/form"
 	"github.com/NII-DG/gogs/internal/gitutil"
+	"github.com/NII-DG/gogs/internal/ipfs"
 	"github.com/NII-DG/gogs/internal/markup"
 	"github.com/NII-DG/gogs/internal/route/dataset"
 	"github.com/NII-DG/gogs/internal/template"
@@ -107,7 +108,6 @@ func renderDirectory(c *context.Context, treeLink string) {
 		return
 	}
 
-	logv2.Info("[resList] %v ", resList)
 	for _, data := range filesDataList {
 		flg := false
 		if data.Entry.Type() == git.ObjectBlob {
@@ -478,8 +478,6 @@ func Home(c *context.Context) {
 	// Get current entry user currently looking at.
 	//選択フォルダーの下にフォルダー、ファイルの確認
 	entry, err := c.Repo.Commit.TreeEntry(c.Repo.TreePath)
-	log.Info("[c.Repo.TreePath]", c.Repo.TreePath)
-	log.Info("[entry]", entry)
 
 	if err != nil {
 		c.NotFoundOrError(gitutil.NewError(err), "get tree entry")
@@ -626,8 +624,6 @@ func CreateDataset(c *context.Context, f form.DatasetFrom) {
 	// Get current entry user currently looking at.
 	//選択フォルダーの下にフォルダー、ファイルの確認
 	entry, err := c.Repo.Commit.TreeEntry(c.Repo.TreePath)
-	logv2.Info("[c.Repo.TreePath]", c.Repo.TreePath)
-	logv2.Info("[entry]", entry)
 
 	if err != nil {
 		c.NotFoundOrError(gitutil.NewError(err), "get tree entry")
@@ -720,7 +716,12 @@ func CreateDataset(c *context.Context, f form.DatasetFrom) {
 	//IPFS上でデータセット構築
 	uploadDatasetMap := map[string]bcapi.UploadDatasetInfo{}
 	for datasetPath, datasetData := range datasetNmToFileMap {
-		if uploadDataset, err := dataset.GetDatasetAddress(datasetPath, datasetData); err != nil {
+		datasetCreater := dataset.DatasetCreater{
+			Operater: &ipfs.IpfsOperation{
+				Commander: ipfs.NewCommand(),
+			},
+		}
+		if uploadDataset, err := datasetCreater.GetDatasetAddress(datasetPath, datasetData); err != nil {
 			logv2.Error("[Get each Address IN Dataset] %v", err)
 			c.Error(err, "データセット内の各フォルダアドレスが取得できませんでした")
 			return
@@ -740,7 +741,7 @@ func CreateDataset(c *context.Context, f form.DatasetFrom) {
 		//登録できなかったデータセットの表示
 		notCreatesDatasetList := ""
 		for _, dataset := range notCreatedDataset.DatasetList {
-			logv2.Warn("[Already Exist Dataset Token] %v", dataset.DatasetLocation)
+			logv2.Warn("[Already Exists Dataset Token] %v", dataset.DatasetLocation)
 			temStr := &notCreatesDatasetList
 			addDataset := "[" + dataset.DatasetLocation + "] "
 			*temStr = *temStr + addDataset

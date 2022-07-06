@@ -55,7 +55,7 @@ func CreateContentHistory(user_code string, contentMap map[string]string) error 
 	}
 	defer resp.Body.Close()
 	byteArray, _ := ioutil.ReadAll(resp.Body)
-	if resp.StatusCode != 200 {
+	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("[Error in BC-API] status code : %v, response : %s", resp.StatusCode, byteArray)
 	}
 	return nil

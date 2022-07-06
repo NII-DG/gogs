@@ -27,7 +27,6 @@ require (
 	github.com/google/go-github v17.0.0+incompatible
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/idubinskiy/schematyper v0.0.0-20190118213059-f71b40dac30d // indirect
-	github.com/ipfs/go-ipfs-api v0.3.0
 	github.com/issue9/identicon v1.2.0
 	github.com/jarcoal/httpmock v1.1.0
 	github.com/jaytaylor/html2text v0.0.0-20200412013138-3577fbdbcff7

@@ -68,6 +68,7 @@ func TestInit(t *testing.T) {
 		{"mirror", &Mirror},
 		{"i18n", &I18n},
 	} {
+
 		err := cfg.Section(v.section).ReflectFrom(v.config)
 		if err != nil {
 			t.Fatalf("%s: %v", v.section, err)
