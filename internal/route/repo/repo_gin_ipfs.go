@@ -160,7 +160,7 @@ func resolveEncyrptedContent(c *context.Context, buf []byte, bcContentInfo bcapi
 		c.Data["IsAnnexedFile"] = true
 		return buf, fmt.Errorf("[Cannot Decrypting data] File : %v, Error Msg : %v", dirDecryptedData, err)
 	}
-	//復号したデータをディレクトリに格納
+	//復号したデータを取得する。
 	afp, err := os.Open(dirDecryptedData)
 	if err != nil {
 		c.Data["IsAnnexedFile"] = true
