@@ -227,7 +227,7 @@ func RepoAssignment(pages ...bool) macaron.Handler {
 
 		// repo, err := db.GetRepositoryByName(owner.ID, repoName)
 		//strconv.ParseInt(repoID, 10, 64)
-
+		log.Info("repoID %v", repoID)
 		x, err := strconv.ParseInt(repoID, 10, 64)
 
 		log.Info("x %v", x)
@@ -236,11 +236,12 @@ func RepoAssignment(pages ...bool) macaron.Handler {
 			c.NotFoundOrError(err, "get repository by name")
 			return
 		}
-
+		log.Info("repo %v", repo)
 		c.Repo.Repository = repo
 		c.Data["RepoName"] = c.Repo.Repository.Name
 		c.Data["IsBareRepo"] = c.Repo.Repository.IsBare
 		c.Repo.RepoLink = repo.Link()
+		log.Info("RepoLink l244 %v", c.Repo.RepoLink)
 		c.Data["RepoLink"] = c.Repo.RepoLink
 		c.Data["RepoRelPath"] = c.Repo.Owner.Name + "/" + c.Repo.Repository.Name
 

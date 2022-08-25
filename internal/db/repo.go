@@ -300,8 +300,12 @@ func (repo *Repository) FullName() string {
 	return repo.MustOwner().Name + "/" + repo.Name
 }
 
+func (repo *Repository) FullID() string {
+	return repo.MustOwner().Name + "/" + strconv.FormatInt(repo.ID, 10)
+}
 func (repo *Repository) HTMLURL() string {
-	return conf.Server.ExternalURL + repo.FullName()
+	//return conf.Server.ExternalURL + repo.FullName()
+	return conf.Server.ExternalURL + repo.FullID()
 }
 
 // CustomAvatarPath returns repository custom avatar file path.
@@ -557,11 +561,13 @@ func (repo *Repository) GitConfigPath() string {
 }
 
 func (repo *Repository) RelLink() string {
-	return "/" + repo.FullName()
+	// return "/" + repo.FullName()
+	return "/" + repo.FullID()
 }
 
 func (repo *Repository) Link() string {
-	return conf.Server.Subpath + "/" + repo.FullName()
+	// return conf.Server.Subpath + "/" + repo.FullName()
+	return conf.Server.Subpath + "/" + repo.FullID()
 }
 
 func (repo *Repository) ComposeCompareURL(oldCommitID, newCommitID string) string {

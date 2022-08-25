@@ -6,6 +6,7 @@ package mock_context
 
 import (
 	reflect "reflect"
+	log "unknwon.dev/clog/v2"
 
 	db "github.com/NII-DG/gogs/internal/db"
 	git "github.com/gogs/git-module"
@@ -124,6 +125,7 @@ func (m *MockAbstructCtxRepository) GetRepoLink() string {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetRepoLink")
 	ret0, _ := ret[0].(string)
+	log.Info("GetRepoLink()l127 %v", ret0)
 	return ret0
 }
 
