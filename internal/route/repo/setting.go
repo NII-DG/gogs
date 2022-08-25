@@ -37,6 +37,7 @@ const (
 )
 
 func Settings(c *context.Context) {
+	log.Info("Settings")
 	c.Title("repo.settings")
 	c.PageIs("SettingsOptions")
 	c.RequireAutosize()

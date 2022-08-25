@@ -191,6 +191,7 @@ func (r *Repository) PullRequestURL(baseBranch, headBranch string) string {
 
 // [0]: issues, [1]: wiki
 func RepoAssignment(pages ...bool) macaron.Handler {
+	log.Info("RepoAssignment")
 	return func(c *Context) {
 		var (
 			owner        *db.User
@@ -205,9 +206,11 @@ func RepoAssignment(pages ...bool) macaron.Handler {
 		if len(pages) > 1 {
 			isWikiPage = pages[1]
 		}
-
 		ownerName := c.Params(":username")
-		repoName := strings.TrimSuffix(c.Params(":reponame"), ".git")
+		//repoName := strings.TrimSuffix(c.Params(":reponame"), ".git")
+		repoID := c.Params(":repoid")
+		log.Info("repoName l211 %v", c.Params(":reponame"))
+		log.Info("repoID l212 %v", repoID)
 
 		// Check if the user is the same as the repository owner
 		if c.IsLogged && c.User.LowerName == strings.ToLower(ownerName) {
@@ -222,7 +225,13 @@ func RepoAssignment(pages ...bool) macaron.Handler {
 		c.Repo.Owner = owner
 		c.Data["Username"] = c.Repo.Owner.Name
 
-		repo, err := db.GetRepositoryByName(owner.ID, repoName)
+		// repo, err := db.GetRepositoryByName(owner.ID, repoName)
+		//strconv.ParseInt(repoID, 10, 64)
+
+		x, err := strconv.ParseInt(repoID, 10, 64)
+
+		log.Info("x %v", x)
+		repo, err := db.GetRepositoryByID(x)
 		if err != nil {
 			c.NotFoundOrError(err, "get repository by name")
 			return
@@ -326,7 +335,8 @@ func RepoAssignment(pages ...bool) macaron.Handler {
 		c.Data["Tags"] = tags
 		c.Repo.Repository.NumTags = len(tags)
 
-		c.Data["Title"] = owner.Name + "/" + repo.Name
+		// c.Data["Title"] = owner.Name + "/" + repo.Name
+		c.Data["Title"] = owner.Name + "/" + strconv.FormatInt(repo.ID, 10)
 		c.Data["Repository"] = repo
 		c.Data["Owner"] = c.Repo.Repository.Owner
 		c.Data["IsRepositoryOwner"] = c.Repo.IsOwner()
@@ -408,6 +418,7 @@ func RepoRef() macaron.Handler {
 		// For API calls.
 		if c.Repo.GitRepo == nil {
 			repoPath := db.RepoPath(c.Repo.Owner.Name, c.Repo.Repository.Name)
+			log.Info("repoPath %v l417", repoPath)
 			c.Repo.GitRepo, err = git.Open(repoPath)
 			if err != nil {
 				c.Error(err, "open repository")

@@ -420,7 +420,7 @@ func runWeb(c *cli.Context) error {
 				Post(bindIgnErr(form.CreateRepo{}), repo.ForkPost)
 		}, reqSignIn)
 
-		m.Group("/:username/:reponame", func() {
+		m.Group("/:username/:repoid", func() {
 			// RCOS specific code.
 			// Generate machine actionable DMP based on DMP information
 			m.Post("/madmp", repo.GenerateMaDmp)
@@ -474,15 +474,15 @@ func runWeb(c *cli.Context) error {
 			})
 		}, reqSignIn, context.RepoAssignment(), reqRepoAdmin, context.RepoRef())
 
-		m.Post("/:username/:reponame/action/:action", reqSignIn, context.RepoAssignment(), repo.Action)
-		m.Group("/:username/:reponame", func() {
+		m.Post("/:username/:repoid/action/:action", reqSignIn, context.RepoAssignment(), repo.Action)
+		m.Group("/:username/:repoid", func() {
 			m.Get("/issues", repo.RetrieveLabels, repo.Issues)
 			m.Get("/issues/:index", repo.ViewIssue)
 			m.Get("/labels/", repo.RetrieveLabels, repo.Labels)
 			m.Get("/milestones", repo.Milestones)
 			m.Get("/doi", route.RequestDOI) // GIN specific code
 		}, ignSignIn, context.RepoAssignment(true))
-		m.Group("/:username/:reponame", func() {
+		m.Group("/:username/:repoid", func() {
 			// FIXME: should use different URLs but mostly same logic for comments of issue and pull reuqest.
 			// So they can apply their own enable/disable logic on routers.
 			m.Group("/issues", func() {
@@ -500,14 +500,14 @@ func runWeb(c *cli.Context) error {
 				m.Post("/delete", repo.DeleteComment)
 			})
 		}, reqSignIn, context.RepoAssignment(true))
-		m.Group("/:username/:reponame", func() {
+		m.Group("/:username/:repoid", func() {
 			m.Group("/wiki", func() {
 				m.Get("/?:page", repo.Wiki)
 				m.Get("/_pages", repo.WikiPages)
 			}, repo.MustEnableWiki, context.RepoRef())
 		}, ignSignIn, context.RepoAssignment(false, true))
 
-		m.Group("/:username/:reponame", func() {
+		m.Group("/:username/:repoid", func() {
 			// FIXME: should use different URLs but mostly same logic for comments of issue and pull reuqest.
 			// So they can apply their own enable/disable logic on routers.
 			m.Group("/issues", func() {
@@ -581,7 +581,7 @@ func runWeb(c *cli.Context) error {
 			})
 		}, reqSignIn, context.RepoAssignment())
 
-		m.Group("/:username/:reponame", func() {
+		m.Group("/:username/:repoid", func() {
 			m.Group("", func() {
 				m.Get("/releases", repo.MustBeNotBare, repo.Releases)
 				m.Get("/pulls", repo.RetrieveLabels, repo.Pulls)
@@ -625,7 +625,7 @@ func runWeb(c *cli.Context) error {
 
 			m.Get("/compare/:before([a-z0-9]{40})\\.\\.\\.:after([a-z0-9]{40})", repo.MustBeNotBare, context.RepoRef(), repo.CompareDiff)
 		}, ignSignIn, context.RepoAssignment())
-		m.Group("/:username/:reponame", func() {
+		m.Group("/:username/:repoid", func() {
 			m.Get("", context.ServeGoGet(), repo.Home)
 			m.Get("/stars", repo.Stars)
 			m.Get("/watchers", repo.Watchers)
@@ -633,7 +633,7 @@ func runWeb(c *cli.Context) error {
 
 		// GIN specific code
 		// TODO copy /raw/* group context and move to the end of the file for better code separation
-		m.Group("/:username/:reponame", func() {
+		m.Group("/:username/:repoid", func() {
 			// GIN mod: Annex over HTTP
 			m.Get("/config", repo.GitConfig)
 			m.Get("/annex/objects/:hashdira/:hashdirb/:key/:keyfile", repo.AnnexGetKey)
