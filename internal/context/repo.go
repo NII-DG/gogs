@@ -8,11 +8,13 @@ import (
 	"bytes"
 	"fmt"
 	"net/url"
+	"strconv"
 	"strings"
 
 	"github.com/editorconfig/editorconfig-core-go/v2"
 	"github.com/pkg/errors"
 	"gopkg.in/macaron.v1"
+	log "unknwon.dev/clog/v2"
 
 	"github.com/gogs/git-module"
 
@@ -300,8 +302,16 @@ func RepoAssignment(pages ...bool) macaron.Handler {
 			c.Data["MirrorInterval"] = c.Repo.Mirror.Interval
 			c.Data["Mirror"] = c.Repo.Mirror
 		}
+		// test
+		log.Info("repoName2 %v", repo.ID)
+		repoName2 := strconv.FormatInt(repo.ID, 10)
+		log.Info("repoName2 %v", repoName2)
+		a := db.RepoPath(ownerName, repoName2)
+		log.Info("a %v", a)
 
-		gitRepo, err := git.Open(db.RepoPath(ownerName, repoName))
+		//
+		gitRepo, err := git.Open(db.RepoPath(ownerName, repoName2))
+		log.Info("git Repo %v", gitRepo)
 		if err != nil {
 			c.Error(err, "open repository")
 			return

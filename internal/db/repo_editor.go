@@ -18,6 +18,7 @@ import (
 
 	gouuid "github.com/satori/go.uuid"
 	"github.com/unknwon/com"
+	log "unknwon.dev/clog/v2"
 
 	"github.com/gogs/git-module"
 
@@ -92,6 +93,7 @@ func discardLocalRepoBranchChanges(localPath, branch string) error {
 }
 
 func (repo *Repository) DiscardLocalRepoBranchChanges(branch string) error {
+	log.Info("DiscardLocalRepoBranchChanges %v, discardLocalRepoBranchChanges(repo.LocalCopyPath(), branch)")
 	return discardLocalRepoBranchChanges(repo.LocalCopyPath(), branch)
 }
 
@@ -119,17 +121,23 @@ type UpdateRepoFileOptions struct {
 
 // UpdateRepoFile adds or updates a file in repository.
 func (repo *Repository) UpdateRepoFile(doer *User, opts UpdateRepoFileOptions) (err error) {
+	log.Info("UpdateRepofile")
 	repoWorkingPool.CheckIn(com.ToStr(repo.ID))
 	defer repoWorkingPool.CheckOut(com.ToStr(repo.ID))
+	log.Info("UpdateRepofile-1")
 
 	if err = repo.DiscardLocalRepoBranchChanges(opts.OldBranch); err != nil {
+		log.Info("DiscardLocalRepoBranchChanges-error")
 		return fmt.Errorf("discard local repo branch[%s] changes: %v", opts.OldBranch, err)
 	} else if err = repo.UpdateLocalCopyBranch(opts.OldBranch); err != nil {
+		log.Info("UpdateLocalCopyBranch-error")
 		return fmt.Errorf("update local copy branch[%s]: %v", opts.OldBranch, err)
 	}
-
+	log.Info("UpdateRepofile-2")
 	repoPath := repo.RepoPath()
 	localPath := repo.LocalCopyPath()
+	log.Info("repoPath %v", repoPath)
+	log.Info("LocalCopyPath %v", localPath)
 
 	if opts.OldBranch != opts.NewBranch {
 		// Directly return error if new branch already exists in the server

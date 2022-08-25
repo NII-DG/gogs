@@ -543,8 +543,9 @@ func (repo *Repository) GetMirror() (err error) {
 	return err
 }
 
+// remote URL?
 func (repo *Repository) repoPath(e Engine) string {
-	return RepoPath(repo.mustOwner(e).Name, repo.Name)
+	return RepoPath(repo.mustOwner(e).Name, strconv.FormatInt(repo.ID, 10))
 }
 
 func (repo *Repository) RepoPath() string {
@@ -607,6 +608,8 @@ func (repo *Repository) NextIssueIndex() int64 {
 }
 
 func (repo *Repository) LocalCopyPath() string {
+	a := filepath.Join(conf.Server.AppDataPath, "tmp", "local-repo", com.ToStr(repo.ID))
+	log.Info("LocalCopyPath %v", a)
 	return filepath.Join(conf.Server.AppDataPath, "tmp", "local-repo", com.ToStr(repo.ID))
 }
 
@@ -714,20 +717,27 @@ func ComposeHTTPSCloneURL(owner, repo string) string {
 }
 
 func (repo *Repository) cloneLink(isWiki bool) *CloneLink {
-	repoName := repo.Name
+	//
+	repoID := strconv.FormatInt(repo.ID, 10)
+	// repoName := repo.Name
 	if isWiki {
-		repoName += ".wiki"
+		// repoName += ".wiki"
+		repoID += ".wiki"
 	}
 
 	repo.Owner = repo.MustOwner()
 	cl := new(CloneLink)
 	if conf.SSH.Port != 22 {
-		cl.SSH = fmt.Sprintf("ssh://%s@%s:%d/%s/%s.git", conf.App.RunUser, conf.SSH.Domain, conf.SSH.Port, repo.Owner.Name, repoName)
+		// cl.SSH = fmt.Sprintf("ssh://%s@%s:%d/%s/%s.git", conf.App.RunUser, conf.SSH.Domain, conf.SSH.Port, repo.Owner.Name, repoName)
+		cl.SSH = fmt.Sprintf("ssh://%s@%s:%d/%s/%s.git", conf.App.RunUser, conf.SSH.Domain, conf.SSH.Port, repo.Owner.Name, repoID)
 	} else {
-		cl.SSH = fmt.Sprintf("%s@%s:/%s/%s.git", conf.App.RunUser, conf.SSH.Domain, repo.Owner.Name, repoName)
+		// cl.SSH = fmt.Sprintf("%s@%s:/%s/%s.git", conf.App.RunUser, conf.SSH.Domain, repo.Owner.Name, repoName)
+		cl.SSH = fmt.Sprintf("%s@%s:/%s/%s.git", conf.App.RunUser, conf.SSH.Domain, repo.Owner.Name, repoID)
 	}
-	cl.HTTPS = ComposeHTTPSCloneURL(repo.Owner.Name, repoName)
-	cl.Gin = fmt.Sprintf("gin get %s/%s", repo.Owner.Name, repoName)
+	// cl.HTTPS = ComposeHTTPSCloneURL(repo.Owner.Name, repoName)
+	cl.HTTPS = ComposeHTTPSCloneURL(repo.Owner.Name, repoID)
+	// cl.Gin = fmt.Sprintf("gin get %s/%s", repo.Owner.Name, repoName)
+	cl.Gin = fmt.Sprintf("gin get %s/%s", repo.Owner.Name, repoID)
 	return cl
 }
 
@@ -1178,7 +1188,8 @@ func CreateRepository(doer, owner *User, opts CreateRepoOptions) (_ *Repository,
 
 	// No need for init mirror.
 	if !opts.IsMirror {
-		repoPath := RepoPath(owner.Name, repo.Name)
+		repoName := strconv.FormatInt(repo.ID, 10)
+		repoPath := RepoPath(owner.Name, repoName)
 		if err = initRepository(sess, repoPath, doer, repo, opts); err != nil {
 			RemoveAllWithNotice("Delete repository for initialization failure", repoPath)
 			return nil, fmt.Errorf("initRepository: %v", err)
@@ -1275,6 +1286,7 @@ func FilterRepositoryWithIssues(repoIDs []int64) ([]int64, error) {
 	return repoIDs, nil
 }
 
+// bare repo path?
 // RepoPath returns repository path by given user and repository name.
 func RepoPath(userName, repoName string) string {
 	return filepath.Join(UserPath(userName), strings.ToLower(repoName)+".git")

@@ -409,6 +409,7 @@ func HTTP(c *HTTPContext) {
 
 		file := strings.TrimPrefix(reqPath, m[1]+"/")
 		dir, err := getGitRepoPath(m[1])
+		log.Info("getGitRepositoryPath - dir: %v", dir)
 		if err != nil {
 			log.Warn("HTTP.getGitRepoPath: %v", err)
 			c.NotFound()
