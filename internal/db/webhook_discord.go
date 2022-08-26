@@ -12,6 +12,7 @@ import (
 	"github.com/gogs/git-module"
 	api "github.com/gogs/go-gogs-client"
 	jsoniter "github.com/json-iterator/go"
+	log "unknwon.dev/clog/v2"
 
 	"github.com/NII-DG/gogs/internal/conf"
 )
@@ -72,6 +73,7 @@ func DiscordSHALinkFormatter(url string, text string) string {
 func getDiscordCreatePayload(p *api.CreatePayload) (*DiscordPayload, error) {
 	refName := git.RefShortName(p.Ref)
 	repoLink := DiscordLinkFormatter(p.Repo.HTMLURL, p.Repo.Name)
+	log.Info("webhook l75 repoLink:%v", repoLink)
 	refLink := DiscordLinkFormatter(p.Repo.HTMLURL+"/src/"+refName, refName)
 	content := fmt.Sprintf("Created new %s: %s/%s", p.RefType, repoLink, refLink)
 	return &DiscordPayload{
