@@ -56,14 +56,21 @@ func HTTPContexter() macaron.Handler {
 		}
 
 		ownerName := c.Params(":username")
-		repoName := strings.TrimSuffix(c.Params(":reponame"), ".git")
+		repoName := strings.TrimSuffix(c.Params(":repoid"), ".git")
+		log.Info("repoName %v", repoName)
 		repoName = strings.TrimSuffix(repoName, ".wiki")
 
 		isPull := c.Query("service") == "git-upload-pack" ||
 			strings.HasSuffix(c.Req.URL.Path, "git-upload-pack") ||
 			c.Req.Method == "GET"
+		log.Info("1")
+		log.Info("c.Query('service') %v", c.Query("service"))
+		log.Info("strings.HasSuffix(c.Req.URL.Path, 'git-upload-pack') %v", strings.HasSuffix(c.Req.URL.Path, "git-upload-pack"))
 
+		log.Info("isPull %v", isPull)
 		owner, err := db.Users.GetByUsername(ownerName)
+		log.Info("2")
+		log.Info("owner %v", owner)
 		if err != nil {
 			if db.IsErrUserNotExist(err) {
 				c.Status(http.StatusNotFound)
@@ -73,18 +80,21 @@ func HTTPContexter() macaron.Handler {
 			}
 			return
 		}
-
+		log.Info("3")
 		repo, err := db.Repos.GetByName(owner.ID, repoName)
+		log.Info("repo %v", repo)
 		if err != nil {
+			log.Info("3-1")
 			if db.IsErrRepoNotExist(err) {
 				c.Status(http.StatusNotFound)
 			} else {
+				log.Info("3-2")
 				c.Status(http.StatusInternalServerError)
 				log.Error("Failed to get repository [owner_id: %d, name: %s]: %v", owner.ID, repoName, err)
 			}
 			return
 		}
-
+		log.Info("4")
 		// Authentication is not required for pulling from public repositories.
 		if isPull && !repo.IsPrivate && !conf.Auth.RequireSigninView {
 			c.Map(&HTTPContext{
@@ -92,7 +102,7 @@ func HTTPContexter() macaron.Handler {
 			})
 			return
 		}
-
+		log.Info("5")
 		// In case user requested a wrong URL and not intended to access Git objects.
 		action := c.Params("*")
 		if !strings.Contains(action, "git-") &&
@@ -102,7 +112,7 @@ func HTTPContexter() macaron.Handler {
 			c.NotFound()
 			return
 		}
-
+		log.Info("6")
 		// Handle HTTP Basic Authentication
 		authHead := c.Req.Header.Get("Authorization")
 		if len(authHead) == 0 {
@@ -316,9 +326,11 @@ func packetWrite(str string) []byte {
 func getInfoRefs(h serviceHandler) {
 	h.setHeaderNoCache()
 	service := getServiceType(h.r)
+	log.Info("service %v", service)
 	if service != "upload-pack" && service != "receive-pack" {
 		updateServerInfo(h.dir)
 		h.sendFile("text/plain; charset=utf-8")
+		log.Info("updateServerInfo")
 		return
 	}
 

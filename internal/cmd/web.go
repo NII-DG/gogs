@@ -676,7 +676,7 @@ func runWeb(c *cli.Context) error {
 	// ----- HTTP Git routes -----
 	// ***************************
 
-	m.Group("/:username/:reponame", func() {
+	m.Group("/:username/:repoid", func() {
 		m.Get("/tasks/trigger", repo.TriggerTask)
 
 		m.Group("/info/lfs", func() {

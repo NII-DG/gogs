@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/jinzhu/gorm"
+	log "unknwon.dev/clog/v2"
 
 	"github.com/NII-DG/gogs/internal/errutil"
 )
@@ -127,7 +128,11 @@ func (ErrRepoNotExist) NotFound() bool {
 
 func (db *repos) GetByName(ownerID int64, name string) (*Repository, error) {
 	repo := new(Repository)
-	err := db.Where("owner_id = ? AND lower_name = ?", ownerID, strings.ToLower(name)).First(repo).Error
+	log.Info("repo %v line130", repo)
+	log.Info("strings.ToLower(name) %v", strings.ToLower(name))
+	//err := db.Where("owner_id = ? AND lower_name = ?", ownerID, strings.ToLower(name)).First(repo).Error
+	err := db.Where("owner_id = ? AND id = ?", ownerID, strings.ToLower(name)).First(repo).Error
+	log.Info("err %v line133", err)
 	if err != nil {
 		if gorm.IsRecordNotFoundError(err) {
 			return nil, ErrRepoNotExist{args: map[string]interface{}{"ownerID": ownerID, "name": name}}
