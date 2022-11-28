@@ -60,6 +60,8 @@ func initLogConf(cfg *ini.File, hookMode bool) (_ *logConf, hasConsole bool, _ e
 	for i := range modes {
 		modes[i] = strings.ToLower(strings.TrimSpace(modes[i]))
 		secName := "log." + modes[i]
+		//ADD Trace by tsukioka
+		log.Trace("[LOG Gin-fork] log conf name : %v", secName)
 		sec, err := cfg.GetSection(secName)
 		if err != nil {
 			return nil, hasConsole, errors.Errorf("missing configuration section [%s] for %q logger", secName, modes[i])
@@ -94,6 +96,8 @@ func initLogConf(cfg *ini.File, hookMode bool) (_ *logConf, hasConsole bool, _ e
 					},
 				},
 			}
+			//ADD Trace by tsukioka
+			log.Trace("[LOG Gin-fork] log conf name : %v, Rotate : %v, Daily: %v,MaxSize: %v,MaxLines: %v,MaxDays: %v,", secName, sec.Key("LOG_ROTATE").MustBool(true), sec.Key("DAILY_ROTATE").MustBool(true), 1<<uint(sec.Key("MAX_SIZE_SHIFT").MustInt(28)), sec.Key("MAX_LINES").MustInt64(1000000), sec.Key("MAX_DAYS").MustInt64(7))
 
 		case log.DefaultSlackName:
 			c = &loggerConf{
@@ -157,6 +161,8 @@ func InitLogging(hookMode bool) {
 			level = c.Config.(log.ConsoleConfig).Level
 			err = log.NewConsole(c.Buffer, c.Config)
 		case log.DefaultFileName:
+			//ADD Trace by tsukioka
+			log.Trace("[LOG Gin-fork] call log.NewFile(c.Buffer, c.Config)")
 			level = c.Config.(log.FileConfig).Level
 			err = log.NewFile(c.Buffer, c.Config)
 		case log.DefaultSlackName:
