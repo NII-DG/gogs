@@ -649,7 +649,6 @@ func createDmp(c context.AbstructContext, f AbstructRepoUtil, d AbstructDmpUtil)
 		return
 	}
 	decodedBasicSchema, err := f.DecodeBlobContent(srcBasic)
-	log.Trace("[Tmp Dubeg RCOS] createDmp(), decodedBasicSchema : %v", decodedBasicSchema)
 	if err != nil {
 		log.Error("%v", err)
 		return
@@ -661,7 +660,6 @@ func createDmp(c context.AbstructContext, f AbstructRepoUtil, d AbstructDmpUtil)
 		return
 	}
 	decodedOrgSchema, err := f.DecodeBlobContent(srcOrg)
-	log.Trace("[Tmp Dubeg RCOS] createDmp(), decodedOrgSchema : %v", decodedOrgSchema)
 	if err != nil {
 		log.Error("%v", err)
 		return
@@ -713,7 +711,7 @@ func (d dmpUtil) BidingDmpSchemaList(c context.AbstructContext, treePath string)
 // fetchDmpSchema is RCOS specific code.
 // This function fetch&bind JSON Schema of DMP for validation.
 func (d dmpUtil) fetchDmpSchema(c context.AbstructContext, f AbstructRepoUtil, blobPath string) error {
-	log.Trace("[Tmp Dubeg RCOS] Call fetchDmpSchema()")
+
 	src, err := f.FetchContentsOnGithub(blobPath)
 	if err != nil {
 		return err
@@ -725,7 +723,7 @@ func (d dmpUtil) fetchDmpSchema(c context.AbstructContext, f AbstructRepoUtil, b
 	}
 
 	c.CallData()["IsDmpJson"] = true
-	log.Trace("[Tmp Dubeg RCOS] fetchDmpSchema(), decodedScheme : %v", decodedScheme)
+
 	c.CallData()["Schema"] = decodedScheme
 	return nil
 }
@@ -733,7 +731,7 @@ func (d dmpUtil) fetchDmpSchema(c context.AbstructContext, f AbstructRepoUtil, b
 // bidingDmpSchemaList is RCOS specific code.
 // This function binds DMP organization list.
 func (d dmpUtil) bidingDmpSchemaList(c context.AbstructContext, f AbstructRepoUtil, treePath string) error {
-	log.Trace("[Tmp Dubeg RCOS] Call bidingDmpSchemaList()")
+
 	contents, err := f.FetchContentsOnGithub(treePath)
 	if err != nil {
 		return err
@@ -744,7 +742,6 @@ func (d dmpUtil) bidingDmpSchemaList(c context.AbstructContext, f AbstructRepoUt
 	if err != nil {
 		return err
 	}
-	log.Trace("[Tmp Dubeg RCOS] bidingDmpSchemaList(), orgsInfo: %v", orgsInfo)
 
 	// create organization list
 	orgs := orgsInfo.([]interface{})
