@@ -739,12 +739,12 @@ func (d dmpUtil) bidingDmpSchemaList(c context.AbstructContext, f AbstructRepoUt
 		return err
 	}
 
-	log.Trace("[Tmp Dubeg RCOS] bidingDmpSchemaList(), contents: %v", contents)
 	var orgsInfo interface{}
 	err = json.Unmarshal(contents, &orgsInfo)
 	if err != nil {
 		return err
 	}
+	log.Trace("[Tmp Dubeg RCOS] bidingDmpSchemaList(), orgsInfo: %v", orgsInfo)
 
 	// create organization list
 	orgs := orgsInfo.([]interface{})
