@@ -722,6 +722,7 @@ func (d dmpUtil) fetchDmpSchema(c context.AbstructContext, f AbstructRepoUtil, b
 	}
 
 	c.CallData()["IsDmpJson"] = true
+	log.Trace("[Tmp Dubeg RCOS] fetchDmpSchema(), decodedScheme : %v", decodedScheme)
 	c.CallData()["Schema"] = decodedScheme
 	return nil
 }
@@ -735,6 +736,7 @@ func (d dmpUtil) bidingDmpSchemaList(c context.AbstructContext, f AbstructRepoUt
 		return err
 	}
 
+	log.Trace("[Tmp Dubeg RCOS] bidingDmpSchemaList(), contents: %v", contents)
 	var orgsInfo interface{}
 	err = json.Unmarshal(contents, &orgsInfo)
 	if err != nil {
