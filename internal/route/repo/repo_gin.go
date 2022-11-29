@@ -227,6 +227,7 @@ func (f repoUtil) DecodeBlobContent(blobInfo []byte) (string, error) {
 // If any processing fails, it will return error.
 // refs: https://docs.github.com/en/rest/reference/repos#contents
 func (f repoUtil) fetchContentsOnGithub(blobPath string) ([]byte, error) {
+	log.Trace("[Tmp Dubeg RCOS] fetchContentsOnGithub(), path : %v", blobPath)
 	req, err := http.NewRequest("GET", blobPath, nil)
 	if err != nil {
 		return nil, err
