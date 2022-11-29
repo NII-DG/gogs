@@ -643,11 +643,13 @@ func createDmp(c context.AbstructContext, f AbstructRepoUtil, d AbstructDmpUtil)
 	}
 
 	srcBasic, err := f.FetchContentsOnGithub(schemaUrl + "basic")
+
 	if err != nil {
 		log.Error("%v", err)
 		return
 	}
 	decodedBasicSchema, err := f.DecodeBlobContent(srcBasic)
+	log.Trace("[Tmp Dubeg RCOS] createDmp(), decodedBasicSchema : %v", decodedBasicSchema)
 	if err != nil {
 		log.Error("%v", err)
 		return
@@ -659,6 +661,7 @@ func createDmp(c context.AbstructContext, f AbstructRepoUtil, d AbstructDmpUtil)
 		return
 	}
 	decodedOrgSchema, err := f.DecodeBlobContent(srcOrg)
+	log.Trace("[Tmp Dubeg RCOS] createDmp(), decodedOrgSchema : %v", decodedOrgSchema)
 	if err != nil {
 		log.Error("%v", err)
 		return

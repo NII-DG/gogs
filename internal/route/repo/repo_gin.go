@@ -249,8 +249,6 @@ func (f repoUtil) fetchContentsOnGithub(blobPath string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	log.Trace("[Tmp Dubeg RCOS] fetchContentsOnGithub(), contents : %v", contents)
 	return contents, nil
 }
 
