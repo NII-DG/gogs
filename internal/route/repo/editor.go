@@ -716,6 +716,8 @@ func (d dmpUtil) fetchDmpSchema(c context.AbstructContext, f AbstructRepoUtil, b
 	path := filepath.Join(getDgContentsPath(), "dmp", "json_schema", schemaName)
 	byteArray, _ := ioutil.ReadFile(path)
 
+	log.Info("[RCOS TRACE LOG] byteArray is %v", string(byteArray))
+
 	var jsonObj interface{}
 	_ = json.Unmarshal(byteArray, &jsonObj)
 
