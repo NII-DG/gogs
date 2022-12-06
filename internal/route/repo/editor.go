@@ -629,7 +629,6 @@ func createDmp(c context.AbstructContext, f AbstructRepoUtil, d AbstructDmpUtil)
 	c.PageIs("Edit")
 	c.RequireHighlightJS()
 	c.RequireSimpleMDE()
-	return
 
 	// data binding for "Add DMP" pulldown at DMP editing page
 	// (The pulldown on the repository top page is binded in repo.renderDirectory.)
