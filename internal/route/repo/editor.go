@@ -673,7 +673,7 @@ func createDmp(c context.AbstructContext, f AbstructRepoUtil, d AbstructDmpUtil)
 	// 	return
 	// }
 
-	orgSchemaPath := filepath.Join(getDgContentsPath(), "orgs", schema)
+	orgSchemaPath := filepath.Join(getDgContentsPath(), "dmp", "orgs", schema)
 
 	log.Trace("[RCOS] Getting OrgSchema. file path : %v", orgSchemaPath)
 	orgSchema, err := ioutil.ReadFile(orgSchemaPath)
