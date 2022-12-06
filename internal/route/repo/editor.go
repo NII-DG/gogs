@@ -718,17 +718,17 @@ func (d dmpUtil) fetchDmpSchema(c context.AbstructContext, f AbstructRepoUtil, b
 
 	log.Info("[RCOS TRACE LOG] byteArray is %v", string(schemaDmp))
 
-	src, err := f.FetchContentsOnGithub(blobPath)
-	if err != nil {
-		return err
-	}
+	// src, err := f.FetchContentsOnGithub(blobPath)
+	// if err != nil {
+	// 	return err
+	// }
 
-	decodedScheme, err := f.DecodeBlobContent(src)
-	if err != nil {
-		return err
-	}
+	// decodedScheme, err := f.DecodeBlobContent(src)
+	// if err != nil {
+	// 	return err
+	// }
 
-	log.Info("[RCOS TRACE LOG] decodedScheme is %v", decodedScheme)
+	// log.Info("[RCOS TRACE LOG] decodedScheme is %v", decodedScheme)
 
 	c.CallData()["IsDmpJson"] = true
 	c.CallData()["Schema"] = string(schemaDmp)
