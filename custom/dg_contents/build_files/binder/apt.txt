@@ -1,0 +1,11 @@
+netbase
+graphviz
+##### User Custom Area [Start] ######
+# apt.txtファイルを編集する場合は、「User Custom Area」内に記述してください。
+# それ以外の記述は書き換えないでください。ワークフロー機能が正常に働かなくなる可能性があります。
+# aptコマンド以外でのパッケージインストールをしたい場合は、postBuildに追記してください。
+
+
+
+
+###### User Custom Area [End] #######

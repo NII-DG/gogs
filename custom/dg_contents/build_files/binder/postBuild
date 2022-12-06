@@ -1,0 +1,62 @@
+# エラーが無視されるのを防ぐため
+set -e
+
+# 必要なパッケージのインストール
+conda update -n base -c defaults conda
+conda install git-annex=8.20210903 -n notebook
+conda install git=2.35.0 -n notebook
+
+pip install --upgrade pip
+pip install notebook
+pip install blockdiag==3.0.0
+pip install lxml==4.7.1
+pip install nbformat==5.2.0
+pip install black==21.12b0
+pip install snakemake
+pip install --ignore-installed terminado
+pip install boto3
+pip install requests==2.27.1
+pip install datalad==0.17.6
+pip install chardet==4.0.0
+pip install colorama==0.4.5
+pip install panel==0.13.1
+
+# 拡張機能のインストール
+pip install jupyter_contrib_nbextensions
+jupyter contrib nbextension install --user
+jupyter nbextensions_configurator enable --user
+
+# Jupyter-LC_run_through
+pip install git+https://github.com/NII-cloud-operation/Jupyter-LC_run_through
+jupyter run-through quick-setup --user
+
+# Jupyter-multi_outputs
+pip install git+https://github.com/NII-cloud-operation/Jupyter-multi_outputs
+jupyter nbextension install --py lc_multi_outputs --user
+jupyter nbextension enable --py lc_multi_outputs --user
+
+# フォントの用意
+font_deb=fonts-ipafont-gothic_00303-18ubuntu1_all.deb
+mkdir ${HOME}/.fonts
+wget -P ${HOME}/.fonts http://archive.ubuntu.com/ubuntu/pool/universe/f/fonts-ipafont/${font_deb}
+dpkg-deb -x ${HOME}/.fonts/${font_deb} ~/.fonts
+cp ~/.fonts/usr/share/fonts/opentype/ipafont-gothic/ipag.ttf ~/.fonts/ipag.ttf
+rm ${HOME}/.fonts/${font_deb}
+rm -rf ${HOME}/.fonts/etc ${HOME}/.fonts/usr
+
+# workフォルダを削除
+rm -rf ${HOME}/work
+
+# datalad procedureフォルダを用意
+mkdir -p ${HOME}/.config/datalad/procedures
+
+##### User Custom Area [Start] ######
+# postBuildファイルを編集する場合は、「User Custom Area」内に記述してください。
+# それ以外の記述は書き換えないでください。ワークフロー機能が正常に働かなくなる可能性があります。
+# postBuildファイルに記述されたコマンドは一般ユーザ権限として実行されます。
+# aptコマンドでパッケージをインストールする場合は、apt.txtに追記してください。
+
+
+
+
+###### User Custom Area [End] #######
