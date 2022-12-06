@@ -620,7 +620,6 @@ func CreateDmp(c context.AbstructContext) {
 }
 
 // CreateDmp is RCOS specific code
-// ★ OK
 func createDmp(c context.AbstructContext, d AbstructDmpUtil) {
 	schema := c.QueryEscape("schema")
 	treeNames, treePaths := getParentTreeFields(c.GetRepo().GetTreePath())
@@ -684,7 +683,6 @@ func createDmp(c context.AbstructContext, d AbstructDmpUtil) {
 	c.Success(tmplEditorEdit)
 }
 
-// ★　OK
 type AbstructDmpUtil interface {
 	FetchDmpSchema(c context.AbstructContext, orgName string) error
 	BidingDmpSchemaList(c context.AbstructContext) error
@@ -694,12 +692,10 @@ type AbstructDmpUtil interface {
 // For effective unit test execution, the above DmpUtil interface must be satisfied.
 type dmpUtil func()
 
-// ★　OK
 func (d dmpUtil) FetchDmpSchema(c context.AbstructContext, orgName string) error {
 	return d.fetchDmpSchema(c, orgName)
 }
 
-// ★　OK
 func (d dmpUtil) BidingDmpSchemaList(c context.AbstructContext) error {
 	return d.bidingDmpSchemaList(c)
 }
@@ -707,7 +703,6 @@ func (d dmpUtil) BidingDmpSchemaList(c context.AbstructContext) error {
 // fetchDmpSchema is RCOS specific code.
 // This function fetch&bind JSON Schema of DMP for validation.
 // Access Path : custom/dg_contents/dmp/json_schema/schema_dmp_<org name>
-// ★　OK
 func (d dmpUtil) fetchDmpSchema(c context.AbstructContext, orgName string) error {
 	schemaName := "schema_dmp_" + orgName
 	path := filepath.Join(getDgContentsPath(), "dmp", "json_schema", schemaName)
@@ -724,7 +719,6 @@ func (d dmpUtil) fetchDmpSchema(c context.AbstructContext, orgName string) error
 
 // bidingDmpSchemaList is RCOS specific code.
 // This function binds DMP organization list.
-// ★　OK
 func (d dmpUtil) bidingDmpSchemaList(c context.AbstructContext) error {
 	// custom/dg_contents/dmp/org からioutil.ReadDir（）でファイル名一覧を取得して機関名リストを取得する。
 	files, err := ioutil.ReadDir(filepath.Join(getDgContentsPath(), "dmp", "orgs"))
@@ -741,17 +735,8 @@ func (d dmpUtil) bidingDmpSchemaList(c context.AbstructContext) error {
 	return nil
 }
 
-// getTemplateUrl is RCOS specific code.
-// This is a helper function that returns a base URL
-// for retrieving DMP templates, etc. from GitHub.
-// ★　ok
-// func getTemplateUrl() string {
-// 	return "https://api.github.com/repos/NII-DG/maDMP-template/contents/"
-// }
-
 // getDgContentsPath is RCOS specific code.
 // This func retuen customDir + dg_contens PATH.
-// ★ OK
 func getDgContentsPath() string {
 	return filepath.Join(conf.CustomDir(), "dg_contents")
 }

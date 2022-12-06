@@ -100,12 +100,8 @@ func GenerateMaDmp(c context.AbstructContext) {
 // generateMaDmp is RCOS specific code.
 // This generates maDMP(machine actionable DMP) based on
 // DMP information created by the user in the repository.
-// ★ OK
 func generateMaDmp(c context.AbstructContext) {
-	// GitHubテンプレートNotebookを取得
-	// refs: 1. https://zenn.dev/snowcait/scraps/3d51d8f7841f0c
-	//       2. https://qiita.com/taizo/items/c397dbfed7215969b0a5
-
+	// テンプレートNotebookを取得
 	notebookPath := filepath.Join(getDgContentsPath(), "notebooks", "maDMP.ipynb")
 	log.Trace("[RCOS] Getting maDMP.ipynb, file path : %v", notebookPath)
 	notebookSrc, err := ioutil.ReadFile(notebookPath)
@@ -210,7 +206,6 @@ func failedGenereteMaDmp(c context.AbstructContext, msg string) {
 
 // fetchDockerfile is RCOS specific code.
 // This fetches the Dockerfile used when launching Binderhub.
-// ★ OK
 func fetchDockerfile(c context.AbstructContext) {
 	// コード付帯機能の起動時間短縮のための暫定的な定義
 	dockerFilePath := filepath.Join(getDgContentsPath(), "build_files", "Dockerfile")
@@ -237,7 +232,6 @@ func fetchDockerfile(c context.AbstructContext) {
 
 // fetchEmviromentfile is RCOS specific code.
 // This fetches the Dockerfile used when launching Binderhub.
-// ★ OK
 func fetchEmviromentfile(c context.AbstructContext) {
 	// コード付帯機能の起動時間短縮のための暫定的な定義
 	binderPath := filepath.Join(getDgContentsPath(), "build_files", "binder")
@@ -273,7 +267,6 @@ func fetchEmviromentfile(c context.AbstructContext) {
 }
 
 // fetchImagefile is RCOS specific code.
-// ★ OK
 func fetchImagefile(c context.AbstructContext) {
 	imagesPath := filepath.Join(getDgContentsPath(), "images", "create_ma_dmp")
 	log.Trace("[RCOS] Reading Directory, dir path : %v", imagesPath)
