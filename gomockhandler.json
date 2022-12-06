@@ -29,7 +29,7 @@
 		},
 		"internal/mocks/repo/editor_mock.go": {
 			"checksum": "FC3PtKf+syfyIUVmaihuFA==",
-			"source_checksum": "TdJE/7atP7iUthl7vdvgxg==",
+			"source_checksum": "+Bco3WcVHAbnPjGX7qtOsw==",
 			"mode": "SOURCE_MODE",
 			"source_mode_runner": {
 				"source": "internal/route/repo/editor.go",
@@ -37,8 +37,8 @@
 			}
 		},
 		"internal/mocks/repo/repo_gin_mock.go": {
-			"checksum": "htXwhFVQqcaUjfz61VUWBQ==",
-			"source_checksum": "JhLmTwdv6Io2PiV48G+d/A==",
+			"checksum": "LfAhtN16CpdG/RWWXKGBwQ==",
+			"source_checksum": "CETKlGpLiuFfmYlewZSoXQ==",
 			"mode": "SOURCE_MODE",
 			"source_mode_runner": {
 				"source": "internal/route/repo/repo_gin.go",
