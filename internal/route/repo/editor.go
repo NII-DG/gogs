@@ -7,7 +7,6 @@ package repo
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"path"
 	"path/filepath"
@@ -19,6 +18,7 @@ import (
 	"github.com/NII-DG/gogs/internal/context"
 	"github.com/NII-DG/gogs/internal/db"
 	"github.com/NII-DG/gogs/internal/db/errors"
+	fileutil "github.com/NII-DG/gogs/internal/fileutil"
 	"github.com/NII-DG/gogs/internal/form"
 	"github.com/NII-DG/gogs/internal/gitutil"
 	"github.com/NII-DG/gogs/internal/markup"
@@ -616,11 +616,11 @@ func RemoveUploadFileFromServer(c *context.Context, f form.RemoveUploadFile) {
 
 func CreateDmp(c context.AbstructContext) {
 	var d dmpUtil
-	d.CreateDmp(c)
+	createDmp(c, d)
 }
 
 // CreateDmp is RCOS specific code
-func (d dmpUtil) CreateDmp(c context.AbstructContext) {
+func createDmp(c context.AbstructContext, d AbstructDmpUtil) {
 	schema := c.QueryEscape("schema")
 	treeNames, treePaths := getParentTreeFields(c.GetRepo().GetTreePath())
 
@@ -674,33 +674,37 @@ type AbstructDmpUtil interface {
 	FetchDmpSchema(c context.AbstructContext, orgName string) error
 	BidingDmpSchemaList(c context.AbstructContext) error
 	GetCombinedDmp(schema string) (string, error)
-	CreateDmp(c context.AbstructContext)
 }
 
 // dmpUtil is an alias for utility functions related to the manipulation of DMP information.
 // For effective unit test execution, the above DmpUtil interface must be satisfied.
-type dmpUtil func()
+type dmpUtil struct {
+	fileUtil fileutil.IFFileUtil
+}
 
 func (d dmpUtil) FetchDmpSchema(c context.AbstructContext, orgName string) error {
-	return d.fetchDmpSchema(c, orgName)
+	d.fileUtil = &fileutil.FileUtil{}
+	return d.fetchDmpSchema(c, getDgContentsPath(), orgName)
 }
 
 func (d dmpUtil) BidingDmpSchemaList(c context.AbstructContext) error {
-	return d.bidingDmpSchemaList(c)
+	d.fileUtil = &fileutil.FileUtil{}
+	return d.bidingDmpSchemaList(c, getDgContentsPath())
 }
 
 func (d dmpUtil) GetCombinedDmp(schema string) (string, error) {
-	return d.getCombinedDmp(schema)
+	d.fileUtil = &fileutil.FileUtil{}
+	return d.getCombinedDmp(getDgContentsPath(), schema)
 }
 
 // fetchDmpSchema is RCOS specific code.
 // This function fetch&bind JSON Schema of DMP for validation.
 // Access Path : custom/dg_contents/dmp/json_schema/schema_dmp_<org name>
-func (d dmpUtil) fetchDmpSchema(c context.AbstructContext, orgName string) error {
+func (d dmpUtil) fetchDmpSchema(c context.AbstructContext, path, orgName string) error {
 	schemaName := "schema_dmp_" + orgName
-	path := filepath.Join(getDgContentsPath(), "dmp", "json_schema", schemaName)
-	log.Trace("[RCOS] Getting schema of %v, file path : %v", string(orgName), path)
-	schemaDmp, err := ioutil.ReadFile(path)
+	schemaDmpPath := filepath.Join(path, "dmp", "json_schema", schemaName)
+	log.Trace("[RCOS] Getting schema of %v, file path : %v", string(orgName), schemaDmpPath)
+	schemaDmp, err := d.fileUtil.GetFileBypath(schemaDmpPath)
 	if err != nil {
 		return err
 	}
@@ -712,9 +716,10 @@ func (d dmpUtil) fetchDmpSchema(c context.AbstructContext, orgName string) error
 
 // bidingDmpSchemaList is RCOS specific code.
 // This function binds DMP organization list.
-func (d dmpUtil) bidingDmpSchemaList(c context.AbstructContext) error {
+func (d dmpUtil) bidingDmpSchemaList(c context.AbstructContext, path string) error {
 	// custom/dg_contents/dmp/org からioutil.ReadDir（）でファイル名一覧を取得して機関名リストを取得する。
-	files, err := ioutil.ReadDir(filepath.Join(getDgContentsPath(), "dmp", "orgs"))
+	log.Trace("[RCOS] Read Directory. file path : %v", filepath.Join(path, "dmp", "orgs"))
+	files, err := d.fileUtil.ReadDirBypath(path)
 	if err != nil {
 		log.Error("Not getting funder name. Error Msg : %s", err)
 	}
@@ -728,19 +733,19 @@ func (d dmpUtil) bidingDmpSchemaList(c context.AbstructContext) error {
 	return nil
 }
 
-func (d dmpUtil) getCombinedDmp(schema string) (string, error) {
-	BasicSchemaPath := filepath.Join(getDgContentsPath(), "dmp", "basic")
+func (d dmpUtil) getCombinedDmp(path, schema string) (string, error) {
+	BasicSchemaPath := filepath.Join(path, "dmp", "basic")
 	log.Trace("[RCOS] Getting BasicSchema. file path : %v", BasicSchemaPath)
-	basicSchema, err := ioutil.ReadFile(BasicSchemaPath)
+	basicSchema, err := d.fileUtil.GetFileBypath(BasicSchemaPath)
 	if err != nil {
 		log.Error("Cannot Read BasicSchema File. path : %v, Error Msg : %v", BasicSchemaPath, err)
 		return "", err
 	}
 
-	orgSchemaPath := filepath.Join(getDgContentsPath(), "dmp", "orgs", schema)
+	orgSchemaPath := filepath.Join(path, "dmp", "orgs", schema)
 
 	log.Trace("[RCOS] Getting OrgSchema. file path : %v", orgSchemaPath)
-	orgSchema, err := ioutil.ReadFile(orgSchemaPath)
+	orgSchema, err := d.fileUtil.GetFileBypath(orgSchemaPath)
 	if err != nil {
 		log.Error("Cannot Read OrgSchema File. path : %v, Error Msg : %v", orgSchemaPath, err)
 		return "", err
