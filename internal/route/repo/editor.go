@@ -621,9 +621,10 @@ func CreateDmp(c context.AbstructContext) {
 }
 
 // CreateDmp is RCOS specific code
+// ★
 func createDmp(c context.AbstructContext, f AbstructRepoUtil, d AbstructDmpUtil) {
 	schema := c.QueryEscape("schema")
-	schemaUrl := getTemplateUrl() + "dmp/"
+	// schemaUrl := getTemplateUrl() + "dmp/"
 	treeNames, treePaths := getParentTreeFields(c.GetRepo().GetTreePath())
 
 	c.PageIs("Edit")
@@ -644,29 +645,43 @@ func createDmp(c context.AbstructContext, f AbstructRepoUtil, d AbstructDmpUtil)
 		return
 	}
 
-	srcBasic, err := f.FetchContentsOnGithub(schemaUrl + "basic")
+	// srcBasic, err := f.FetchContentsOnGithub(schemaUrl + "basic")
+	// if err != nil {
+	// 	log.Error("%v", err)
+	// 	return
+	// }
+	// decodedBasicSchema, err := f.DecodeBlobContent(srcBasic)
+	// if err != nil {
+	// 	log.Error("%v", err)
+	// 	return
+	// }
+	BasicSchemaPath := filepath.Join(getDgContentsPath(), "dmp", "basic")
+	log.Trace("[RCOS] Getting BasicSchema. file path : %v", BasicSchemaPath)
+	basicSchema, err := ioutil.ReadFile(BasicSchemaPath)
 	if err != nil {
-		log.Error("%v", err)
-		return
-	}
-	decodedBasicSchema, err := f.DecodeBlobContent(srcBasic)
-	if err != nil {
-		log.Error("%v", err)
-		return
-	}
-
-	srcOrg, err := f.FetchContentsOnGithub(schemaUrl + "orgs/" + schema)
-	if err != nil {
-		log.Error("%v", err)
-		return
-	}
-	decodedOrgSchema, err := f.DecodeBlobContent(srcOrg)
-	if err != nil {
-		log.Error("%v", err)
-		return
+		log.Error("Cannot Read BasicSchema File. path : %v, Error Msg : %v", BasicSchemaPath, err)
 	}
 
-	combinedDmp := decodedBasicSchema + decodedOrgSchema
+	// srcOrg, err := f.FetchContentsOnGithub(schemaUrl + "orgs/" + schema)
+	// if err != nil {
+	// 	log.Error("%v", err)
+	// 	return
+	// }
+	// decodedOrgSchema, err := f.DecodeBlobContent(srcOrg)
+	// if err != nil {
+	// 	log.Error("%v", err)
+	// 	return
+	// }
+
+	orgSchemaPath := filepath.Join(getDgContentsPath(), "orgs", schema)
+
+	log.Trace("[RCOS] Getting OrgSchema. file path : %v", orgSchemaPath)
+	orgSchema, err := ioutil.ReadFile(orgSchemaPath)
+	if err != nil {
+		log.Error("Cannot Read OrgSchema File. path : %v, Error Msg : %v", orgSchemaPath, err)
+	}
+
+	combinedDmp := string(basicSchema) + string(orgSchema)
 
 	c.CallData()["IsYAML"] = false
 	c.CallData()["IsJSON"] = true
@@ -690,6 +705,7 @@ func createDmp(c context.AbstructContext, f AbstructRepoUtil, d AbstructDmpUtil)
 	c.Success(tmplEditorEdit)
 }
 
+// ★　OK
 type AbstructDmpUtil interface {
 	FetchDmpSchema(c context.AbstructContext, orgName string) error
 	BidingDmpSchemaList(c context.AbstructContext) error
@@ -699,11 +715,12 @@ type AbstructDmpUtil interface {
 // For effective unit test execution, the above DmpUtil interface must be satisfied.
 type dmpUtil func()
 
+// ★　OK
 func (d dmpUtil) FetchDmpSchema(c context.AbstructContext, orgName string) error {
-	var f repoUtil
-	return d.fetchDmpSchema(c, f, orgName)
+	return d.fetchDmpSchema(c, orgName)
 }
 
+// ★　OK
 func (d dmpUtil) BidingDmpSchemaList(c context.AbstructContext) error {
 	return d.bidingDmpSchemaList(c)
 }
@@ -711,7 +728,8 @@ func (d dmpUtil) BidingDmpSchemaList(c context.AbstructContext) error {
 // fetchDmpSchema is RCOS specific code.
 // This function fetch&bind JSON Schema of DMP for validation.
 // Access Path : custom/dg_contents/dmp/json_schema/schema_dmp_<org name>
-func (d dmpUtil) fetchDmpSchema(c context.AbstructContext, f AbstructRepoUtil, orgName string) error {
+// ★　OK
+func (d dmpUtil) fetchDmpSchema(c context.AbstructContext, orgName string) error {
 	schemaName := "schema_dmp_" + orgName
 	path := filepath.Join(getDgContentsPath(), "dmp", "json_schema", schemaName)
 	log.Trace("[RCOS] Getting schema of %v, file path : %v", string(orgName), path)
@@ -720,18 +738,6 @@ func (d dmpUtil) fetchDmpSchema(c context.AbstructContext, f AbstructRepoUtil, o
 		return err
 	}
 
-	// src, err := f.FetchContentsOnGithub(blobPath)
-	// if err != nil {
-	// 	return err
-	// }
-
-	// decodedScheme, err := f.DecodeBlobContent(src)
-	// if err != nil {
-	// 	return err
-	// }
-
-	// log.Info("[RCOS TRACE LOG] decodedScheme is %v", decodedScheme)
-
 	c.CallData()["IsDmpJson"] = true
 	c.CallData()["Schema"] = string(schemaDmp)
 	return nil
@@ -739,30 +745,13 @@ func (d dmpUtil) fetchDmpSchema(c context.AbstructContext, f AbstructRepoUtil, o
 
 // bidingDmpSchemaList is RCOS specific code.
 // This function binds DMP organization list.
+// ★　OK
 func (d dmpUtil) bidingDmpSchemaList(c context.AbstructContext) error {
 	// custom/dg_contents/dmp/org からioutil.ReadDir（）でファイル名一覧を取得して機関名リストを取得する。
 	files, err := ioutil.ReadDir(filepath.Join(getDgContentsPath(), "dmp", "orgs"))
 	if err != nil {
 		log.Error("Not getting funder name. Error Msg : %s", err)
 	}
-	// contents, err := f.FetchContentsOnGithub(treePath)
-	// if err != nil {
-	// 	return err
-	// }
-
-	// var orgsInfo interface{}
-	// err = json.Unmarshal(contents, &orgsInfo)
-	// if err != nil {
-	// 	return err
-	// }
-
-	// create organization list
-	// orgs := orgsInfo.([]interface{})
-	// var schemaList []string
-	// for i := range orgs {
-	// 	org := orgs[i].(map[string]interface{})["name"]
-	// 	schemaList = append(schemaList, org.(string))
-	// }
 
 	var schemaList []string
 	for _, file := range files {
@@ -776,12 +765,14 @@ func (d dmpUtil) bidingDmpSchemaList(c context.AbstructContext) error {
 // getTemplateUrl is RCOS specific code.
 // This is a helper function that returns a base URL
 // for retrieving DMP templates, etc. from GitHub.
+// ★
 func getTemplateUrl() string {
 	return "https://api.github.com/repos/NII-DG/maDMP-template/contents/"
 }
 
 // getDgContentsPath is RCOS specific code.
 // This func retuen customDir + dg_contens PATH.
+// ★
 func getDgContentsPath() string {
 	return filepath.Join(conf.CustomDir(), "dg_contents")
 }

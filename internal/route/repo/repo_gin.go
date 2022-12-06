@@ -102,6 +102,7 @@ func GenerateMaDmp(c context.AbstructContext) {
 // generateMaDmp is RCOS specific code.
 // This generates maDMP(machine actionable DMP) based on
 // DMP information created by the user in the repository.
+// ★
 func generateMaDmp(c context.AbstructContext, f AbstructRepoUtil) {
 	// GitHubテンプレートNotebookを取得
 	// refs: 1. https://zenn.dev/snowcait/scraps/3d51d8f7841f0c
@@ -226,6 +227,7 @@ func (f repoUtil) DecodeBlobContent(blobInfo []byte) (string, error) {
 // specified in the argument, and returns it in the type of []byte.
 // If any processing fails, it will return error.
 // refs: https://docs.github.com/en/rest/reference/repos#contents
+// ★
 func (f repoUtil) fetchContentsOnGithub(blobPath string) ([]byte, error) {
 	req, err := http.NewRequest("GET", blobPath, nil)
 	if err != nil {
@@ -256,6 +258,7 @@ func (f repoUtil) fetchContentsOnGithub(blobPath string) ([]byte, error) {
 // This reads and decodes "content" value of the response byte slice
 // retrieved from the GitHub API.
 // refs: https://docs.github.com/en/rest/reference/repos#contents
+// ★
 func (f repoUtil) decodeBlobContent(blobInfo []byte) (string, error) {
 	var blob interface{}
 	err := json.Unmarshal(blobInfo, &blob)
@@ -282,6 +285,7 @@ func failedGenereteMaDmp(c context.AbstructContext, msg string) {
 
 // fetchDockerfile is RCOS specific code.
 // This fetches the Dockerfile used when launching Binderhub.
+// ★
 func fetchDockerfile(c context.AbstructContext) {
 	// コード付帯機能の起動時間短縮のための暫定的な定義
 	dockerfileUrl := getTemplateUrl() + "Dockerfile"
@@ -315,6 +319,7 @@ func fetchDockerfile(c context.AbstructContext) {
 
 // fetchEmviromentfile is RCOS specific code.
 // This fetches the Dockerfile used when launching Binderhub.
+// ★
 func fetchEmviromentfile(c context.AbstructContext) {
 	// コード付帯機能の起動時間短縮のための暫定的な定義
 	Emviromentfilepath := getTemplateUrl() + "binder/"
@@ -355,6 +360,7 @@ func fetchEmviromentfile(c context.AbstructContext) {
 }
 
 // fetchImagefile is RCOS specific code.
+// ★
 func fetchImagefile(c context.AbstructContext) {
 
 	ImageFilePath := getTemplateUrl() + "images/"
