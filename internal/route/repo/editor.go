@@ -718,10 +718,12 @@ func (d dmpUtil) fetchDmpSchema(c context.AbstructContext, path, orgName string)
 // This function binds DMP organization list.
 func (d dmpUtil) bidingDmpSchemaList(c context.AbstructContext, path string) error {
 	// custom/dg_contents/dmp/org からioutil.ReadDir（）でファイル名一覧を取得して機関名リストを取得する。
-	log.Trace("[RCOS] Read Directory. file path : %v", filepath.Join(path, "dmp", "orgs"))
+	path = filepath.Join(path, "dmp", "orgs")
+	log.Trace("[RCOS] Read Directory. file path : %v", path)
 	files, err := d.fileUtil.ReadDirBypath(path)
 	if err != nil {
 		log.Error("Not getting funder name. Error Msg : %s", err)
+		return err
 	}
 
 	var schemaList []string
