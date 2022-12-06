@@ -3,7 +3,6 @@ package repo
 import (
 	"bufio"
 	"bytes"
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -95,38 +94,25 @@ func readDmpJson(c context.AbstructContext) {
 
 // GenerateMaDmp is RCOS specific code.
 func GenerateMaDmp(c context.AbstructContext) {
-	var f repoUtil
-	generateMaDmp(c, f)
+	generateMaDmp(c)
 }
 
 // generateMaDmp is RCOS specific code.
 // This generates maDMP(machine actionable DMP) based on
 // DMP information created by the user in the repository.
-// ★
-func generateMaDmp(c context.AbstructContext, f AbstructRepoUtil) {
+// ★ OK
+func generateMaDmp(c context.AbstructContext) {
 	// GitHubテンプレートNotebookを取得
 	// refs: 1. https://zenn.dev/snowcait/scraps/3d51d8f7841f0c
 	//       2. https://qiita.com/taizo/items/c397dbfed7215969b0a5
-	// templateUrl := getTemplateUrl() + "maDMP.ipynb"
-
-	// src, err := f.FetchContentsOnGithub(templateUrl)
-	// if err != nil {
-	// 	log.Error("maDMP blob could not be fetched: %v", err)
-	// }
-
-	// decodedMaDmp, err := f.DecodeBlobContent(src)
-	// if err != nil {
-	// 	log.Error("maDMP blob could not be decorded: %v", err)
-
-	// 	failedGenereteMaDmp(c, "Sorry, faild gerate maDMP: fetching template failed")
-	// 	return
-	// }
 
 	notebookPath := filepath.Join(getDgContentsPath(), "notebooks", "maDMP.ipynb")
 	log.Trace("[RCOS] Getting maDMP.ipynb, file path : %v", notebookPath)
 	notebookSrc, err := ioutil.ReadFile(notebookPath)
 	if err != nil {
 		log.Error("Cannot Read File. file path : %v", notebookPath)
+		failedGenereteMaDmp(c, "Sorry, faild gerate maDMP: fetching template failed")
+		return
 	}
 
 	/* DMPの内容によって、DockerFileを利用しないケースがあったため、
@@ -214,80 +200,9 @@ func generateMaDmp(c context.AbstructContext, f AbstructRepoUtil) {
 	c.Redirect(c.GetRepo().GetRepoLink())
 }
 
-// ★
-type AbstructRepoUtil interface {
-	FetchContentsOnGithub(blobPath string) ([]byte, error)
-	DecodeBlobContent(blobInfo []byte) (string, error)
-}
-
-type repoUtil func()
-
-// ★
-func (f repoUtil) FetchContentsOnGithub(blobPath string) ([]byte, error) {
-	return f.fetchContentsOnGithub(blobPath)
-}
-
-// ★
-func (f repoUtil) DecodeBlobContent(blobInfo []byte) (string, error) {
-	return f.decodeBlobContent(blobInfo)
-}
-
-// FetchContentsOnGithub is RCOS specific code.
-// This uses the Github API to retrieve information about the file
-// specified in the argument, and returns it in the type of []byte.
-// If any processing fails, it will return error.
-// refs: https://docs.github.com/en/rest/reference/repos#contents
-// ★
-func (f repoUtil) fetchContentsOnGithub(blobPath string) ([]byte, error) {
-	req, err := http.NewRequest("GET", blobPath, nil)
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Set("Accept", "application/vnd.github.v3+json")
-
-	client := new(http.Client)
-
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	if resp.StatusCode == http.StatusNotFound {
-		return nil, fmt.Errorf("Error: blob not found.")
-	}
-	defer resp.Body.Close()
-
-	contents, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	return contents, nil
-}
-
-// DecodeBlobContent is RCOS specific code.
-// This reads and decodes "content" value of the response byte slice
-// retrieved from the GitHub API.
-// refs: https://docs.github.com/en/rest/reference/repos#contents
-// ★
-func (f repoUtil) decodeBlobContent(blobInfo []byte) (string, error) {
-	var blob interface{}
-	err := json.Unmarshal(blobInfo, &blob)
-	if err != nil {
-		return "", err
-	}
-
-	raw := blob.(map[string]interface{})["content"]
-	decodedBlobContent, err := base64.StdEncoding.DecodeString(raw.(string))
-	if err != nil {
-		return "", err
-	}
-
-	return string(decodedBlobContent), nil
-}
-
-// failedGenerateMaDmp is RCOS specific code.
-// This is a function used by GenerateMaDmp to emit an error message
-// on UI when maDMP generation fails.
+// // failedGenerateMaDmp is RCOS specific code.
+// // This is a function used by GenerateMaDmp to emit an error message
+// // on UI when maDMP generation fails.
 func failedGenereteMaDmp(c context.AbstructContext, msg string) {
 	c.GetFlash().Error(msg)
 	c.Redirect(c.GetRepo().GetRepoLink())
@@ -295,7 +210,7 @@ func failedGenereteMaDmp(c context.AbstructContext, msg string) {
 
 // fetchDockerfile is RCOS specific code.
 // This fetches the Dockerfile used when launching Binderhub.
-// ★
+// ★ OK
 func fetchDockerfile(c context.AbstructContext) {
 	// コード付帯機能の起動時間短縮のための暫定的な定義
 	dockerFilePath := filepath.Join(getDgContentsPath(), "build_files", "Dockerfile")
@@ -322,7 +237,7 @@ func fetchDockerfile(c context.AbstructContext) {
 
 // fetchEmviromentfile is RCOS specific code.
 // This fetches the Dockerfile used when launching Binderhub.
-// ★
+// ★ OK
 func fetchEmviromentfile(c context.AbstructContext) {
 	// コード付帯機能の起動時間短縮のための暫定的な定義
 	binderPath := filepath.Join(getDgContentsPath(), "build_files", "binder")
@@ -358,7 +273,7 @@ func fetchEmviromentfile(c context.AbstructContext) {
 }
 
 // fetchImagefile is RCOS specific code.
-// ★
+// ★ OK
 func fetchImagefile(c context.AbstructContext) {
 	imagesPath := filepath.Join(getDgContentsPath(), "images", "create_ma_dmp")
 	log.Trace("[RCOS] Reading Directory, dir path : %v", imagesPath)
