@@ -61,3 +61,18 @@ func (mr *MockAbstructDmpUtilMockRecorder) FetchDmpSchema(c, orgName interface{}
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FetchDmpSchema", reflect.TypeOf((*MockAbstructDmpUtil)(nil).FetchDmpSchema), c, orgName)
 }
+
+// GetCombinedDmp mocks base method.
+func (m *MockAbstructDmpUtil) GetCombinedDmp(schema string) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetCombinedDmp", schema)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetCombinedDmp indicates an expected call of GetCombinedDmp.
+func (mr *MockAbstructDmpUtilMockRecorder) GetCombinedDmp(schema interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCombinedDmp", reflect.TypeOf((*MockAbstructDmpUtil)(nil).GetCombinedDmp), schema)
+}

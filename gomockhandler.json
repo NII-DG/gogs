@@ -28,8 +28,8 @@
 			}
 		},
 		"internal/mocks/repo/editor_mock.go": {
-			"checksum": "FC3PtKf+syfyIUVmaihuFA==",
-			"source_checksum": "+Bco3WcVHAbnPjGX7qtOsw==",
+			"checksum": "SsYMnpHY6Lcd1UyBhlD7Yw==",
+			"source_checksum": "ReETqpku4EUow6ljZmecmA==",
 			"mode": "SOURCE_MODE",
 			"source_mode_runner": {
 				"source": "internal/route/repo/editor.go",
