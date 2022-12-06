@@ -1,5 +1,14 @@
 {
 	"mocks": {
+		"D:\\Myrepository\\NII-DG Repository\\gogs\\internal\\mocks\\fileutil\\fileutil_mock.go": {
+			"checksum": "36vxnsdqzI+YzGc9XGuOWw==",
+			"source_checksum": "AsDjPpzWp8MLV5t54m3zqw==",
+			"mode": "SOURCE_MODE",
+			"source_mode_runner": {
+				"source": "D:\\Myrepository\\NII-DG Repository\\gogs\\internal\\fileutil\\fileutil.go",
+				"destination": "D:\\Myrepository\\NII-DG Repository\\gogs\\internal\\mocks\\fileutil\\fileutil_mock.go"
+			}
+		},
 		"internal/mocks/context/context_mock.go": {
 			"checksum": "U/nAZKnAi/YWv2y/8yAuPw==",
 			"source_checksum": "pzQpzDbJ2bUOKvfcyFNM8Q==",

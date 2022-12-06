@@ -5,6 +5,8 @@ import (
 	"io/ioutil"
 )
 
+// gomockhandler -source internal/fileutil/fileutil.go -destination internal/mocks/fileutil/fileutil_mock.go
+
 type IFFileUtil interface {
 	GetFileBypath(path string) ([]byte, error)
 	ReadDirBypath(path string) ([]fs.FileInfo, error)
