@@ -714,14 +714,9 @@ func (d dmpUtil) BidingDmpSchemaList(c context.AbstructContext, treePath string)
 func (d dmpUtil) fetchDmpSchema(c context.AbstructContext, f AbstructRepoUtil, blobPath string, orgName string) error {
 	schemaName := "schema_dmp_" + orgName
 	path := filepath.Join(getDgContentsPath(), "dmp", "json_schema", schemaName)
-	byteArray, _ := ioutil.ReadFile(path)
+	schemaDmp, _ := ioutil.ReadFile(path)
 
-	log.Info("[RCOS TRACE LOG] byteArray is %v", string(byteArray))
-
-	var jsonObj interface{}
-	_ = json.Unmarshal(byteArray, &jsonObj)
-
-	log.Info("[RCOS TRACE LOG] decodedBlobContent is %v", jsonObj)
+	log.Info("[RCOS TRACE LOG] byteArray is %v", string(schemaDmp))
 
 	src, err := f.FetchContentsOnGithub(blobPath)
 	if err != nil {
@@ -736,7 +731,7 @@ func (d dmpUtil) fetchDmpSchema(c context.AbstructContext, f AbstructRepoUtil, b
 	log.Info("[RCOS TRACE LOG] decodedScheme is %v", decodedScheme)
 
 	c.CallData()["IsDmpJson"] = true
-	c.CallData()["Schema"] = decodedScheme
+	c.CallData()["Schema"] = string(schemaDmp)
 	return nil
 }
 
