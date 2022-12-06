@@ -48,6 +48,18 @@ func (mr *MockAbstructDmpUtilMockRecorder) BidingDmpSchemaList(c interface{}) *g
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BidingDmpSchemaList", reflect.TypeOf((*MockAbstructDmpUtil)(nil).BidingDmpSchemaList), c)
 }
 
+// CreateDmp mocks base method.
+func (m *MockAbstructDmpUtil) CreateDmp(c context.AbstructContext) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "CreateDmp", c)
+}
+
+// CreateDmp indicates an expected call of CreateDmp.
+func (mr *MockAbstructDmpUtilMockRecorder) CreateDmp(c interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateDmp", reflect.TypeOf((*MockAbstructDmpUtil)(nil).CreateDmp), c)
+}
+
 // FetchDmpSchema mocks base method.
 func (m *MockAbstructDmpUtil) FetchDmpSchema(c context.AbstructContext, orgName string) error {
 	m.ctrl.T.Helper()

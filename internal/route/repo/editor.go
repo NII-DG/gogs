@@ -616,11 +616,11 @@ func RemoveUploadFileFromServer(c *context.Context, f form.RemoveUploadFile) {
 
 func CreateDmp(c context.AbstructContext) {
 	var d dmpUtil
-	createDmp(c, d)
+	d.CreateDmp(c)
 }
 
 // CreateDmp is RCOS specific code
-func createDmp(c context.AbstructContext, d AbstructDmpUtil) {
+func (d dmpUtil) CreateDmp(c context.AbstructContext) {
 	schema := c.QueryEscape("schema")
 	treeNames, treePaths := getParentTreeFields(c.GetRepo().GetTreePath())
 
@@ -674,6 +674,7 @@ type AbstructDmpUtil interface {
 	FetchDmpSchema(c context.AbstructContext, orgName string) error
 	BidingDmpSchemaList(c context.AbstructContext) error
 	GetCombinedDmp(schema string) (string, error)
+	CreateDmp(c context.AbstructContext)
 }
 
 // dmpUtil is an alias for utility functions related to the manipulation of DMP information.
