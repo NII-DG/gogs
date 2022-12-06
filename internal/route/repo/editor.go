@@ -5,7 +5,6 @@
 package repo
 
 import (
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -720,12 +719,7 @@ func (d dmpUtil) fetchDmpSchema(c context.AbstructContext, f AbstructRepoUtil, b
 	var jsonObj interface{}
 	_ = json.Unmarshal(byteArray, &jsonObj)
 
-	decodedBlobContent, err := base64.StdEncoding.DecodeString(jsonObj.(string))
-	if err != nil {
-		log.Error("Connot Failed Decode %s. Error Msg : %s", path, err)
-	}
-
-	log.Info("[RCOS TRACE LOG] decodedBlobContent is %v", decodedBlobContent)
+	log.Info("[RCOS TRACE LOG] decodedBlobContent is %v", jsonObj)
 
 	src, err := f.FetchContentsOnGithub(blobPath)
 	if err != nil {
