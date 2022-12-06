@@ -621,10 +621,9 @@ func CreateDmp(c context.AbstructContext) {
 }
 
 // CreateDmp is RCOS specific code
-// ★
+// ★ OK
 func createDmp(c context.AbstructContext, f AbstructRepoUtil, d AbstructDmpUtil) {
 	schema := c.QueryEscape("schema")
-	// schemaUrl := getTemplateUrl() + "dmp/"
 	treeNames, treePaths := getParentTreeFields(c.GetRepo().GetTreePath())
 
 	c.PageIs("Edit")
@@ -645,33 +644,12 @@ func createDmp(c context.AbstructContext, f AbstructRepoUtil, d AbstructDmpUtil)
 		return
 	}
 
-	// srcBasic, err := f.FetchContentsOnGithub(schemaUrl + "basic")
-	// if err != nil {
-	// 	log.Error("%v", err)
-	// 	return
-	// }
-	// decodedBasicSchema, err := f.DecodeBlobContent(srcBasic)
-	// if err != nil {
-	// 	log.Error("%v", err)
-	// 	return
-	// }
 	BasicSchemaPath := filepath.Join(getDgContentsPath(), "dmp", "basic")
 	log.Trace("[RCOS] Getting BasicSchema. file path : %v", BasicSchemaPath)
 	basicSchema, err := ioutil.ReadFile(BasicSchemaPath)
 	if err != nil {
 		log.Error("Cannot Read BasicSchema File. path : %v, Error Msg : %v", BasicSchemaPath, err)
 	}
-
-	// srcOrg, err := f.FetchContentsOnGithub(schemaUrl + "orgs/" + schema)
-	// if err != nil {
-	// 	log.Error("%v", err)
-	// 	return
-	// }
-	// decodedOrgSchema, err := f.DecodeBlobContent(srcOrg)
-	// if err != nil {
-	// 	log.Error("%v", err)
-	// 	return
-	// }
 
 	orgSchemaPath := filepath.Join(getDgContentsPath(), "dmp", "orgs", schema)
 
@@ -766,9 +744,9 @@ func (d dmpUtil) bidingDmpSchemaList(c context.AbstructContext) error {
 // This is a helper function that returns a base URL
 // for retrieving DMP templates, etc. from GitHub.
 // ★
-func getTemplateUrl() string {
-	return "https://api.github.com/repos/NII-DG/maDMP-template/contents/"
-}
+// func getTemplateUrl() string {
+// 	return "https://api.github.com/repos/NII-DG/maDMP-template/contents/"
+// }
 
 // getDgContentsPath is RCOS specific code.
 // This func retuen customDir + dg_contens PATH.

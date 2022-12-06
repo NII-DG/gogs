@@ -107,19 +107,26 @@ func generateMaDmp(c context.AbstructContext, f AbstructRepoUtil) {
 	// GitHubテンプレートNotebookを取得
 	// refs: 1. https://zenn.dev/snowcait/scraps/3d51d8f7841f0c
 	//       2. https://qiita.com/taizo/items/c397dbfed7215969b0a5
-	templateUrl := getTemplateUrl() + "maDMP.ipynb"
+	// templateUrl := getTemplateUrl() + "maDMP.ipynb"
 
-	src, err := f.FetchContentsOnGithub(templateUrl)
+	// src, err := f.FetchContentsOnGithub(templateUrl)
+	// if err != nil {
+	// 	log.Error("maDMP blob could not be fetched: %v", err)
+	// }
+
+	// decodedMaDmp, err := f.DecodeBlobContent(src)
+	// if err != nil {
+	// 	log.Error("maDMP blob could not be decorded: %v", err)
+
+	// 	failedGenereteMaDmp(c, "Sorry, faild gerate maDMP: fetching template failed")
+	// 	return
+	// }
+
+	notebookPath := filepath.Join(getDgContentsPath(), "notebooks", "maDMP.ipynb")
+	log.Trace("[RCOS] Getting maDMP.ipynb, file path : %v", notebookPath)
+	notebookSrc, err := ioutil.ReadFile(notebookPath)
 	if err != nil {
-		log.Error("maDMP blob could not be fetched: %v", err)
-	}
-
-	decodedMaDmp, err := f.DecodeBlobContent(src)
-	if err != nil {
-		log.Error("maDMP blob could not be decorded: %v", err)
-
-		failedGenereteMaDmp(c, "Sorry, faild gerate maDMP: fetching template failed")
-		return
+		log.Error("Cannot Read File. file path : %v", notebookPath)
 	}
 
 	/* DMPの内容によって、DockerFileを利用しないケースがあったため、
@@ -172,8 +179,8 @@ func generateMaDmp(c context.AbstructContext, f AbstructRepoUtil) {
 		NewTreeName:  pathToMaDmp,
 		Message:      "[GIN] Generate maDMP",
 		Content: fmt.Sprintf(
-			decodedMaDmp,  // この行が埋め込み先: maDMP
-			selectedField, // ここより以下は埋め込む値: DMP情報
+			string(notebookSrc), // この行が埋め込み先: maDMP
+			selectedField,       // ここより以下は埋め込む値: DMP情報
 			selectedDataSize,
 			selectedDatasetStructure,
 			selectedUseDocker,
@@ -207,6 +214,7 @@ func generateMaDmp(c context.AbstructContext, f AbstructRepoUtil) {
 	c.Redirect(c.GetRepo().GetRepoLink())
 }
 
+// ★
 type AbstructRepoUtil interface {
 	FetchContentsOnGithub(blobPath string) ([]byte, error)
 	DecodeBlobContent(blobInfo []byte) (string, error)
@@ -214,10 +222,12 @@ type AbstructRepoUtil interface {
 
 type repoUtil func()
 
+// ★
 func (f repoUtil) FetchContentsOnGithub(blobPath string) ([]byte, error) {
 	return f.fetchContentsOnGithub(blobPath)
 }
 
+// ★
 func (f repoUtil) DecodeBlobContent(blobInfo []byte) (string, error) {
 	return f.decodeBlobContent(blobInfo)
 }
@@ -288,20 +298,27 @@ func failedGenereteMaDmp(c context.AbstructContext, msg string) {
 // ★
 func fetchDockerfile(c context.AbstructContext) {
 	// コード付帯機能の起動時間短縮のための暫定的な定義
-	dockerfileUrl := getTemplateUrl() + "Dockerfile"
+	// dockerfileUrl := getTemplateUrl() + "Dockerfile"
 
-	var f repoUtil
-	src, err := f.FetchContentsOnGithub(dockerfileUrl)
+	// var f repoUtil
+	// src, err := f.FetchContentsOnGithub(dockerfileUrl)
+	// if err != nil {
+	// 	log.Error("Dockerfile could not be fetched: %v", err)
+	// }
+
+	// decodedDockerfile, err := f.DecodeBlobContent(src)
+	// if err != nil {
+	// 	log.Error("Dockerfile could not be decorded: %v", err)
+
+	// 	failedGenereteMaDmp(c, "Sorry, faild gerate maDMP: fetching template failed(Dockerfile)")
+	// 	return
+	// }
+
+	dockerFilePath := filepath.Join(getDgContentsPath(), "build_files", "Dockerfile")
+	log.Trace("[RCOS] Getting Dockerfile, file path : %v", dockerFilePath)
+	dockerFile, err := ioutil.ReadFile(dockerFilePath)
 	if err != nil {
-		log.Error("Dockerfile could not be fetched: %v", err)
-	}
-
-	decodedDockerfile, err := f.DecodeBlobContent(src)
-	if err != nil {
-		log.Error("Dockerfile could not be decorded: %v", err)
-
-		failedGenereteMaDmp(c, "Sorry, faild gerate maDMP: fetching template failed(Dockerfile)")
-		return
+		log.Error("Cannot Read File. file path : %v", dockerFilePath)
 	}
 
 	pathToDockerfile := "Dockerfile"
@@ -312,7 +329,7 @@ func fetchDockerfile(c context.AbstructContext) {
 		OldTreeName:  "",
 		NewTreeName:  pathToDockerfile,
 		Message:      "[GIN] fetch Dockerfile",
-		Content:      decodedDockerfile,
+		Content:      string(dockerFile),
 		IsNewFile:    true,
 	})
 }
@@ -322,29 +339,23 @@ func fetchDockerfile(c context.AbstructContext) {
 // ★
 func fetchEmviromentfile(c context.AbstructContext) {
 	// コード付帯機能の起動時間短縮のための暫定的な定義
-	Emviromentfilepath := getTemplateUrl() + "binder/"
+	binderPath := filepath.Join(getDgContentsPath(), "build_files", "binder")
+	log.Trace("[RCOS] Reading Directory, dir path : %v", binderPath)
+	files, err := ioutil.ReadDir(binderPath)
+	if err != nil {
+		log.Error("Cannot Read Directory. dir path : %v", binderPath)
+	}
 
-	var f repoUtil
-
-	Emviromentfile := []string{"apt.txt", "postBuild"}
-
-	for i := 0; i < len(Emviromentfile); i++ {
-		path := Emviromentfilepath + Emviromentfile[i]
-		src, err := f.FetchContentsOnGithub(path)
+	for _, file := range files {
+		filePath := filepath.Join(getDgContentsPath(), "build_files", "binder", file.Name())
+		log.Trace("[RCOS] Getting binder file, file path : %v", filePath)
+		binderfile, err := ioutil.ReadFile(filePath)
 		if err != nil {
-			log.Error("%s could not be fetched: %v", Emviromentfile[i], err)
+			log.Error("Cannot Read File. file path : %v", filePath)
 		}
 
-		decodefile, err := f.DecodeBlobContent(src)
-		if err != nil {
-			log.Error("%s could not be decorded: %v", Emviromentfile[i], err)
-
-			failedGenereteMaDmp(c, "Sorry, faild gerate maDMP: fetching template failed(Emviromentfile)")
-			return
-		}
-
-		treeName := "binder/" + Emviromentfile[i]
-		message := "[GIN] fetch " + Emviromentfile[i]
+		treeName := "binder/" + file.Name()
+		message := "[GIN] fetch " + file.Name()
 		_ = c.GetRepo().GetDbRepo().UpdateRepoFile(c.GetUser(), db.UpdateRepoFileOptions{
 			LastCommitID: c.GetRepo().GetLastCommitIdStr(),
 			OldBranch:    c.GetRepo().GetBranchName(),
@@ -352,40 +363,66 @@ func fetchEmviromentfile(c context.AbstructContext) {
 			OldTreeName:  "",
 			NewTreeName:  treeName,
 			Message:      message,
-			Content:      decodefile,
+			Content:      string(binderfile),
 			IsNewFile:    true,
 		})
 	}
+
+	// Emviromentfilepath := getTemplateUrl() + "binder/"
+
+	// var f repoUtil
+
+	// Emviromentfile := []string{"apt.txt", "postBuild"}
+
+	// for i := 0; i < len(Emviromentfile); i++ {
+	// 	path := Emviromentfilepath + Emviromentfile[i]
+	// 	src, err := f.FetchContentsOnGithub(path)
+	// 	if err != nil {
+	// 		log.Error("%s could not be fetched: %v", Emviromentfile[i], err)
+	// 	}
+
+	// 	decodefile, err := f.DecodeBlobContent(src)
+	// 	if err != nil {
+	// 		log.Error("%s could not be decorded: %v", Emviromentfile[i], err)
+
+	// 		failedGenereteMaDmp(c, "Sorry, faild gerate maDMP: fetching template failed(Emviromentfile)")
+	// 		return
+	// 	}
+
+	// 	treeName := "binder/" + Emviromentfile[i]
+	// 	message := "[GIN] fetch " + Emviromentfile[i]
+	// 	_ = c.GetRepo().GetDbRepo().UpdateRepoFile(c.GetUser(), db.UpdateRepoFileOptions{
+	// 		LastCommitID: c.GetRepo().GetLastCommitIdStr(),
+	// 		OldBranch:    c.GetRepo().GetBranchName(),
+	// 		NewBranch:    c.GetRepo().GetBranchName(),
+	// 		OldTreeName:  "",
+	// 		NewTreeName:  treeName,
+	// 		Message:      message,
+	// 		Content:      decodefile,
+	// 		IsNewFile:    true,
+	// 	})
+	// }
 
 }
 
 // fetchImagefile is RCOS specific code.
 // ★
 func fetchImagefile(c context.AbstructContext) {
-
-	ImageFilePath := getTemplateUrl() + "images/"
-
-	var f repoUtil
-
-	ImageFile := []string{"maDMP_to_workflow.jpg"}
-
-	for i := 0; i < len(ImageFile); i++ {
-		path := ImageFilePath + ImageFile[i]
-		src, err := f.FetchContentsOnGithub(path)
+	imagesPath := filepath.Join(getDgContentsPath(), "images", "binder")
+	log.Trace("[RCOS] Reading Directory, dir path : %v", imagesPath)
+	files, err := ioutil.ReadDir(imagesPath)
+	if err != nil {
+		log.Error("Cannot Read Directory. dir path : %v", imagesPath)
+	}
+	for _, file := range files {
+		filePath := filepath.Join(imagesPath, file.Name())
+		log.Trace("[RCOS] Getting image file, file path : %v", filePath)
+		imagefile, err := ioutil.ReadFile(filePath)
 		if err != nil {
-			log.Error("%s could not be fetched: %v", ImageFile[i], err)
+			log.Error("Cannot Read File. file path : %v", filePath)
 		}
-
-		decodefile, err := f.DecodeBlobContent(src)
-		if err != nil {
-			log.Error("%s could not be decorded: %v", ImageFile[i], err)
-
-			failedGenereteMaDmp(c, "Sorry, faild gerate maDMP: fetching template failed(ImageFile)")
-			return
-		}
-
-		treeName := "images/" + ImageFile[i]
-		message := "[GIN] fetch " + ImageFile[i]
+		treeName := "images/" + file.Name()
+		message := "[GIN] fetch " + file.Name()
 		_ = c.GetRepo().GetDbRepo().UpdateRepoFile(c.GetUser(), db.UpdateRepoFileOptions{
 			LastCommitID: c.GetRepo().GetLastCommitIdStr(),
 			OldBranch:    c.GetRepo().GetBranchName(),
@@ -393,10 +430,46 @@ func fetchImagefile(c context.AbstructContext) {
 			OldTreeName:  "",
 			NewTreeName:  treeName,
 			Message:      message,
-			Content:      decodefile,
+			Content:      string(imagefile),
 			IsNewFile:    true,
 		})
+
 	}
+
+	// ImageFilePath := getTemplateUrl() + "images/"
+
+	// var f repoUtil
+
+	// ImageFile := []string{"maDMP_to_workflow.jpg"}
+
+	// for i := 0; i < len(ImageFile); i++ {
+	// 	path := ImageFilePath + ImageFile[i]
+	// 	src, err := f.FetchContentsOnGithub(path)
+	// 	if err != nil {
+	// 		log.Error("%s could not be fetched: %v", ImageFile[i], err)
+	// 	}
+
+	// 	decodefile, err := f.DecodeBlobContent(src)
+	// 	if err != nil {
+	// 		log.Error("%s could not be decorded: %v", ImageFile[i], err)
+
+	// 		failedGenereteMaDmp(c, "Sorry, faild gerate maDMP: fetching template failed(ImageFile)")
+	// 		return
+	// 	}
+
+	// 	treeName := "images/" + ImageFile[i]
+	// 	message := "[GIN] fetch " + ImageFile[i]
+	// 	_ = c.GetRepo().GetDbRepo().UpdateRepoFile(c.GetUser(), db.UpdateRepoFileOptions{
+	// 		LastCommitID: c.GetRepo().GetLastCommitIdStr(),
+	// 		OldBranch:    c.GetRepo().GetBranchName(),
+	// 		NewBranch:    c.GetRepo().GetBranchName(),
+	// 		OldTreeName:  "",
+	// 		NewTreeName:  treeName,
+	// 		Message:      message,
+	// 		Content:      decodefile,
+	// 		IsNewFile:    true,
+	// 	})
+	// }
 }
 
 // resolveAnnexedContent takes a buffer with the contents of a git-annex
