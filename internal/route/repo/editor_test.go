@@ -208,7 +208,7 @@ func Test_createDmp(t *testing.T) {
 			PrepateMockDmpUtil: func() AbstructDmpUtil {
 				mockDmpUtil.EXPECT().BidingDmpSchemaList(mockCtx).Return(nil)
 
-				mockDmpUtil.EXPECT().FetchDmpSchema(mockCtx, "https://api.github.com/repos/NII-DG/maDMP-template/contents/dmp/json_schema/schema_dmp_meti").Return(nil)
+				mockDmpUtil.EXPECT().FetchDmpSchema(mockCtx, "meti").Return(nil)
 
 				return mockDmpUtil
 			},
