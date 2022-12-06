@@ -727,12 +727,6 @@ func (d dmpUtil) bidingDmpSchemaList(c context.AbstructContext) error {
 	return nil
 }
 
-// getDgContentsPath is RCOS specific code.
-// This func retuen customDir + dg_contens PATH.
-func getDgContentsPath() string {
-	return filepath.Join(conf.CustomDir(), "dg_contents")
-}
-
 func (d dmpUtil) getCombinedDmp(schema string) (string, error) {
 	BasicSchemaPath := filepath.Join(getDgContentsPath(), "dmp", "basic")
 	log.Trace("[RCOS] Getting BasicSchema. file path : %v", BasicSchemaPath)
@@ -754,4 +748,10 @@ func (d dmpUtil) getCombinedDmp(schema string) (string, error) {
 	combinedDmp := string(basicSchema) + string(orgSchema)
 
 	return combinedDmp, nil
+}
+
+// getDgContentsPath is RCOS specific code.
+// This func retuen customDir + dg_contens PATH.
+func getDgContentsPath() string {
+	return filepath.Join(conf.CustomDir(), "dg_contents")
 }
