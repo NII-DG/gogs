@@ -741,23 +741,28 @@ func (d dmpUtil) bidingDmpSchemaList(c context.AbstructContext, f AbstructRepoUt
 		log.Trace("[RCOS TRACE LOG in bidingDmpSchemaList] File Name : %s", f.Name())
 	}
 
-	contents, err := f.FetchContentsOnGithub(treePath)
-	if err != nil {
-		return err
-	}
+	// contents, err := f.FetchContentsOnGithub(treePath)
+	// if err != nil {
+	// 	return err
+	// }
 
-	var orgsInfo interface{}
-	err = json.Unmarshal(contents, &orgsInfo)
-	if err != nil {
-		return err
-	}
+	// var orgsInfo interface{}
+	// err = json.Unmarshal(contents, &orgsInfo)
+	// if err != nil {
+	// 	return err
+	// }
 
 	// create organization list
-	orgs := orgsInfo.([]interface{})
+	// orgs := orgsInfo.([]interface{})
+	// var schemaList []string
+	// for i := range orgs {
+	// 	org := orgs[i].(map[string]interface{})["name"]
+	// 	schemaList = append(schemaList, org.(string))
+	// }
+
 	var schemaList []string
-	for i := range orgs {
-		org := orgs[i].(map[string]interface{})["name"]
-		schemaList = append(schemaList, org.(string))
+	for _, f := range files {
+		schemaList = append(schemaList, f.Name())
 	}
 
 	c.CallData()["SchemaList"] = schemaList
