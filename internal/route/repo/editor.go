@@ -84,11 +84,11 @@ func editFile(c *context.Context, isNewFile bool) {
 				log.Error("DMP data can't be unmarshalled: %v", err)
 				c.Data["HasDmpJson"] = false
 			} else {
-				schemaUrl := getTemplateUrl()
+				//schemaUrl := getTemplateUrl()
 
 				var d dmpUtil
 
-				err = d.FetchDmpSchema(c, schemaUrl+"dmp/json_schema/schema_dmp_"+dmpSchema.Schema, dmpSchema.Schema)
+				err = d.FetchDmpSchema(c, dmpSchema.Schema)
 				if err != nil {
 					log.Error("failed fetching DMP template: %v", err)
 				}
@@ -633,12 +633,12 @@ func createDmp(c context.AbstructContext, f AbstructRepoUtil, d AbstructDmpUtil)
 	// data binding for "Add DMP" pulldown at DMP editing page
 	// (The pulldown on the repository top page is binded in repo.renderDirectory.)
 	// DMP List is obtained from coustom folder. 20221206
-	err := d.BidingDmpSchemaList(c, schemaUrl+"orgs")
+	err := d.BidingDmpSchemaList(c)
 	if err != nil {
 		log.Error("%v", err)
 		return
 	}
-	err = d.FetchDmpSchema(c, schemaUrl+"json_schema/schema_dmp_"+schema, schema)
+	err = d.FetchDmpSchema(c, schema)
 	if err != nil {
 		log.Error("%v", err)
 		return
@@ -691,32 +691,34 @@ func createDmp(c context.AbstructContext, f AbstructRepoUtil, d AbstructDmpUtil)
 }
 
 type AbstructDmpUtil interface {
-	FetchDmpSchema(c context.AbstructContext, blobPath string, orgName string) error
-	BidingDmpSchemaList(c context.AbstructContext, treePath string) error
+	FetchDmpSchema(c context.AbstructContext, orgName string) error
+	BidingDmpSchemaList(c context.AbstructContext) error
 }
 
 // dmpUtil is an alias for utility functions related to the manipulation of DMP information.
 // For effective unit test execution, the above DmpUtil interface must be satisfied.
 type dmpUtil func()
 
-func (d dmpUtil) FetchDmpSchema(c context.AbstructContext, blobPath string, orgName string) error {
+func (d dmpUtil) FetchDmpSchema(c context.AbstructContext, orgName string) error {
 	var f repoUtil
-	return d.fetchDmpSchema(c, f, blobPath, orgName)
+	return d.fetchDmpSchema(c, f, orgName)
 }
 
-func (d dmpUtil) BidingDmpSchemaList(c context.AbstructContext, treePath string) error {
+func (d dmpUtil) BidingDmpSchemaList(c context.AbstructContext) error {
 	return d.bidingDmpSchemaList(c)
 }
 
 // fetchDmpSchema is RCOS specific code.
 // This function fetch&bind JSON Schema of DMP for validation.
 // Access Path : custom/dg_contents/dmp/json_schema/schema_dmp_<org name>
-func (d dmpUtil) fetchDmpSchema(c context.AbstructContext, f AbstructRepoUtil, blobPath string, orgName string) error {
+func (d dmpUtil) fetchDmpSchema(c context.AbstructContext, f AbstructRepoUtil, orgName string) error {
 	schemaName := "schema_dmp_" + orgName
 	path := filepath.Join(getDgContentsPath(), "dmp", "json_schema", schemaName)
-	schemaDmp, _ := ioutil.ReadFile(path)
-
-	log.Info("[RCOS TRACE LOG] byteArray is %v", string(schemaDmp))
+	log.Trace("[RCOS] Getting schema of %v, file path : %v", string(orgName), path)
+	schemaDmp, err := ioutil.ReadFile(path)
+	if err != nil {
+		return err
+	}
 
 	// src, err := f.FetchContentsOnGithub(blobPath)
 	// if err != nil {
