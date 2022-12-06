@@ -733,7 +733,10 @@ func (d dmpUtil) bidingDmpSchemaList(c context.AbstructContext, f AbstructRepoUt
 	// custom/dg_contents/dmp/org からioutil.ReadDir（）でファイル名一覧を取得して機関名リストを取得する。
 	dmpOrgPath := filepath.Join(conf.CustomDir(), "dg_contents", "dmp", "org")
 	log.Trace("[RCOS TRACE LOG in bidingDmpSchemaList] Path : %s", dmpOrgPath)
-	files, _ := ioutil.ReadDir(dmpOrgPath)
+	files, err := ioutil.ReadDir(dmpOrgPath)
+	if err != nil {
+		log.Error("[RCOS TRACE LOG in bidingDmpSchemaList] Error : %s", err)
+	}
 	for _, f := range files {
 		log.Trace("[RCOS TRACE LOG in bidingDmpSchemaList] File Name : %s", f.Name())
 	}
