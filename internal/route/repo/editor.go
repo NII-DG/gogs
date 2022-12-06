@@ -731,7 +731,7 @@ func (d dmpUtil) fetchDmpSchema(c context.AbstructContext, f AbstructRepoUtil, b
 // This function binds DMP organization list.
 func (d dmpUtil) bidingDmpSchemaList(c context.AbstructContext, f AbstructRepoUtil, treePath string) error {
 	// custom/dg_contents/dmp/org からioutil.ReadDir（）でファイル名一覧を取得して機関名リストを取得する。
-	dmpOrgPath := filepath.Join(conf.CustomDir(), "dg_contents", "dmp", "org")
+	dmpOrgPath := filepath.Join(getDgContentsPath(), "dmp", "orgs")
 	log.Trace("[RCOS TRACE LOG in bidingDmpSchemaList] Path : %s", dmpOrgPath)
 	files, err := ioutil.ReadDir(dmpOrgPath)
 	if err != nil {
@@ -769,4 +769,10 @@ func (d dmpUtil) bidingDmpSchemaList(c context.AbstructContext, f AbstructRepoUt
 // for retrieving DMP templates, etc. from GitHub.
 func getTemplateUrl() string {
 	return "https://api.github.com/repos/NII-DG/maDMP-template/contents/"
+}
+
+// getDgContentsPath is RCOS specific code.
+// This func retuen customDir + dg_contens PATH.
+func getDgContentsPath() string {
+	return filepath.Join(conf.CustomDir(), "dg_contents")
 }
