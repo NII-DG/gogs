@@ -615,14 +615,13 @@ func RemoveUploadFileFromServer(c *context.Context, f form.RemoveUploadFile) {
 }
 
 func CreateDmp(c context.AbstructContext) {
-	var f repoUtil
 	var d dmpUtil
-	createDmp(c, f, d)
+	createDmp(c, d)
 }
 
 // CreateDmp is RCOS specific code
 // ★ OK
-func createDmp(c context.AbstructContext, f AbstructRepoUtil, d AbstructDmpUtil) {
+func createDmp(c context.AbstructContext, d AbstructDmpUtil) {
 	schema := c.QueryEscape("schema")
 	treeNames, treePaths := getParentTreeFields(c.GetRepo().GetTreePath())
 
@@ -745,14 +744,14 @@ func (d dmpUtil) bidingDmpSchemaList(c context.AbstructContext) error {
 // getTemplateUrl is RCOS specific code.
 // This is a helper function that returns a base URL
 // for retrieving DMP templates, etc. from GitHub.
-// ★
+// ★　ok
 // func getTemplateUrl() string {
 // 	return "https://api.github.com/repos/NII-DG/maDMP-template/contents/"
 // }
 
 // getDgContentsPath is RCOS specific code.
 // This func retuen customDir + dg_contens PATH.
-// ★
+// ★ OK
 func getDgContentsPath() string {
 	return filepath.Join(conf.CustomDir(), "dg_contents")
 }
