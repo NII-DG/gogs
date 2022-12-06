@@ -7,6 +7,7 @@ package repo
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"path"
 	"path/filepath"
@@ -631,6 +632,7 @@ func createDmp(c context.AbstructContext, f AbstructRepoUtil, d AbstructDmpUtil)
 
 	// data binding for "Add DMP" pulldown at DMP editing page
 	// (The pulldown on the repository top page is binded in repo.renderDirectory.)
+	// DMP List is obtained from coustom folder. 20221206
 	err := d.BidingDmpSchemaList(c, schemaUrl+"orgs")
 	if err != nil {
 		log.Error("%v", err)
@@ -728,6 +730,14 @@ func (d dmpUtil) fetchDmpSchema(c context.AbstructContext, f AbstructRepoUtil, b
 // bidingDmpSchemaList is RCOS specific code.
 // This function binds DMP organization list.
 func (d dmpUtil) bidingDmpSchemaList(c context.AbstructContext, f AbstructRepoUtil, treePath string) error {
+	// custom/dg_contents/dmp/org からioutil.ReadDir（）でファイル名一覧を取得して機関名リストを取得する。
+	dmpOrgPath := filepath.Join(conf.CustomDir(), "dg_contents", "dmp", "org")
+	log.Trace("[RCOS TRACE LOG in bidingDmpSchemaList] Path : %s", dmpOrgPath)
+	files, _ := ioutil.ReadDir(dmpOrgPath)
+	for _, f := range files {
+		log.Trace("[RCOS TRACE LOG in bidingDmpSchemaList] File Name : %s", f.Name())
+	}
+
 	contents, err := f.FetchContentsOnGithub(treePath)
 	if err != nil {
 		return err
