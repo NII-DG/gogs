@@ -298,27 +298,13 @@ func failedGenereteMaDmp(c context.AbstructContext, msg string) {
 // ★
 func fetchDockerfile(c context.AbstructContext) {
 	// コード付帯機能の起動時間短縮のための暫定的な定義
-	// dockerfileUrl := getTemplateUrl() + "Dockerfile"
-
-	// var f repoUtil
-	// src, err := f.FetchContentsOnGithub(dockerfileUrl)
-	// if err != nil {
-	// 	log.Error("Dockerfile could not be fetched: %v", err)
-	// }
-
-	// decodedDockerfile, err := f.DecodeBlobContent(src)
-	// if err != nil {
-	// 	log.Error("Dockerfile could not be decorded: %v", err)
-
-	// 	failedGenereteMaDmp(c, "Sorry, faild gerate maDMP: fetching template failed(Dockerfile)")
-	// 	return
-	// }
-
 	dockerFilePath := filepath.Join(getDgContentsPath(), "build_files", "Dockerfile")
 	log.Trace("[RCOS] Getting Dockerfile, file path : %v", dockerFilePath)
 	dockerFile, err := ioutil.ReadFile(dockerFilePath)
 	if err != nil {
 		log.Error("Cannot Read File. file path : %v", dockerFilePath)
+		failedGenereteMaDmp(c, "Sorry, faild gerate maDMP: fetching template failed(Dockerfile)")
+		return
 	}
 
 	pathToDockerfile := "Dockerfile"
@@ -352,6 +338,8 @@ func fetchEmviromentfile(c context.AbstructContext) {
 		binderfile, err := ioutil.ReadFile(filePath)
 		if err != nil {
 			log.Error("Cannot Read File. file path : %v", filePath)
+			failedGenereteMaDmp(c, "Sorry, faild gerate maDMP: fetching template failed(Emviromentfile)")
+			return
 		}
 
 		treeName := "binder/" + file.Name()
@@ -367,42 +355,6 @@ func fetchEmviromentfile(c context.AbstructContext) {
 			IsNewFile:    true,
 		})
 	}
-
-	// Emviromentfilepath := getTemplateUrl() + "binder/"
-
-	// var f repoUtil
-
-	// Emviromentfile := []string{"apt.txt", "postBuild"}
-
-	// for i := 0; i < len(Emviromentfile); i++ {
-	// 	path := Emviromentfilepath + Emviromentfile[i]
-	// 	src, err := f.FetchContentsOnGithub(path)
-	// 	if err != nil {
-	// 		log.Error("%s could not be fetched: %v", Emviromentfile[i], err)
-	// 	}
-
-	// 	decodefile, err := f.DecodeBlobContent(src)
-	// 	if err != nil {
-	// 		log.Error("%s could not be decorded: %v", Emviromentfile[i], err)
-
-	// 		failedGenereteMaDmp(c, "Sorry, faild gerate maDMP: fetching template failed(Emviromentfile)")
-	// 		return
-	// 	}
-
-	// 	treeName := "binder/" + Emviromentfile[i]
-	// 	message := "[GIN] fetch " + Emviromentfile[i]
-	// 	_ = c.GetRepo().GetDbRepo().UpdateRepoFile(c.GetUser(), db.UpdateRepoFileOptions{
-	// 		LastCommitID: c.GetRepo().GetLastCommitIdStr(),
-	// 		OldBranch:    c.GetRepo().GetBranchName(),
-	// 		NewBranch:    c.GetRepo().GetBranchName(),
-	// 		OldTreeName:  "",
-	// 		NewTreeName:  treeName,
-	// 		Message:      message,
-	// 		Content:      decodefile,
-	// 		IsNewFile:    true,
-	// 	})
-	// }
-
 }
 
 // fetchImagefile is RCOS specific code.
@@ -420,6 +372,8 @@ func fetchImagefile(c context.AbstructContext) {
 		imagefile, err := ioutil.ReadFile(filePath)
 		if err != nil {
 			log.Error("Cannot Read File. file path : %v", filePath)
+			failedGenereteMaDmp(c, "Sorry, faild gerate maDMP: fetching template failed(ImageFile)")
+			return
 		}
 		treeName := "images/" + file.Name()
 		message := "[GIN] fetch " + file.Name()
@@ -435,41 +389,6 @@ func fetchImagefile(c context.AbstructContext) {
 		})
 
 	}
-
-	// ImageFilePath := getTemplateUrl() + "images/"
-
-	// var f repoUtil
-
-	// ImageFile := []string{"maDMP_to_workflow.jpg"}
-
-	// for i := 0; i < len(ImageFile); i++ {
-	// 	path := ImageFilePath + ImageFile[i]
-	// 	src, err := f.FetchContentsOnGithub(path)
-	// 	if err != nil {
-	// 		log.Error("%s could not be fetched: %v", ImageFile[i], err)
-	// 	}
-
-	// 	decodefile, err := f.DecodeBlobContent(src)
-	// 	if err != nil {
-	// 		log.Error("%s could not be decorded: %v", ImageFile[i], err)
-
-	// 		failedGenereteMaDmp(c, "Sorry, faild gerate maDMP: fetching template failed(ImageFile)")
-	// 		return
-	// 	}
-
-	// 	treeName := "images/" + ImageFile[i]
-	// 	message := "[GIN] fetch " + ImageFile[i]
-	// 	_ = c.GetRepo().GetDbRepo().UpdateRepoFile(c.GetUser(), db.UpdateRepoFileOptions{
-	// 		LastCommitID: c.GetRepo().GetLastCommitIdStr(),
-	// 		OldBranch:    c.GetRepo().GetBranchName(),
-	// 		NewBranch:    c.GetRepo().GetBranchName(),
-	// 		OldTreeName:  "",
-	// 		NewTreeName:  treeName,
-	// 		Message:      message,
-	// 		Content:      decodefile,
-	// 		IsNewFile:    true,
-	// 	})
-	// }
 }
 
 // resolveAnnexedContent takes a buffer with the contents of a git-annex

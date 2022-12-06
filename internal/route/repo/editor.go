@@ -629,6 +629,7 @@ func createDmp(c context.AbstructContext, f AbstructRepoUtil, d AbstructDmpUtil)
 	c.PageIs("Edit")
 	c.RequireHighlightJS()
 	c.RequireSimpleMDE()
+	return
 
 	// data binding for "Add DMP" pulldown at DMP editing page
 	// (The pulldown on the repository top page is binded in repo.renderDirectory.)
@@ -649,6 +650,7 @@ func createDmp(c context.AbstructContext, f AbstructRepoUtil, d AbstructDmpUtil)
 	basicSchema, err := ioutil.ReadFile(BasicSchemaPath)
 	if err != nil {
 		log.Error("Cannot Read BasicSchema File. path : %v, Error Msg : %v", BasicSchemaPath, err)
+		return
 	}
 
 	orgSchemaPath := filepath.Join(getDgContentsPath(), "dmp", "orgs", schema)
@@ -657,6 +659,7 @@ func createDmp(c context.AbstructContext, f AbstructRepoUtil, d AbstructDmpUtil)
 	orgSchema, err := ioutil.ReadFile(orgSchemaPath)
 	if err != nil {
 		log.Error("Cannot Read OrgSchema File. path : %v, Error Msg : %v", orgSchemaPath, err)
+		return
 	}
 
 	combinedDmp := string(basicSchema) + string(orgSchema)
