@@ -35,29 +35,29 @@ func (m *MockAbstructDmpUtil) EXPECT() *MockAbstructDmpUtilMockRecorder {
 }
 
 // BidingDmpSchemaList mocks base method.
-func (m *MockAbstructDmpUtil) BidingDmpSchemaList(c context.AbstructContext, treePath string) error {
+func (m *MockAbstructDmpUtil) BidingDmpSchemaList(c context.AbstructContext) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "BidingDmpSchemaList", c, treePath)
+	ret := m.ctrl.Call(m, "BidingDmpSchemaList", c)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // BidingDmpSchemaList indicates an expected call of BidingDmpSchemaList.
-func (mr *MockAbstructDmpUtilMockRecorder) BidingDmpSchemaList(c, treePath interface{}) *gomock.Call {
+func (mr *MockAbstructDmpUtilMockRecorder) BidingDmpSchemaList(c interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BidingDmpSchemaList", reflect.TypeOf((*MockAbstructDmpUtil)(nil).BidingDmpSchemaList), c, treePath)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BidingDmpSchemaList", reflect.TypeOf((*MockAbstructDmpUtil)(nil).BidingDmpSchemaList), c)
 }
 
 // FetchDmpSchema mocks base method.
-func (m *MockAbstructDmpUtil) FetchDmpSchema(c context.AbstructContext, blobPath string) error {
+func (m *MockAbstructDmpUtil) FetchDmpSchema(c context.AbstructContext, orgName string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FetchDmpSchema", c, blobPath)
+	ret := m.ctrl.Call(m, "FetchDmpSchema", c, orgName)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // FetchDmpSchema indicates an expected call of FetchDmpSchema.
-func (mr *MockAbstructDmpUtilMockRecorder) FetchDmpSchema(c, blobPath interface{}) *gomock.Call {
+func (mr *MockAbstructDmpUtilMockRecorder) FetchDmpSchema(c, orgName interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FetchDmpSchema", reflect.TypeOf((*MockAbstructDmpUtil)(nil).FetchDmpSchema), c, blobPath)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FetchDmpSchema", reflect.TypeOf((*MockAbstructDmpUtil)(nil).FetchDmpSchema), c, orgName)
 }
