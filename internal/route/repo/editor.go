@@ -5,6 +5,7 @@
 package repo
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -88,7 +89,7 @@ func editFile(c *context.Context, isNewFile bool) {
 
 				var d dmpUtil
 
-				err = d.FetchDmpSchema(c, schemaUrl+"dmp/json_schema/schema_dmp_"+dmpSchema.Schema)
+				err = d.FetchDmpSchema(c, schemaUrl+"dmp/json_schema/schema_dmp_"+dmpSchema.Schema, dmpSchema.Schema)
 				if err != nil {
 					log.Error("failed fetching DMP template: %v", err)
 				}
@@ -638,7 +639,7 @@ func createDmp(c context.AbstructContext, f AbstructRepoUtil, d AbstructDmpUtil)
 		log.Error("%v", err)
 		return
 	}
-	err = d.FetchDmpSchema(c, schemaUrl+"json_schema/schema_dmp_"+schema)
+	err = d.FetchDmpSchema(c, schemaUrl+"json_schema/schema_dmp_"+schema, schema)
 	if err != nil {
 		log.Error("%v", err)
 		return
@@ -691,7 +692,7 @@ func createDmp(c context.AbstructContext, f AbstructRepoUtil, d AbstructDmpUtil)
 }
 
 type AbstructDmpUtil interface {
-	FetchDmpSchema(c context.AbstructContext, blobPath string) error
+	FetchDmpSchema(c context.AbstructContext, blobPath string, orgName string) error
 	BidingDmpSchemaList(c context.AbstructContext, treePath string) error
 }
 
@@ -699,19 +700,33 @@ type AbstructDmpUtil interface {
 // For effective unit test execution, the above DmpUtil interface must be satisfied.
 type dmpUtil func()
 
-func (d dmpUtil) FetchDmpSchema(c context.AbstructContext, blobPath string) error {
+func (d dmpUtil) FetchDmpSchema(c context.AbstructContext, blobPath string, orgName string) error {
 	var f repoUtil
-	return d.fetchDmpSchema(c, f, blobPath)
+	return d.fetchDmpSchema(c, f, blobPath, orgName)
 }
 
 func (d dmpUtil) BidingDmpSchemaList(c context.AbstructContext, treePath string) error {
-	var f repoUtil
-	return d.bidingDmpSchemaList(c, f, treePath)
+	return d.bidingDmpSchemaList(c)
 }
 
 // fetchDmpSchema is RCOS specific code.
 // This function fetch&bind JSON Schema of DMP for validation.
-func (d dmpUtil) fetchDmpSchema(c context.AbstructContext, f AbstructRepoUtil, blobPath string) error {
+// Access Path : custom/dg_contents/dmp/json_schema/schema_dmp_<org name>
+func (d dmpUtil) fetchDmpSchema(c context.AbstructContext, f AbstructRepoUtil, blobPath string, orgName string) error {
+	schemaName := "schema_dmp_" + orgName
+	path := filepath.Join(getDgContentsPath(), "dmp", "json_schema", schemaName)
+	byteArray, _ := ioutil.ReadFile(path)
+
+	var jsonObj interface{}
+	_ = json.Unmarshal(byteArray, &jsonObj)
+
+	decodedBlobContent, err := base64.StdEncoding.DecodeString(jsonObj.(string))
+	if err != nil {
+		log.Error("Connot Failed Decode %s. Error Msg : %s", path, err)
+	}
+
+	log.Info("[RCOS TRACE LOG] decodedBlobContent is %v", decodedBlobContent)
+
 	src, err := f.FetchContentsOnGithub(blobPath)
 	if err != nil {
 		return err
@@ -722,6 +737,8 @@ func (d dmpUtil) fetchDmpSchema(c context.AbstructContext, f AbstructRepoUtil, b
 		return err
 	}
 
+	log.Info("[RCOS TRACE LOG] decodedScheme is %v", decodedScheme)
+
 	c.CallData()["IsDmpJson"] = true
 	c.CallData()["Schema"] = decodedScheme
 	return nil
@@ -729,18 +746,12 @@ func (d dmpUtil) fetchDmpSchema(c context.AbstructContext, f AbstructRepoUtil, b
 
 // bidingDmpSchemaList is RCOS specific code.
 // This function binds DMP organization list.
-func (d dmpUtil) bidingDmpSchemaList(c context.AbstructContext, f AbstructRepoUtil, treePath string) error {
+func (d dmpUtil) bidingDmpSchemaList(c context.AbstructContext) error {
 	// custom/dg_contents/dmp/org からioutil.ReadDir（）でファイル名一覧を取得して機関名リストを取得する。
-	dmpOrgPath := filepath.Join(getDgContentsPath(), "dmp", "orgs")
-	log.Trace("[RCOS TRACE LOG in bidingDmpSchemaList] Path : %s", dmpOrgPath)
-	files, err := ioutil.ReadDir(dmpOrgPath)
+	files, err := ioutil.ReadDir(filepath.Join(getDgContentsPath(), "dmp", "orgs"))
 	if err != nil {
-		log.Error("[RCOS TRACE LOG in bidingDmpSchemaList] Error : %s", err)
+		log.Error("Not getting funder name. Error Msg : %s", err)
 	}
-	for _, f := range files {
-		log.Trace("[RCOS TRACE LOG in bidingDmpSchemaList] File Name : %s", f.Name())
-	}
-
 	// contents, err := f.FetchContentsOnGithub(treePath)
 	// if err != nil {
 	// 	return err
@@ -761,8 +772,8 @@ func (d dmpUtil) bidingDmpSchemaList(c context.AbstructContext, f AbstructRepoUt
 	// }
 
 	var schemaList []string
-	for _, f := range files {
-		schemaList = append(schemaList, f.Name())
+	for _, file := range files {
+		schemaList = append(schemaList, file.Name())
 	}
 
 	c.CallData()["SchemaList"] = schemaList
