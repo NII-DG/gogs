@@ -408,7 +408,7 @@ func fetchEmviromentfile(c context.AbstructContext) {
 // fetchImagefile is RCOS specific code.
 // ★
 func fetchImagefile(c context.AbstructContext) {
-	imagesPath := filepath.Join(getDgContentsPath(), "images")
+	imagesPath := filepath.Join(getDgContentsPath(), "images", "create_ma_dmp")
 	log.Trace("[RCOS] Reading Directory, dir path : %v", imagesPath)
 	files, err := ioutil.ReadDir(imagesPath)
 	if err != nil {
