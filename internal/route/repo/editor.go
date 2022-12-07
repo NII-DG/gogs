@@ -84,10 +84,7 @@ func editFile(c *context.Context, isNewFile bool) {
 				log.Error("DMP data can't be unmarshalled: %v", err)
 				c.Data["HasDmpJson"] = false
 			} else {
-				//schemaUrl := getTemplateUrl()
-
 				var d dmpUtil
-
 				err = d.FetchDmpSchema(c, dmpSchema.Schema)
 				if err != nil {
 					log.Error("failed fetching DMP template: %v", err)
