@@ -296,8 +296,8 @@ func MakeRandomStr(digit uint32) (string, error) {
 
 //★
 func RequestAndWriteFile(value string, c chan string) {
-	n := rand.Intn(30) // n will be between 0 and 10
-	n = n + 30         // 30s ~ 60s
+	n := rand.Intn(10) // n will be between 0 and 10
+	n = n + 10         // 30s ~ 60s
 	time.Sleep(time.Duration(n) * time.Second)
 	log.Trace("[ASYNC LOG IN RequestAndWriteFile] Sleeping %d seconds... value : %s\n", n, value)
 
