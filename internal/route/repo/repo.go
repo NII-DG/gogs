@@ -405,9 +405,9 @@ func Download(c *context.Context) {
 			return
 		}
 	}
-	result01, result02 := <-ch, <-ch
-	log.Trace("[ASYNC LOG IN Download] result01: %v", result01)
-	log.Trace("[ASYNC LOG IN Download] result01: %v", result02)
+	//result01, result02 := <-ch, <-ch
+	//log.Trace("[ASYNC LOG IN Download] result01: %v", result01)
+	//log.Trace("[ASYNC LOG IN Download] result01: %v", result02)
 
 	c.ServeFile(archivePath, c.Repo.Repository.Name+"-"+refName+ext)
 }
