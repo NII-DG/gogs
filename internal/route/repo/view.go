@@ -305,9 +305,9 @@ func Home(c *context.Context) {
 	log.Trace("[ASYNC LOG IN Home] Determin file name 2 : fileNm %s", fileNm)
 	go RequestAndWriteFile(fileNm, ch)
 	log.Trace("[ASYNC LOG IN Home] Processing Asyn")
-	result01, result02 := <-ch, <-ch
-	log.Trace("[ASYNC LOG IN Download] result01: %v", result01)
-	log.Trace("[ASYNC LOG IN Download] result01: %v", result02)
+	// result01, result02 := <-ch, <-ch
+	// log.Trace("[ASYNC LOG IN Download] result01: %v", result01)
+	// log.Trace("[ASYNC LOG IN Download] result01: %v", result02)
 
 	c.Data["PageIsViewFiles"] = true
 
