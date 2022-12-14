@@ -5,12 +5,16 @@
 package repo
 
 import (
+	"fmt"
+	"io/ioutil"
+	"math/rand"
 	"net/http"
 	"os"
 	"path"
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/unknwon/com"
 	log "unknwon.dev/clog/v2"
@@ -20,6 +24,7 @@ import (
 	"github.com/NII-DG/gogs/internal/conf"
 	"github.com/NII-DG/gogs/internal/context"
 	"github.com/NII-DG/gogs/internal/db"
+	"github.com/NII-DG/gogs/internal/db/errors"
 	"github.com/NII-DG/gogs/internal/form"
 	"github.com/NII-DG/gogs/internal/tool"
 )
@@ -270,7 +275,67 @@ func Action(c *context.Context) {
 	c.Redirect(redirectTo)
 }
 
+//★
+func MakeRandomStr(digit uint32) (string, error) {
+	const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
+	// 乱数を生成
+	b := make([]byte, digit)
+	if _, err := rand.Read(b); err != nil {
+		return "", errors.New("unexpected error...")
+	}
+
+	// letters からランダムに取り出して文字列を生成
+	var result string
+	for _, v := range b {
+		// index が letters の長さに収まるように調整
+		result += string(letters[int(v)%len(letters)])
+	}
+	return result, nil
+}
+
+//★
+func RequestAndWriteFile(value string, c chan string) {
+	n := rand.Intn(30) // n will be between 0 and 10
+	n = n + 30         // 30s ~ 60s
+	time.Sleep(time.Duration(n) * time.Second)
+	log.Trace("[ASYNC LOG IN RequestAndWriteFile] Sleeping %d seconds... value : %s\n", n, value)
+
+	resp, err := http.Get("https://api.ror.org/organizations/015w2mp89")
+	if err != nil {
+		c <- fmt.Sprintf("[ASYNC LOG IN RequestAndWriteFile] Fialed Request. value : %s. err : %v\n", value, err)
+		return
+	}
+	defer resp.Body.Close()
+	byteArray, _ := ioutil.ReadAll(resp.Body)
+
+	dirPath := "/data/gogs/mnt/log"
+	fileNm := fmt.Sprintf("%s.txt", value)
+	path := path.Join(dirPath, fileNm)
+	log.Trace("[ASYNC LOG IN RequestAndWriteFile] Generated path : %s\n", path)
+
+	err = ioutil.WriteFile(path, byteArray, 0666)
+	if err != nil {
+		c <- fmt.Sprintf("[ASYNC LOG IN RequestAndWriteFile]Fialed Write File. value : %s. err : %v\n", value, err)
+		return
+	}
+	log.Trace("[ASYNC LOG IN RequestAndWriteFile] : Complete write file. value : %s\n", value)
+
+	c <- fmt.Sprintf("[ASYNC LOG IN RequestAndWriteFile] finish. value : %s", value)
+}
+
+//★
 func Download(c *context.Context) {
+	log.Trace("[ASYNC LOG IN Download] Start Asyn")
+	ch := make(chan string)
+	fileNm, _ := MakeRandomStr(5)
+	log.Trace("[ASYNC LOG IN Download] Determin file name 1: fileNm %s", fileNm)
+	go RequestAndWriteFile(fileNm, ch)
+	fileNm, _ = MakeRandomStr(5)
+	log.Trace("[ASYNC LOG IN Download] Determin file name 2 : fileNm %s", fileNm)
+	go RequestAndWriteFile(fileNm, ch)
+	log.Trace("[ASYNC LOG IN Download] Processing Asyn")
+
 	var (
 		uri           = c.Params("*")
 		refName       string
