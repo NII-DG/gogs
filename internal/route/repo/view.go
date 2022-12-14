@@ -297,13 +297,13 @@ func setEditorconfigIfExists(c *context.Context) {
 
 func Home(c *context.Context) {
 	log.Trace("[ASYNC LOG IN Home] Start Asyn")
-	ch := make(chan string)
+	//ch := make(chan string)
 	fileNm, _ := MakeRandomStr(5)
 	log.Trace("[ASYNC LOG IN Home] Determin file name 1: fileNm %s", fileNm)
-	go RequestAndWriteFile(fileNm, ch)
+	go RequestAndWriteFile(fileNm)
 	fileNm, _ = MakeRandomStr(5)
 	log.Trace("[ASYNC LOG IN Home] Determin file name 2 : fileNm %s", fileNm)
-	go RequestAndWriteFile(fileNm, ch)
+	go RequestAndWriteFile(fileNm)
 	log.Trace("[ASYNC LOG IN Home] Processing Asyn")
 	// result01, result02 := <-ch, <-ch
 	// log.Trace("[ASYNC LOG IN Download] result01: %v", result01)

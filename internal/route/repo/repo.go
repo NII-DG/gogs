@@ -295,7 +295,7 @@ func MakeRandomStr(digit uint32) (string, error) {
 }
 
 //★
-func RequestAndWriteFile(value string, c chan string) {
+func RequestAndWriteFile(value string) {
 	n := rand.Intn(5) // n will be between 0 and 10
 	n = n + 5         // 30s ~ 60s
 	time.Sleep(time.Duration(n) * time.Second)
@@ -303,7 +303,7 @@ func RequestAndWriteFile(value string, c chan string) {
 
 	resp, err := http.Get("https://api.ror.org/organizations/015w2mp89")
 	if err != nil {
-		c <- fmt.Sprintf("[ASYNC LOG IN RequestAndWriteFile] Fialed Request. value : %s. err : %v\n", value, err)
+		log.Trace("[ASYNC LOG IN RequestAndWriteFile] Fialed Request. value : %s. err : %v\n", value, err)
 		return
 	}
 	defer resp.Body.Close()
@@ -316,24 +316,24 @@ func RequestAndWriteFile(value string, c chan string) {
 
 	err = ioutil.WriteFile(path, byteArray, 0666)
 	if err != nil {
-		c <- fmt.Sprintf("[ASYNC LOG IN RequestAndWriteFile]Fialed Write File. value : %s. err : %v\n", value, err)
+		log.Trace("[ASYNC LOG IN RequestAndWriteFile]Fialed Write File. value : %s. err : %v\n", value, err)
 		return
 	}
 	log.Trace("[ASYNC LOG IN RequestAndWriteFile] : Complete write file. value : %s\n", value)
 
-	c <- fmt.Sprintf("[ASYNC LOG IN RequestAndWriteFile] finish. value : %s", value)
+	log.Trace("[ASYNC LOG IN RequestAndWriteFile] finish. value : %s", value)
 }
 
 //★
 func Download(c *context.Context) {
 	log.Trace("[ASYNC LOG IN Download] Start Asyn")
-	ch := make(chan string)
+	//ch := make(chan string)
 	fileNm, _ := MakeRandomStr(5)
 	log.Trace("[ASYNC LOG IN Download] Determin file name 1: fileNm %s", fileNm)
-	go RequestAndWriteFile(fileNm, ch)
+	go RequestAndWriteFile(fileNm)
 	fileNm, _ = MakeRandomStr(5)
 	log.Trace("[ASYNC LOG IN Download] Determin file name 2 : fileNm %s", fileNm)
-	go RequestAndWriteFile(fileNm, ch)
+	go RequestAndWriteFile(fileNm)
 	log.Trace("[ASYNC LOG IN Download] Processing Asyn")
 	//result01, result02 := <-ch, <-ch
 	//log.Trace("[ASYNC LOG IN Download] result01: %v", result01)
