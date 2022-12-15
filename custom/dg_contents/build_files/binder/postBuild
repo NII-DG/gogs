@@ -35,6 +35,9 @@ pip install git+https://github.com/NII-cloud-operation/Jupyter-multi_outputs
 jupyter nbextension install --py lc_multi_outputs --user
 jupyter nbextension enable --py lc_multi_outputs --user
 
+# 拡張機能インストール後に実施
+pip install nbclassic==0.4.8
+
 # フォントの用意
 font_deb=fonts-ipafont-gothic_00303-18ubuntu1_all.deb
 mkdir ${HOME}/.fonts

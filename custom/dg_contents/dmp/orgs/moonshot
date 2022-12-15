@@ -1,0 +1,28 @@
+    "schema": "moonshot",
+    "funder": "---",
+    "eRadProjectID": "",
+    "projectName": "誰もが自在に活躍できるアバター共生社会の実現",
+    "dataNo": "",
+    "dataTitle": "〇〇実証においてセンサより撮像したデータ及び関連データ",
+    "dataPublished": "2021-04-26",
+    "dataDescription": "〇〇実証においてセンサより撮像したデータであり、道路の画像データ",
+    "researchField": "---",
+    "dataType": "dataset",
+    "fileSize": "---",
+    "dataPolicy": "一定期間後に事業の実施上有益なものに対して有償又は無償で提供を開始。但しデータのクレジット標記を条件とする。なおサンプルデータを公開している。",
+    "accessRights": "---",
+    "availableDate": "2021-04-26",
+    "repositoryInformation": "〇〇大学学術機関リポジトリ",
+    "repositoryURL": "",
+    "creatorName": "John Doe",
+    "eRadCreatorIdentifer": "",
+    "hostingInstitution": "",
+    "dataManager": "John Doe",
+    "eRadManagerIdentifer": "",
+    "dataManagerContact": {
+        "affiliation": "〇〇研究所〇〇部門〇〇課",
+        "TEL": "00-000-0000",
+        "eMail": "user@example.com"
+    },
+    "remarks": ""
+}

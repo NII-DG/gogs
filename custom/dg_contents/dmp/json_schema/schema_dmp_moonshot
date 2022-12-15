@@ -1,0 +1,146 @@
+{
+  "title": "DMPschema-moonshot",
+  "description": "DMP schema of moonshot",
+  "type": "object",
+  "properties": {
+    "schema": {
+      "type": "string"
+    },
+    "field": {
+      "type": "string",
+      "enum": [
+        "basic",
+        "bio",
+        "neuro"
+      ]
+    },
+    "dataSize": {
+      "type": "string",
+      "enum": [
+        "10MB",
+        "100MB",
+        "1GB",
+        "100GB",
+        "1TB",
+        "1PB"
+      ]
+    },
+    "datasetStructure": {
+      "type": "string",
+      "enum": [
+        "with_code",
+        "for_parameters"
+      ]
+    },
+    "useDocker": {
+      "type": "string",
+      "enum": [
+        "YES",
+        "NO"
+      ]
+    },
+    "funder": {
+      "type": "string",
+      "enum": [
+        "JST",
+        "NEDO",
+        "AMED",
+        "BEAIN"
+      ]
+    },
+    "eRadProjectID": {
+      "type": "string"
+    },
+    "projectName": {
+      "type": "string"
+    },
+    "dataNo": {
+      "type": "string"
+    },
+    "dataTitle": {
+      "type": "string"
+    },
+    "dataPublished": {
+      "type": "string",
+      "format": "date"
+    },
+    "dataDescription": {
+      "type": "string"
+    },
+    "researchField": {
+      "type": "string",
+      "enum": [
+        "ライフサイエンス (Life Science)",
+        "情報通信 (Informatics)",
+        "環境 (Environmental Science)",
+        "ナノテク・材料 (Nanotechnology/Materials)",
+        "エネルギー (Energy Engineering)",
+        "ものづくり技術 (Manufacturing Technology)",
+        "社会基盤 (Social Infrastructure)",
+        "フロンティア (Frontier Technology)",
+        "人文・社会 (Humanities & Social Sciences)",
+        "自然科学一般 (Natural Science)",
+        "その他 (Others)"
+      ]
+    },
+    "dataType": {
+      "type": "string"
+    },
+    "fileSize": {
+      "type": "string",
+      "enum": [
+        "<1GB",
+        "1-10GB",
+        "10-100GB",
+        ">100GB"
+      ]
+    },
+    "dataPolicy": {
+      "type": "string"
+    },
+    "accessRights": {
+      "type": "string",
+      "enum": [
+        "公開 (open access)",
+        "共有 (restricted access)",
+        "非共有・非公開 (metadata only access)",
+        "公開期間猶予 (embargoed access)"
+      ]
+    },
+    "availableDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "repositoryInformation": {
+      "type": "string"
+    },
+    "repositoryURL": {
+      "type": "string"
+    },
+    "creatorName": {
+      "type": "string"
+    },
+    "eRadCreatorIdentifer": {
+      "type": "string"
+    },
+    "hostingInstitution": {
+      "type": "string"
+    },
+    "dataManager": {
+      "type": "string"
+    },
+    "eRadManagerIdentifer": {
+      "type": "string"
+    },
+    "dataManagerContact": {
+      "type": "string"
+    },
+    "remarks": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "projectName"
+  ]
+}

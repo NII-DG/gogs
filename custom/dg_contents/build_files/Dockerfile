@@ -1,51 +1,54 @@
 FROM jupyter/scipy-notebook:ubuntu-20.04
 
 USER root
-RUN apt-get update -y \
-    && apt-get install -y netbase \
-    && apt-get install -y graphviz \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+RUN apt-get update -y
+RUN apt-get install -y netbase
+RUN apt-get install -y graphviz
+RUN apt-get clean
+RUN rm -rf /var/lib/apt/lists/*
 
 USER ${NB_USER}
 # mamba installを使いたかったがdatalad pushに失敗するため
 # conda installを利用している（2/2時点）
-RUN conda install --quiet --yes git==2.35.0 \
-    && conda install --quiet --yes git-annex==8.20210903 \
-    && conda clean -i -t -y
+RUN conda install --quiet --yes git==2.35.0
+RUN conda install --quiet --yes git-annex==8.20210903
+RUN conda clean -i -t -y
 
 # install the notebook package etc.
-RUN pip install --no-cache --upgrade pip \
-    && pip install --no-cache notebook \
-    && pip install --no-cache jupyter_contrib_nbextensions \
-    && pip install --no-cache git+https://github.com/NII-cloud-operation/Jupyter-LC_run_through \
-    && pip install --no-cache git+https://github.com/NII-cloud-operation/Jupyter-multi_outputs \
-    && pip install --no-cache datalad==0.17.6 \
-    && pip install --no-cache lxml==4.7.1 \
-    && pip install --no-cache blockdiag==3.0.0 \
-    && pip install --no-cache -U nbformat==5.2.0 \
-    && pip install --no-cache black==21.12b0 \
-    && pip install --no-cache snakemake \
-    && pip install --no-cache boto3 \
-    && pip install --no-cache chardet==4.0.0 \
-    && pip install --no-cache panel==0.13.1
+RUN pip install --no-cache --upgrade pip
+RUN pip install --no-cache notebook
+RUN pip install --no-cache jupyter_contrib_nbextensions
+RUN pip install --no-cache git+https://github.com/NII-cloud-operation/Jupyter-LC_run_through
+RUN pip install --no-cache git+https://github.com/NII-cloud-operation/Jupyter-multi_outputs
+RUN pip install --no-cache datalad==0.17.6
+RUN pip install --no-cache lxml==4.7.1
+RUN pip install --no-cache blockdiag==3.0.0
+RUN pip install --no-cache -U nbformat==5.2.0
+RUN pip install --no-cache black==21.12b0
+RUN pip install --no-cache snakemake
+RUN pip install --no-cache boto3
+RUN pip install --no-cache chardet==4.0.0
+RUN pip install --no-cache panel==0.13.1
 
-RUN jupyter contrib nbextension install --user \
-    && jupyter nbextensions_configurator enable --user \
-    && jupyter run-through quick-setup --user \
-    && jupyter nbextension install --py lc_multi_outputs --user \
-    && jupyter nbextension enable --py lc_multi_outputs --user
+RUN jupyter contrib nbextension install --user
+RUN jupyter nbextensions_configurator enable --user
+RUN jupyter run-through quick-setup --user
+RUN jupyter nbextension install --py lc_multi_outputs --user
+RUN jupyter nbextension enable --py lc_multi_outputs --user
 
+# upgrade nbclassic ( after nbextension installed )
+RUN pip install --no-cache nbclassic==0.4.8
 
 # install Japanese-font (for blockdiag)
 ARG font_deb=fonts-ipafont-gothic_00303-18ubuntu1_all.deb
-RUN mkdir ${HOME}/.fonts \
-    && wget -P ${HOME}/.fonts http://archive.ubuntu.com/ubuntu/pool/universe/f/fonts-ipafont/${font_deb} \
-    && dpkg-deb -x ${HOME}/.fonts/${font_deb} ~/.fonts \
-    && cp ~/.fonts/usr/share/fonts/opentype/ipafont-gothic/ipag.ttf ~/.fonts/ipag.ttf \
-    && rm ${HOME}/.fonts/${font_deb} \
-    && rm -rf ${HOME}/.fonts/etc ${HOME}/.fonts/usr \
-    && rm .wget-hsts
+RUN mkdir ${HOME}/.fonts
+RUN wget -P ${HOME}/.fonts http://archive.ubuntu.com/ubuntu/pool/universe/f/fonts-ipafont/${font_deb}
+RUN dpkg-deb -x ${HOME}/.fonts/${font_deb} ~/.fonts
+RUN cp ~/.fonts/usr/share/fonts/opentype/ipafont-gothic/ipag.ttf ~/.fonts/ipag.ttf
+RUN rm ${HOME}/.fonts/${font_deb}
+RUN rm -rf ${HOME}/.fonts/etc ${HOME}/.fonts/usr
+RUN rm .wget-hsts
+
 
 ARG NB_USER=jovyan
 ARG NB_UID=1000
