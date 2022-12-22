@@ -40,6 +40,15 @@ WORKDIR /app/gogs
 COPY ./gogs /app/gogs/
 COPY ./docker/ /app/gogs/docker/
 
+ARG DG_GIT_API_TOKEN
+ENV DG_GIT_API_TOKEN=${DG_GIT_API_TOKEN}
+ARG DATABESE_PASSWORD
+ENV DATABESE_PASSWORD=${DATABESE_PASSWORD}
+
+
+RUN chmod +x ./docker/dg_setting.sh
+RUN ./docker/dg_setting.sh
+
 RUN chmod +x ./docker/finalize_ginfork.sh
 
 RUN ./docker/finalize_ginfork.sh
