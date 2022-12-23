@@ -1,0 +1,73 @@
+# gin fork (テスト環境用：オンプレ)
+# このdockerfileは使用前に一つ上の階層に移動してから使用すること。
+# この時.dockerignoreを同時に移動すること。
+FROM ubuntu:20.04
+
+RUN apt-get -y update
+RUN apt-get -y upgrade
+
+# 依存パッケージのインストール
+# RUN apt-get install -y musl-dev alpineでの実行ファイル生成をしないので削除予定
+RUN apt-get install -y git
+RUN apt-get install -y gcc
+RUN apt-get install -y curl
+
+# git-annexをインストールする。
+RUN mkdir /git-annex
+ENV PATH="${PATH}:/git-annex/git-annex.linux"
+RUN curl -Lo /git-annex/git-annex-standalone-amd64.tar.gz https://downloads.kitenet.net/git-annex/linux/current/git-annex-standalone-amd64.tar.gz
+RUN cd /git-annex && tar -xzf git-annex-standalone-amd64.tar.gz && rm git-annex-standalone-amd64.tar.gz
+RUN ln -s /git-annex/git-annex.linux/git-annex-shell /bin/git-annex-shell
+
+# 環境変数の設定
+ENV GOGS_CUSTOM /data/gogs/custom
+
+# Create VOLUME subfolder
+WORKDIR /data
+RUN mkdir git
+WORKDIR /data/gogs
+RUN mkdir custom
+RUN mkdir -p mnt/log
+
+# copy custom file to /data/gogs/
+COPY ./custom/ /data/gogs/custom/
+
+# Configure LibC Name Service
+COPY ./docker/nsswitch.conf /etc/nsswitch.conf
+
+# gogsのバイナリファイルをbinarybuilderからコピーする。
+WORKDIR /app/gogs
+COPY ./gogs /app/gogs/
+COPY ./docker/ /app/gogs/docker/
+
+ARG DB_HOST
+ENV DB_HOST ${DB_HOST}
+ARG DB_NAME
+ENV DB_NAME ${DB_NAME}
+ARG DB_USER
+ENV DB_USER ${DB_USER}
+ARG DB_PASSWORD
+ENV DB_PASSWORD ${DB_PASSWORD}
+ARG DG_GIT_API_TOKEN
+ENV DG_GIT_API_TOKEN ${DG_GIT_API_TOKEN}
+
+
+RUN chmod +x ./docker/dg_setting.sh
+RUN ./docker/dg_setting.sh
+
+RUN chmod +x ./docker/finalize_ginfork.sh
+
+RUN ./docker/finalize_ginfork.sh
+
+# git(user) の権限を変更
+## gin_forkのデータディレクトリへのアクセス権限許可
+RUN chown -R git:git /data
+## gin_forkの実行ファイルへのへのアクセス権限許可
+RUN chown -R git:git /app
+
+WORKDIR /data/gogs
+USER git
+# Configure Docker Container
+VOLUME ["/data", "/backup"]
+EXPOSE 80 3001
+ENTRYPOINT ["/app/gogs/gogs", "web"]
