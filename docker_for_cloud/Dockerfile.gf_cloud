@@ -28,6 +28,7 @@ RUN mkdir git
 WORKDIR /data/gogs
 RUN mkdir custom
 RUN mkdir -p mnt/log
+RUN mkdir -p mnt/sessions
 
 # copy custom file to /data/gogs/
 COPY ./custom/ /data/gogs/custom/
@@ -40,6 +41,7 @@ WORKDIR /app/gogs
 COPY ./gogs /app/gogs/
 COPY ./docker/ /app/gogs/docker/
 
+# app.iniの設定のための環境変数追加
 ARG DB_HOST
 ENV DB_HOST ${DB_HOST}
 ARG DB_NAME
@@ -50,8 +52,7 @@ ARG DB_PASSWORD
 ENV DB_PASSWORD ${DB_PASSWORD}
 ARG DG_GIT_API_TOKEN
 ENV DG_GIT_API_TOKEN ${DG_GIT_API_TOKEN}
-
-
+# app.iniの編集
 RUN chmod +x ./docker/dg_setting.sh
 RUN ./docker/dg_setting.sh
 
