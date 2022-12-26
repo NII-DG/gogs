@@ -322,8 +322,10 @@ func Home(c *context.Context) {
 	c.Data["RequireHighlightJS"] = true
 
 	branchLink := c.Repo.RepoLink + "/src/" + c.Repo.BranchName
+	log.Trace("★ branchLink : %s", branchLink)
 	treeLink := branchLink
 	rawLink := c.Repo.RepoLink + "/raw/" + c.Repo.BranchName
+	log.Trace("★ rawLink : %s", rawLink)
 
 	isRootDir := false
 	if len(c.Repo.TreePath) > 0 {
