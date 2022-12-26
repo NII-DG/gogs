@@ -330,6 +330,7 @@ func Home(c *context.Context) {
 	isRootDir := false
 	if len(c.Repo.TreePath) > 0 {
 		treeLink += "/" + c.Repo.TreePath
+		log.Trace("★ treeLink : %s", treeLink)
 	} else {
 		isRootDir = true
 
@@ -352,8 +353,10 @@ func Home(c *context.Context) {
 	}
 
 	if entry.IsTree() {
+		log.Trace("★ entry.IsTree()treeLink : %s", treeLink)
 		renderDirectory(c, treeLink)
 	} else {
+		log.Trace("★ entry.IsTree()treeLink : %s, rawLink : %s", treeLink, rawLink)
 		renderFile(c, entry, treeLink, rawLink)
 	}
 	if c.Written() {
