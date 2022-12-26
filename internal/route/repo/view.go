@@ -141,6 +141,7 @@ func renderDirectory(c *context.Context, treeLink string) {
 	// Show latest commit info of repository in table header,
 	// or of directory if not in root directory.
 	latestCommit := c.Repo.Commit
+	log.Trace("★ latestCommit : %s", latestCommit.ID.String())
 	if len(c.Repo.TreePath) > 0 {
 		latestCommit, err = c.Repo.Commit.CommitByPath(git.CommitByRevisionOptions{Path: c.Repo.TreePath})
 		if err != nil {
