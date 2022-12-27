@@ -17,6 +17,8 @@ import (
 	"github.com/NII-DG/gogs/internal/db"
 	"github.com/NII-DG/gogs/internal/form"
 	"github.com/NII-DG/gogs/internal/route/api/v1/admin"
+	"github.com/NII-DG/gogs/internal/route/api/v1/gakunin"
+	"github.com/NII-DG/gogs/internal/route/api/v1/hello"
 	"github.com/NII-DG/gogs/internal/route/api/v1/misc"
 	"github.com/NII-DG/gogs/internal/route/api/v1/org"
 	"github.com/NII-DG/gogs/internal/route/api/v1/repo"
@@ -172,6 +174,18 @@ func RegisterRoutes(m *macaron.Macaron) {
 	bind := binding.Bind
 
 	m.Group("/v1", func() {
+
+		m.Group("/sample", func() {
+			m.Get("/hello", hello.Hello)
+			m.Get("/return", hello.Return)
+			m.Post("/string/json", bind(hello.StrContext{}), hello.MojiJSON)
+			m.Post("/string", bind(hello.StrContext{}), hello.Moji)
+		})
+
+		m.Group("/gakunin", func() {
+			m.Post("/container/delete", bind(gakunin.UserInfo{}), gakunin.DeleteConteiner)
+		})
+
 		// Handle preflight OPTIONS request
 		m.Options("/*", func() {})
 
