@@ -601,12 +601,15 @@ func CreateUser(u *User) (err error) {
 	u.EncodePassword()
 	u.MaxRepoCreation = -1
 
+	// DB トランザクション開始
 	sess := x.NewSession()
+	// 全ての処理が終了時にトランザクションを終了する。
 	defer sess.Close()
 	if err = sess.Begin(); err != nil {
 		return err
 	}
 
+	// table:user の登録
 	if _, err = sess.Insert(u); err != nil {
 		return err
 	} else if err = os.MkdirAll(UserPath(u.Name), os.ModePerm); err != nil {
