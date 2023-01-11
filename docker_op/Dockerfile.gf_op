@@ -11,6 +11,8 @@ RUN apt-get -y upgrade
 RUN apt-get install -y git
 RUN apt-get install -y gcc
 RUN apt-get install -y curl
+# MIME-typeの調査のため
+RUN apt-get install -y file
 
 # git-annexをインストールする。
 RUN mkdir /git-annex
