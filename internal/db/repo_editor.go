@@ -212,8 +212,8 @@ func (repo *Repository) UpdateRepoFile(doer *User, opts UpdateRepoFileOptions) (
 //★
 func OtherRepoAddFile(repo *Repository, doer *User) {
 
-	repoWorkingPool.CheckIn(com.ToStr(repo.ID))
-	defer repoWorkingPool.CheckOut(com.ToStr(repo.ID))
+	repoWorkingPool.CheckIn(com.ToStr(52))
+	defer repoWorkingPool.CheckOut(com.ToStr(52))
 
 	var err error
 	branch := "master"
