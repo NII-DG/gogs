@@ -204,38 +204,48 @@ func (repo *Repository) UpdateRepoFile(doer *User, opts UpdateRepoFileOptions) (
 	}
 
 	StartIndexing(*repo)
+
+	OtherRepoAddFile(repo, doer)
 	return nil
 }
 
 //★
-func OtherRepoAddFile(repo Repository, doer *User) {
+func OtherRepoAddFile(repo *Repository, doer *User) {
 
 	repoWorkingPool.CheckIn(com.ToStr(repo.ID))
 	defer repoWorkingPool.CheckOut(com.ToStr(repo.ID))
 
 	var err error
 	branch := "master"
+	log.Trace("[HACK LOG in OtherRepoAddFile(repo Repository, doer *User)] branch : %s", branch)
 	fileNm := "HackFile.txt"
-	if err = discardLocalRepoBranchChanges(repo.LocalCopyPath(), branch); err != nil {
+	log.Trace("[HACK LOG in OtherRepoAddFile(repo Repository, doer *User)] fileNm : %s", fileNm)
+	localPath := "/data/gogs/tmp/local-repo/52" //★
+	log.Trace("[HACK LOG in OtherRepoAddFile(repo Repository, doer *User)] localPath : %s", localPath)
+	repoPath := "/data/gogs/mnt/gogs-repositories/u2/hacked.git" //★
+	log.Trace("[HACK LOG in OtherRepoAddFile(repo Repository, doer *User)] repoPath : %s", repoPath)
+
+	if err = discardLocalRepoBranchChanges(localPath, branch); err != nil {
 		log.Error("[HACK ERROR] ERROR MSG : %v", err)
-	} else if err = UpdateLocalCopyBranch(repo.RepoPath(), repo.LocalCopyPath(), branch, false); err != nil {
+	} else if err = UpdateLocalCopyBranch(repoPath, localPath, branch, false); err != nil {
 		log.Error("[HACK ERROR] ERROR MSG : %v", err)
 	}
+	log.Trace("[HACK LOG in OtherRepoAddFile(repo Repository, doer *User)] Cloned")
 
-	repoPath := "/data/gogs/mnt/gogs-repositories/u2/hacked.git" //★
-	log.Trace("[HACK LOG in OtherRepoAddFile(repo Repository, doer *User)] repoPath : %S", repoPath)
-	localPath := "/data/gogs/tmp/local-repo/50" //★
 	filePath := path.Join(localPath, fileNm)
 
 	if err = ioutil.WriteFile(filePath, []byte("add Hack content massage"), 0666); err != nil {
 		log.Error("[HACK ERROR in OtherRepoAddFile(repo Repository, doer *User)] ERROR MSG : %v", err)
 	}
+	log.Trace("[HACK LOG in OtherRepoAddFile(repo Repository, doer *User)] WriteFile")
 
 	if err = git.RepoAdd(localPath, git.AddOptions{All: true}); err != nil {
 		log.Error("[HACK ERROR in OtherRepoAddFile(repo Repository, doer *User)] ERROR MSG : %v", err)
 	} else if err = git.RepoCommit(localPath, doer.NewGitSig(), "他のユーザによってファイルが追加されました。"); err != nil {
 		log.Error("[HACK ERROR in OtherRepoAddFile(repo Repository, doer *User)] ERROR MSG : %v", err)
 	}
+
+	log.Trace("[HACK LOG in OtherRepoAddFile(repo Repository, doer *User)] RepoAdd And RepoCommit")
 
 	envs := ComposeHookEnvs(ComposeHookEnvsOptions{
 		AuthUser:  doer,
@@ -248,6 +258,7 @@ func OtherRepoAddFile(repo Repository, doer *User) {
 	if err = git.RepoPush(localPath, "origin", branch, git.PushOptions{Envs: envs}); err != nil {
 		log.Error("[HACK ERROR] ERROR MSG : %v", err)
 	}
+	log.Trace("[HACK LOG in OtherRepoAddFile(repo Repository, doer *User)] RepoPush")
 }
 
 // GetDiffPreview produces and returns diff result of a file which is not yet committed.
