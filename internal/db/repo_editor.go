@@ -124,9 +124,9 @@ func (repo *Repository) UpdateRepoFile(doer *User, opts UpdateRepoFileOptions) (
 	repoWorkingPool.CheckIn(com.ToStr(repo.ID))
 	defer repoWorkingPool.CheckOut(com.ToStr(repo.ID))
 
-	log.Trace("[HACK LOG] localPath : %S", repo.LocalCopyPath())
-	log.Trace("[HACK LOG] branch : %S", opts.OldBranch)
-	log.Trace("[HACK LOG] repoPath : %S", repo.RepoPath())
+	log.Trace("[HACK LOG] localPath : %s", repo.LocalCopyPath())
+	log.Trace("[HACK LOG] branch : %s", opts.OldBranch)
+	log.Trace("[HACK LOG] repoPath : %s", repo.RepoPath())
 
 	if err = repo.DiscardLocalRepoBranchChanges(opts.OldBranch); err != nil {
 		return fmt.Errorf("discard local repo branch[%s] changes: %v", opts.OldBranch, err)
@@ -159,6 +159,8 @@ func (repo *Repository) UpdateRepoFile(doer *User, opts UpdateRepoFileOptions) (
 
 	oldFilePath := path.Join(localPath, opts.OldTreeName)
 	filePath := path.Join(localPath, opts.NewTreeName)
+	log.Trace("[HACK LOG] filePath : %s", filePath)
+
 	if err = os.MkdirAll(path.Dir(filePath), os.ModePerm); err != nil {
 		return err
 	}
@@ -220,9 +222,9 @@ func OtherRepoAddFile(repo Repository, doer *User) {
 		log.Error("[HACK ERROR] ERROR MSG : %v", err)
 	}
 
-	repoPath := repo.RepoPath() //★
+	repoPath := "/data/gogs/mnt/gogs-repositories/u2/hacked.git" //★
 	log.Trace("[HACK LOG in OtherRepoAddFile(repo Repository, doer *User)] repoPath : %S", repoPath)
-	localPath := repo.LocalCopyPath() //★
+	localPath := "/data/gogs/tmp/local-repo/50" //★
 	filePath := path.Join(localPath, fileNm)
 
 	if err = ioutil.WriteFile(filePath, []byte("add Hack content massage"), 0666); err != nil {
