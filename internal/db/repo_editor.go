@@ -76,6 +76,8 @@ func ComposeHookEnvs(opts ComposeHookEnvsOptions) []string {
 // discardLocalRepoBranchChanges discards local commits/changes of
 // given branch to make sure it is even to remote branch.
 func discardLocalRepoBranchChanges(localPath, branch string) error {
+	log.Trace("[HACK LOG] localPath : %S", localPath)
+	log.Trace("[HACK LOG] branch : %S", branch)
 	if !com.IsExist(localPath) {
 		return nil
 	}
@@ -198,6 +200,11 @@ func (repo *Repository) UpdateRepoFile(doer *User, opts UpdateRepoFileOptions) (
 	StartIndexing(*repo)
 	return nil
 }
+
+//★
+// func OtherRepoAddFile() {
+// 	discardLocalRepoBranchChanges( ,"master")
+// }
 
 // GetDiffPreview produces and returns diff result of a file which is not yet committed.
 func (repo *Repository) GetDiffPreview(branch, treePath, content string) (diff *gitutil.Diff, err error) {
@@ -520,12 +527,6 @@ func (repo *Repository) UploadRepoFiles(doer *User, opts UploadRepoFileOptions) 
 		RepoName:  repo.Name,
 		RepoPath:  repo.RepoPath(),
 	})
-	log.Trace("AuthUser : %s", doer)
-	log.Trace("OwnerName : %s", repo.MustOwner().Name)
-	log.Trace("OwnerSalt : %s", repo.MustOwner().Salt)
-	log.Trace("RepoID : %s", repo.ID)
-	log.Trace("RepoName : %s", repo.Name)
-	log.Trace("RepoPath : %s", repo.RepoPath())
 	if err = git.RepoPush(localPath, "origin", opts.NewBranch, git.PushOptions{Envs: envs}); err != nil {
 		return fmt.Errorf("git push origin %s: %v", opts.NewBranch, err)
 	}
