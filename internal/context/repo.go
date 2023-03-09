@@ -18,6 +18,7 @@ import (
 
 	"github.com/NII-DG/gogs/internal/conf"
 	"github.com/NII-DG/gogs/internal/db"
+	log "unknwon.dev/clog/v2"
 )
 
 type AbstructCtxRepository interface {
@@ -345,6 +346,8 @@ func RepoAssignment(pages ...bool) macaron.Handler {
 		}
 
 		c.Data["TagName"] = c.Repo.TagName
+		t_repo := c.Repo.GitRepo
+		log.Trace("%s", t_repo.Path())
 		branches, err := c.Repo.GitRepo.Branches()
 		if err != nil {
 			c.Error(err, "get branches")
