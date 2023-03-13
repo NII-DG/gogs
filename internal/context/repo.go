@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/editorconfig/editorconfig-core-go/v2"
 	"github.com/pkg/errors"
@@ -18,6 +19,8 @@ import (
 
 	"github.com/NII-DG/gogs/internal/conf"
 	"github.com/NII-DG/gogs/internal/db"
+	"github.com/NII-DG/gogs/internal/gitcmd"
+	log "unknwon.dev/clog/v2"
 )
 
 type AbstructCtxRepository interface {
@@ -345,11 +348,47 @@ func RepoAssignment(pages ...bool) macaron.Handler {
 		}
 
 		c.Data["TagName"] = c.Repo.TagName
-		branches, err := c.Repo.GitRepo.Branches()
-		if err != nil {
-			c.Error(err, "get branches")
+
+		/*
+			Debug code start
+		*/
+		branches := []string{}
+		isCount := 0
+		for isCount < 1000 {
+			branches, err = c.Repo.GitRepo.Branches()
+			if err != nil {
+				// ★ debug
+				log.Error("c.Repo.GitRepo.Branches() error : %v, count : %d", err, isCount)
+				msg, err := gitcmd.GitFsck(c.Repo.GitRepo.Path())
+				if err != nil {
+					log.Error("gitcmd.GitFsck() error : %v, count : %d", err, isCount)
+				}
+				log.Error("gitcmd.GitFsck() INFO : %s, count : %d", msg, isCount)
+			} else {
+				log.Error("gitcmd.GitFsck() INFO : OK, branches: %v, count : %d", branches, isCount)
+				break
+			}
+			isCount++
+			time.Sleep(time.Millisecond * 100)
+		}
+
+		if len(branches) <= 0 {
+			c.Error(fmt.Errorf("can not get branch"), "get branches")
 			return
 		}
+		/*
+			Debug code end
+		*/
+
+		/*
+			★　Comment out until debugging is complete.
+		*/
+		// branches, err := c.Repo.GitRepo.Branches()
+		// if err != nil {
+		// 	c.Error(err, "get branches")
+		// 	return
+		// }
+
 		c.Data["Branches"] = branches
 		c.Data["BrancheCount"] = len(branches)
 
