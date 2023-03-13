@@ -163,6 +163,7 @@ func Migrate(c *context.Context) {
 }
 
 func MigratePost(c *context.Context, f form.MigrateRepo) {
+	log.Warn("[MIGRATE]MigratePost")
 	c.Data["Title"] = c.Tr("new_migrate")
 
 	ctxUser := checkContextUser(c, f.Uid)
@@ -177,7 +178,9 @@ func MigratePost(c *context.Context, f form.MigrateRepo) {
 	}
 
 	remoteAddr, err := f.ParseRemoteAddr(c.User)
+	log.Warn("[MIGRATE]remoteAddr: %v", remoteAddr)
 	if err != nil {
+		log.Warn("[MIGRATE]remoteAddr Error Occrurred")
 		if db.IsErrInvalidCloneAddr(err) {
 			c.Data["Err_CloneAddr"] = true
 			addrErr := err.(db.ErrInvalidCloneAddr)
@@ -196,7 +199,7 @@ func MigratePost(c *context.Context, f form.MigrateRepo) {
 		}
 		return
 	}
-
+	log.Info("[MIGRATE]db.MigrateRepository")
 	repo, err := db.MigrateRepository(c.User, ctxUser, db.MigrateRepoOptions{
 		Name:        f.RepoName,
 		Description: f.Description,
