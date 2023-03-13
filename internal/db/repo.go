@@ -777,12 +777,19 @@ func MigrateRepository(doer, owner *User, opts MigrateRepoOptions) (*Repository,
 		IsUnlisted:  opts.IsUnlisted,
 		IsMirror:    opts.IsMirror,
 	})
+	if err == nil {
+		log.Warn("[MIGRATE]CreateRepository Succeeded")
+	}
 	if err != nil {
+		log.Warn("[MIGRATE]CreateRepository Failed")
 		return nil, err
 	}
 
 	repoPath := RepoPath(owner.Name, opts.Name)
 	wikiPath := WikiPath(owner.Name, opts.Name)
+	log.Warn("[MIGRATE]repoPath: %v", repoPath)
+	log.Warn("[MIGRATE]wikiPath: %v", wikiPath)
+	log.Warn("[MIGRATE]opts.RemoteAddr: %v", opts.RemoteAddr)
 
 	if owner.IsOrganization() {
 		t, err := owner.GetOwnerTeam()
@@ -795,17 +802,22 @@ func MigrateRepository(doer, owner *User, opts MigrateRepoOptions) (*Repository,
 	}
 
 	migrateTimeout := time.Duration(conf.Git.Timeout.Migrate) * time.Second
-
+	log.Warn("[MIGRATE]migrateTimeout: %v", migrateTimeout)
 	RemoveAllWithNotice("Repository path erase before creation", repoPath)
 	if err = git.Clone(opts.RemoteAddr, repoPath, git.CloneOptions{
 		Mirror:  true,
 		Quiet:   true,
 		Timeout: migrateTimeout,
 	}); err != nil {
+		log.Warn("[MIGRATE]gitClone Failed")
 		return repo, fmt.Errorf("clone: %v", err)
+	}
+	if err == nil {
+		log.Warn("[MIGRATE]gitClone Succeeded")
 	}
 
 	wikiRemotePath := wikiRemoteURL(opts.RemoteAddr)
+	log.Warn("[MIGRATE]wikiRemotePath: %v", wikiRemotePath)
 	if len(wikiRemotePath) > 0 {
 		RemoveAllWithNotice("Repository wiki path erase before creation", wikiPath)
 		if err = git.Clone(wikiRemotePath, wikiPath, git.CloneOptions{
@@ -816,10 +828,15 @@ func MigrateRepository(doer, owner *User, opts MigrateRepoOptions) (*Repository,
 			log.Error("Failed to clone wiki: %v", err)
 			RemoveAllWithNotice("Delete repository wiki for initialization failure", wikiPath)
 		}
+		if err == nil {
+			log.Warn("[MIGRATE]git Wiki Clone Succeeded")
+		}
 	}
 
 	// Check if repository is empty.
 	_, stderr, err := com.ExecCmdDir(repoPath, "git", "log", "-1")
+	log.Warn("[MIGRATE]stderr: %v", stderr)
+	log.Warn("[MIGRATE]err: %v", err)
 	if err != nil {
 		if strings.Contains(stderr, "fatal: bad default revision 'HEAD'") {
 			repo.IsBare = true
@@ -827,7 +844,7 @@ func MigrateRepository(doer, owner *User, opts MigrateRepoOptions) (*Repository,
 			return repo, fmt.Errorf("check bare: %v - %s", err, stderr)
 		}
 	}
-
+	log.Warn("[MIGRATE]repo.IsBare: %v", repo.IsBare)
 	if !repo.IsBare {
 		// Try to get HEAD branch and set it as default branch.
 		gitRepo, err := git.Open(repoPath)
@@ -839,7 +856,7 @@ func MigrateRepository(doer, owner *User, opts MigrateRepoOptions) (*Repository,
 			return repo, fmt.Errorf("get HEAD branch: %v", err)
 		}
 		repo.DefaultBranch = git.RefShortName(refspec)
-
+		log.Warn("[MIGRATE]repo.DefaultBranch: %v", repo.DefaultBranch)
 		if err = repo.UpdateSize(); err != nil {
 			log.Error("UpdateSize [repo_id: %d]: %v", repo.ID, err)
 		}
@@ -896,21 +913,26 @@ func createDelegateHooks(repoPath string) (err error) {
 
 // Finish migrating repository and/or wiki with things that don't need to be done for mirrors.
 func CleanUpMigrateInfo(repo *Repository) (*Repository, error) {
+	log.Warn("[MIGRATE]CleanUpMigrateInfo")
 	repoPath := repo.RepoPath()
 	if err := createDelegateHooks(repoPath); err != nil {
+		log.Warn("[MIGRATE]createDelegateHooks repo Failed: %v", err)
 		return repo, fmt.Errorf("createDelegateHooks: %v", err)
 	}
 	if repo.HasWiki() {
 		if err := createDelegateHooks(repo.WikiPath()); err != nil {
+			log.Warn("[MIGRATE]createDelegateHooks wiki Failed: %v", err)
 			return repo, fmt.Errorf("createDelegateHooks.(wiki): %v", err)
 		}
 	}
 
 	if err := cleanUpMigrateGitConfig(repo.GitConfigPath()); err != nil {
+		log.Warn("[MIGRATE]cleanUpMigrateGitConfig Failed: %v", err)
 		return repo, fmt.Errorf("cleanUpMigrateGitConfig: %v", err)
 	}
 	if repo.HasWiki() {
 		if err := cleanUpMigrateGitConfig(path.Join(repo.WikiPath(), "config")); err != nil {
+			log.Warn("[MIGRATE]cleanUpMigrateGitConfig wiki Failed: %v", err)
 			return repo, fmt.Errorf("cleanUpMigrateGitConfig.(wiki): %v", err)
 		}
 	}
@@ -1504,6 +1526,7 @@ func GetNonMirrorRepositories() ([]*Repository, error) {
 }
 
 func updateRepository(e Engine, repo *Repository, visibilityChanged bool) (err error) {
+	log.Warn("[MIGRATE]updateRepository line 1529")
 	repo.LowerName = strings.ToLower(repo.Name)
 
 	if len(repo.Description) > 512 {
@@ -1559,11 +1582,12 @@ func updateRepository(e Engine, repo *Repository, visibilityChanged bool) (err e
 			return fmt.Errorf("change action visibility of repository: %v", err)
 		}
 	}
-
+	log.Warn("[MIGRATE]updateRepository line 1529 END")
 	return nil
 }
 
 func UpdateRepository(repo *Repository, visibilityChanged bool) (err error) {
+	log.Warn("[MIGRATE]UpdateRepository func")
 	sess := x.NewSession()
 	defer sess.Close()
 	if err = sess.Begin(); err != nil {
@@ -1571,6 +1595,7 @@ func UpdateRepository(repo *Repository, visibilityChanged bool) (err error) {
 	}
 
 	if err = updateRepository(x, repo, visibilityChanged); err != nil {
+		log.Warn("[MIGRATE]updateRepository failed")
 		return fmt.Errorf("updateRepository: %v", err)
 	}
 
