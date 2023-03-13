@@ -809,7 +809,7 @@ func MigrateRepository(doer, owner *User, opts MigrateRepoOptions) (*Repository,
 		Quiet:   true,
 		Timeout: migrateTimeout,
 	}); err != nil {
-		log.Warn("[MIGRATE]gitClone Failed")
+		log.Warn("[MIGRATE]gitClone Failed error: %v", err)
 		return repo, fmt.Errorf("clone: %v", err)
 	}
 	if err == nil {
