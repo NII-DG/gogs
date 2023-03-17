@@ -430,7 +430,7 @@ func RegisterRoutes(m *macaron.Macaron) {
 		// When request route is no defined route, return 404
 		m.Any("/*", func(c *context.Context) {
 			c.JSON(http.StatusNotFound, map[string]interface{}{
-				"error": "Not Found : invalid URL",
+				"message": "Not Found : invalid URL",
 			})
 		})
 	}, context.APIContexter())

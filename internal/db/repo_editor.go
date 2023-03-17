@@ -5,6 +5,9 @@
 package db
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -24,10 +27,12 @@ import (
 	"github.com/NII-DG/gogs/internal/conf"
 	"github.com/NII-DG/gogs/internal/cryptoutil"
 	"github.com/NII-DG/gogs/internal/db/errors"
+	git_annex_cmd "github.com/NII-DG/gogs/internal/gitcmd/annex"
 	"github.com/NII-DG/gogs/internal/gitutil"
 	"github.com/NII-DG/gogs/internal/osutil"
 	"github.com/NII-DG/gogs/internal/process"
 	"github.com/NII-DG/gogs/internal/tool"
+	"github.com/NII-DG/gogs/internal/utils"
 )
 
 const (
@@ -483,6 +488,7 @@ func (repo *Repository) UploadRepoFiles(doer *User, opts UploadRepoFileOptions) 
 	}
 
 	// Copy uploaded files into repository
+	uploads_map := map[string]string{}
 	for _, upload := range uploads {
 		tmpPath := upload.LocalPath()
 		if !osutil.IsFile(tmpPath) {
@@ -499,15 +505,78 @@ func (repo *Repository) UploadRepoFiles(doer *User, opts UploadRepoFileOptions) 
 		if err = os.MkdirAll(filepath.Dir(targetPath), os.ModePerm); err != nil {
 			return fmt.Errorf("mkdir: %v", err)
 		}
+		// check symbol link in local repository
+		info, err := os.Lstat(targetPath)
+		if err == nil {
+			if info.Mode()&os.ModeSymlink == os.ModeSymlink {
+				if err := git_annex_cmd.GitAnnexUnlock(filepath.Dir(targetPath), filepath.Base(targetPath)); err != nil {
+					return fmt.Errorf("annex unlock: %v", err)
+				}
+			}
+		}
+
 		if err = com.Copy(tmpPath, targetPath); err != nil {
 			return fmt.Errorf("copy: %v", err)
 		}
+		uploads_map[upload.Name] = targetPath
 	}
 
 	annexSetup(localPath) // Initialise annex and set configuration (with add filter for filesizes)
-	if err = annexAdd(localPath, true); err != nil {
+	annexAddMsg, err := annexAdd(localPath, true)
+	if err != nil {
 		return fmt.Errorf("git annex add: %v", err)
-	} else if err = git.RepoCommit(localPath, doer.NewGitSig(), opts.Message); err != nil {
+	}
+	// decode annexAddMsg
+	add_file_info := strings.Split(utils.BytesToString(annexAddMsg), "\n")
+
+	// exctract annex content
+	for _, v := range add_file_info[0 : len(add_file_info)-1] {
+		jsonBytes := []byte(v)
+		var js interface{}
+		err = json.Unmarshal(jsonBytes, &js)
+
+		jsonObj := js.(map[string]interface{})
+		if val, ok := jsonObj["key"]; ok {
+			// add metadata to annex
+			file_path := jsonObj["file"].(string)
+			file_name := filepath.Base(file_path)
+			local_file_path := uploads_map[file_name]
+			fileinfo, err := os.Stat(local_file_path)
+			if err != nil {
+				return fmt.Errorf("get file info: %v", err)
+			}
+			// get file size
+			size := fileinfo.Size()
+
+			f, err := os.Open(local_file_path)
+
+			// get mimetype
+			if err != nil {
+				return fmt.Errorf("open file [%s]: %v", file_name, err)
+			}
+			mime_type := utils.DetectFileContentType(f)
+			if strings.Contains(mime_type, ";") {
+				index := strings.Index(mime_type, ";")
+				mime_type = mime_type[0:index]
+			}
+			// get sha256
+			hash := sha256.New()
+			if _, err := io.Copy(hash, f); err != nil {
+				return fmt.Errorf("get hash [%s]: %v", file_name, err)
+			}
+			sha256 := hash.Sum(nil)
+			f.Close()
+
+			key := val.(string)
+			if err = git_annex_cmd.SetAnnexMetadata(localPath, key, size, hex.EncodeToString(sha256[:]), mime_type); err != nil {
+				return fmt.Errorf("add annex metadata: %v", err)
+			}
+
+		}
+
+	}
+
+	if err = git.RepoCommit(localPath, doer.NewGitSig(), opts.Message); err != nil {
 		return fmt.Errorf("commit changes on %q: %v", localPath, err)
 	}
 
@@ -519,6 +588,7 @@ func (repo *Repository) UploadRepoFiles(doer *User, opts UploadRepoFileOptions) 
 		RepoName:  repo.Name,
 		RepoPath:  repo.RepoPath(),
 	})
+
 	if err = git.RepoPush(localPath, "origin", opts.NewBranch, git.PushOptions{Envs: envs}); err != nil {
 		return fmt.Errorf("git push origin %s: %v", opts.NewBranch, err)
 	}
@@ -526,6 +596,7 @@ func (repo *Repository) UploadRepoFiles(doer *User, opts UploadRepoFileOptions) 
 	if err := annexUpload(localPath, "origin"); err != nil { // Copy new files
 		return fmt.Errorf("annex copy %s: %v", localPath, err)
 	}
+
 	annexUninit(localPath) // Uninitialise annex to prepare for deletion
 	StartIndexing(*repo)   // Index the new data
 	return DeleteUploads(uploads...)

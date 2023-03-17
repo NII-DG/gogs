@@ -145,7 +145,7 @@ func GetAllMetadataByRepoIDAndBranch(c *context.APIContext) {
 	if err != nil {
 		log.Error("failure extracting metadata of data from repository <ID : %s>. err msg : %v", repoid_str, err)
 		c.JSON(http.StatusInternalServerError, map[string]interface{}{
-			"InternalServerError": "Internal Server Error",
+			"message": "Internal Server Error",
 		})
 		return
 	}

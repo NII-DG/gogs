@@ -11,7 +11,7 @@ import (
 // RCOS spesific code
 type Affiliation struct {
 	ID            int64
-	Name          string
+	Name          string `xorm:"NOT NULL" gorm:"NOT NULL"`
 	DisplayedName string
 	Url           string `xorm:"UNIQUE NOT NULL" gorm:"UNIQUE"`
 	Alias         string
@@ -19,30 +19,29 @@ type Affiliation struct {
 }
 
 // RCOS spesific code.
-// RegisterAffiliation register Research Laboratory from a csv file.
-// TODO: うまくいったらinternal/route/install.go GlobalInitへ
+// InitAffiliation inserts or updates affiliation's table from a csv file.
 func InitAffiliation() {
-
 	filePath := "conf/affiliation/affiliation.csv"
 	file, err := os.Open(filePath)
 	if err != nil {
-		log.Fatal("Failed to get %s file: %v", filePath, err)
+		log.Fatal("Failed to open %s file: %v", filePath, err)
+		return
 	}
 	defer file.Close()
 
 	r := csv.NewReader(file)
-	r.Comment = '#' // If the line starts with #, treat it as a comment
 	rows, err := r.ReadAll()
 	if err != nil {
 		log.Fatal("Failed to read %s file: %v", filePath, err)
+		return
 	}
 
 	orgs := make([]Affiliation, 0, len(rows))
-
 	for _, v := range rows {
 		orgs = append(orgs, Affiliation{
-			Name: v[0],
-			Url:  v[1],
+			Name:          v[0],
+			DisplayedName: v[1],
+			Url:           v[2],
 		})
 	}
 
@@ -50,14 +49,35 @@ func InitAffiliation() {
 	defer sess.Close()
 	if err = sess.Begin(); err != nil {
 		log.Fatal("Failed to begin a transaction : %v", err)
+		return
 	}
-	if _, err = sess.Insert(orgs); err != nil {
-		log.Fatal("Failed to insert affiliation : %v", err)
+
+	for _, org := range orgs {
+		bean := &Affiliation{Url: org.Url}
+		has, err := sess.Get(bean)
+		if err != nil {
+			log.Fatal("Failed to get: %v", err)
+			return
+		} else if has {
+			if _, err = sess.Where("url = ?", org.Url).Update(org); err != nil {
+				log.Fatal("Failed to update: %v", err)
+				return
+			}
+		} else {
+			if _, err = sess.Insert(org); err != nil {
+				log.Fatal("Failed to insert: %v", err)
+				return
+			}
+		}
+	}
+
+	if err = sess.Commit(); err != nil {
+		log.Fatal("Failed to commit: %v", err)
 	}
 }
 
 // RCOS spesific code.
-// GetAffiliationList return map like {Affiliation.ID:Affliation.Name}.
+// GetAffiliationList returns map like {Affiliation.ID:Affliation.DisplayedName}.
 func GetAffiliationList() (map[int64]string, error) {
 
 	var beans []*Affiliation
@@ -65,14 +85,18 @@ func GetAffiliationList() (map[int64]string, error) {
 	list := make(map[int64]string)
 
 	for _, bean := range beans {
-		list[bean.ID] = bean.DisplayedName
+		if len(bean.DisplayedName) > 0 {
+			list[bean.ID] = bean.DisplayedName
+		} else {
+			list[bean.ID] = bean.Name
+		}
 	}
 
 	return list, err
 }
 
 // RCOS spesific code.
-// GetAffiliationByID returns an affiliation by given ID.
+// GetAffiliationByID returns the affiliation by given ID.
 func GetAffiliationByID(id int64) (*Affiliation, error) {
 
 	affi := new(Affiliation)

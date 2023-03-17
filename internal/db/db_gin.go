@@ -118,10 +118,10 @@ func annexSetup(path string) {
 		return
 	}
 
-	// Enable addunlocked for annex v8
-	if msg, err := annex.SetAddUnlocked(path); err != nil {
-		log.Error(2, "Failed to set 'addunlocked' annex option: %v (%s)", err, msg)
-	}
+	//Enable addunlocked for annex v8
+	// if msg, err := annex.SetAddUnlocked(path); err != nil {
+	// 	log.Error(2, "Failed to set 'addunlocked' annex option: %v (%s)", err, msg)
+	// }
 
 	// Set MD5 as default backend
 	if msg, err := annex.MD5(path); err != nil {
@@ -134,13 +134,16 @@ func annexSetup(path string) {
 	}
 }
 
-func annexAdd(repoPath string, all bool, files ...string) error {
-	cmd := git.NewCommand("annex", "add")
+func annexAdd(repoPath string, all bool, files ...string) ([]byte, error) {
+	cmd := git.NewCommand("annex", "add", "--json")
 	if all {
 		cmd.AddArgs(".")
 	}
-	_, err := cmd.AddArgs(files...).RunInDir(repoPath)
-	return err
+	msg, err := cmd.AddArgs(files...).RunInDir(repoPath)
+	if err != nil {
+		return nil, err
+	}
+	return msg, err
 }
 
 func annexUpload(repoPath, remote string) error {
