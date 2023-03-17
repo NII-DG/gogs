@@ -1,10 +1,11 @@
 package db
 
 import (
+	"bytes"
 	"encoding/csv"
 	"fmt"
-	"os"
 
+	"github.com/NII-DG/gogs/internal/conf"
 	log "unknwon.dev/clog/v2"
 )
 
@@ -20,28 +21,32 @@ type Affiliation struct {
 
 // RCOS spesific code.
 // InitAffiliation inserts or updates affiliation's table from a csv file.
+// TODO:Open-sourcing support: Make it possible to optionally select in app.ini whether to call this function.
 func InitAffiliation() {
-	filePath := "conf/affiliation/affiliation.csv"
-	file, err := os.Open(filePath)
+	dataname := "conf/affiliation/affiliation.csv"
+	data, err := conf.Asset(dataname)
 	if err != nil {
-		log.Fatal("Failed to open %s file: %v", filePath, err)
+		log.Fatal("Failed to read %s affiliation data: %v", dataname, err)
 		return
 	}
-	defer file.Close()
+	byte_r := bytes.NewReader(data)
 
-	r := csv.NewReader(file)
+	r := csv.NewReader(byte_r)
 	rows, err := r.ReadAll()
 	if err != nil {
-		log.Fatal("Failed to read %s file: %v", filePath, err)
+		log.Fatal("Failed to read %s file: %v", dataname, err)
 		return
 	}
 
 	orgs := make([]Affiliation, 0, len(rows))
-	for _, v := range rows {
+	for i, v := range rows[1:] {
 		orgs = append(orgs, Affiliation{
+			ID:            int64(i + 1),
 			Name:          v[0],
 			DisplayedName: v[1],
 			Url:           v[2],
+			Alias:         v[3],
+			Description:   v[4],
 		})
 	}
 
@@ -59,16 +64,17 @@ func InitAffiliation() {
 			log.Fatal("Failed to get: %v", err)
 			return
 		} else if has {
-			if _, err = sess.Where("url = ?", org.Url).Update(org); err != nil {
-				log.Fatal("Failed to update: %v", err)
-				return
-			}
-		} else {
-			if _, err = sess.Insert(org); err != nil {
-				log.Fatal("Failed to insert: %v", err)
+
+			if _, err = sess.Where("url = ?", org.Url).Delete(&Affiliation{}); err != nil {
+				log.Fatal("Failed to delete: %v", err)
 				return
 			}
 		}
+		if _, err = sess.Insert(org); err != nil {
+			log.Fatal("Failed to insert: %v", err)
+			return
+		}
+
 	}
 
 	if err = sess.Commit(); err != nil {

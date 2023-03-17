@@ -1,36 +1,37 @@
-﻿Kitami Institute of Technology,北見工業大学,https://ror.org/05wks2t16
-Tohoku University,東北大学,https://ror.org/01dq60k83
-Iwate University,岩手大学,https://ror.org/04cd75h10
-National Institute of Informatics,国立情報学研究所,https://ror.org/04ksd4g47
-Toho University,東邦大学,https://ror.org/02hcx7n63
-Rikkyo University,立教大学,https://ror.org/00x194q47
-Showa University,昭和大学,https://ror.org/04mzk4q39
-Tokyo Gakugei University,東京学芸大学,https://ror.org/00khh5r84
-Gunma University,群馬大学,https://ror.org/046fm7598
-Keio University,慶応義塾大学,https://ror.org/02kn6nx58
-The University of Tokyo,東京大学,https://ror.org/057zh3y96
-Waseda University,早稲田大学,https://ror.org/00ntfnx83
-RIKEN,理化学研究所,https://ror.org/01sjwvz98
-Mie University,三重大学,https://ror.org/01529vy56
-Shinshu University,信州大学,https://ror.org/0244rem06
-Kanazawa University,金沢大学,https://ror.org/02hwp6a56
-Japan Advanced Institute of Science and Technology,北陸先端科学技術大学院大学,https://ror.org/03frj4r98
-National Institute for Fusion Science,核融合科学研究所(extic),https://ror.org/01t3wyv61
-Kyoto University,京都大学,https://ror.org/02kpeqv85
-Kobe University,神戸大学,https://ror.org/03tgsfw79
-Ritsumeikan University,立命館大学,https://ror.org/0197nmd03
-Kansai University,関西大学,https://ror.org/03xg1f311
-Osaka Kyoiku University,大阪教育大学,https://ror.org/051j8zv27
-Kyoto Prefectural University,京都府立大学,https://ror.org/00ktqrd38
-Doshisha University,同志社大学,https://ror.org/01fxdkm29
-Osaka University,大阪大学,https://ror.org/035t8zc32
-Shiga University,滋賀大学,https://ror.org/01vvhy971
-Hiroshima University,広島大学,https://ror.org/03t78wx29
-Shimane University,島根大学,https://ror.org/01jaaym28
-Ehime University,愛媛大学,https://ror.org/017hkng22
-Tokushima University,徳島大学,https://ror.org/044vy1d05
-Saga University,佐賀大学,https://ror.org/04f4wg107
-Kyushu University,九州大学,https://ror.org/00p4k0j84
-Seinan Gakuin University,西南学院大学,https://ror.org/03jqhsn85
-Okinawa University,沖縄大学,https://ror.org/046zepm61
-Ritsumeikan Asia Pacific University,立命館アジア太平洋大学,https://ror.org/03ynn1n59
+﻿name,displayed_name,url,alias,description
+Kitami Institute of Technology,北見工業大学,https://ror.org/05wks2t16,,
+Tohoku University,東北大学,https://ror.org/01dq60k83,,
+Iwate University,岩手大学,https://ror.org/04cd75h10,,
+National Institute of Informatics,国立情報学研究所,https://ror.org/04ksd4g47,,
+Toho University,東邦大学,https://ror.org/02hcx7n63,,
+Rikkyo University,立教大学,https://ror.org/00x194q47,,
+Showa University,昭和大学,https://ror.org/04mzk4q39, ,
+Tokyo Gakugei University,東京学芸大学,https://ror.org/00khh5r84,,
+Gunma University,群馬大学,https://ror.org/046fm7598,,
+Keio University,慶応義塾大学,https://ror.org/02kn6nx58,,
+The University of Tokyo,東京大学,https://ror.org/057zh3y96,,
+Waseda University,早稲田大学,https://ror.org/00ntfnx83,,
+RIKEN,理化学研究所,https://ror.org/01sjwvz98,,
+Mie University,三重大学,https://ror.org/01529vy56,,
+Shinshu University,信州大学,https://ror.org/0244rem06,,
+Kanazawa University,金沢大学,https://ror.org/02hwp6a56,,
+Japan Advanced Institute of Science and Technology,北陸先端科学技術大学院大学,https://ror.org/03frj4r98,,
+National Institute for Fusion Science,核融合科学研究所(extic),https://ror.org/01t3wyv61,,
+Kyoto University,京都大学,https://ror.org/02kpeqv85,,
+Kobe University,神戸大学,https://ror.org/03tgsfw79,,
+Ritsumeikan University,立命館大学,https://ror.org/0197nmd03,,
+Kansai University,関西大学,https://ror.org/03xg1f311,,
+Osaka Kyoiku University,大阪教育大学,https://ror.org/051j8zv27,,
+Kyoto Prefectural University,京都府立大学,https://ror.org/00ktqrd38,,
+Doshisha University,同志社大学,https://ror.org/01fxdkm29,,
+Osaka University,大阪大学,https://ror.org/035t8zc32,,
+Shiga University,滋賀大学,https://ror.org/01vvhy971,,
+Hiroshima University,広島大学,https://ror.org/03t78wx29,,
+Shimane University,島根大学,https://ror.org/01jaaym28,,
+Ehime University,愛媛大学,https://ror.org/017hkng22,,
+Tokushima University,徳島大学,https://ror.org/044vy1d05,,
+Saga University,佐賀大学,https://ror.org/04f4wg107,,
+Kyushu University,九州大学,https://ror.org/00p4k0j84,,
+Seinan Gakuin University,西南学院大学,https://ror.org/03jqhsn85,,
+Okinawa University,沖縄大学,https://ror.org/046zepm61,,
+Ritsumeikan Asia Pacific University,立命館アジア太平洋大学,https://ror.org/03ynn1n59,,
