@@ -5,8 +5,8 @@ set -x
 set -e
 
 # Create git user for Gogs
-addgroup --system git
-adduser --ingroup git --no-create-home --disabled-password --gecos 'Gogs Git User' git --home /data/git -shell /bin/bash && usermod --password '*' git && passwd --unlock git
+addgroup --system git --gid 2000
+adduser --ingroup git --uid 2000 --no-create-home --disabled-password --gecos 'Gogs Git User' git --home /data/git -shell /bin/bash && usermod --password '*' git && passwd --unlock git
 echo "export GOGS_CUSTOM=${GOGS_CUSTOM}" >> /etc/profile
 
 # Final cleaning
