@@ -162,7 +162,7 @@ func generateMaDmp(c context.AbstructContext, f AbstructRepoUtil) {
 	selectedDatasetStructure := dmp.(map[string]interface{})["datasetStructure"]
 	selectedUseDocker := dmp.(map[string]interface{})["useDocker"]
 	log.Trace("[DEBUG LOG] selectedUseDocker : %s", selectedUseDocker)
-	if selectedUseDocker == "--" {
+	if selectedUseDocker == "" {
 		c.RenderWithErr(c.Tr("form.enterred_invalid_telephone"), "repo/home", nil)
 	}
 	/* maDMPへ埋め込む情報を追加する際は
