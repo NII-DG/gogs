@@ -90,7 +90,7 @@ func renderDirectory(c *context.Context, treeLink string) {
 			}
 		}
 	}
-	c.Flash.Warning(c.Tr("rcos.server.connect.failure"))
+	c.Flash.Warning(c.Tr("rcos.server.connect.failure"), true)
 
 	var readmeFile *git.Blob
 	for _, entry := range entries {
