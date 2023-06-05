@@ -162,7 +162,7 @@ func generateMaDmp(c context.AbstructContext, f AbstructRepoUtil) {
 	selectedDatasetStructure := dmp.(map[string]interface{})["datasetStructure"]
 	selectedUseDocker := dmp.(map[string]interface{})["useDocker"]
 	if selectedUseDocker == "" {
-		c.GetFlash().WarningMsg = "selectedUseDockerが選択されていません。"
+		c.GetFlash().Warning("selectedUseDockerが選択されていません。")
 		c.Redirect(c.GetRepo().GetRepoLink())
 		return
 	}
