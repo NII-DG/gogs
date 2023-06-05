@@ -162,8 +162,8 @@ func generateMaDmp(c context.AbstructContext, f AbstructRepoUtil) {
 	selectedDatasetStructure := dmp.(map[string]interface{})["datasetStructure"]
 	selectedUseDocker := dmp.(map[string]interface{})["useDocker"]
 	if selectedUseDocker == "" {
-		c.GetFlash().Warning("selectedUseDockerが選択されていません。")
-		c.Redirect(c.GetRepo().GetRepoLink())
+		failedGenereteMaDmp(c, "selectedUseDockerが選択されていません。")
+		return
 	}
 	/* maDMPへ埋め込む情報を追加する際は
 	ここに追記のこと
