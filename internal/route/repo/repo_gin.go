@@ -164,7 +164,6 @@ func generateMaDmp(c context.AbstructContext, f AbstructRepoUtil) {
 	if selectedUseDocker == "" {
 		c.GetFlash().Warning("selectedUseDockerが選択されていません。")
 		c.Redirect(c.GetRepo().GetRepoLink())
-		return
 	}
 	/* maDMPへ埋め込む情報を追加する際は
 	ここに追記のこと
