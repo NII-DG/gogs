@@ -383,8 +383,7 @@ func Home(c *context.Context) {
 			c.Data["ParentPath"] = "/" + paths[len(paths)-2]
 		}
 	}
-	c.Flash.Warning(c.Tr("rcos.server.connect.failure"))
-	//c.Data["Flash"] = c.Flash
+	c.Data["Flash"] = c.Flash
 	c.Data["Paths"] = paths
 	c.Data["TreeLink"] = treeLink
 	c.Data["TreeNames"] = treeNames
