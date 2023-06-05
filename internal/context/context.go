@@ -51,6 +51,7 @@ type AbstructContext interface {
 	NotFound()
 	NotFoundWithErrMsg(errMsg string)
 	IsInternalError() bool
+	RenderWithErr(msg, tpl string, f interface{})
 }
 
 // Context represents context of a request.
