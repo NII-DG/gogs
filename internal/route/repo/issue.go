@@ -14,6 +14,7 @@ import (
 	"github.com/unknwon/com"
 	"github.com/unknwon/paginater"
 	log "unknwon.dev/clog/v2"
+	gotemplate "html/template"
 
 	"github.com/NII-DG/gogs/internal/conf"
 	"github.com/NII-DG/gogs/internal/context"
@@ -535,6 +536,8 @@ func viewIssue(c *context.Context, isPullList bool) {
 	}
 
 	issue.RenderedContent = string(markup.Markdown(issue.Content, c.Repo.RepoLink, c.Repo.Repository.ComposeMetas()))
+	// escape HTML string
+	issue.RenderedContent = gotemplate.HTMLEscapeString(issue.RenderedContent)
 
 	repo := c.Repo.Repository
 
@@ -601,6 +604,8 @@ func viewIssue(c *context.Context, isPullList bool) {
 	for _, comment = range issue.Comments {
 		if comment.Type == db.COMMENT_TYPE_COMMENT {
 			comment.RenderedContent = string(markup.Markdown(comment.Content, c.Repo.RepoLink, c.Repo.Repository.ComposeMetas()))
+			// escape HTML string
+			comment.RenderedContent = gotemplate.HTMLEscapeString(comment.RenderedContent)
 
 			// Check tag.
 			tag, ok = marked[comment.PosterID]
@@ -1092,7 +1097,12 @@ func Milestones(c *context.Context) {
 		if m.NumOpenIssues+m.NumClosedIssues > 0 {
 			m.Completeness = m.NumClosedIssues * 100 / (m.NumOpenIssues + m.NumClosedIssues)
 		}
+		log.Info(m.RenderedContent)
 		m.RenderedContent = string(markup.Markdown(m.Content, c.Repo.RepoLink, c.Repo.Repository.ComposeMetas()))
+		log.Info(m.RenderedContent)
+		// escape HTML string
+		m.RenderedContent = gotemplate.HTMLEscapeString(m.RenderedContent)
+		log.Info(m.RenderedContent)
 	}
 	c.Data["Milestones"] = miles
 

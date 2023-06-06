@@ -11,6 +11,7 @@ import (
 
 	"github.com/unknwon/com"
 	"github.com/unknwon/paginater"
+	gotemplate "html/template"
 
 	"github.com/NII-DG/gogs/internal/conf"
 	"github.com/NII-DG/gogs/internal/context"
@@ -410,6 +411,8 @@ func showOrgProfile(c *context.Context) {
 		c.Error(err, "get members")
 		return
 	}
+	// escape HTML string
+	org.Description = gotemplate.HTMLEscapeString(org.Description)
 	c.Data["Members"] = org.Members
 
 	c.Data["Teams"] = org.Teams

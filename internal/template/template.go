@@ -80,6 +80,7 @@ func FuncMap() []template.FuncMap {
 			"Str2HTML":         Str2HTML,
 			"Str2JS":           Str2JS,
 			"NewLine2br":       NewLine2br,
+			"SpaceAndBr":       SpaceAndBr,
 			"TimeSince":        tool.TimeSince,
 			"RawTimeSince":     tool.RawTimeSince,
 			"FileSize":         tool.FileSize,
@@ -149,6 +150,16 @@ func Str2HTML(raw string) template.HTML {
 // NewLine2br simply replaces "\n" to "<br>".
 func NewLine2br(raw string) string {
 	return strings.Replace(raw, "\n", "<br>", -1)
+}
+
+func SpaceAndBr(raw string) string {
+	// br
+	for _, v := range []string{"\n", "\r", "\r\n"} {
+		raw = strings.Replace(raw, v, "<br>", -1)
+	}
+	// space
+	raw = strings.Replace(raw, " ", "&nbsp;", -1)
+	return raw
 }
 
 func Str2JS(raw string) template.JS {

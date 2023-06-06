@@ -318,6 +318,13 @@ func Home(c *context.Context) {
 		title += ": " + c.Repo.Repository.Description
 	}
 	c.Data["Title"] = title
+	//log.Info("BEFIRE Escape")
+	
+	// escape HTML string
+	//c.Repo.Repository.Description = gotemplate.HTMLEscapeString(c.Repo.Repository.Description)
+	c.Repo.Repository.Description = "&amp;"
+	log.Info(c.Repo.Repository.Description)
+	
 	if c.Repo.BranchName != c.Repo.Repository.DefaultBranch {
 		c.Data["Title"] = title + " @ " + c.Repo.BranchName
 	}

@@ -29,7 +29,7 @@
 					<div class="ui attached segment">
 						<div class="render-content markdown has-emoji">
 							{{if .Issue.RenderedContent}}
-								{{.Issue.RenderedContent|Str2HTML}}
+								{{.Issue.RenderedContent | SpaceAndBr | Str2HTML}}
 							{{else}}
 								<span class="no-content">{{.i18n.Tr "repo.issues.no_content"}}</span>
 							{{end}}
@@ -90,7 +90,7 @@
 							<div class="ui attached segment">
 								<div class="render-content markdown has-emoji">
 									{{if .RenderedContent}}
-										{{.RenderedContent | Str2HTML}}
+										{{.RenderedContent | SpaceAndBr | Str2HTML}}
 									{{else}}
 										<span class="no-content">{{$.i18n.Tr "repo.issues.no_content"}}</span>
 									{{end}}

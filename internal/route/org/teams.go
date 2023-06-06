@@ -11,6 +11,7 @@ import (
 
 	"github.com/unknwon/com"
 	log "unknwon.dev/clog/v2"
+	gotemplate "html/template"
 
 	"github.com/NII-DG/gogs/internal/context"
 	"github.com/NII-DG/gogs/internal/db"
@@ -191,6 +192,8 @@ func TeamMembers(c *context.Context) {
 		c.Error(err, "get members")
 		return
 	}
+	// escape HTML string
+	c.Org.Team.Description = gotemplate.HTMLEscapeString(c.Org.Team.Description)
 	c.Success(TEAM_MEMBERS)
 }
 
@@ -201,6 +204,8 @@ func TeamRepositories(c *context.Context) {
 		c.Error(err, "get repositories")
 		return
 	}
+	// escape HTML string
+	c.Org.Team.Description = gotemplate.HTMLEscapeString(c.Org.Team.Description)
 	c.Success(TEAM_REPOSITORIES)
 }
 
