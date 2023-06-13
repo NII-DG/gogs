@@ -155,6 +155,7 @@ func editFilePost(c *context.Context, f form.EditRepoFile, isNewFile bool) {
 	oldTreePath := c.Repo.TreePath
 	lastCommit := f.LastCommit
 	f.LastCommit = c.Repo.Commit.ID.String()
+	log.Warn("[DEBUG LOG BY RCOS] %s", c.Repo.Repository.RepoPath())
 
 	if f.IsNewBrnach() {
 		branchName = f.NewBranchName
