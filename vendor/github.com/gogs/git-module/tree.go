@@ -7,6 +7,8 @@ package git
 import (
 	"strings"
 	"sync"
+
+	log_v2 "unknwon.dev/clog/v2"
 )
 
 // Tree represents a flat directory listing in Git.
@@ -58,6 +60,7 @@ func (t *Tree) Entries(opts ...LsTreeOptions) (Entries, error) {
 		}
 
 		var tt *Tree
+		log_v2.Trace("[DWBUG LOG BY RCOS] t.id.String() : %s", t.id.String())
 		tt, t.entriesErr = t.repo.LsTree(t.id.String(), opts...)
 		if t.entriesErr != nil {
 			return
