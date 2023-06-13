@@ -66,3 +66,5 @@ require (
 	xorm.io/core v0.7.2
 	xorm.io/xorm v0.8.0
 )
+
+replace github.com/gogs/git-module => github.com/ivis-tsukioka/git-module v1.1.3-0.20230613052843-46ff5a4b0cf4
