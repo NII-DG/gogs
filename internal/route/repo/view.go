@@ -308,7 +308,7 @@ func setEditorconfigIfExists(c *context.Context) {
 func Home(c *context.Context) {
 	surveyDirpath := "/data/gogs/mnt/gogs-repositories/.tmp"
 
-	for true {
+	for {
 		count, err := CountFiles(surveyDirpath)
 		if err != nil {
 			log.Info("[DEBUG LOG BY RCOS] countFiles ERR on Home: %v", err)
