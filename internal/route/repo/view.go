@@ -309,13 +309,14 @@ func Home(c *context.Context) {
 	surveyDirpath := "/data/gogs/mnt/gogs-repositories/.tmp"
 
 	for {
+		now := time.Now()
 		count, err := CountFiles(surveyDirpath)
 		if err != nil {
-			log.Info("[DEBUG LOG BY RCOS] countFiles ERR on Home: %v", err)
+			log.Info("[DEBUG LOG BY RCOS] countFiles ERR on Home: %v, time : [%s]", err, now)
 		} else {
-			log.Info("[DEBUG LOG BY RCOS] %s has [%d] files on Home", surveyDirpath, count)
+			log.Info("[DEBUG LOG BY RCOS] %s has [%d] files on Home , time : [%s]", surveyDirpath, count, now)
 			if (count % 50) == 1 {
-				log.Info("[DEBUG LOG BY RCOS] The expected number of files was obtained.surveyDirpath :[%s], count : [%d]", surveyDirpath, count)
+				log.Info("[DEBUG LOG BY RCOS] The expected number of files was obtained.surveyDirpath :[%s], count : [%d], time : [%s]", surveyDirpath, count, now)
 				break
 			}
 		}
