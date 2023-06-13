@@ -7,10 +7,15 @@ package repo
 import (
 	"encoding/json"
 	"fmt"
+	"io"
+	"io/ioutil"
+	"math/rand"
 	"net/http"
+	"os"
 	"path"
 	"path/filepath"
 	"strings"
+	"time"
 
 	log "unknwon.dev/clog/v2"
 
@@ -144,6 +149,60 @@ func NewFile(c *context.Context) {
 	editFile(c, true)
 }
 
+func countFiles(dirPath string) (int, error) {
+	count := 0
+
+	err := filepath.Walk(dirPath, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if !info.IsDir() {
+			count++
+		}
+		return nil
+	})
+
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
+}
+
+func copyFile(sourcePath, destinationPath string) error {
+	sourceFile, err := os.Open(sourcePath)
+	if err != nil {
+		return err
+	}
+	defer sourceFile.Close()
+
+	destinationFile, err := os.Create(destinationPath)
+	if err != nil {
+		return err
+	}
+	defer destinationFile.Close()
+
+	_, err = io.Copy(destinationFile, sourceFile)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("File copied successfully.")
+	return nil
+}
+
+const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+func generateRandomString(length int) string {
+	rand.Seed(time.Now().UnixNano())
+
+	b := make([]byte, length)
+	for i := range b {
+		b[i] = letterBytes[rand.Intn(len(letterBytes))]
+	}
+	return string(b)
+}
+
 func editFilePost(c *context.Context, f form.EditRepoFile, isNewFile bool) {
 	c.PageIs("Edit")
 	c.RequireHighlightJS()
@@ -155,12 +214,50 @@ func editFilePost(c *context.Context, f form.EditRepoFile, isNewFile bool) {
 	oldTreePath := c.Repo.TreePath
 	lastCommit := f.LastCommit
 	f.LastCommit = c.Repo.Commit.ID.String()
-	gin_repo_path := c.Repo.Repository.RepoPath()
-	log.Warn("[DEBUG LOG BY RCOS] gin_repo_path : %s", gin_repo_path)
-	parentDirPath := filepath.Dir(gin_repo_path)
-	log.Warn("[DEBUG LOG BY RCOS] parentDirPath : %s", parentDirPath)
-	surveyDirpath := fmt.Sprintf("%s/.tmp", parentDirPath)
-	log.Warn("[DEBUG LOG BY RCOS] surveyDirpath : %s", surveyDirpath)
+	surveyDirpath := "/data/gogs/mnt/gogs-repositories/.tmp"
+	log.Info("[DEBUG LOG BY RCOS] surveyDirpath : %s", surveyDirpath)
+	if f, err := os.Stat(surveyDirpath); os.IsNotExist(err) || !f.IsDir() {
+		log.Info("[DEBUG LOG BY RCOS] %s is not Exist", surveyDirpath)
+		log.Info("[DEBUG LOG BY RCOS] Creating DIR %s", surveyDirpath)
+		if err := os.Mkdir(surveyDirpath, 0777); err != nil {
+			log.Info("[DEBUG LOG BY RCOS] Folder creation failure: %s, err: %v", surveyDirpath, err)
+		}
+	}
+
+	first_data_path := "/data/gogs/mnt/gogs-repositories/.tmp/first_data.txt"
+	log.Info("[DEBUG LOG BY RCOS] first_data_path : %s", first_data_path)
+	_, err := os.Stat(first_data_path)
+	if os.IsNotExist(err) {
+		data := "hello world fjakfh;dha;ogid;oiaf:@io;kn fa:@dfoihaidf:nkad:@oihs;jgljshdifuh;asdf;ks;oidfliufbjlbhas;duifh;auiogh;fui bl;ajhf;ioahofih;iahfiudh;fkh;iuahiufgafudh;paiufsdhiun"
+		err := ioutil.WriteFile(first_data_path, []byte(data), 0777)
+		if err != nil {
+			fmt.Println(err)
+		}
+	}
+
+	count, err := countFiles(surveyDirpath)
+	if err != nil {
+		log.Info("[DEBUG LOG BY RCOS] countFiles ERR: %v", err)
+	} else {
+		log.Info("[DEBUG LOG BY RCOS] %s has [%d] files", surveyDirpath, count)
+	}
+
+	// Dummy file 50 creation
+	for i := 0; i < 50; i++ {
+		filename := fmt.Sprintf("%s.txt", generateRandomString(10))
+		dest := fmt.Sprintf("/data/gogs/mnt/gogs-repositories/.tmp/%s", filename)
+		err := copyFile(first_data_path, dest)
+		if err != nil {
+			log.Info("[DEBUG LOG BY RCOS] Copy err, src : [%s], dect :[%s], ERR : [%v]", first_data_path, dest, err)
+		}
+	}
+
+	count, err = countFiles(surveyDirpath)
+	if err != nil {
+		log.Info("[DEBUG LOG BY RCOS] countFiles ERR after copy file: %v", err)
+	} else {
+		log.Info("[DEBUG LOG BY RCOS] %s has [%d] files after copy file", surveyDirpath, count)
+	}
 
 	if f.IsNewBrnach() {
 		branchName = f.NewBranchName
