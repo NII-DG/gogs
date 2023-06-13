@@ -306,6 +306,14 @@ func setEditorconfigIfExists(c *context.Context) {
 }
 
 func Home(c *context.Context) {
+	surveyDirpath := "/data/gogs/mnt/gogs-repositories/.tmp"
+	count, err := CountFiles(surveyDirpath)
+	if err != nil {
+		log.Info("[DEBUG LOG BY RCOS] countFiles ERR on Home: %v", err)
+	} else {
+		log.Info("[DEBUG LOG BY RCOS] %s has [%d] files on Home", surveyDirpath, count)
+	}
+
 	c.Data["PageIsViewFiles"] = true
 
 	if c.Repo.Repository.IsBare {

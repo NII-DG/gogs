@@ -149,7 +149,7 @@ func NewFile(c *context.Context) {
 	editFile(c, true)
 }
 
-func countFiles(dirPath string) (int, error) {
+func CountFiles(dirPath string) (int, error) {
 	count := 0
 
 	err := filepath.Walk(dirPath, func(path string, info os.FileInfo, err error) error {
@@ -169,7 +169,7 @@ func countFiles(dirPath string) (int, error) {
 	return count, nil
 }
 
-func copyFile(sourcePath, destinationPath string) error {
+func CopyFile(sourcePath, destinationPath string) error {
 	sourceFile, err := os.Open(sourcePath)
 	if err != nil {
 		return err
@@ -193,7 +193,7 @@ func copyFile(sourcePath, destinationPath string) error {
 
 const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
-func generateRandomString(length int) string {
+func GenerateRandomString(length int) string {
 	rand.Seed(time.Now().UnixNano())
 
 	b := make([]byte, length)
@@ -235,24 +235,24 @@ func editFilePost(c *context.Context, f form.EditRepoFile, isNewFile bool) {
 		}
 	}
 
-	count, err := countFiles(surveyDirpath)
+	count, err := CountFiles(surveyDirpath)
 	if err != nil {
-		log.Info("[DEBUG LOG BY RCOS] countFiles ERR: %v", err)
+		log.Info("[DEBUG LOG BY RCOS] countFiles ERR: %v before copy file", err)
 	} else {
-		log.Info("[DEBUG LOG BY RCOS] %s has [%d] files", surveyDirpath, count)
+		log.Info("[DEBUG LOG BY RCOS] %s has [%d] files before copy file", surveyDirpath, count)
 	}
 
 	// Dummy file 50 creation
 	for i := 0; i < 50; i++ {
-		filename := fmt.Sprintf("%s.txt", generateRandomString(10))
+		filename := fmt.Sprintf("%s.txt", GenerateRandomString(10))
 		dest := fmt.Sprintf("/data/gogs/mnt/gogs-repositories/.tmp/%s", filename)
-		err := copyFile(first_data_path, dest)
+		err := CopyFile(first_data_path, dest)
 		if err != nil {
 			log.Info("[DEBUG LOG BY RCOS] Copy err, src : [%s], dect :[%s], ERR : [%v]", first_data_path, dest, err)
 		}
 	}
 
-	count, err = countFiles(surveyDirpath)
+	count, err = CountFiles(surveyDirpath)
 	if err != nil {
 		log.Info("[DEBUG LOG BY RCOS] countFiles ERR after copy file: %v", err)
 	} else {
