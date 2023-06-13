@@ -18,7 +18,7 @@ import (
 	"github.com/unknwon/paginater"
 	log "unknwon.dev/clog/v2"
 
-	"github.com/NII-DG/gogs/vendor/github.com/gogs/git-module"
+	git "github.com/NII-DG/gogs/vendor/github.com/gogs/git-module"
 
 	"github.com/NII-DG/gogs/internal/conf"
 	"github.com/NII-DG/gogs/internal/context"
