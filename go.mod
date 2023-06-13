@@ -67,4 +67,4 @@ require (
 	xorm.io/xorm v0.8.0
 )
 
-replace github.com/gogs/git-module => ../git-module
+replace github.com/gogs/git-module => ../git-module-debug
