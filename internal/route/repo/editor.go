@@ -234,12 +234,12 @@ func editFilePost(c *context.Context, f form.EditRepoFile, isNewFile bool) {
 			fmt.Println(err)
 		}
 	}
-
+	now := time.Now()
 	count, err := CountFiles(surveyDirpath)
 	if err != nil {
-		log.Info("[DEBUG LOG BY RCOS] countFiles ERR: %v before copy file", err)
+		log.Info("[DEBUG LOG BY RCOS] countFiles ERR: %v before copy file, time : [%s]", err, now)
 	} else {
-		log.Info("[DEBUG LOG BY RCOS] %s has [%d] files before copy file", surveyDirpath, count)
+		log.Info("[DEBUG LOG BY RCOS] %s has [%d] files before copy file, time : [%s]", surveyDirpath, count, now)
 	}
 
 	// Dummy file 50 creation
@@ -251,12 +251,12 @@ func editFilePost(c *context.Context, f form.EditRepoFile, isNewFile bool) {
 			log.Info("[DEBUG LOG BY RCOS] Copy err, src : [%s], dect :[%s], ERR : [%v]", first_data_path, dest, err)
 		}
 	}
-
+	now = time.Now()
 	count, err = CountFiles(surveyDirpath)
 	if err != nil {
-		log.Info("[DEBUG LOG BY RCOS] countFiles ERR after copy file: %v", err)
+		log.Info("[DEBUG LOG BY RCOS] countFiles ERR after copy file: %v , time : [%s]", err, now)
 	} else {
-		log.Info("[DEBUG LOG BY RCOS] %s has [%d] files after copy file", surveyDirpath, count)
+		log.Info("[DEBUG LOG BY RCOS] %s has [%d] files after copy file , time : [%s]", surveyDirpath, count, now)
 	}
 
 	if f.IsNewBrnach() {
