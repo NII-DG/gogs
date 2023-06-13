@@ -345,6 +345,7 @@ func Home(c *context.Context) {
 	c.Data["PageIsRepoHome"] = isRootDir
 
 	// Get current entry user currently looking at.
+	log.Trace("[DEBUG BY RCOS] c.Repo.TreePath : %s", c.Repo.TreePath)
 	entry, err := c.Repo.Commit.TreeEntry(c.Repo.TreePath)
 	if err != nil {
 		c.NotFoundOrError(gitutil.NewError(err), "get tree entry")
