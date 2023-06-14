@@ -409,6 +409,9 @@ func editFilePost(c *context.Context, f form.EditRepoFile, isNewFile bool) {
 		return
 	}
 
+	now := time.Now()
+	log.Info("[DEBUG LOG BY RCOS] FINISH editFilePost() time: [%s], RepoPath : [%s], f.TreePath : [%s]", now, c.Repo.Repository.RepoPath(), f.TreePath)
+
 	if f.IsNewBrnach() && c.Repo.PullRequest.Allowed {
 		c.Redirect(c.Repo.PullRequestURL(oldBranchName, f.NewBranchName))
 	} else {
