@@ -379,8 +379,33 @@ func Home(c *context.Context) {
 	}
 	c.Data["PageIsRepoHome"] = isRootDir
 
+	now := time.Now()
+	log.Info("[DEBUG LOG BY RCOS] START get entry. time : [%s], repoPaht : [%s], treePath : [%s]", now, c.Repo.Repository.RepoPath(), c.Repo.TreePath)
 	// Get current entry user currently looking at.
 	entry, err := c.Repo.Commit.TreeEntry(c.Repo.TreePath)
+	if err != nil {
+		now := time.Now()
+		log.Info("[DEBUG LOG BY RCOS] Failure 1st get entry. ERR: [%v], time : [%s], repoPaht : [%s], treePath : [%s]", err, now, c.Repo.Repository.RepoPath(), c.Repo.TreePath)
+		loopCount := 2
+		for {
+			entry, err = c.Repo.Commit.TreeEntry(c.Repo.TreePath)
+			if err == nil {
+				now = time.Now()
+				log.Info("[DEBUG LOG BY RCOS] Success %d times get entry. time : [%s], repoPaht : [%s], treePath : [%s]", loopCount, now, c.Repo.Repository.RepoPath(), c.Repo.TreePath)
+				break
+			} else {
+				if loopCount >= 100 {
+					break
+				} else {
+					now = time.Now()
+					log.Info("[DEBUG LOG BY RCOS] Failure  %d times get entry. ERR: [%v], time : [%s], repoPaht : [%s], treePath : [%s]", loopCount, err, now, c.Repo.Repository.RepoPath(), c.Repo.TreePath)
+					loopCount = loopCount + 1
+					time.Sleep(500 * time.Millisecond)
+				}
+			}
+		}
+	}
+
 	if err != nil {
 		c.NotFoundOrError(gitutil.NewError(err), "get tree entry")
 		return
