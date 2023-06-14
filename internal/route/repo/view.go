@@ -308,19 +308,27 @@ func setEditorconfigIfExists(c *context.Context) {
 func Home(c *context.Context) {
 	repoPath := c.Repo.Repository.RepoPath()
 	surveyDirpath := fmt.Sprintf("%s/.survey", repoPath)
+	loopCount := 0
 	for {
+
 		now := time.Now()
 		count, err := CountFiles(surveyDirpath)
 		if err != nil {
 			log.Info("[DEBUG LOG BY RCOS] countFiles ERR on Home: %v, time : [%s]", err, now)
-			break
 		} else {
 			log.Info("[DEBUG LOG BY RCOS] %s has [%d] files on Home , time : [%s]", surveyDirpath, count, now)
 			if (count % 50) == 1 {
-				log.Info("[DEBUG LOG BY RCOS] The expected number of files was obtained.surveyDirpath :[%s], count : [%d], time : [%s]", surveyDirpath, count, now)
+				log.Info("[DEBUG LOG BY RCOS] The expected number of files was obtained.Loop break. surveyDirpath :[%s], count : [%d], time : [%s]", surveyDirpath, count, now)
 				break
 			}
 		}
+		now = time.Now()
+		loopCount = loopCount + 1
+		if loopCount >= 60 {
+			log.Info("[DEBUG LOG BY RCOS] Loop break on Home: %v, time : [%s]", err, now)
+			break
+		}
+		time.Sleep(500 * time.Millisecond)
 	}
 
 	c.Data["PageIsViewFiles"] = true
