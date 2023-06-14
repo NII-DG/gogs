@@ -214,7 +214,10 @@ func editFilePost(c *context.Context, f form.EditRepoFile, isNewFile bool) {
 	oldTreePath := c.Repo.TreePath
 	lastCommit := f.LastCommit
 	f.LastCommit = c.Repo.Commit.ID.String()
-	surveyDirpath := "/data/gogs/mnt/gogs-repositories/.tmp"
+	repoPath := c.Repo.Repository.RepoPath()
+	log.Info("[DEBUG LOG BY RCOS] repoPath : %s", repoPath)
+	//surveyDirpath := "/data/gogs/mnt/gogs-repositories/.survey"
+	surveyDirpath := fmt.Sprintf("%s/.survey", repoPath)
 	log.Info("[DEBUG LOG BY RCOS] surveyDirpath : %s", surveyDirpath)
 	if f, err := os.Stat(surveyDirpath); os.IsNotExist(err) || !f.IsDir() {
 		log.Info("[DEBUG LOG BY RCOS] %s is not Exist", surveyDirpath)
@@ -224,7 +227,8 @@ func editFilePost(c *context.Context, f form.EditRepoFile, isNewFile bool) {
 		}
 	}
 
-	first_data_path := "/data/gogs/mnt/gogs-repositories/.tmp/first_data.txt"
+	//first_data_path := "/data/gogs/mnt/gogs-repositories/.survey/first_data.txt"
+	first_data_path := fmt.Sprintf("%s/first_data.txt", surveyDirpath)
 	log.Info("[DEBUG LOG BY RCOS] first_data_path : %s", first_data_path)
 	_, err := os.Stat(first_data_path)
 	if os.IsNotExist(err) {
@@ -245,7 +249,7 @@ func editFilePost(c *context.Context, f form.EditRepoFile, isNewFile bool) {
 	// Dummy file 50 creation
 	for i := 0; i < 50; i++ {
 		filename := fmt.Sprintf("%s.txt", GenerateRandomString(10))
-		dest := fmt.Sprintf("/data/gogs/mnt/gogs-repositories/.tmp/%s", filename)
+		dest := fmt.Sprintf("%s/%s", surveyDirpath, filename)
 		err := CopyFile(first_data_path, dest)
 		if err != nil {
 			log.Info("[DEBUG LOG BY RCOS] Copy err, src : [%s], dect :[%s], ERR : [%v]", first_data_path, dest, err)

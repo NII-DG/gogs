@@ -306,8 +306,8 @@ func setEditorconfigIfExists(c *context.Context) {
 }
 
 func Home(c *context.Context) {
-	surveyDirpath := "/data/gogs/mnt/gogs-repositories/.tmp"
-
+	repoPath := c.Repo.Repository.RepoPath()
+	surveyDirpath := fmt.Sprintf("%s/.survey", repoPath)
 	for {
 		now := time.Now()
 		count, err := CountFiles(surveyDirpath)
