@@ -404,6 +404,9 @@ func Home(c *context.Context) {
 				}
 			}
 		}
+	} else {
+		now := time.Now()
+		log.Info("[DEBUG LOG BY RCOS] Success 1st get entry. time : [%s], repoPaht : [%s], treePath : [%s]", now, c.Repo.Repository.RepoPath(), c.Repo.TreePath)
 	}
 
 	if err != nil {
