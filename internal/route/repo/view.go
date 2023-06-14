@@ -306,30 +306,40 @@ func setEditorconfigIfExists(c *context.Context) {
 }
 
 func Home(c *context.Context) {
-	repoPath := c.Repo.Repository.RepoPath()
-	surveyDirpath := fmt.Sprintf("%s/.survey", repoPath)
-	loopCount := 0
-	for {
+	// repoPath := c.Repo.Repository.RepoPath()
+	// surveyDirpath := fmt.Sprintf("%s/.survey", repoPath)
 
-		now := time.Now()
-		count, err := CountFiles(surveyDirpath)
-		if err != nil {
-			log.Info("[DEBUG LOG BY RCOS] countFiles ERR on Home: %v, time : [%s]", err, now)
-		} else {
-			log.Info("[DEBUG LOG BY RCOS] %s has [%d] files on Home , time : [%s]", surveyDirpath, count, now)
-			if (count % 50) == 1 {
-				log.Info("[DEBUG LOG BY RCOS] The expected number of files was obtained.Loop break. surveyDirpath :[%s], count : [%d], time : [%s]", surveyDirpath, count, now)
-				break
-			}
-		}
-		now = time.Now()
-		loopCount = loopCount + 1
-		if loopCount >= 60 {
-			log.Info("[DEBUG LOG BY RCOS] Loop break on Home: %v, time : [%s]", err, now)
-			break
-		}
-		time.Sleep(500 * time.Millisecond)
-	}
+	// log.Info("[DEBUG LOG BY RCOS] surveyDirpath : %s", surveyDirpath)
+	// if f, err := os.Stat(surveyDirpath); os.IsNotExist(err) || !f.IsDir() {
+	// 	log.Info("[DEBUG LOG BY RCOS] %s is not Exist", surveyDirpath)
+	// 	log.Info("[DEBUG LOG BY RCOS] Creating DIR %s", surveyDirpath)
+	// 	if err := os.Mkdir(surveyDirpath, 0777); err != nil {
+	// 		log.Info("[DEBUG LOG BY RCOS] Folder creation failure: %s, err: %v", surveyDirpath, err)
+	// 	}
+	// }
+
+	// loopCount := 0
+	// for {
+
+	// 	now := time.Now()
+	// 	count, err := CountFiles(surveyDirpath)
+	// 	if err != nil {
+	// 		log.Info("[DEBUG LOG BY RCOS] countFiles ERR on Home: %v, time : [%s]", err, now)
+	// 	} else {
+	// 		log.Info("[DEBUG LOG BY RCOS] %s has [%d] files on Home , time : [%s]", surveyDirpath, count, now)
+	// 		if (count % 50) == 1 {
+	// 			log.Info("[DEBUG LOG BY RCOS] The expected number of files was obtained.Loop break. surveyDirpath :[%s], count : [%d], time : [%s]", surveyDirpath, count, now)
+	// 			break
+	// 		}
+	// 	}
+	// 	now = time.Now()
+	// 	loopCount = loopCount + 1
+	// 	if loopCount >= 60 {
+	// 		log.Info("[DEBUG LOG BY RCOS] Loop break on Home: %v, time : [%s]", err, now)
+	// 		break
+	// 	}
+	// 	time.Sleep(500 * time.Millisecond)
+	// }
 
 	c.Data["PageIsViewFiles"] = true
 

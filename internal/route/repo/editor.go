@@ -8,7 +8,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"math/rand"
 	"net/http"
 	"os"
@@ -214,54 +213,55 @@ func editFilePost(c *context.Context, f form.EditRepoFile, isNewFile bool) {
 	oldTreePath := c.Repo.TreePath
 	lastCommit := f.LastCommit
 	f.LastCommit = c.Repo.Commit.ID.String()
-	repoPath := c.Repo.Repository.RepoPath()
-	log.Info("[DEBUG LOG BY RCOS] repoPath : %s", repoPath)
-	//surveyDirpath := "/data/gogs/mnt/gogs-repositories/.survey"
-	surveyDirpath := fmt.Sprintf("%s/.survey", repoPath)
-	log.Info("[DEBUG LOG BY RCOS] surveyDirpath : %s", surveyDirpath)
-	if f, err := os.Stat(surveyDirpath); os.IsNotExist(err) || !f.IsDir() {
-		log.Info("[DEBUG LOG BY RCOS] %s is not Exist", surveyDirpath)
-		log.Info("[DEBUG LOG BY RCOS] Creating DIR %s", surveyDirpath)
-		if err := os.Mkdir(surveyDirpath, 0777); err != nil {
-			log.Info("[DEBUG LOG BY RCOS] Folder creation failure: %s, err: %v", surveyDirpath, err)
-		}
-	}
 
-	//first_data_path := "/data/gogs/mnt/gogs-repositories/.survey/first_data.txt"
-	first_data_path := fmt.Sprintf("%s/first_data.txt", surveyDirpath)
-	log.Info("[DEBUG LOG BY RCOS] first_data_path : %s", first_data_path)
-	_, err := os.Stat(first_data_path)
-	if os.IsNotExist(err) {
-		data := "hello world fjakfh;dha;ogid;oiaf:@io;kn fa:@dfoihaidf:nkad:@oihs;jgljshdifuh;asdf;ks;oidfliufbjlbhas;duifh;auiogh;fui bl;ajhf;ioahofih;iahfiudh;fkh;iuahiufgafudh;paiufsdhiun"
-		err := ioutil.WriteFile(first_data_path, []byte(data), 0777)
-		if err != nil {
-			fmt.Println(err)
-		}
-	}
-	now := time.Now()
-	count, err := CountFiles(surveyDirpath)
-	if err != nil {
-		log.Info("[DEBUG LOG BY RCOS] countFiles ERR: %v before copy file, time : [%s]", err, now)
-	} else {
-		log.Info("[DEBUG LOG BY RCOS] %s has [%d] files before copy file, time : [%s]", surveyDirpath, count, now)
-	}
+	// repoPath := c.Repo.Repository.RepoPath()
+	// log.Info("[DEBUG LOG BY RCOS] repoPath : %s", repoPath)
+	// //surveyDirpath := "/data/gogs/mnt/gogs-repositories/.survey"
+	// surveyDirpath := fmt.Sprintf("%s/.survey", repoPath)
+	// log.Info("[DEBUG LOG BY RCOS] surveyDirpath : %s", surveyDirpath)
+	// if f, err := os.Stat(surveyDirpath); os.IsNotExist(err) || !f.IsDir() {
+	// 	log.Info("[DEBUG LOG BY RCOS] %s is not Exist", surveyDirpath)
+	// 	log.Info("[DEBUG LOG BY RCOS] Creating DIR %s", surveyDirpath)
+	// 	if err := os.Mkdir(surveyDirpath, 0777); err != nil {
+	// 		log.Info("[DEBUG LOG BY RCOS] Folder creation failure: %s, err: %v", surveyDirpath, err)
+	// 	}
+	// }
 
-	// Dummy file 50 creation
-	for i := 0; i < 50; i++ {
-		filename := fmt.Sprintf("%s.txt", GenerateRandomString(10))
-		dest := fmt.Sprintf("%s/%s", surveyDirpath, filename)
-		err := CopyFile(first_data_path, dest)
-		if err != nil {
-			log.Info("[DEBUG LOG BY RCOS] Copy err, src : [%s], dect :[%s], ERR : [%v]", first_data_path, dest, err)
-		}
-	}
-	now = time.Now()
-	count, err = CountFiles(surveyDirpath)
-	if err != nil {
-		log.Info("[DEBUG LOG BY RCOS] countFiles ERR after copy file: %v , time : [%s]", err, now)
-	} else {
-		log.Info("[DEBUG LOG BY RCOS] %s has [%d] files after copy file , time : [%s]", surveyDirpath, count, now)
-	}
+	// //first_data_path := "/data/gogs/mnt/gogs-repositories/.survey/first_data.txt"
+	// first_data_path := fmt.Sprintf("%s/first_data.txt", surveyDirpath)
+	// log.Info("[DEBUG LOG BY RCOS] first_data_path : %s", first_data_path)
+	// _, err := os.Stat(first_data_path)
+	// if os.IsNotExist(err) {
+	// 	data := "hello world fjakfh;dha;ogid;oiaf:@io;kn fa:@dfoihaidf:nkad:@oihs;jgljshdifuh;asdf;ks;oidfliufbjlbhas;duifh;auiogh;fui bl;ajhf;ioahofih;iahfiudh;fkh;iuahiufgafudh;paiufsdhiun"
+	// 	err := ioutil.WriteFile(first_data_path, []byte(data), 0777)
+	// 	if err != nil {
+	// 		fmt.Println(err)
+	// 	}
+	// }
+	// now := time.Now()
+	// count, err := CountFiles(surveyDirpath)
+	// if err != nil {
+	// 	log.Info("[DEBUG LOG BY RCOS] countFiles ERR: %v before copy file, time : [%s]", err, now)
+	// } else {
+	// 	log.Info("[DEBUG LOG BY RCOS] %s has [%d] files before copy file, time : [%s]", surveyDirpath, count, now)
+	// }
+
+	// // Dummy file 50 creation
+	// for i := 0; i < 50; i++ {
+	// 	filename := fmt.Sprintf("%s.txt", GenerateRandomString(10))
+	// 	dest := fmt.Sprintf("%s/%s", surveyDirpath, filename)
+	// 	err := CopyFile(first_data_path, dest)
+	// 	if err != nil {
+	// 		log.Info("[DEBUG LOG BY RCOS] Copy err, src : [%s], dect :[%s], ERR : [%v]", first_data_path, dest, err)
+	// 	}
+	// }
+	// now = time.Now()
+	// count, err = CountFiles(surveyDirpath)
+	// if err != nil {
+	// 	log.Info("[DEBUG LOG BY RCOS] countFiles ERR after copy file: %v , time : [%s]", err, now)
+	// } else {
+	// 	log.Info("[DEBUG LOG BY RCOS] %s has [%d] files after copy file , time : [%s]", surveyDirpath, count, now)
+	// }
 
 	if f.IsNewBrnach() {
 		branchName = f.NewBranchName
