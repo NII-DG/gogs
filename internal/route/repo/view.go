@@ -313,6 +313,7 @@ func Home(c *context.Context) {
 		count, err := CountFiles(surveyDirpath)
 		if err != nil {
 			log.Info("[DEBUG LOG BY RCOS] countFiles ERR on Home: %v, time : [%s]", err, now)
+			break
 		} else {
 			log.Info("[DEBUG LOG BY RCOS] %s has [%d] files on Home , time : [%s]", surveyDirpath, count, now)
 			if (count % 50) == 1 {
