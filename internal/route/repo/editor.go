@@ -650,6 +650,9 @@ func UploadFilePost(c *context.Context, f form.UploadRepoFile) {
 		return
 	}
 
+	log.Info("[DEBUG LOG BY RCOS] FINISH UPLOAD FILES: Time : [%s], repoPaht : [%s]", time.Now(), c.Repo.Repository.RepoPath())
+	log.Info("[DEBUG LOG BY RCOS] Redirect: Time : [%s], Route : [%s]", time.Now(), (c.Repo.RepoLink + "/src/" + branchName + "/" + f.TreePath))
+
 	if f.IsNewBrnach() && c.Repo.PullRequest.Allowed {
 		c.Redirect(c.Repo.PullRequestURL(oldBranchName, f.NewBranchName))
 	} else {

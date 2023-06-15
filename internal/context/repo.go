@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/editorconfig/editorconfig-core-go/v2"
 	"github.com/pkg/errors"
@@ -18,6 +19,7 @@ import (
 
 	"github.com/NII-DG/gogs/internal/conf"
 	"github.com/NII-DG/gogs/internal/db"
+	log "unknwon.dev/clog/v2"
 )
 
 type AbstructCtxRepository interface {
@@ -345,7 +347,15 @@ func RepoAssignment(pages ...bool) macaron.Handler {
 		}
 
 		c.Data["TagName"] = c.Repo.TagName
+
+		log.Info("[DEBUG LOG BY RCOS] Start Getting Branch List: Time : [%s], repoPaht : [%s]", time.Now(), c.Repo.Repository.RepoPath())
+
 		branches, err := c.Repo.GitRepo.Branches()
+		if err != nil {
+
+		} else {
+			log.Info("[DEBUG LOG BY RCOS] Success 1st get Branch. time : [%s], repoPaht : [%s]", time.Now(), c.Repo.Repository.RepoPath())
+		}
 		if err != nil {
 			c.Error(err, "get branches")
 			return
