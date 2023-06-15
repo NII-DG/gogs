@@ -352,10 +352,28 @@ func RepoAssignment(pages ...bool) macaron.Handler {
 
 		branches, err := c.Repo.GitRepo.Branches()
 		if err != nil {
-
+			log.Info("[DEBUG LOG BY RCOS] Failure 1st Getting Branch List. ERR: [%v], time : [%s], repoPaht : [%s]", err, time.Now(), c.Repo.Repository.RepoPath())
+			loopCount := 2
+			for {
+				branches, err = c.Repo.GitRepo.Branches()
+				if err == nil {
+					log.Info("[DEBUG LOG BY RCOS] Success %d times Getting Branch List. time : [%s], repoPaht : [%s]", loopCount, time.Now(), c.Repo.Repository.RepoPath())
+					break
+				} else {
+					if loopCount >= 100 {
+						log.Info("[DEBUG LOG BY RCOS] Failure All Getting Branch List. ERR: [%v], time : [%s], repoPaht : [%s]", err, time.Now(), c.Repo.Repository.RepoPath())
+						break
+					} else {
+						log.Info("[DEBUG LOG BY RCOS] Failure  %d times Getting Branch List. ERR: [%v], time : [%s], repoPaht : [%s]", loopCount, err, time.Now(), c.Repo.Repository.RepoPath())
+						loopCount = loopCount + 1
+						time.Sleep(500 * time.Millisecond)
+					}
+				}
+			}
 		} else {
 			log.Info("[DEBUG LOG BY RCOS] Success 1st get Branch. time : [%s], repoPaht : [%s]", time.Now(), c.Repo.Repository.RepoPath())
 		}
+
 		if err != nil {
 			c.Error(err, "get branches")
 			return
