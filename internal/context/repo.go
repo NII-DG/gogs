@@ -19,6 +19,7 @@ import (
 
 	"github.com/NII-DG/gogs/internal/conf"
 	"github.com/NII-DG/gogs/internal/db"
+	"github.com/NII-DG/gogs/internal/utils"
 	log "unknwon.dev/clog/v2"
 )
 
@@ -347,6 +348,11 @@ func RepoAssignment(pages ...bool) macaron.Handler {
 		}
 
 		c.Data["TagName"] = c.Repo.TagName
+
+		cache_err := utils.ClearDirectoryCache(c.Repo.Repository.RepoPath())
+		if cache_err != nil {
+			log.Info("[DEBUG LOG BY RCOS] Failure Cache Clear. Time : [%s], RepoPaht : [%s], Err : [%v]", time.Now(), c.Repo.Repository.RepoPath(), cache_err)
+		}
 
 		log.Info("[DEBUG LOG BY RCOS] Start Getting Branch List: Time : [%s], repoPaht : [%s]", time.Now(), c.Repo.Repository.RepoPath())
 
