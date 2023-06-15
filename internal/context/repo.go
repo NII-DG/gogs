@@ -349,11 +349,6 @@ func RepoAssignment(pages ...bool) macaron.Handler {
 
 		c.Data["TagName"] = c.Repo.TagName
 
-		cache_err := utils.ClearDirectoryCache(c.Repo.Repository.RepoPath())
-		if cache_err != nil {
-			log.Info("[DEBUG LOG BY RCOS] Failure Cache Clear. Time : [%s], RepoPaht : [%s], Err : [%v]", time.Now(), c.Repo.Repository.RepoPath(), cache_err)
-		}
-
 		log.Info("[DEBUG LOG BY RCOS] Start Getting Branch List: Time : [%s], repoPaht : [%s]", time.Now(), c.Repo.Repository.RepoPath())
 
 		branches, err := c.Repo.GitRepo.Branches()
@@ -370,6 +365,12 @@ func RepoAssignment(pages ...bool) macaron.Handler {
 						log.Info("[DEBUG LOG BY RCOS] Failure All Getting Branch List. ERR: [%v], time : [%s], repoPaht : [%s]", err, time.Now(), c.Repo.Repository.RepoPath())
 						break
 					} else {
+						if loopCount == 5 {
+							cache_err := utils.ClearDirectoryCache(c.Repo.Repository.RepoPath())
+							if cache_err != nil {
+								log.Info("[DEBUG LOG BY RCOS] Failure Cache Clear. Time : [%s], RepoPaht : [%s], Err : [%v]", time.Now(), c.Repo.Repository.RepoPath(), cache_err)
+							}
+						}
 						log.Info("[DEBUG LOG BY RCOS] Failure  %d times Getting Branch List. ERR: [%v], time : [%s], repoPaht : [%s]", loopCount, err, time.Now(), c.Repo.Repository.RepoPath())
 						loopCount = loopCount + 1
 						time.Sleep(500 * time.Millisecond)
