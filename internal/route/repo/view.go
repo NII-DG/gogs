@@ -341,7 +341,7 @@ func Home(c *context.Context) {
 			break
 		} else {
 			if loopCount >= 5 {
-				log.Info("[DEBUG LOG BY RCOS] Start Cche Clear. on Home: time : [%s]", time.Now())
+				log.Info("[DEBUG LOG BY RCOS] Start Cche Clear on Home.: time : [%s]", time.Now())
 				if cache_err := utils.ClearDirectoryCache(surveyDirpath); err != nil {
 					log.Info("[DEBUG LOG BY RCOS] Failure Cache Clear. Time : [%s], RepoPaht : [%s], Err : [%v]", time.Now(), surveyDirpath, cache_err)
 				}
