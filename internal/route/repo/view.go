@@ -8,7 +8,6 @@ import (
 	"bytes"
 	"fmt"
 	gotemplate "html/template"
-	"os"
 	"path"
 	"strings"
 	"time"
@@ -311,14 +310,14 @@ func Home(c *context.Context) {
 	repoPath := c.Repo.Repository.RepoPath()
 	surveyDirpath := fmt.Sprintf("%s/.survey", repoPath)
 
-	log.Info("[DEBUG LOG BY RCOS] surveyDirpath : %s", surveyDirpath)
-	if f, err := os.Stat(surveyDirpath); os.IsNotExist(err) || !f.IsDir() {
-		log.Info("[DEBUG LOG BY RCOS] %s is not Exist", surveyDirpath)
-		log.Info("[DEBUG LOG BY RCOS] Creating DIR %s", surveyDirpath)
-		if err := os.Mkdir(surveyDirpath, 0777); err != nil {
-			log.Info("[DEBUG LOG BY RCOS] Folder creation failure: %s, err: %v", surveyDirpath, err)
-		}
-	}
+	// log.Info("[DEBUG LOG BY RCOS] surveyDirpath : %s", surveyDirpath)
+	// if f, err := os.Stat(surveyDirpath); os.IsNotExist(err) || !f.IsDir() {
+	// 	log.Info("[DEBUG LOG BY RCOS] %s is not Exist", surveyDirpath)
+	// 	log.Info("[DEBUG LOG BY RCOS] Creating DIR %s", surveyDirpath)
+	// 	if err := os.Mkdir(surveyDirpath, 0777); err != nil {
+	// 		log.Info("[DEBUG LOG BY RCOS] Folder creation failure: %s, err: %v", surveyDirpath, err)
+	// 	}
+	// }
 
 	loopCount := 0
 	for {
