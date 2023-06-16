@@ -354,22 +354,23 @@ func runWeb(c *cli.Context) error {
 		reqRepoAdmin := context.RequireRepoAdmin()
 		reqRepoWriter := context.RequireRepoWriter()
 
-		webhookRoutes := func() {
-			m.Group("", func() {
-				m.Get("", repo.Webhooks)
-				m.Post("/delete", repo.DeleteWebhook)
-				m.Get("/:type/new", repo.WebhooksNew)
-				m.Post("/gogs/new", bindIgnErr(form.NewWebhook{}), repo.WebhooksNewPost)
-				m.Post("/slack/new", bindIgnErr(form.NewSlackHook{}), repo.WebhooksSlackNewPost)
-				m.Post("/discord/new", bindIgnErr(form.NewDiscordHook{}), repo.WebhooksDiscordNewPost)
-				m.Post("/dingtalk/new", bindIgnErr(form.NewDingtalkHook{}), repo.WebhooksDingtalkNewPost)
-				m.Get("/:id", repo.WebhooksEdit)
-				m.Post("/gogs/:id", bindIgnErr(form.NewWebhook{}), repo.WebhooksEditPost)
-				m.Post("/slack/:id", bindIgnErr(form.NewSlackHook{}), repo.WebhooksSlackEditPost)
-				m.Post("/discord/:id", bindIgnErr(form.NewDiscordHook{}), repo.WebhooksDiscordEditPost)
-				m.Post("/dingtalk/:id", bindIgnErr(form.NewDingtalkHook{}), repo.WebhooksDingtalkEditPost)
-			}, repo.InjectOrgRepoContext())
-		}
+		// Disable route to hooks settings in settings by RCOS
+		// webhookRoutes := func() {
+		// 	m.Group("", func() {
+		// 		m.Get("", repo.Webhooks)
+		// 		m.Post("/delete", repo.DeleteWebhook)
+		// 		m.Get("/:type/new", repo.WebhooksNew)
+		// 		m.Post("/gogs/new", bindIgnErr(form.NewWebhook{}), repo.WebhooksNewPost)
+		// 		m.Post("/slack/new", bindIgnErr(form.NewSlackHook{}), repo.WebhooksSlackNewPost)
+		// 		m.Post("/discord/new", bindIgnErr(form.NewDiscordHook{}), repo.WebhooksDiscordNewPost)
+		// 		m.Post("/dingtalk/new", bindIgnErr(form.NewDingtalkHook{}), repo.WebhooksDingtalkNewPost)
+		// 		m.Get("/:id", repo.WebhooksEdit)
+		// 		m.Post("/gogs/:id", bindIgnErr(form.NewWebhook{}), repo.WebhooksEditPost)
+		// 		m.Post("/slack/:id", bindIgnErr(form.NewSlackHook{}), repo.WebhooksSlackEditPost)
+		// 		m.Post("/discord/:id", bindIgnErr(form.NewDiscordHook{}), repo.WebhooksDiscordEditPost)
+		// 		m.Post("/dingtalk/:id", bindIgnErr(form.NewDingtalkHook{}), repo.WebhooksDingtalkEditPost)
+		// 	}, repo.InjectOrgRepoContext())
+		// }
 
 		// ***** START: Organization *****
 		m.Group("/org", func() {
@@ -413,7 +414,8 @@ func runWeb(c *cli.Context) error {
 						Post(bindIgnErr(form.UpdateOrgSetting{}), org.SettingsPost)
 					m.Post("/avatar", binding.MultipartForm(form.Avatar{}), org.SettingsAvatar)
 					m.Post("/avatar/delete", org.SettingsDeleteAvatar)
-					m.Group("/hooks", webhookRoutes)
+					// Disable route to hooks settings in Org settings by RCOS
+					// m.Group("/hooks", webhookRoutes)
 					m.Route("/delete", "GET,POST", org.SettingsDelete)
 				})
 
@@ -451,7 +453,7 @@ func runWeb(c *cli.Context) error {
 					m.Post("/delete", repo.DeleteCollaboration)
 				})
 				m.Group("/branches", func() {
-					//Disable root to branch settings in repository settings by RCOS
+					//Disable route to branch settings in repository settings by RCOS
 					//m.Get("", repo.SettingsBranches)
 					m.Post("/default_branch", repo.UpdateDefaultBranch)
 					m.Combo("/*").Get(repo.SettingsProtectedBranch).
@@ -467,20 +469,21 @@ func runWeb(c *cli.Context) error {
 					m.Post("", bindIgnErr(form.ResearchProtect{}), repo.SettingsProtectePost)
 				})
 
-				m.Group("/hooks", func() {
-					webhookRoutes()
+				// Disable route to hooks settings in repository settings by RCOS
+				// m.Group("/hooks", func() {
+				// 	webhookRoutes()
 
-					m.Group("/:id", func() {
-						m.Post("/test", repo.TestWebhook)
-						m.Post("/redelivery", repo.RedeliveryWebhook)
-					})
+				// 	m.Group("/:id", func() {
+				// 		m.Post("/test", repo.TestWebhook)
+				// 		m.Post("/redelivery", repo.RedeliveryWebhook)
+				// 	})
 
-					m.Group("/git", func() {
-						m.Get("", repo.SettingsGitHooks)
-						m.Combo("/:name").Get(repo.SettingsGitHooksEdit).
-							Post(repo.SettingsGitHooksEditPost)
-					}, context.GitHookService())
-				})
+				// 	m.Group("/git", func() {
+				// 		m.Get("", repo.SettingsGitHooks)
+				// 		m.Combo("/:name").Get(repo.SettingsGitHooksEdit).
+				// 			Post(repo.SettingsGitHooksEditPost)
+				// 	}, context.GitHookService())
+				// })
 
 				m.Group("/keys", func() {
 					m.Combo("").Get(repo.SettingsDeployKeys).

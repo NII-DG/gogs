@@ -22,7 +22,7 @@
 							<button class="ui blue button">{{.i18n.Tr "auth.send_reset_mail"}}</button>
 						</div>
 					{{else if .IsResetDisable}}
-						<p class="center">{{.i18n.Tr "auth.contact_operations_1"}} <a href="https://support.rdm.nii.ac.jp/usermanual/61/" target="_blank">{{.i18n.Tr "auth.qa_link"}}</a>{{.i18n.Tr "auth.contact_operations_2"}}</p>
+						<p class="center">{{.i18n.Tr "auth.contact_operations_1"}} <a href="https://support.rdm.nii.ac.jp/usermanual/61/" target="_blank" rel="noopener">{{.i18n.Tr "auth.qa_link"}}</a>{{.i18n.Tr "auth.contact_operations_2"}}</p>
 					{{else if .ResendLimited}}
 						<p class="center">{{.i18n.Tr "auth.resent_limit_prompt"}}</p>
 					{{end}}

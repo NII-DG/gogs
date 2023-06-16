@@ -12,7 +12,7 @@
 										<a class="ui basic button" href="{{$.RepoLink}}/src/{{EscapePound $.BranchName}}/maDMP.ipynb" data-position="bottom center"><i class="octicon octicon-file"></i>View maDMP</a>
 										<div class="ui labeled button" data-tooltip="Transition to the maDMP execution environment. Please click this after 'Generate maDMP'" data-position="bottom center">
 										<button class="ui basic button" data-position="bottom center">
-											<a href="https://binder.cs.rcos.nii.ac.jp/v2/git/{{.ginURL}}%2F{{.Owner.Name}}%2F{{.Repository.Name}}.git/master?filepath=maDMP.ipynb" target="_blank">
+											<a href="https://binder.cs.rcos.nii.ac.jp/v2/git/{{.ginURL}}%2F{{.Owner.Name}}%2F{{.Repository.Name}}.git/master?filepath=maDMP.ipynb" target="_blank" rel="noopener">
 												<img src="https://binder.cs.rcos.nii.ac.jp/badge_logo.svg">
 											</a>
 										</button>
@@ -39,12 +39,12 @@
 						{{/* {{end}}  End registration button */}}
 					{{end}} {{/* Admin section */}}
 					{{if $.DOI}} {{/* Registered repo: Show DOI badge */}}
-						<div class="ui labeled button" tabindex="0">
+						<!-- <div class="ui labeled button" tabindex="0">
 							<a href="https://doi.org/{{$.DOI}}">
 								<div class="gin doi">DOI</div>
 								<div class="gin doinr">{{$.DOI}}</div>
 							</a>
-						</div>
+						</div> -->
 					{{end}} {{/* End DOI badge */}}
 					{{/* Close original header divs and create second row below for original buttons */}}
 					</div>

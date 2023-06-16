@@ -88,14 +88,16 @@
 						</a>
 					</a>
 				</div>
-				{{if ne .TabName "activity"}}
-					{{template "explore/repo_list" .}}
-					{{template "explore/page" .}}
-				{{else}}
-					<br>
-					<div class="feeds">
-						{{template "user/dashboard/feeds" .}}
-					</div>
+				{{if and .IsLogged (eq .LoggedUserName .Owner.Name)}}
+					{{if ne .TabName "activity"}}
+						{{template "explore/repo_list" .}}
+						{{template "explore/page" .}}
+					{{else}}
+						<br>
+						<div class="feeds">
+							{{template "user/dashboard/feeds" .}}
+						</div>
+					{{end}}
 				{{end}}
 			</div>
 		</div>

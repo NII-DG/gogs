@@ -37,12 +37,6 @@
 											<label>{{.i18n.Tr "repo.visiblity_helper" | Safe}} {{if .Repository.NumForks}}<span class="text red">{{.i18n.Tr "repo.visiblity_fork_helper"}}</span>{{end}}</label>
 										</div>
 									</div>
-									<div class="field">
-										<div class="ui checkbox">
-											<input name="unlisted" type="checkbox" {{if .Repository.IsUnlisted}}checked{{end}}>
-											<label>{{.i18n.Tr "repo.unlisted_helper" | Safe}} {{if .Repository.NumForks}}<span class="text red">{{.i18n.Tr "repo.visiblity_fork_helper"}}</span>{{end}}</label>
-										</div>
-									</div>
 								</div>
 							</div>
 						{{end}}
@@ -113,6 +107,7 @@
 					</div>
 				{{end}}
 
+			<!--
 				<div class="ui top attached header">
 					{{.i18n.Tr "repo.settings.advanced_settings"}}
 				</div>
@@ -120,8 +115,10 @@
 					<form class="ui form" method="POST">
 						{{.CSRFTokenHTML}}
 						<input type="hidden" name="action" value="advanced">
+			-->
 
 						<!-- Wiki -->
+					<!--
 						<div class="inline field">
 							<label>{{.i18n.Tr "repo.wiki"}}</label>
 							<div class="ui checkbox">
@@ -155,8 +152,10 @@
 								<p class="help">{{.i18n.Tr "repo.settings.external_wiki_url_desc"}}</p>
 							</div>
 						</div>
+					-->
 
 						<!-- Issues -->
+					<!--
 						<div class="inline field">
 							<label>{{.i18n.Tr "repo.issues"}}</label>
 							<div class="ui checkbox">
@@ -212,6 +211,7 @@
 								</div>
 							</div>
 						</div>
+					-->
 						<!-- Hiding the pull request settings field on the repository settings screen by disabling the repository branching feature. by RCOS -->
 						<!-- Pull Requests -->
 						<!-- {{if .Repository.CanEnablePulls}}
@@ -238,11 +238,13 @@
 							</div>
 						{{end}} -->
 
+			<!--
 						<div class="field">
 							<button class="ui green button">{{$.i18n.Tr "repo.settings.update_settings"}}</button>
 						</div>
 					</form>
 				</div>
+			-->
 
 				{{if .IsRepositoryOwner}}
 				<div class="ui top attached warning header">

@@ -19,14 +19,14 @@ import (
 	"time"
 	"unicode/utf8"
 
+	"github.com/gogs/git-module"
+	api "github.com/gogs/go-gogs-client"
 	"github.com/nfnt/resize"
 	"github.com/unknwon/com"
 	"golang.org/x/crypto/pbkdf2"
 	log "unknwon.dev/clog/v2"
+	"xorm.io/builder"
 	"xorm.io/xorm"
-
-	"github.com/gogs/git-module"
-	api "github.com/gogs/go-gogs-client"
 
 	"github.com/NII-DG/gogs/internal/avatar"
 	"github.com/NII-DG/gogs/internal/conf"
@@ -67,7 +67,7 @@ type User struct {
 	Rands       string `xorm:"VARCHAR(10)" gorm:"TYPE:VARCHAR(10)"`
 	Salt        string `xorm:"VARCHAR(10)" gorm:"TYPE:VARCHAR(10)"`
 
-	AffiliationId        int64
+	AffiliationId int64
 
 	Telephone            string
 	FirstName            string `xorm:"NOT NULL" gorm:"NOT NULL"`
@@ -1081,6 +1081,7 @@ type SearchUserOptions struct {
 	OrderBy  string
 	Page     int
 	PageSize int // Can be smaller than or equal to setting.UI.ExplorePagingNum
+	UserID   int64
 }
 
 // SearchUserByName takes keyword and part of user name to search,
@@ -1104,6 +1105,93 @@ func SearchUserByName(opts *SearchUserOptions) (users []*User, _ int64, _ error)
 	sess := x.Where("LOWER(lower_name) LIKE ?", searchQuery).
 		Or("LOWER(full_name) LIKE ?", searchQuery).
 		And("type = ?", opts.Type)
+
+	countSess := *sess
+	count, err := countSess.Count(new(User))
+	if err != nil {
+		return nil, 0, fmt.Errorf("Count: %v", err)
+	}
+
+	if len(opts.OrderBy) > 0 {
+		sess.OrderBy(opts.OrderBy)
+	}
+	return users, count, sess.Limit(opts.PageSize, (opts.Page-1)*opts.PageSize).Find(&users)
+}
+
+func ModifiedSearchOrgByName(opts *SearchUserOptions) (users []*User, _ int64, _ error) {
+
+	opts.Keyword = strings.ToLower(opts.Keyword)
+
+	if opts.PageSize <= 0 || opts.PageSize > conf.UI.ExplorePagingNum {
+		opts.PageSize = conf.UI.ExplorePagingNum
+	}
+	if opts.Page <= 0 {
+		opts.Page = 1
+	}
+
+	searchQuery := "%" + opts.Keyword + "%"
+	users = make([]*User, 0, opts.PageSize)
+
+	// 自分が所属する組織すべて
+	q := builder.Select("org_id").From("org_user").Where(builder.Eq{"uid": opts.UserID})
+
+	sess := x.Where(builder.In("user.id", q))
+
+	q4 := builder.Like{"LOWER(lower_name)", searchQuery}
+	q5 := builder.Like{"LOWER(full_name)", searchQuery}
+	q6 := builder.Or(q4, q5)
+
+	if len(opts.Keyword) > 0 {
+		sess = sess.And(q6)
+	}
+
+	countSess := *sess
+	count, err := countSess.Count(new(User))
+	if err != nil {
+		return nil, 0, fmt.Errorf("Count: %v", err)
+	}
+
+	if len(opts.OrderBy) > 0 {
+		sess.OrderBy(opts.OrderBy)
+	}
+	return users, count, sess.Limit(opts.PageSize, (opts.Page-1)*opts.PageSize).Find(&users)
+}
+
+func ModifiedSearchUserByName(opts *SearchUserOptions) (users []*User, _ int64, _ error) {
+
+	opts.Keyword = strings.ToLower(opts.Keyword)
+
+	if opts.PageSize <= 0 || opts.PageSize > conf.UI.ExplorePagingNum {
+		opts.PageSize = conf.UI.ExplorePagingNum
+	}
+	if opts.Page <= 0 {
+		opts.Page = 1
+	}
+
+	searchQuery := "%" + opts.Keyword + "%"
+	users = make([]*User, 0, opts.PageSize)
+
+	// 自分のリポジトリの共同編集者
+	q11 := builder.Select("id").From("repository").Where(builder.Eq{"owner_id": opts.UserID})
+	q1 := builder.Select("user_id").From("collaboration").Where(builder.In("repo_id", q11))
+
+	// 自分が共同編集するリポジトリの所有者
+	q22 := builder.Select("repo_id").From("collaboration").Where(builder.Eq{"user_id": opts.UserID})
+	q2 := builder.Select("owner_id").From("repository").Where(builder.In("id", q22))
+
+	// 自分が所属する組織に所属するユーザー
+	q333 := builder.Select("org_id").From("org_user").Where(builder.Eq{"uid": opts.UserID})
+	q3 := builder.Select("uid").From("org_user").Where(builder.In("org_id", q333))
+
+	sess := x.Where(builder.In("user.id", q3)).Or(builder.In("user.id", q2)).Or(builder.In("user.id", q1)).Or(builder.Eq{"user.id": opts.UserID})
+
+	q4 := builder.Like{"LOWER(lower_name)", searchQuery}
+	q5 := builder.Like{"LOWER(full_name)", searchQuery}
+	q6 := builder.Or(q4, q5)
+
+	if len(opts.Keyword) > 0 {
+		sess = sess.And(q6)
+	}
 
 	countSess := *sess
 	count, err := countSess.Count(new(User))

@@ -13,14 +13,15 @@
 			{{.i18n.Tr "repo.settings.branches"}}
 		</a>
 		{{end}} -->
-		<a class="{{if .PageIsSettingsHooks}}active{{end}} item" href="{{.RepoLink}}/settings/hooks">
+		<!-- Hiding "Hooks" from the side menu of the repository settings screen. by RCOS -->
+		<!-- <a class="{{if .PageIsSettingsHooks}}active{{end}} item" href="{{.RepoLink}}/settings/hooks">
 			{{.i18n.Tr "repo.settings.hooks"}}
 		</a>
 		{{if .LoggedUser.CanEditGitHook}}
 			<a class="{{if .PageIsSettingsGitHooks}}active{{end}} item" href="{{.RepoLink}}/settings/hooks/git">
 				{{.i18n.Tr "repo.settings.githooks"}}
 			</a>
-		{{end}}
+		{{end}} -->
 		<a class="{{if .PageIsSettingsKeys}}active{{end}} item" href="{{.RepoLink}}/settings/keys">
 			{{.i18n.Tr "repo.settings.deploy_keys"}}
 		</a>

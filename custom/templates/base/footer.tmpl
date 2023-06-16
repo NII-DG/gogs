@@ -8,18 +8,6 @@
             <div class="ui container">
                 <div class="ui center links item brand footertext">
                     {{if .PageIsAdmin}}<span>{{.i18n.Tr "version"}}: {{AppVer}}</span>{{end}}
-                    <div class="ui language bottom floating slide up dropdown link item" data-tooltip="Non-English translations may be incomplete">
-                        <i class="world icon"></i>
-                        <div class="text">{{.LangName}}</div>
-                        <div class="menu">
-                            {{range .AllLangs}}
-                                <a class="item {{if eq $.Lang .Lang}}active selected{{end}}" href="{{if eq $.Lang .Lang}}#{{else}}{{$.Link}}?lang={{.Lang}}{{end}}">{{.Name}}</a>
-                            {{end}}
-                        </div>
-                    </div>
-                </div>
-                <div class="ui center links item brand footertext">
-                    {{template "base/footer_gin_brand" $}}
                 </div>
             </div>
         </footer>
@@ -44,6 +32,7 @@
         <script src="{{AppSubURL}}/plugins/dropzone-5.5.0/dropzone.min.js"></script>
         <script>Dropzone.autoDiscover = false</script>
     {{end}}
+
     <script src="{{AppSubURL}}/plugins/autosize-4.0.2/autosize.min.js"></script>
     <script src="{{AppSubURL}}/js/libs/emojify-1.1.0.min.js"></script>
     <script src="{{AppSubURL}}/js/libs/clipboard-2.0.4.min.js"></script>
