@@ -128,11 +128,11 @@ func CreatePost(c *context.Context, f form.CreateRepo) {
 		}
 
 	}
-	if projectname_has_char == false{
+	if projectname_has_char == false {
 		c.RenderWithErr(c.Tr("form.projectname_has_no_char"), CREATE, &f)
 		return
 	}
-	
+
 	repo, err := db.CreateRepository(c.User, ctxUser, db.CreateRepoOptions{
 		Name:               f.RepoName,
 		Description:        strings.ReplaceAll(f.Description, "\r\n", "\n"),
@@ -147,6 +147,7 @@ func CreatePost(c *context.Context, f form.CreateRepo) {
 	})
 	if err == nil {
 		log.Trace("Repository created [%d]: %s/%s", repo.ID, ctxUser.Name, repo.Name)
+		log.Info("[DEBUG LOG BY RCOS]  Repository created [%d]: %s/%s", repo.ID, ctxUser.Name, repo.Name)
 		c.Redirect(conf.Server.Subpath + "/" + ctxUser.Name + "/" + repo.Name)
 		return
 	}
