@@ -366,6 +366,7 @@ func RepoAssignment(pages ...bool) macaron.Handler {
 						break
 					} else {
 						if loopCount == 5 {
+							log.Info("[DEBUG LOG BY RCOS] Start Cache Clear on RepoAssignment. Time : [%s], RepoPaht : [%s]", time.Now(), c.Repo.Repository.RepoPath())
 							cache_err := utils.ClearDirectoryCache(c.Repo.Repository.RepoPath())
 							if cache_err != nil {
 								log.Info("[DEBUG LOG BY RCOS] Failure Cache Clear. Time : [%s], RepoPaht : [%s], Err : [%v]", time.Now(), c.Repo.Repository.RepoPath(), cache_err)

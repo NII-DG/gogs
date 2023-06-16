@@ -8,6 +8,7 @@ import (
 	"bytes"
 	"fmt"
 	gotemplate "html/template"
+	"os"
 	"path"
 	"strings"
 	"time"
@@ -26,6 +27,7 @@ import (
 	"github.com/NII-DG/gogs/internal/template"
 	"github.com/NII-DG/gogs/internal/template/highlight"
 	"github.com/NII-DG/gogs/internal/tool"
+	"github.com/NII-DG/gogs/internal/utils"
 )
 
 const (
@@ -306,40 +308,47 @@ func setEditorconfigIfExists(c *context.Context) {
 }
 
 func Home(c *context.Context) {
-	// repoPath := c.Repo.Repository.RepoPath()
-	// surveyDirpath := fmt.Sprintf("%s/.survey", repoPath)
+	repoPath := c.Repo.Repository.RepoPath()
+	surveyDirpath := fmt.Sprintf("%s/.survey", repoPath)
 
-	// log.Info("[DEBUG LOG BY RCOS] surveyDirpath : %s", surveyDirpath)
-	// if f, err := os.Stat(surveyDirpath); os.IsNotExist(err) || !f.IsDir() {
-	// 	log.Info("[DEBUG LOG BY RCOS] %s is not Exist", surveyDirpath)
-	// 	log.Info("[DEBUG LOG BY RCOS] Creating DIR %s", surveyDirpath)
-	// 	if err := os.Mkdir(surveyDirpath, 0777); err != nil {
-	// 		log.Info("[DEBUG LOG BY RCOS] Folder creation failure: %s, err: %v", surveyDirpath, err)
-	// 	}
-	// }
+	log.Info("[DEBUG LOG BY RCOS] surveyDirpath : %s", surveyDirpath)
+	if f, err := os.Stat(surveyDirpath); os.IsNotExist(err) || !f.IsDir() {
+		log.Info("[DEBUG LOG BY RCOS] %s is not Exist", surveyDirpath)
+		log.Info("[DEBUG LOG BY RCOS] Creating DIR %s", surveyDirpath)
+		if err := os.Mkdir(surveyDirpath, 0777); err != nil {
+			log.Info("[DEBUG LOG BY RCOS] Folder creation failure: %s, err: %v", surveyDirpath, err)
+		}
+	}
 
-	// loopCount := 0
-	// for {
+	loopCount := 0
+	for {
 
-	// 	now := time.Now()
-	// 	count, err := CountFiles(surveyDirpath)
-	// 	if err != nil {
-	// 		log.Info("[DEBUG LOG BY RCOS] countFiles ERR on Home: %v, time : [%s]", err, now)
-	// 	} else {
-	// 		log.Info("[DEBUG LOG BY RCOS] %s has [%d] files on Home , time : [%s]", surveyDirpath, count, now)
-	// 		if (count % 50) == 1 {
-	// 			log.Info("[DEBUG LOG BY RCOS] The expected number of files was obtained.Loop break. surveyDirpath :[%s], count : [%d], time : [%s]", surveyDirpath, count, now)
-	// 			break
-	// 		}
-	// 	}
-	// 	now = time.Now()
-	// 	loopCount = loopCount + 1
-	// 	if loopCount >= 60 {
-	// 		log.Info("[DEBUG LOG BY RCOS] Loop break on Home: %v, time : [%s]", err, now)
-	// 		break
-	// 	}
-	// 	time.Sleep(500 * time.Millisecond)
-	// }
+		now := time.Now()
+		count, err := CountFiles(surveyDirpath)
+		if err != nil {
+			log.Info("[DEBUG LOG BY RCOS] countFiles ERR on Home: %v, time : [%s]", err, now)
+		} else {
+			log.Info("[DEBUG LOG BY RCOS] %s has [%d] files on Home , time : [%s]", surveyDirpath, count, now)
+			if (count % 50) == 1 {
+				log.Info("[DEBUG LOG BY RCOS] The expected number of files was obtained.Loop break. surveyDirpath :[%s], count : [%d], time : [%s]", surveyDirpath, count, now)
+				break
+			}
+		}
+		now = time.Now()
+		loopCount = loopCount + 1
+		if loopCount >= 60 {
+			log.Info("[DEBUG LOG BY RCOS] Loop break on Home: %v, time : [%s]", err, now)
+			break
+		} else {
+			if loopCount >= 5 {
+				log.Info("[DEBUG LOG BY RCOS] Start Cche Clear. on Home: time : [%s]", time.Now())
+				if cache_err := utils.ClearDirectoryCache(surveyDirpath); err != nil {
+					log.Info("[DEBUG LOG BY RCOS] Failure Cache Clear. Time : [%s], RepoPaht : [%s], Err : [%v]", time.Now(), surveyDirpath, cache_err)
+				}
+			}
+		}
+		time.Sleep(500 * time.Millisecond)
+	}
 
 	c.Data["PageIsViewFiles"] = true
 
