@@ -304,6 +304,12 @@ func RepoAssignment(pages ...bool) macaron.Handler {
 			c.Data["Mirror"] = c.Repo.Mirror
 		}
 
+		log.Info("[DEBUG LOG BY RCOS] Start Cache Clear for New Create Repo. Time : [%s], RepoPaht : [%s]", time.Now(), c.Repo.Repository.RepoPath())
+		cache_err := utils.ClearDirectoryCache(c.Repo.Repository.RepoPath())
+		if cache_err != nil {
+			log.Info("[DEBUG LOG BY RCOS] Failure Cache Clear. Time : [%s], RepoPaht : [%s], Err : [%v]", time.Now(), c.Repo.Repository.RepoPath(), cache_err)
+		}
+
 		gitRepo, err := git.Open(db.RepoPath(ownerName, repoName))
 		if err != nil {
 			c.Error(err, "open repository")
