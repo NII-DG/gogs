@@ -335,7 +335,8 @@ func SignUpPost(c *context.Context, cpt *captcha.Captcha, f form.Register) {
 		c.RenderWithErr(c.Tr("form.captcha_incorrect"), SIGNUP, &f)
 		return
 	}
-
+	log.Info("[RCOS DEBUG] f.Password : %s", f.Password)
+	log.Info("[RCOS DEBUG] f.Retype : %s", f.Retype)
 	if f.Password != f.Retype {
 		c.FormErr("Password")
 		c.RenderWithErr(c.Tr("form.password_not_match"), SIGNUP, &f)
