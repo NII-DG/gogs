@@ -662,6 +662,7 @@ func UpdateLocalCopyBranch(repoPath, localPath, branch string, isWiki bool) (err
 
 // UpdateLocalCopyBranch makes sure local copy of repository in given branch is up-to-date.
 func (repo *Repository) UpdateLocalCopyBranch(branch string) error {
+	log.Trace("[DEBUG LOG] repo.LocalCopyPath() : %s", repo.LocalCopyPath())
 	return UpdateLocalCopyBranch(repo.RepoPath(), repo.LocalCopyPath(), branch, false)
 }
 
@@ -1490,12 +1491,12 @@ func updateRepository(e Engine, repo *Repository, visibilityChanged bool) (err e
 	repo.LowerName = strings.ToLower(repo.Name)
 
 	/*
-	if len(repo.Description) > 512 {
-		repo.Description = repo.Description[:512]
-	}
-	if len(repo.Website) > 255 {
-		repo.Website = repo.Website[:255]
-	}
+		if len(repo.Description) > 512 {
+			repo.Description = repo.Description[:512]
+		}
+		if len(repo.Website) > 255 {
+			repo.Website = repo.Website[:255]
+		}
 	*/
 
 	if _, err = e.ID(repo.ID).AllCols().Update(repo); err != nil {
