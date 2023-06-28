@@ -746,17 +746,28 @@ func createDmp(c context.AbstructContext, f AbstructRepoUtil, d AbstructDmpUtil)
 		return
 	}
 
-	map_samp := map[string]interface{}{}
+	// map_samp := map[string]interface{}{}
 
-	for k, _ := range jsonMap {
-		log.Trace("[DUBUG LOG RCOS] Key : %s", k)
-		map_samp[k] = nil
+	// for k, _ := range jsonMap {
+	// 	log.Trace("[DUBUG LOG RCOS] Key : %s", k)
+	// 	map_samp[k] = nil
 
-	}
+	// }
 
+	// キーの順序を定義したOrderedMapを作成
 	orderedMap := &OrderedMap{
-		Keys: getSortedKeys(map_samp),
+		Keys: getSortedKeys(map[string]interface{}{
+			"name":    nil,
+			"age":     nil,
+			"address": nil,
+			"pets":    nil,
+			"no":      nil,
+		}),
 	}
+
+	// orderedMap := &OrderedMap{
+	// 	Keys: getSortedKeys(map_samp),
+	// }
 
 	// JSON文字列をパースしてOrderedMapに変換
 	err = json.Unmarshal([]byte(combinedDmp), orderedMap)
