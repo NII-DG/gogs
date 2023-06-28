@@ -696,7 +696,8 @@ func createDmp(c context.AbstructContext, f AbstructRepoUtil, d AbstructDmpUtil)
 
 	indentedJSON, err := json.MarshalIndent(data, "", "    ")
 	if err != nil {
-		fmt.Println("JSON変換エラー:", err)
+		log.Error(err.Error())
+		c.Error(fmt.Errorf(c.Tr("rcos.server.error")), "")
 		return
 	}
 	log.Trace("[DUBUG LOG RCOS] AFTER")
@@ -708,7 +709,7 @@ func createDmp(c context.AbstructContext, f AbstructRepoUtil, d AbstructDmpUtil)
 	c.CallData()["IsNewFile"] = true
 	c.CallData()["IsRcosButton"] = true
 
-	c.CallData()["FileContent"] = combinedDmp
+	c.CallData()["FileContent"] = string(indentedJSON)
 	c.CallData()["ParentTreePath"] = path.Dir(c.GetRepo().GetTreePath())
 	c.CallData()["TreeNames"] = treeNames
 	c.CallData()["TreePaths"] = treePaths
