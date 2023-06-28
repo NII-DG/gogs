@@ -683,8 +683,24 @@ func createDmp(c context.AbstructContext, f AbstructRepoUtil, d AbstructDmpUtil)
 	}
 
 	combinedDmp := decodedBasicSchema + decodedOrgSchema
-	log.Trace("[DUBUG LOG RCOS]")
-	log.Trace("%s", combinedDmp)
+	log.Trace("[DUBUG LOG RCOS] BEFORE")
+	log.Trace("\n%s", combinedDmp)
+
+	var data interface{}
+	err = json.Unmarshal([]byte(combinedDmp), &data)
+	if err != nil {
+		log.Error(err.Error())
+		c.Error(fmt.Errorf(c.Tr("rcos.server.error")), "")
+		return
+	}
+
+	indentedJSON, err := json.MarshalIndent(data, "", "    ")
+	if err != nil {
+		fmt.Println("JSON変換エラー:", err)
+		return
+	}
+	log.Trace("[DUBUG LOG RCOS] AFTER")
+	log.Trace("\n%s", string(indentedJSON))
 
 	c.CallData()["IsYAML"] = false
 	c.CallData()["IsJSON"] = true
