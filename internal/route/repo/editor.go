@@ -683,6 +683,8 @@ func createDmp(c context.AbstructContext, f AbstructRepoUtil, d AbstructDmpUtil)
 	}
 
 	combinedDmp := decodedBasicSchema + decodedOrgSchema
+	log.Trace("[DUBUG LOG RCOS]")
+	log.Trace("%s", combinedDmp)
 
 	c.CallData()["IsYAML"] = false
 	c.CallData()["IsJSON"] = true
