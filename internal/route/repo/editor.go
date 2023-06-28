@@ -727,6 +727,7 @@ func createDmp(c context.AbstructContext, f AbstructRepoUtil, d AbstructDmpUtil)
 	}
 
 	combinedDmp := decodedBasicSchema + decodedOrgSchema
+	combinedDmp = `{"name":"John","age":30,"address":{"city":"New York","country":"USA"},"pets":["dog","cat"],"no":42}`
 	log.Trace("[DUBUG LOG RCOS] BEFORE")
 	log.Trace("\n%s", combinedDmp)
 
