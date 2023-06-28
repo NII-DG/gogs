@@ -760,14 +760,16 @@ func createDmp(c context.AbstructContext, f AbstructRepoUtil, d AbstructDmpUtil)
 	// JSON文字列をパースしてOrderedMapに変換
 	err = json.Unmarshal([]byte(combinedDmp), orderedMap)
 	if err != nil {
-		fmt.Println("JSONパースエラー:", err)
+		log.Trace("[DUBUG LOG RCOS] JSONパースエラー : %v", err)
+		c.Error(fmt.Errorf(c.Tr("rcos.server.error")), "")
 		return
 	}
 
 	// インデントを適用してJSON文字列に変換
 	indentedJSON, err := json.MarshalIndent(orderedMap.Values, "", "    ")
 	if err != nil {
-		fmt.Println("JSON変換エラー:", err)
+		log.Trace("[DUBUG LOG RCOS] JSON変換エラー: : %v", err)
+		c.Error(fmt.Errorf(c.Tr("rcos.server.error")), "")
 		return
 	}
 
