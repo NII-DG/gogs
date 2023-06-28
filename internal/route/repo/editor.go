@@ -727,24 +727,21 @@ func createDmp(c context.AbstructContext, f AbstructRepoUtil, d AbstructDmpUtil)
 	}
 
 	combinedDmp := decodedBasicSchema + decodedOrgSchema
-	combinedDmp = `{"name":"John","age":30,"address":{"city":"New York","country":"USA"},"pets":["dog","cat"],"no":42}`
-	log.Trace("[DUBUG LOG RCOS] BEFORE")
-	log.Trace("\n%s", combinedDmp)
 
-	var data interface{}
-	err = json.Unmarshal([]byte(combinedDmp), &data)
-	if err != nil {
-		log.Trace(err.Error())
-		c.Error(fmt.Errorf(c.Tr("rcos.server.error")), "")
-	}
+	// var data interface{}
+	// err = json.Unmarshal([]byte(combinedDmp), &data)
+	// if err != nil {
+	// 	log.Trace(err.Error())
+	// 	c.Error(fmt.Errorf(c.Tr("rcos.server.error")), "")
+	// }
 
-	// データをマップに変換
-	jsonMap, ok := data.(map[string]interface{})
-	if !ok {
-		log.Trace("データがマップではありません")
-		c.Error(fmt.Errorf(c.Tr("rcos.server.error")), "")
-		return
-	}
+	// // データをマップに変換
+	// jsonMap, ok := data.(map[string]interface{})
+	// if !ok {
+	// 	log.Trace("データがマップではありません")
+	// 	c.Error(fmt.Errorf(c.Tr("rcos.server.error")), "")
+	// 	return
+	// }
 
 	// map_samp := map[string]interface{}{}
 
@@ -753,6 +750,10 @@ func createDmp(c context.AbstructContext, f AbstructRepoUtil, d AbstructDmpUtil)
 	// 	map_samp[k] = nil
 
 	// }
+
+	jsonStr := `{"name":"John","age":30,"address":{"city":"New York","country":"USA"},"pets":["dog","cat"],"no":42}`
+	log.Trace("[DUBUG LOG RCOS] BEFORE")
+	log.Trace("\n%s", jsonStr)
 
 	// キーの順序を定義したOrderedMapを作成
 	orderedMap := &OrderedMap{
@@ -764,24 +765,17 @@ func createDmp(c context.AbstructContext, f AbstructRepoUtil, d AbstructDmpUtil)
 			"no":      nil,
 		}),
 	}
-
-	// orderedMap := &OrderedMap{
-	// 	Keys: getSortedKeys(map_samp),
-	// }
-
 	// JSON文字列をパースしてOrderedMapに変換
-	err = json.Unmarshal([]byte(combinedDmp), orderedMap)
+	err = json.Unmarshal([]byte(jsonStr), orderedMap)
 	if err != nil {
-		log.Trace("[DUBUG LOG RCOS] JSONパースエラー : %v", err)
-		c.Error(fmt.Errorf(c.Tr("rcos.server.error")), "")
+		fmt.Println("JSONパースエラー:", err)
 		return
 	}
 
 	// インデントを適用してJSON文字列に変換
 	indentedJSON, err := json.MarshalIndent(orderedMap.Values, "", "    ")
 	if err != nil {
-		log.Trace("[DUBUG LOG RCOS] JSON変換エラー: : %v", err)
-		c.Error(fmt.Errorf(c.Tr("rcos.server.error")), "")
+		fmt.Println("JSON変換エラー:", err)
 		return
 	}
 
@@ -794,7 +788,7 @@ func createDmp(c context.AbstructContext, f AbstructRepoUtil, d AbstructDmpUtil)
 	c.CallData()["IsNewFile"] = true
 	c.CallData()["IsRcosButton"] = true
 
-	c.CallData()["FileContent"] = string(indentedJSON)
+	c.CallData()["FileContent"] = combinedDmp
 	c.CallData()["ParentTreePath"] = path.Dir(c.GetRepo().GetTreePath())
 	c.CallData()["TreeNames"] = treeNames
 	c.CallData()["TreePaths"] = treePaths
