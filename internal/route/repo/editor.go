@@ -617,7 +617,7 @@ func CreateDmp(c context.AbstructContext) {
 
 type OrderedMap struct {
 	Keys   []string
-	Values map[string]interface{}
+	Values []interface{}
 }
 
 func (m *OrderedMap) UnmarshalJSON(data []byte) error {
@@ -627,21 +627,21 @@ func (m *OrderedMap) UnmarshalJSON(data []byte) error {
 		return err
 	}
 
-	m.Values = make(map[string]interface{})
-	for _, key := range m.Keys {
+	m.Values = make([]interface{}, len(m.Keys))
+	for i, key := range m.Keys {
 		if value, ok := rawMap[key]; ok {
 			if nestedMap, ok := value.(map[string]interface{}); ok {
 				nestedOrderedMap := &OrderedMap{
 					Keys:   getSortedKeys(nestedMap),
-					Values: make(map[string]interface{}),
+					Values: make([]interface{}, len(getSortedKeys(nestedMap))),
 				}
 				err := nestedOrderedMap.UnmarshalJSON(toJSONBytes(nestedMap))
 				if err != nil {
 					return err
 				}
-				m.Values[key] = nestedOrderedMap.Values
+				m.Values[i] = nestedOrderedMap
 			} else {
-				m.Values[key] = value
+				m.Values[i] = value
 			}
 		}
 	}
@@ -762,13 +762,7 @@ func createDmp(c context.AbstructContext, f AbstructRepoUtil, d AbstructDmpUtil)
 
 	// キーの順序を定義したOrderedMapを作成
 	orderedMap := &OrderedMap{
-		Keys: getSortedKeys(map[string]interface{}{
-			"name":    nil,
-			"age":     nil,
-			"address": nil,
-			"pets":    nil,
-			"no":      nil,
-		}),
+		Keys: []string{"name", "age", "address", "pets", "no"},
 	}
 	// JSON文字列をパースしてOrderedMapに変換
 	err = json.Unmarshal([]byte(jsonStr), orderedMap)
