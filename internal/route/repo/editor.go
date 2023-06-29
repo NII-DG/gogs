@@ -10,7 +10,6 @@ import (
 	"net/http"
 	"path"
 	"path/filepath"
-	"sort"
 	"strings"
 
 	log "unknwon.dev/clog/v2"
@@ -615,54 +614,6 @@ func CreateDmp(c context.AbstructContext) {
 	createDmp(c, f, d)
 }
 
-type OrderedMap struct {
-	Keys   []string
-	Values []interface{}
-}
-
-func (m *OrderedMap) UnmarshalJSON(data []byte) error {
-	var rawMap map[string]interface{}
-	err := json.Unmarshal(data, &rawMap)
-	if err != nil {
-		return err
-	}
-
-	m.Values = make([]interface{}, len(m.Keys))
-	for i, key := range m.Keys {
-		if value, ok := rawMap[key]; ok {
-			if nestedMap, ok := value.(map[string]interface{}); ok {
-				nestedOrderedMap := &OrderedMap{
-					Keys:   getSortedKeys(nestedMap),
-					Values: make([]interface{}, len(getSortedKeys(nestedMap))),
-				}
-				err := nestedOrderedMap.UnmarshalJSON(toJSONBytes(nestedMap))
-				if err != nil {
-					return err
-				}
-				m.Values[i] = nestedOrderedMap
-			} else {
-				m.Values[i] = value
-			}
-		}
-	}
-
-	return nil
-}
-
-func getSortedKeys(m map[string]interface{}) []string {
-	keys := make([]string, 0, len(m))
-	for key := range m {
-		keys = append(keys, key)
-	}
-	sort.Strings(keys)
-	return keys
-}
-
-func toJSONBytes(data map[string]interface{}) []byte {
-	jsonStr, _ := json.Marshal(data)
-	return jsonStr
-}
-
 // CreateDmp is RCOS specific code
 func createDmp(c context.AbstructContext, f AbstructRepoUtil, d AbstructDmpUtil) {
 	schema := c.QueryEscape("schema")
@@ -732,54 +683,6 @@ func createDmp(c context.AbstructContext, f AbstructRepoUtil, d AbstructDmpUtil)
 	}
 
 	combinedDmp := decodedBasicSchema + decodedOrgSchema
-
-	// var data interface{}
-	// err = json.Unmarshal([]byte(combinedDmp), &data)
-	// if err != nil {
-	// 	log.Trace(err.Error())
-	// 	c.Error(fmt.Errorf(c.Tr("rcos.server.error")), "")
-	// }
-
-	// // データをマップに変換
-	// jsonMap, ok := data.(map[string]interface{})
-	// if !ok {
-	// 	log.Trace("データがマップではありません")
-	// 	c.Error(fmt.Errorf(c.Tr("rcos.server.error")), "")
-	// 	return
-	// }
-
-	// map_samp := map[string]interface{}{}
-
-	// for k, _ := range jsonMap {
-	// 	log.Trace("[DUBUG LOG RCOS] Key : %s", k)
-	// 	map_samp[k] = nil
-
-	// }
-
-	jsonStr := `{"name":"John","age":30,"address":{"city":"New York","country":"USA"},"pets":["dog","cat"],"no":42}`
-	log.Trace("[DUBUG LOG RCOS] BEFORE")
-	log.Trace("\n%s", jsonStr)
-
-	// キーの順序を定義したOrderedMapを作成
-	orderedMap := &OrderedMap{
-		Keys: []string{"name", "age", "address", "pets", "no"},
-	}
-	// JSON文字列をパースしてOrderedMapに変換
-	err = json.Unmarshal([]byte(jsonStr), orderedMap)
-	if err != nil {
-		log.Trace("JSONパースエラー:%v", err)
-		return
-	}
-
-	// インデントを適用してJSON文字列に変換
-	indentedJSON, err := json.MarshalIndent(orderedMap.Values, "", "    ")
-	if err != nil {
-		log.Trace("JSON変換エラー:%v", err)
-		return
-	}
-
-	log.Trace("[DUBUG LOG RCOS] AFTER")
-	log.Trace("\n%s", string(indentedJSON))
 
 	c.CallData()["IsYAML"] = false
 	c.CallData()["IsJSON"] = true
