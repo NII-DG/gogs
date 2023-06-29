@@ -768,14 +768,14 @@ func createDmp(c context.AbstructContext, f AbstructRepoUtil, d AbstructDmpUtil)
 	// JSON文字列をパースしてOrderedMapに変換
 	err = json.Unmarshal([]byte(jsonStr), orderedMap)
 	if err != nil {
-		fmt.Println("JSONパースエラー:", err)
+		log.Trace("JSONパースエラー:%v", err)
 		return
 	}
 
 	// インデントを適用してJSON文字列に変換
 	indentedJSON, err := json.MarshalIndent(orderedMap.Values, "", "    ")
 	if err != nil {
-		fmt.Println("JSON変換エラー:", err)
+		log.Trace("JSON変換エラー:%v", err)
 		return
 	}
 
