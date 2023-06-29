@@ -635,7 +635,7 @@ func (m *OrderedMap) UnmarshalJSON(data []byte) error {
 					Keys:   getSortedKeys(nestedMap),
 					Values: make(map[string]interface{}),
 				}
-				err := nestedOrderedMap.UnmarshalJSON([]byte(fmt.Sprintf("%v", nestedMap)))
+				err := nestedOrderedMap.UnmarshalJSON(toJSONBytes(nestedMap))
 				if err != nil {
 					return err
 				}
@@ -656,6 +656,11 @@ func getSortedKeys(m map[string]interface{}) []string {
 	}
 	sort.Strings(keys)
 	return keys
+}
+
+func toJSONBytes(data map[string]interface{}) []byte {
+	jsonStr, _ := json.Marshal(data)
+	return jsonStr
 }
 
 // CreateDmp is RCOS specific code
