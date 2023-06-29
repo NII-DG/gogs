@@ -682,7 +682,7 @@ func createDmp(c context.AbstructContext, f AbstructRepoUtil, d AbstructDmpUtil)
 		return
 	}
 
-	combinedDmp := decodedBasicSchema + "\n" + decodedOrgSchema
+	combinedDmp := decodedBasicSchema + decodedOrgSchema
 
 	c.CallData()["IsYAML"] = false
 	c.CallData()["IsJSON"] = true
