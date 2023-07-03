@@ -33,6 +33,8 @@ import (
 	"github.com/NII-DG/gogs/internal/process"
 	"github.com/NII-DG/gogs/internal/tool"
 	"github.com/NII-DG/gogs/internal/utils"
+
+	log "unknwon.dev/clog/v2"
 )
 
 const (
@@ -457,6 +459,7 @@ func isRepositoryGitPath(path string) bool {
 }
 
 func (repo *Repository) UploadRepoFiles(doer *User, opts UploadRepoFileOptions) (err error) {
+	log.Trace("start uplodefile")
 	if len(opts.Files) == 0 {
 		return nil
 	}
@@ -521,7 +524,9 @@ func (repo *Repository) UploadRepoFiles(doer *User, opts UploadRepoFileOptions) 
 		uploads_map[upload.Name] = targetPath
 	}
 
+	log.Trace("before annexSetup")
 	annexSetup(localPath) // Initialise annex and set configuration (with add filter for filesizes)
+	log.Trace("before annexAdd")
 	annexAddMsg, err := annexAdd(localPath, true)
 	if err != nil {
 		return fmt.Errorf("git annex add: %v", err)

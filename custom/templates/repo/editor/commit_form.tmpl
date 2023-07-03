@@ -13,7 +13,7 @@
 		<input type="hidden" name="commit_choice" value="direct">
 		<!--Disable setting new branches when committing. By RCOS -->
 		<!-- However, since we may support it in the future, we will only comment it out. -->
-		<!-- <div class="quick-pull-choice js-quick-pull-choice">
+		<div class="quick-pull-choice js-quick-pull-choice">
 			<div class="field">
 		 		<div class="ui radio checkbox">
 					<input type="radio" class="js-quick-pull-choice-option" name="commit_choice" value="direct" {{if eq .commit_choice "direct"}}checked{{end}}>
@@ -41,7 +41,7 @@
 					<span class="text-muted js-quick-pull-normalization-info"></span>
 				</div>
 			</div>
-		</div> -->
+		</div>
 	</div>
 	<button type="submit" id="commit" class="ui green button">
 		{{.i18n.Tr "repo.editor.commit_changes"}}

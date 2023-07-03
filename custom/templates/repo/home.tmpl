@@ -14,30 +14,30 @@
 				  	<a href="{{.RepoLink}}/commits/{{EscapePound .BranchName}}"><span class="ui text black"><i class="octicon octicon-history"></i> <b>{{.CommitsCount}}</b> {{.i18n.Tr "repo.commits"}}</span> </a>
 					</div>
 					<!-- Hiding the number of branches by disabling the repository branch function by RCOS -->
-					<!-- <div class="item">
+					 <div class="item">
 				  	<a href="{{.RepoLink}}/branches"><span class="ui text black"><i class="octicon octicon-git-branch"></i><b>{{.BrancheCount}}</b> {{.i18n.Tr "repo.git_branches"}}</span> </a>
-					</div> -->
+					</div>
 					<!-- Hiding the number of release by disabling the repository release function by RCOS -->
-					<!-- <div class="item">
+					<div class="item">
 				  	<a href="{{.RepoLink}}/releases"><span class="ui text black"><i class="octicon octicon-tag"></i> <b>{{.Repository.NumTags}}</b> {{.i18n.Tr "repo.releases"}}</span> </a>
-					</div> -->
+					</div>
 				</div>
 			</div>
 		{{end}}
 		<div class="ui secondary menu">
 			<!-- Hiding pull request buttons by disabling the repository branch function by RCOS -->
-			<!-- {{if .PullRequestCtx.Allowed}}
+			{{if .PullRequestCtx.Allowed}}
 				<div class="fitted item" data-tooltip="Please note: annexed file content will not be part of a pull request">
 					<a href="{{.BaseRepo.Link}}/compare/{{EscapePound .BaseRepo.DefaultBranch}}...{{EscapePound .PullRequestCtx.HeadInfo}}">
 						<button class="ui green small button"><i class="octicon octicon-git-compare"></i></button>
 					</a>
 				</div>
-			{{end}} -->
+			{{end}}
 			<!-- Disable the branch pulldown feature. However, it will be restored in future development by RCOS -->
-			<!-- {{template "repo/branch_dropdown" .}} -->
-			<div id="branch_item">
+			{{template "repo/branch_dropdown" .}}
+			<!-- <div id="branch_item">
 				<p>{{.i18n.Tr "rcos.branch.master"}}</p>
-			</div>
+			</div> -->
 			<div class="fitted item">
 				<div class="ui breadcrumb">
 					<a class="section" href="{{.RepoLink}}/src/{{EscapePound .BranchName}}">{{EllipsisString .Repository.Name 15}}</a>

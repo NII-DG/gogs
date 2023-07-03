@@ -387,7 +387,7 @@ func runWeb(c *cli.Context) error {
 				m.Get("/dashboard", user.Dashboard)
 				// Disable routes to org pull request list by RCOS
 				// "/^:type(issues|pulls)$" to "/^:type(issues)$"
-				//m.Get("/^:type(issues|pulls)$", user.Issues)
+				m.Get("/^:type(issues|pulls)$", user.Issues)
 				m.Get("/^:type(issues)$", user.Issues)
 				m.Get("/members", org.Members)
 				m.Get("/members/action/:action", org.MembersAction)
@@ -432,8 +432,8 @@ func runWeb(c *cli.Context) error {
 			// m.Get("/migrate", repo.Migrate)
 			// m.Post("/migrate", bindIgnErr(form.MigrateRepo{}), repo.MigratePost)
 			// Note : Disable Fork function route by RCOS
-			// m.Combo("/fork/:repoid").Get(repo.Fork).
-			// 	Post(bindIgnErr(form.CreateRepo{}), repo.ForkPost)
+			m.Combo("/fork/:repoid").Get(repo.Fork).
+				Post(bindIgnErr(form.CreateRepo{}), repo.ForkPost)
 		}, reqSignIn)
 
 		m.Group("/:username/:reponame", func() {
@@ -454,7 +454,7 @@ func runWeb(c *cli.Context) error {
 				})
 				m.Group("/branches", func() {
 					//Disable route to branch settings in repository settings by RCOS
-					//m.Get("", repo.SettingsBranches)
+					m.Get("", repo.SettingsBranches)
 					m.Post("/default_branch", repo.UpdateDefaultBranch)
 					m.Combo("/*").Get(repo.SettingsProtectedBranch).
 						Post(bindIgnErr(form.ProtectBranch{}), repo.SettingsProtectedBranchPost)
@@ -576,8 +576,8 @@ func runWeb(c *cli.Context) error {
 			// e.g. /org1/test-repo/compare/master...org1:develop
 			// which should be /org1/test-repo/compare/master...develop
 			// NOTE:Disable route to pull request screen by RCOS
-			// m.Combo("/compare/*", repo.MustAllowPulls).Get(repo.CompareAndPullRequest).
-			// 	Post(bindIgnErr(form.NewIssue{}), repo.CompareAndPullRequestPost)
+			m.Combo("/compare/*", repo.MustAllowPulls).Get(repo.CompareAndPullRequest).
+				Post(bindIgnErr(form.NewIssue{}), repo.CompareAndPullRequestPost)
 
 			m.Group("", func() {
 				m.Combo("/_edit/*").Get(repo.EditFile).
@@ -614,16 +614,16 @@ func runWeb(c *cli.Context) error {
 		m.Group("/:username/:reponame", func() {
 			m.Group("", func() {
 				// Disable route to repo release request confirmation screen by RCOS
-				// m.Get("/releases", repo.MustBeNotBare, repo.Releases)
+				m.Get("/releases", repo.MustBeNotBare, repo.Releases)
 				// Disable route to pull request confirmation screen by RCOS
-				//m.Get("/pulls", repo.RetrieveLabels, repo.Pulls)
+				m.Get("/pulls", repo.RetrieveLabels, repo.Pulls)
 				m.Get("/pulls/:index", repo.ViewPull)
 			}, context.RepoRef())
 
 			m.Group("/branches", func() {
 				//Disable route to branch list confirmation screen by RCOS
-				//m.Get("", repo.Branches)
-				//m.Get("/all", repo.AllBranches)
+				m.Get("", repo.Branches)
+				m.Get("/all", repo.AllBranches)
 				m.Post("/delete/*", reqSignIn, reqRepoWriter, repo.DeleteBranchPost)
 			}, repo.MustBeNotBare, func(c *context.Context) {
 				c.Data["PageIsViewFiles"] = true
@@ -653,7 +653,7 @@ func runWeb(c *cli.Context) error {
 				m.Get("/commits/*", repo.RefCommits)
 				m.Get("/commit/:sha([a-f0-9]{7,40})$", repo.Diff)
 				// Disable Fork status display function route by RCOS
-				// m.Get("/forks", repo.Forks)
+				m.Get("/forks", repo.Forks)
 			}, repo.MustBeNotBare, context.RepoRef())
 			m.Get("/commit/:sha([a-f0-9]{7,40})\\.:ext(patch|diff)", repo.MustBeNotBare, repo.RawDiff)
 			m.Get("/compare/:before([a-z0-9]{40})\\.\\.\\.:after([a-z0-9]{40})", repo.MustBeNotBare, context.RepoRef(), repo.CompareDiff)

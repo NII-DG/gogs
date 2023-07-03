@@ -48,7 +48,7 @@ Commented out because it is not supported as a DG feature as of 2023/05/27. fork
 								</div>
 							</form> -->
 							<!-- Fork registration and deregistration functions-->
-							<!-- {{if .CanBeForked}}
+							{{if .CanBeForked}}
 							<div class="ui labeled button" tabindex="0" data-tooltip="Please note: annexed file content will not be forked" data-position="bottom center">
 									<a class="ui basic button {{if eq .OwnerID $.LoggedUserID}}poping up{{end}}" href="{{AppSubURL}}/repo/fork/{{.ID}}">
 										<i class="octicon octicon-repo-forked"></i>{{$.i18n.Tr "repo.fork"}}
@@ -57,7 +57,7 @@ Commented out because it is not supported as a DG feature as of 2023/05/27. fork
 										{{.NumForks}}
 									</a>
 								</div>
-							{{end}} -->
+							{{end}}
 						</div>
 					{{end}}
 				</div>
@@ -79,11 +79,11 @@ Commented out because it is not supported as a DG feature as of 2023/05/27. fork
 				</a>
 			{{end}}
 			<!-- Hiding pull requests from the repository TOP tab menu by disabling the repository branch function.by RCOS -->
-			<!-- {{if and .Repository.AllowsPulls (not .IsGuest)}}
+			{{if and .Repository.AllowsPulls (not .IsGuest)}}
 				<a class="{{if .PageIsPullList}}active{{end}} item" href="{{.RepoLink}}/pulls">
 					<i class="octicon octicon-git-pull-request"></i> {{.i18n.Tr "repo.pulls"}} <span class="ui {{if not .Repository.NumOpenPulls}}gray{{else}}blue{{end}} small label">{{.Repository.NumOpenPulls}}</span>
 				</a>
-			{{end}} -->
+			{{end}}
 			{{if .Repository.EnableWiki}}
 				<a class="{{if .PageIsWiki}}active{{end}} item" href="{{.RepoLink}}/wiki">
 					<i class="octicon octicon-book"></i> {{.i18n.Tr "repo.wiki"}}

@@ -526,6 +526,7 @@ func UploadFilePost(c *context.Context, f form.UploadRepoFile) {
 		message += "\n\n" + f.CommitMessage
 	}
 
+	log.Trace("before UploadRepoFiles")
 	if err := c.Repo.Repository.UploadRepoFiles(c.User, db.UploadRepoFileOptions{
 		LastCommitID: c.Repo.CommitID,
 		OldBranch:    oldBranchName,

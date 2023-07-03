@@ -17,6 +17,7 @@ import (
 	"github.com/unknwon/com"
 	"golang.org/x/crypto/bcrypt"
 	log "gopkg.in/clog.v1"
+	log2 "unknwon.dev/clog/v2"
 )
 
 // StartIndexing sends an indexing request to the configured indexing service
@@ -135,11 +136,13 @@ func annexSetup(path string) {
 }
 
 func annexAdd(repoPath string, all bool, files ...string) ([]byte, error) {
+	log2.Trace("annexAdd start")
 	cmd := git.NewCommand("annex", "add", "--json")
 	if all {
 		cmd.AddArgs(".")
 	}
 	msg, err := cmd.AddArgs(files...).RunInDir(repoPath)
+	log2.Trace("run git annex add")
 	if err != nil {
 		return nil, err
 	}
