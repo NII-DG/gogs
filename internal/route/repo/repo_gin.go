@@ -552,6 +552,8 @@ func getWebContentURL(ctx *context.Context, key string) error {
 	return err
 }
 
+// canEditFile is RCOS specific code.
+// this returns whether file can be edited and file path can be edited.
 func canEditFile(filePath string) (canEditFile bool, canEditFilePath bool) {
 
 	canEditFile = true
@@ -582,14 +584,16 @@ func canEditFile(filePath string) (canEditFile bool, canEditFilePath bool) {
 		return canEditFile, canEditFilePath
 	}
 
-	re1 := regexp.MustCompile(`^experiments/.*?(environment\.yml|README\.md|requirements\.txt|Snakefile)$`)
+	// experiment/[実験パッケージ名]配下のenvironment.yml, README.md, requirement.txt, Snakefileにマッチ
+	re1 := regexp.MustCompile(`^experiments/.*?/(environment\.yml|README\.md|requirements\.txt|Snakefile)$`)
 	if re1.MatchString(filePath) {
 		canEditFile = true
 		canEditFilePath = false
 		return canEditFile, canEditFilePath
 	}
-
+	// experiment/[実験パッケージ名]配下の.gitkeepにマッチ
 	re2 := regexp.MustCompile(`^experiments/.*?/\.gitkeep$`)
+	// WORKFLOWS配下の全てにマッチ
 	re3 := regexp.MustCompile(`^WORKFLOWS/.*?$`)
 	if re2.MatchString(filePath) || re3.MatchString(filePath) {
 		canEditFile = false
