@@ -591,8 +591,10 @@ func canEditFile(filePath string) (canEditFile bool, canEditFilePath bool) {
 		canEditFilePath = false
 		return canEditFile, canEditFilePath
 	}
+
 	// experiment/[実験パッケージ名]配下の.gitkeepにマッチ
 	re2 := regexp.MustCompile(`^experiments/.*?/\.gitkeep$`)
+
 	// WORKFLOWS配下の全てにマッチ
 	re3 := regexp.MustCompile(`^WORKFLOWS/.*?$`)
 	if re2.MatchString(filePath) || re3.MatchString(filePath) {
