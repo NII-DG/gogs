@@ -4,7 +4,7 @@
 	<div class="ui container">
         {{if .Repository}}
         <div class="twelve wide column content">
-            <h4 class="ui top attached header">{{.i18n.Tr "rcos.container.research"}}
+            <h4 class="ui top attached header">{{.i18n.Tr "rcos.container.research"}}　
                 <a href="/{{.Repository.Owner.Name}}/{{.Repository.Name}}/launch/research" class="ui blue button" target="_blank" rel="noopener"> {{$.i18n.Tr "rcos.container.rebuild"}} </a>
             </h4>
             <div class="ui unstackable attached table segment">
@@ -13,9 +13,9 @@
                         <tr>
                             <th width="20%">{{.i18n.Tr "repo.repo_name"}}</th>
                                 <th width="30%">{{.i18n.Tr "rcos.container.server.name"}}</th>
-                                <th width="15%">{{.i18n.Tr "rcos.container.created"}}</th>
-                                <th width="15%">{{.i18n.Tr "rcos.container.updated"}}</th>
-                                <th colspan="2">{{.i18n.Tr "rcos.container.binder"}}</th>
+                                <th width="20%">{{.i18n.Tr "rcos.container.created"}}</th>
+                                <th width="20%">{{.i18n.Tr "rcos.container.updated"}}</th>
+                                <th width="10%">{{.i18n.Tr "rcos.container.binder"}}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -37,7 +37,7 @@
                     </tbody>
                 </table>
             </div>
-            <h4 class="ui top attached header">{{.i18n.Tr "rcos.container.experiment"}}
+            <h4 class="ui top attached header">{{.i18n.Tr "rcos.container.experiment"}}　
                 {{if .HasExperiments}}
                 <a href="/{{.Repository.Owner.Name}}/{{.Repository.Name}}/launch/experiment" class="ui blue button" target="_blank" rel="noopener"> {{$.i18n.Tr "rcos.container.rebuild"}} </a>
                 {{end}}
@@ -48,9 +48,9 @@
                         <tr>
                             <th width="20%">{{.i18n.Tr "rcos.experiment_package"}}</th>
                                 <th width="30%">{{.i18n.Tr "rcos.container.server.name"}}</th>
-                                <th width="15%">{{.i18n.Tr "rcos.container.created"}}</th>
-                                <th width="15%">{{.i18n.Tr "rcos.container.updated"}}</th>
-                                <th colspan="2">{{.i18n.Tr "rcos.container.binder"}}</th>
+                                <th width="20%">{{.i18n.Tr "rcos.container.created"}}</th>
+                                <th width="20%">{{.i18n.Tr "rcos.container.updated"}}</th>
+                                <th width="10%">{{.i18n.Tr "rcos.container.binder"}}</th>
                         </tr>
                     </thead>
                     <tbody>
