@@ -16,7 +16,7 @@
 						{{range $i, $v := .TreeNames}}
 							<div class="divider"> / </div>
 							{{if eq $i $l}}
-								{{if and (not $.CanEditFilePath) (not $.IsNewFile) }}
+								{{if or $.IsDmpJson (and (not $.CanEditFilePath) (not $.IsNewFile)) }}
 									<input id="file-name" value="{{$v}}" placeholder="{{$.i18n.Tr "repo.editor.name_your_file"}}" data-ec-url-prefix="{{$.EditorconfigURLPrefix}}" required autofocus readonly>
 								{{else}}
 									<input id="file-name" value="{{$v}}" placeholder="{{$.i18n.Tr "repo.editor.name_your_file"}}" data-ec-url-prefix="{{$.EditorconfigURLPrefix}}" required autofocus>

@@ -13,6 +13,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	log "unknwon.dev/clog/v2"
@@ -549,4 +550,52 @@ func getWebContentURL(ctx *context.Context, key string) error {
 		ctx.Data["IsWebContent"] = true
 	}
 	return err
+}
+
+func canEditFile(filePath string) (canEditFile bool, canEditFilePath bool) {
+
+	canEditFile = true
+	canEditFilePath = true
+	cannotEditSet := make(map[string]bool)
+	cannotEditSet[".gitattributes"] = true
+	cannotEditSet[".gitignore"] = true
+	cannotEditSet[".repository_id"] = true
+	cannotEditSet["maDMP.ipynb"] = true
+	cannotEditSet[".datalad/.gitattributes"] = true
+	cannotEditSet[".datalad/config"] = true
+	cannotEditSet["validation_results/entity_ids.json"] = true
+	cannotEditSet["validation_results/results.json"] = true
+	cannotEditSet["validation_results/ro_crate.json"] = true
+	canEditSet := make(map[string]bool)
+	canEditSet["dmp.json"] = true
+	canEditSet["Dockerfile"] = true
+	canEditSet["README.md"] = true
+
+	if cannotEditSet[filePath] {
+		canEditFile = false
+		canEditFilePath = false
+		return canEditFile, canEditFilePath
+	}
+	if canEditSet[filePath] {
+		canEditFile = true
+		canEditFilePath = false
+		return canEditFile, canEditFilePath
+	}
+
+	re1 := regexp.MustCompile(`^experiments/.*?(environment\.yml|README\.md|requirements\.txt|Snakefile)$`)
+	if re1.MatchString(filePath) {
+		canEditFile = true
+		canEditFilePath = false
+		return canEditFile, canEditFilePath
+	}
+
+	re2 := regexp.MustCompile(`^experiments/.*?/\.gitkeep$`)
+	re3 := regexp.MustCompile(`^WORKFLOWS/.*?$`)
+	if re2.MatchString(filePath) || re3.MatchString(filePath) {
+		canEditFile = false
+		canEditFilePath = false
+		return canEditFile, canEditFilePath
+	}
+
+	return canEditFile, canEditFilePath
 }

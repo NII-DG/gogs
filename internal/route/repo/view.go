@@ -295,10 +295,9 @@ func renderFile(c *context.Context, entry *git.TreeEntry, treeLink, rawLink stri
 		c.Data["DeleteFileTooltip"] = c.Tr("repo.editor.must_have_write_access")
 	}
 
-	// c.Data["CanDeleteFile"] = false
-	// c.Data["CanEditFile"] = false
-	// c.Data["CanEditFilePath"] = false
-
+	canEditFile, canEditFilePath := canEditFile(c.Repo.TreePath)
+	c.Data["CanEditFile"] = canEditFile
+	c.Data["CanDeleteFile"] = canEditFilePath
 }
 
 func setEditorconfigIfExists(c *context.Context) {
