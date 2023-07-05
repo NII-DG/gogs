@@ -102,7 +102,13 @@ func TeamsAction(c *context.Context) {
 
 	switch page {
 	case "team":
-		c.Redirect(c.Org.OrgLink + "/teams/" + c.Org.Team.LowerName)
+		// avoid 404 error
+		if c.UserID() == uid && c.Params(":action") == "remove" {
+			c.Redirect("/" + c.Org.Organization.Name)
+		} else {
+			c.Redirect(c.Org.OrgLink + "/teams/" + c.Org.Team.LowerName)
+		}
+
 	default:
 		c.Redirect(c.Org.OrgLink + "/teams")
 	}

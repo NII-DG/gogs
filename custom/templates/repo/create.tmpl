@@ -45,7 +45,7 @@
 								<input name="private" type="checkbox" checked readonly>
 								<label>{{.i18n.Tr "repo.visiblity_helper_forced" | Safe}}</label>
 							{{else}}
-								<input name="private" type="checkbox" {{if .private}}checked{{end}}>
+								<input name="private" type="checkbox" checked>
 								<label>{{.i18n.Tr "repo.visiblity_helper" | Safe}}</label>
 							{{end}}
 						</div>

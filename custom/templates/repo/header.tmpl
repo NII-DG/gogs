@@ -91,7 +91,7 @@ Commented out because it is not supported as a DG feature as of 2023/05/27. fork
 			{{end}}
 			{{if .IsRepositoryWriter}}
 			<a class="{{if .PageIsContainer}}active{{end}} item" href="{{.RepoLink}}/container">
-				{{.i18n.Tr "rcos.container.list"}}
+				<i class="i icon desktop"></i> {{.i18n.Tr "rcos.container.list"}}
 			</a>
 			{{end}}
 			{{if .IsRepositoryAdmin}}
