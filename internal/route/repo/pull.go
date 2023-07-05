@@ -662,6 +662,7 @@ func CompareAndPullRequest(c *context.Context) {
 }
 
 func CompareAndPullRequestPost(c *context.Context, f form.NewIssue) {
+	log.Trace("start CompareAndPullRequestPost")
 	c.Data["Title"] = c.Tr("repo.pulls.compare_changes")
 	c.Data["PageIsComparePull"] = true
 	c.Data["IsDiffCompare"] = true
@@ -707,6 +708,7 @@ func CompareAndPullRequestPost(c *context.Context, f form.NewIssue) {
 		return
 	}
 
+	log.Trace("make pullrequest")
 	pullIssue := &db.Issue{
 		RepoID:      repo.ID,
 		Index:       repo.NextIssueIndex(),

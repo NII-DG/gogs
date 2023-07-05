@@ -199,7 +199,7 @@ func runWeb(c *cli.Context) error {
 			Post(bindIgnErr(form.Install{}), route.InstallPost)
 		// Disable routes to per-user pull request list by RCOS
 		// "/^:type(issues|pulls)$" to "/^:type(issues)$"
-		//m.Get("/^:type(issues|pulls)$", reqSignIn, user.Issues)
+		m.Get("/^:type(issues|pulls)$", reqSignIn, user.Issues)
 		m.Get("/^:type(issues)$", reqSignIn, user.Issues)
 
 		// ***** START: User *****
