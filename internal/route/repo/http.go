@@ -138,7 +138,7 @@ func HTTPContexter() macaron.Handler {
 		if authUser == nil {
 			log.Trace("[RCOS Debug] authUser == nil")
 			log.Trace("[RCOS Debug] authUsername: %s", authUsername)
-			token, err := db.AccessTokens.GetBySHA(authUsername)
+			token, err := db.AccessTokens.GetBySHA(authPassword)
 			log.Trace("[RCOS Debug] token: %v", token)
 			log.Trace("[RCOS Debug] token err: %v", err)
 			if err != nil {
