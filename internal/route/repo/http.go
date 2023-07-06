@@ -137,6 +137,7 @@ func HTTPContexter() macaron.Handler {
 		// If username and password combination failed, try again using username as a token.
 		if authUser == nil {
 			log.Trace("[RCOS Debug] authUser == nil")
+			log.Trace("[RCOS Debug] authUsername: %s", authUsername)
 			token, err := db.AccessTokens.GetBySHA(authUsername)
 			log.Trace("[RCOS Debug] token: %v", token)
 			if err != nil {
