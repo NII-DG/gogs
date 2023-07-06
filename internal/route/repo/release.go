@@ -234,7 +234,7 @@ func NewReleasePost(c *context.Context, f form.NewRelease) {
 		}
 		return
 	}
-	log.Trace("Release created: %s/%s:%s", c.User.LowerName, c.Repo.Repository.Name, f.TagName)
+	log.Error("Release created: %s/%s:%s", c.User.LowerName, c.Repo.Repository.Name, f.TagName)
 
 	c.Redirect(c.Repo.RepoLink + "/releases")
 }

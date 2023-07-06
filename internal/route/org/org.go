@@ -47,7 +47,7 @@ func CreatePost(c *context.Context, f form.CreateOrg) {
 		}
 		return
 	}
-	log.Trace("Organization created: %s", org.Name)
+	log.Error("Organization created: %s", org.Name)
 
 	c.RedirectSubpath("/org/" + f.OrgName + "/dashboard")
 }

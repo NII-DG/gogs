@@ -66,7 +66,7 @@ func generateAndMigrateGitHooks(x *xorm.Engine) (err error) {
 			repoBase := filepath.Join(conf.Repository.Root, strings.ToLower(user.Name), strings.ToLower(repo.Name))
 			repoPath := repoBase + ".git"
 			wikiPath := repoBase + ".wiki.git"
-			log.Trace("[%04d]: %s", idx, repoPath)
+			log.Error("[%04d]: %s", idx, repoPath)
 
 			// Note: we should not create hookDir here because update hook file should already exists inside this direcotry,
 			// if this directory does not exist, the current setup is not correct anyway.

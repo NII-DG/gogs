@@ -108,7 +108,7 @@ func SettingsPost(c *context.Context, f form.UpdateProfile) {
 				return
 			}
 
-			log.Trace("Username changed: %s -> %s", c.User.Name, f.Name)
+			log.Error("Username changed: %s -> %s", c.User.Name, f.Name)
 		}
 
 		// In case it's just a case change
@@ -727,7 +727,7 @@ func SettingsDelete(c *context.Context) {
 				c.Errorf(err, "delete user")
 			}
 		} else {
-			log.Trace("Account deleted: %s", c.User.Name)
+			log.Error("Account deleted: %s", c.User.Name)
 			c.Redirect(conf.Server.Subpath + "/")
 		}
 		return

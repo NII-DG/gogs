@@ -47,7 +47,7 @@ func AutoLogin(c *context.Context) (bool, error) {
 	isSucceed := false
 	defer func() {
 		if !isSucceed {
-			log.Trace("auto-login cookie cleared: %s", uname)
+			log.Error("auto-login cookie cleared: %s", uname)
 			c.SetCookie(conf.Security.CookieUsername, "", -1, conf.Server.Subpath)
 			c.SetCookie(conf.Security.CookieRememberName, "", -1, conf.Server.Subpath)
 			c.SetCookie(conf.Security.LoginStatusCookieName, "", -1, conf.Server.Subpath)
@@ -414,7 +414,7 @@ func SignUpPost(c *context.Context, cpt *captcha.Captcha, f form.Register) {
 		}
 		return
 	}
-	log.Trace("Account created: %s", u.Name)
+	log.Error("Account created: %s", u.Name)
 
 	// temporally implementation
 	if strings.HasPrefix(f.UserName, "fa-") {
@@ -492,7 +492,7 @@ func Activate(c *context.Context) {
 			return
 		}
 
-		log.Trace("User activated: %s", user.Name)
+		log.Error("User activated: %s", user.Name)
 
 		_ = c.Session.Set("uid", user.ID)
 		_ = c.Session.Set("uname", user.Name)
@@ -514,7 +514,7 @@ func ActivateEmail(c *context.Context) {
 			c.Error(err, "activate email")
 		}
 
-		log.Trace("Email activated: %s", email.Email)
+		log.Error("Email activated: %s", email.Email)
 		c.Flash.Success(c.Tr("settings.add_email_success"))
 	}
 
@@ -630,7 +630,7 @@ func ResetPasswdPost(c *context.Context) {
 			return
 		}
 
-		log.Trace("User password reset: %s", u.Name)
+		log.Error("User password reset: %s", u.Name)
 		c.RedirectSubpath("/user/login")
 		return
 	}

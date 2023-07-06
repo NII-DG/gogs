@@ -149,7 +149,7 @@ func CreatePost(c *context.Context, f form.CreateRepo) {
 		ProjectDescription: strings.ReplaceAll(f.ProjectDescription, "\r\n", "\n"),
 	})
 	if err == nil {
-		log.Trace("Repository created [%d]: %s/%s", repo.ID, ctxUser.Name, repo.Name)
+		log.Error("Repository created [%d]: %s/%s", repo.ID, ctxUser.Name, repo.Name)
 		c.Redirect(conf.Server.Subpath + "/" + ctxUser.Name + "/" + repo.Name)
 		return
 	}
@@ -222,7 +222,7 @@ func MigratePost(c *context.Context, f form.MigrateRepo) {
 		RemoteAddr:  remoteAddr,
 	})
 	if err == nil {
-		log.Trace("Repository migrated [%d]: %s/%s", repo.ID, ctxUser.Name, f.RepoName)
+		log.Error("Repository migrated [%d]: %s/%s", repo.ID, ctxUser.Name, f.RepoName)
 		c.Redirect(conf.Server.Subpath + "/" + ctxUser.Name + "/" + f.RepoName)
 		return
 	}
@@ -307,7 +307,7 @@ func Download(c *context.Context) {
 		archivePath = filepath.Join(c.Repo.GitRepo.Path(), "archives", "targz")
 		archiveFormat = git.ArchiveTarGz
 	default:
-		log.Trace("Unknown format: %s", uri)
+		log.Error("Unknown format: %s", uri)
 		c.NotFound()
 		return
 	}

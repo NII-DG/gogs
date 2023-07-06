@@ -295,7 +295,7 @@ func MirrorUpdate() {
 	taskStatusTable.Start(_MIRROR_UPDATE)
 	defer taskStatusTable.Stop(_MIRROR_UPDATE)
 
-	log.Trace("Doing: MirrorUpdate")
+	log.Error("Doing: MirrorUpdate")
 
 	if err := x.Where("next_update_unix<=?", time.Now().Unix()).Iterate(new(Mirror), func(idx int, bean interface{}) error {
 		m := bean.(*Mirror)
@@ -316,7 +316,7 @@ func MirrorUpdate() {
 func SyncMirrors() {
 	// Start listening on new sync requests.
 	for repoID := range MirrorQueue.Queue() {
-		log.Trace("SyncMirrors [repo_id: %s]", repoID)
+		log.Error("SyncMirrors [repo_id: %s]", repoID)
 		MirrorQueue.Remove(repoID)
 
 		m, err := GetMirrorByRepoID(com.StrTo(repoID).MustInt64())
@@ -341,7 +341,7 @@ func SyncMirrors() {
 		// - Create mirror sync (create, push and delete) events and trigger the "mirror sync" webhooks
 
 		if len(results) == 0 {
-			log.Trace("SyncMirrors [repo_id: %d]: no commits fetched", m.RepoID)
+			log.Error("SyncMirrors [repo_id: %d]: no commits fetched", m.RepoID)
 		}
 
 		gitRepo, err := git.Open(m.Repo.RepoPath())

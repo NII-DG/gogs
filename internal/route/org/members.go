@@ -113,7 +113,7 @@ func Invitation(c *context.Context) {
 			return
 		}
 
-		log.Trace("New member added(%s): %s", org.Name, u.Name)
+		log.Error("New member added(%s): %s", org.Name, u.Name)
 		c.Redirect(c.Org.OrgLink + "/members")
 		return
 	}

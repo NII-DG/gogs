@@ -145,7 +145,7 @@ func ForkPost(c *context.Context, f form.CreateRepo) {
 		return
 	}
 
-	log.Trace("Repository forked from '%s' -> '%s'", baseRepo.FullName(), repo.FullName())
+	log.Error("Repository forked from '%s' -> '%s'", baseRepo.FullName(), repo.FullName())
 	c.Redirect(repo.Link())
 }
 
@@ -422,7 +422,7 @@ func MergePullRequest(c *context.Context) {
 		return
 	}
 
-	log.Trace("Pull request merged: %d", pr.ID)
+	log.Error("Pull request merged: %d", pr.ID)
 	c.Redirect(c.Repo.RepoLink + "/pulls/" + com.ToStr(pr.Index))
 }
 
@@ -435,7 +435,7 @@ func ParseCompareInfo(c *context.Context) (*db.User, *db.Repository, *git.Reposi
 	// same repo: master...feature
 	infos := strings.Split(c.Params("*"), "...")
 	if len(infos) != 2 {
-		log.Trace("ParseCompareInfo[%d]: not enough compared branches information %s", baseRepo.ID, infos)
+		log.Error("ParseCompareInfo[%d]: not enough compared branches information %s", baseRepo.ID, infos)
 		c.NotFound()
 		return nil, nil, nil, nil, "", ""
 	}
@@ -494,7 +494,7 @@ func ParseCompareInfo(c *context.Context) (*db.User, *db.Repository, *git.Reposi
 			c.Error(err, "get forked repository")
 			return nil, nil, nil, nil, "", ""
 		} else if !has {
-			log.Trace("ParseCompareInfo [base_repo_id: %d]: does not have fork or in same repository", baseRepo.ID)
+			log.Error("ParseCompareInfo [base_repo_id: %d]: does not have fork or in same repository", baseRepo.ID)
 			c.NotFound()
 			return nil, nil, nil, nil, "", ""
 		}
@@ -510,7 +510,7 @@ func ParseCompareInfo(c *context.Context) (*db.User, *db.Repository, *git.Reposi
 	}
 
 	if !c.User.IsWriterOfRepo(headRepo) && !c.User.IsAdmin {
-		log.Trace("ParseCompareInfo [base_repo_id: %d]: does not have write access or site admin", baseRepo.ID)
+		log.Error("ParseCompareInfo [base_repo_id: %d]: does not have write access or site admin", baseRepo.ID)
 		c.NotFound()
 		return nil, nil, nil, nil, "", ""
 	}
@@ -739,6 +739,6 @@ func CompareAndPullRequestPost(c *context.Context, f form.NewIssue) {
 		return
 	}
 
-	log.Trace("Pull request created: %d/%d", repo.ID, pullIssue.ID)
+	log.Error("Pull request created: %d/%d", repo.ID, pullIssue.ID)
 	c.Redirect(c.Repo.RepoLink + "/pulls/" + com.ToStr(pullIssue.Index))
 }

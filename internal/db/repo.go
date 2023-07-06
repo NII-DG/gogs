@@ -117,7 +117,7 @@ func NewRepoContext() {
 		log.Fatal("Failed to get Git version: %v", err)
 	}
 
-	log.Trace("Git version: %s", conf.Git.Version)
+	log.Error("Git version: %s", conf.Git.Version)
 	if semverutil.Compare(conf.Git.Version, "<", "1.8.3") {
 		log.Fatal("Gogs requires Git version greater or equal to 1.8.3")
 	}
@@ -358,7 +358,7 @@ func (repo *Repository) UploadAvatar(data []byte) error {
 
 // DeleteAvatar deletes the repository custom avatar.
 func (repo *Repository) DeleteAvatar() error {
-	log.Trace("DeleteAvatar [%d]: %s", repo.ID, repo.CustomAvatarPath())
+	log.Error("DeleteAvatar [%d]: %s", repo.ID, repo.CustomAvatarPath())
 	if err := os.Remove(repo.CustomAvatarPath()); err != nil {
 		return err
 	}
@@ -1856,7 +1856,7 @@ func DeleteOldRepositoryArchives() {
 	taskStatusTable.Start(_CLEAN_OLD_ARCHIVES)
 	defer taskStatusTable.Stop(_CLEAN_OLD_ARCHIVES)
 
-	log.Trace("Doing: DeleteOldRepositoryArchives")
+	log.Error("Doing: DeleteOldRepositoryArchives")
 
 	formats := []string{"zip", "targz"}
 	oldestTime := time.Now().Add(-conf.Cron.RepoArchiveCleanup.OlderThan)
@@ -1949,7 +1949,7 @@ func DeleteMissingRepositories() error {
 	}
 
 	for _, repo := range repos {
-		log.Trace("Deleting %d/%d...", repo.OwnerID, repo.ID)
+		log.Error("Deleting %d/%d...", repo.OwnerID, repo.ID)
 		if err := DeleteRepository(repo.OwnerID, repo.ID); err != nil {
 			if err2 := CreateRepositoryNotice(fmt.Sprintf("DeleteRepository [%d]: %v", repo.ID, err)); err2 != nil {
 				return fmt.Errorf("CreateRepositoryNotice: %v", err)
@@ -1971,7 +1971,7 @@ func ReinitMissingRepositories() error {
 	}
 
 	for _, repo := range repos {
-		log.Trace("Initializing %d/%d...", repo.OwnerID, repo.ID)
+		log.Error("Initializing %d/%d...", repo.OwnerID, repo.ID)
 		if err := git.Init(repo.RepoPath(), git.InitOptions{Bare: true}); err != nil {
 			if err2 := CreateRepositoryNotice(fmt.Sprintf("init repository [repo_id: %d]: %v", repo.ID, err)); err2 != nil {
 				return fmt.Errorf("create repository notice: %v", err)
@@ -2016,7 +2016,7 @@ func GitFsck() {
 	taskStatusTable.Start(_GIT_FSCK)
 	defer taskStatusTable.Stop(_GIT_FSCK)
 
-	log.Trace("Doing: GitFsck")
+	log.Error("Doing: GitFsck")
 
 	if err := x.Where("id>0").Iterate(new(Repository),
 		func(idx int, bean interface{}) error {
@@ -2071,7 +2071,7 @@ func repoStatsCheck(checker *repoChecker) {
 	}
 	for _, result := range results {
 		id := com.StrTo(result["id"]).MustInt64()
-		log.Trace("Updating %s: %d", checker.desc, id)
+		log.Error("Updating %s: %d", checker.desc, id)
 		_, err = x.Exec(checker.correctSQL, id, id)
 		if err != nil {
 			log.Error("Update %s[%d]: %v", checker.desc, id, err)
@@ -2086,7 +2086,7 @@ func CheckRepoStats() {
 	taskStatusTable.Start(_CHECK_REPO_STATS)
 	defer taskStatusTable.Stop(_CHECK_REPO_STATS)
 
-	log.Trace("Doing: CheckRepoStats")
+	log.Error("Doing: CheckRepoStats")
 
 	checkers := []*repoChecker{
 		// Repository.NumWatches
@@ -2132,7 +2132,7 @@ func CheckRepoStats() {
 	} else {
 		for _, result := range results {
 			id := com.StrTo(result["id"]).MustInt64()
-			log.Trace("Updating %s: %d", desc, id)
+			log.Error("Updating %s: %d", desc, id)
 			_, err = x.Exec("UPDATE `repository` SET num_closed_issues=(SELECT COUNT(*) FROM `issue` WHERE repo_id=? AND is_closed=? AND is_pull=?) WHERE id=?", id, true, false, id)
 			if err != nil {
 				log.Error("Update %s[%d]: %v", desc, id, err)
@@ -2149,7 +2149,7 @@ func CheckRepoStats() {
 	} else {
 		for _, result := range results {
 			id := com.StrTo(result["id"]).MustInt64()
-			log.Trace("Updating repository count 'num_forks': %d", id)
+			log.Error("Updating repository count 'num_forks': %d", id)
 
 			repo, err := GetRepositoryByID(id)
 			if err != nil {

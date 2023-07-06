@@ -68,7 +68,7 @@ func EmptyNotices(c *context.Context) {
 		return
 	}
 
-	log.Trace("System notices deleted by admin (%s): [start: %d]", c.User.Name, 0)
+	log.Error("System notices deleted by admin (%s): [start: %d]", c.User.Name, 0)
 	c.Flash.Success(c.Tr("admin.notices.delete_success"))
 	c.Redirect(conf.Server.Subpath + "/admin/notices")
 }

@@ -438,7 +438,7 @@ func NewIssuePost(c *context.Context, f form.NewIssue) {
 		return
 	}
 
-	log.Trace("Issue created: %d/%d", c.Repo.Repository.ID, issue.ID)
+	log.Error("Issue created: %d/%d", c.Repo.Repository.ID, issue.ID)
 	c.RawRedirect(c.Repo.MakeURL(fmt.Sprintf("issues/%d", issue.Index)))
 }
 
@@ -477,7 +477,7 @@ func uploadAttachment(c *context.Context, allowedTypes []string) {
 		return
 	}
 
-	log.Trace("New attachment uploaded: %s", attach.UUID)
+	log.Error("New attachment uploaded: %s", attach.UUID)
 	c.JSONSuccess(map[string]string{
 		"uuid": attach.UUID,
 	})
@@ -880,7 +880,7 @@ func NewComment(c *context.Context, f form.CreateComment) {
 				if err = issue.ChangeStatus(c.User, c.Repo.Repository, f.Status == "close"); err != nil {
 					log.Error("ChangeStatus: %v", err)
 				} else {
-					log.Trace("Issue [%d] status changed to closed: %v", issue.ID, issue.IsClosed)
+					log.Error("Issue [%d] status changed to closed: %v", issue.ID, issue.IsClosed)
 				}
 			}
 		}
@@ -913,7 +913,7 @@ func NewComment(c *context.Context, f form.CreateComment) {
 		return
 	}
 
-	log.Trace("Comment created: %d/%d/%d", c.Repo.Repository.ID, issue.ID, comment.ID)
+	log.Error("Comment created: %d/%d/%d", c.Repo.Repository.ID, issue.ID, comment.ID)
 }
 
 func UpdateCommentContent(c *context.Context) {

@@ -370,7 +370,7 @@ func (u *User) UploadAvatar(data []byte) error {
 
 // DeleteAvatar deletes the user's custom avatar.
 func (u *User) DeleteAvatar() error {
-	log.Trace("DeleteAvatar [%d]: %s", u.ID, u.CustomAvatarPath())
+	log.Error("DeleteAvatar [%d]: %s", u.ID, u.CustomAvatarPath())
 	if err := os.Remove(u.CustomAvatarPath()); err != nil {
 		return err
 	}

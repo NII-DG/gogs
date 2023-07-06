@@ -117,7 +117,7 @@ func (h *basicHandler) serveUpload(c *macaron.Context, repo *db.Repository, oid 
 	}
 	c.Status(http.StatusOK)
 
-	log.Trace("[LFS] Object created %q", oid)
+	log.Error("[LFS] Object created %q", oid)
 }
 
 // POST /{owner}/{repo}.git/info/lfs/object/basic/verify

@@ -587,7 +587,7 @@ func UploadFileToServer(c *context.Context) {
 		return
 	}
 
-	log.Trace("New file uploaded by user[%d]: %s", c.UserID(), upload.UUID)
+	log.Error("New file uploaded by user[%d]: %s", c.UserID(), upload.UUID)
 	c.JSONSuccess(map[string]string{
 		"uuid": upload.UUID,
 	})
@@ -604,7 +604,7 @@ func RemoveUploadFileFromServer(c *context.Context, f form.RemoveUploadFile) {
 		return
 	}
 
-	log.Trace("Upload file removed: %s", f.File)
+	log.Error("Upload file removed: %s", f.File)
 	c.Status(http.StatusNoContent)
 }
 
