@@ -2490,6 +2490,16 @@ func ForkRepository(doer, owner *User, baseRepo *Repository, name, desc string) 
 		return nil, fmt.Errorf("git clone: %v - %s", err, stderr)
 	}
 
+	log.Trace("baseRepo.RepoPath():%v", baseRepo.RepoPath())
+	log.Trace("repoPath:%v", repoPath)
+
+	_, stderr, err = process.ExecDir(10*time.Minute, repoPath,
+		fmt.Sprintf("ForkRepository 'git annex sync': %s/%s", owner.Name, repo.Name),
+		"git", "annex", "sync", "--content")
+	if err != nil {
+		return nil, fmt.Errorf("git annex sync: %v - %s", err, stderr)
+	}
+
 	_, stderr, err = process.ExecDir(-1,
 		repoPath, fmt.Sprintf("ForkRepository 'git update-server-info': %s", repoPath),
 		"git", "update-server-info")
