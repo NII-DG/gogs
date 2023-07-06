@@ -105,6 +105,7 @@ func HTTPContexter() macaron.Handler {
 
 		// Handle HTTP Basic Authentication
 		authHead := c.Req.Header.Get("Authorization")
+		log.Trace("[RCOS Debug] authHead: %s", authHead)
 		if len(authHead) == 0 {
 			askCredentials(c, http.StatusUnauthorized, "")
 			return
@@ -120,6 +121,8 @@ func HTTPContexter() macaron.Handler {
 			askCredentials(c, http.StatusUnauthorized, "")
 			return
 		}
+		log.Trace("[RCOS Debug] authUsername: %s", authUsername)
+		log.Trace("[RCOS Debug] authPassword: %s", authPassword)
 
 		authUser, err := db.Users.Authenticate(authUsername, authPassword, -1)
 		if err != nil && !db.IsErrUserNotExist(err) {
@@ -127,6 +130,7 @@ func HTTPContexter() macaron.Handler {
 			log.Error("Failed to authenticate user [name: %s]: %v", authUsername, err)
 			return
 		}
+		log.Trace("[RCOS Debug] authUser: %s", authUser.Name)
 
 		// If username and password combination failed, try again using username as a token.
 		if authUser == nil {
