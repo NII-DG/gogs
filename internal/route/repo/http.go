@@ -140,6 +140,7 @@ func HTTPContexter() macaron.Handler {
 			log.Trace("[RCOS Debug] authUsername: %s", authUsername)
 			token, err := db.AccessTokens.GetBySHA(authUsername)
 			log.Trace("[RCOS Debug] token: %v", token)
+			log.Trace("[RCOS Debug] token err: %v", err)
 			if err != nil {
 				if db.IsErrAccessTokenNotExist(err) {
 					askCredentials(c, http.StatusUnauthorized, "")
