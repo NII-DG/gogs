@@ -128,6 +128,7 @@ func HTTPContexter() macaron.Handler {
 		log.Trace("[RCOS Debug] db.Users.Authenticate ERR : %v", err)
 		log.Trace("[RCOS Debug] authUser object: %v", authUser)
 		if err != nil && !db.IsErrUserNotExist(err) {
+			log.Trace("[RCOS Debug] err != nil && !db.IsErrUserNotExist(err)")
 			c.Status(http.StatusInternalServerError)
 			log.Error("Failed to authenticate user [name: %s]: %v", authUsername, err)
 			return
