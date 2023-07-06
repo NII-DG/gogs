@@ -41,7 +41,7 @@ func DumpDatabase(db *gorm.DB, dirPath string, verbose bool) error {
 	for _, table := range tables {
 		tableName := getTableType(table)
 		if verbose {
-			log.Trace("Dumping table %q...", tableName)
+			log.Error("Dumping table %q...", tableName)
 		}
 
 		err := func() error {
@@ -96,7 +96,7 @@ func dumpLegacyTables(dirPath string, verbose bool) error {
 	for _, table := range legacyTables {
 		tableName := getTableType(table)
 		if verbose {
-			log.Trace("Dumping table %q...", tableName)
+			log.Error("Dumping table %q...", tableName)
 		}
 
 		tableFile := filepath.Join(dirPath, tableName+".json")
@@ -133,7 +133,7 @@ func ImportDatabase(db *gorm.DB, dirPath string, verbose bool) error {
 			}
 
 			if verbose {
-				log.Trace("Importing table %q...", tableName)
+				log.Error("Importing table %q...", tableName)
 			}
 
 			f, err := os.Open(tableFile)
@@ -210,7 +210,7 @@ func importLegacyTables(dirPath string, verbose bool) error {
 		}
 
 		if verbose {
-			log.Trace("Importing table %q...", tableName)
+			log.Error("Importing table %q...", tableName)
 		}
 
 		if err := x.DropTables(table); err != nil {

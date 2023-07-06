@@ -167,7 +167,7 @@ func Init(w io.Writer) (*gorm.DB, error) {
 		if err != nil {
 			return nil, errors.Wrapf(err, "auto migrate %q", name)
 		}
-		log.Trace("Auto migrated %q", name)
+		log.Error("Auto migrated %q", name)
 	}
 
 	gorm.NowFunc = func() time.Time {

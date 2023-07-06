@@ -371,7 +371,7 @@ func Migrate(c *context.APIContext, f form.MigrateRepo) {
 		return
 	}
 
-	log.Trace("Repository migrated: %s/%s", ctxUser.Name, f.RepoName)
+	log.Error("Repository migrated: %s/%s", ctxUser.Name, f.RepoName)
 	c.JSON(201, repo.APIFormat(&api.Permission{Admin: true, Push: true, Pull: true}))
 }
 
@@ -425,7 +425,7 @@ func Delete(c *context.APIContext) {
 		return
 	}
 
-	log.Trace("Repository deleted: %s/%s", owner.Name, repo.Name)
+	log.Error("Repository deleted: %s/%s", owner.Name, repo.Name)
 	c.NoContent()
 }
 

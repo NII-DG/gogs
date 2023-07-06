@@ -25,7 +25,7 @@ func GetAllMetadataByRepoIDAndBranch(c *context.APIContext) {
 	}
 	branch := c.Params(":branch")
 	req_user := c.User
-	log.Trace("API to get Research All Metadata[Repository ID : %s, Branch : %s] has been done by User[ID : %d]", repoid_str, branch, req_user.ID)
+	log.Error("API to get Research All Metadata[Repository ID : %s, Branch : %s] has been done by User[ID : %d]", repoid_str, branch, req_user.ID)
 
 	repoid, _ := strconv.Atoi(repoid_str)
 	repo, err := db.GetRepositoryByID(int64(repoid))
@@ -74,7 +74,7 @@ func GetAllMetadataByRepoIDAndBranch(c *context.APIContext) {
 		c.JSON(http.StatusBadRequest, map[string]interface{}{
 			"message": fmt.Sprintf("you do not has access right to get repository <ID : %s> metadata.", repoid_str),
 		})
-		log.Trace("user<%s> do not has access right to get repository <ID : %s> metadata.", req_user.Name, repoid_str)
+		log.Error("user<%s> do not has access right to get repository <ID : %s> metadata.", req_user.Name, repoid_str)
 		return
 	}
 

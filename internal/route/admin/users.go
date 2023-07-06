@@ -109,7 +109,7 @@ func NewUserPost(c *context.Context, f form.AdminCrateUser) {
 		}
 		return
 	}
-	log.Trace("Account created by admin (%s): %s", c.User.Name, u.Name)
+	log.Error("Account created by admin (%s): %s", c.User.Name, u.Name)
 
 	// Send email notification.
 	if f.SendNotify && conf.Email.Enabled {
@@ -266,7 +266,7 @@ func EditUserPost(c *context.Context, f form.AdminEditUser) {
 		}
 		return
 	}
-	log.Trace("Account profile updated by admin (%s): %s", c.User.Name, u.Name)
+	log.Error("Account profile updated by admin (%s): %s", c.User.Name, u.Name)
 
 	c.Flash.Success(c.Tr("admin.users.update_profile_success"))
 	c.Redirect(conf.Server.Subpath + "/admin/users/" + c.Params(":userid"))
@@ -296,7 +296,7 @@ func DeleteUser(c *context.Context) {
 		}
 		return
 	}
-	log.Trace("Account deleted by admin (%s): %s", c.User.Name, u.Name)
+	log.Error("Account deleted by admin (%s): %s", c.User.Name, u.Name)
 
 	c.Flash.Success(c.Tr("admin.users.deletion_success"))
 	c.JSONSuccess(map[string]interface{}{

@@ -186,7 +186,7 @@ func NewTeamPost(c *context.Context, f form.CreateTeam) {
 		}
 		return
 	}
-	log.Trace("Team created: %s/%s", c.Org.Organization.Name, t.Name)
+	log.Error("Team created: %s/%s", c.Org.Organization.Name, t.Name)
 	c.Redirect(c.Org.OrgLink + "/teams/" + t.LowerName)
 }
 

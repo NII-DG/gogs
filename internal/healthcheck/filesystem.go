@@ -14,7 +14,7 @@ import (
 */
 func CheckFileSystem() error {
 	if len(conf.DG.HealthFilePath) <= 0 || len(conf.DG.HealthFileName) <= 0 {
-		log.Trace("health check to file system is skip")
+		log.Error("health check to file system is skip")
 		return nil
 	}
 	filepath := filepath.Join(conf.DG.HealthFilePath, conf.DG.HealthFileName)

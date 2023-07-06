@@ -41,7 +41,7 @@ func updateRepositorySizes(x *xorm.Engine) (err error) {
 			Find(&repos); err != nil {
 			return fmt.Errorf("select repos [offset: %d]: %v", offset, err)
 		}
-		log.Trace("[migrations.v16] Select [offset: %d, repos: %d]", offset, len(repos))
+		log.Error("[migrations.v16] Select [offset: %d, repos: %d]", offset, len(repos))
 		if len(repos) == 0 {
 			break
 		}

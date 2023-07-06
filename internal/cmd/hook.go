@@ -236,7 +236,7 @@ func runHookPostReceive(c *cli.Context) error {
 		q.Add("secret", os.Getenv(db.ENV_REPO_OWNER_SALT_MD5))
 		q.Add("pusher", os.Getenv(db.ENV_AUTH_USER_ID))
 		reqURL := fmt.Sprintf("%s%s/%s/tasks/trigger?%s", conf.Server.LocalRootURL, options.RepoUserName, options.RepoName, q.Encode())
-		log.Trace("Trigger task: %s", reqURL)
+		log.Error("Trigger task: %s", reqURL)
 
 		resp, err := httplib.Get(reqURL).
 			SetTLSClientConfig(&tls.Config{

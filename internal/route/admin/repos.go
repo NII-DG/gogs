@@ -78,7 +78,7 @@ func DeleteRepo(c *context.Context) {
 		c.Error(err, "delete repository")
 		return
 	}
-	log.Trace("Repository deleted: %s/%s", repo.MustOwner().Name, repo.Name)
+	log.Error("Repository deleted: %s/%s", repo.MustOwner().Name, repo.Name)
 
 	c.Flash.Success(c.Tr("repo.settings.deletion_success"))
 	c.JSONSuccess(map[string]interface{}{

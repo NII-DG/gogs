@@ -58,15 +58,15 @@ func GlobalInit(customConf string) error {
 
 	conf.InitLogging(false)
 	log.Info("%s %s", conf.App.BrandName, conf.App.Version)
-	log.Trace("Work directory: %s", conf.WorkDir())
-	log.Trace("Custom path: %s", conf.CustomDir())
-	log.Trace("Custom config: %s", conf.CustomConf)
-	log.Trace("Log path: %s", conf.Log.RootPath)
-	log.Trace("Build time: %s", conf.BuildTime)
-	log.Trace("Build commit: %s", conf.BuildCommit)
+	log.Error("Work directory: %s", conf.WorkDir())
+	log.Error("Custom path: %s", conf.CustomDir())
+	log.Error("Custom config: %s", conf.CustomConf)
+	log.Error("Log path: %s", conf.Log.RootPath)
+	log.Error("Build time: %s", conf.BuildTime)
+	log.Error("Build commit: %s", conf.BuildCommit)
 
 	if conf.Email.Enabled {
-		log.Trace("Email service is enabled")
+		log.Error("Email service is enabled")
 	}
 
 	email.NewContext()
@@ -93,7 +93,7 @@ func GlobalInit(customConf string) error {
 		log.Info("Builtin Windows Service is supported")
 	}
 	if conf.Server.LoadAssetsFromDisk {
-		log.Trace("Assets are loaded from disk")
+		log.Error("Assets are loaded from disk")
 	}
 	checkRunMode()
 
@@ -104,7 +104,7 @@ func GlobalInit(customConf string) error {
 	if conf.SSH.StartBuiltinServer {
 		ssh.Listen(conf.SSH.ListenHost, conf.SSH.ListenPort, conf.SSH.ServerCiphers)
 		log.Info("SSH server started on %s:%v", conf.SSH.ListenHost, conf.SSH.ListenPort)
-		log.Trace("SSH server cipher list: %v", conf.SSH.ServerCiphers)
+		log.Error("SSH server cipher list: %v", conf.SSH.ServerCiphers)
 	}
 
 	if conf.SSH.RewriteAuthorizedKeysAtStart {
@@ -426,7 +426,7 @@ func InstallPost(c *context.Context, f form.Install) {
 
 func HeathFileInit() error {
 	if len(conf.DG.HealthFilePath) <= 0 || len(conf.DG.HealthFileName) <= 0 {
-		log.Trace("Creating file for file system health check is skip")
+		log.Error("Creating file for file system health check is skip")
 		return nil
 	}
 

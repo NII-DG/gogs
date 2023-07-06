@@ -60,7 +60,7 @@ func CreateUser(c *context.APIContext, form api.CreateUserOption) {
 		}
 		return
 	}
-	log.Trace("Account created by admin %q: %s", c.User.Name, u.Name)
+	log.Error("Account created by admin %q: %s", c.User.Name, u.Name)
 
 	// Send email notification.
 	if form.SendNotify && conf.Email.Enabled {
@@ -120,7 +120,7 @@ func EditUser(c *context.APIContext, form api.EditUserOption) {
 		}
 		return
 	}
-	log.Trace("Account profile updated by admin %q: %s", c.User.Name, u.Name)
+	log.Error("Account profile updated by admin %q: %s", c.User.Name, u.Name)
 
 	c.JSONSuccess(u.APIFormat())
 }
@@ -140,7 +140,7 @@ func DeleteUser(c *context.APIContext) {
 		}
 		return
 	}
-	log.Trace("Account deleted by admin(%s): %s", c.User.Name, u.Name)
+	log.Error("Account deleted by admin(%s): %s", c.User.Name, u.Name)
 
 	c.NoContent()
 }

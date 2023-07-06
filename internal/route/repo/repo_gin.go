@@ -65,10 +65,10 @@ func serveAnnexedKey(ctx *context.Context, name string, contentPath string) erro
 		ctx.Resp.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	}
 
-	log.Trace("Serving annex content for %q: %q", name, contentPath)
+	log.Error("Serving annex content for %q: %q", name, contentPath)
 	if ctx.Req.Method == http.MethodHead {
 		// Skip content copy when request method is HEAD
-		log.Trace("Returning header: %+v", ctx.Resp.Header())
+		log.Error("Returning header: %+v", ctx.Resp.Header())
 		return nil
 	}
 	_, err = io.Copy(ctx.Resp, annexReader)
@@ -77,7 +77,7 @@ func serveAnnexedKey(ctx *context.Context, name string, contentPath string) erro
 
 // readDmpJson is RCOS specific code.
 func readDmpJson(c context.AbstructContext) {
-	log.Trace("Reading dmp.json file")
+	log.Error("Reading dmp.json file")
 	entry, err := c.GetRepo().GetCommit().Blob("/dmp.json")
 	if err != nil || entry == nil {
 		log.Error("dmp.json blob could not be retrieved: %v", err)
@@ -269,7 +269,7 @@ func (f repoUtil) fetchContentsOnGithub(c context.AbstructContext, blobPath stri
 		return nil, fmt.Errorf("do not Request. blobPath : %s, Error Msg : %v", blobPath, err)
 	}
 	defer resp.Body.Close()
-	log.Trace("Github api rate limit Remaining : %s", resp.Header.Values("X-RateLimit-Remaining")[0])
+	log.Error("Github api rate limit Remaining : %s", resp.Header.Values("X-RateLimit-Remaining")[0])
 
 	if resp.StatusCode == http.StatusNotFound {
 		c.CallData()["IsInternalError"] = true
@@ -455,7 +455,7 @@ func resolveAnnexedContent(c *context.Context, buf []byte) ([]byte, error) {
 		// not an annex pointer file; return as is
 		return buf, nil
 	}
-	log.Trace("Annexed file requested: Resolving content for %q", bytes.TrimSpace(buf))
+	log.Error("Annexed file requested: Resolving content for %q", bytes.TrimSpace(buf))
 
 	keyparts := strings.Split(strings.TrimSpace(string(buf)), "/")
 	key := keyparts[len(keyparts)-1]
@@ -476,13 +476,13 @@ func resolveAnnexedContent(c *context.Context, buf []byte) ([]byte, error) {
 	contentPath = bytes.TrimSpace(contentPath)
 	afp, err := os.Open(filepath.Join(c.Repo.Repository.RepoPath(), string(contentPath)))
 	if err != nil {
-		log.Trace("Could not open annex file: %v", err)
+		log.Error("Could not open annex file: %v", err)
 		c.Data["IsAnnexedFile"] = true
 		return buf, err
 	}
 	info, err := afp.Stat()
 	if err != nil {
-		log.Trace("Could not stat annex file: %v", err)
+		log.Error("Could not stat annex file: %v", err)
 		c.Data["IsAnnexedFile"] = true
 		return buf, err
 	}
@@ -491,14 +491,14 @@ func resolveAnnexedContent(c *context.Context, buf []byte) ([]byte, error) {
 	n, _ := annexDataReader.Read(annexBuf)
 	annexBuf = annexBuf[:n]
 	c.Data["FileSize"] = info.Size()
-	log.Trace("Annexed file size: %d B", info.Size())
+	log.Error("Annexed file size: %d B", info.Size())
 	return annexBuf, nil
 }
 
 func GitConfig(c *context.Context) {
-	log.Trace("RepoPath: %+v", c.Repo.Repository.RepoPath())
+	log.Error("RepoPath: %+v", c.Repo.Repository.RepoPath())
 	configFilePath := path.Join(c.Repo.Repository.RepoPath(), "config")
-	log.Trace("Serving file %q", configFilePath)
+	log.Error("Serving file %q", configFilePath)
 	if _, err := os.Stat(configFilePath); err != nil {
 		c.Error(err, "GitConfig")
 		// c.ServerError("GitConfig", err)
@@ -511,7 +511,7 @@ func AnnexGetKey(c *context.Context) {
 	filename := c.Params(":keyfile")
 	key := c.Params(":key")
 	contentPath := filepath.Join("annex/objects", c.Params(":hashdira"), c.Params(":hashdirb"), key, filename)
-	log.Trace("Git annex requested key %q: %q", key, contentPath)
+	log.Error("Git annex requested key %q: %q", key, contentPath)
 	err := serveAnnexedKey(c, filename, contentPath)
 	if err != nil {
 		c.Error(err, "AnnexGetKey")

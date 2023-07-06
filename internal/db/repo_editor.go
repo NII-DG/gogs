@@ -459,7 +459,7 @@ func isRepositoryGitPath(path string) bool {
 }
 
 func (repo *Repository) UploadRepoFiles(doer *User, opts UploadRepoFileOptions) (err error) {
-	log.Trace("start uplodefile")
+	log.Error("start uplodefile")
 	if len(opts.Files) == 0 {
 		return nil
 	}
@@ -524,9 +524,9 @@ func (repo *Repository) UploadRepoFiles(doer *User, opts UploadRepoFileOptions) 
 		uploads_map[upload.Name] = targetPath
 	}
 
-	log.Trace("before annexSetup")
+	log.Error("before annexSetup")
 	annexSetup(localPath) // Initialise annex and set configuration (with add filter for filesizes)
-	log.Trace("before annexAdd")
+	log.Error("before annexAdd")
 	annexAddMsg, err := annexAdd(localPath, true)
 	if err != nil {
 		return fmt.Errorf("git annex add: %v", err)

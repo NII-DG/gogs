@@ -74,10 +74,10 @@ func handleServerConn(keyID string, chans <-chan ssh.NewChannel) {
 
 				case "exec":
 					cmdName := strings.TrimLeft(payload, "'()")
-					log.Trace("SSH: Payload: %v", cmdName)
+					log.Error("SSH: Payload: %v", cmdName)
 
 					args := []string{"serv", "key-" + keyID, "--config=" + conf.CustomConf}
-					log.Trace("SSH: Arguments: %v", args)
+					log.Error("SSH: Arguments: %v", args)
 					cmd := exec.Command(conf.AppPath(), args...)
 					cmd.Env = append(os.Environ(), "SSH_ORIGINAL_COMMAND="+cmdName)
 
@@ -142,7 +142,7 @@ func listen(config *ssh.ServerConfig, host string, port int) {
 		// otherwise one user could easily block entire loop.
 		// For example, user could be asked to trust server key fingerprint and hangs.
 		go func() {
-			log.Trace("SSH: Handshaking for %s", conn.RemoteAddr())
+			log.Error("SSH: Handshaking for %s", conn.RemoteAddr())
 			sConn, chans, reqs, err := ssh.NewServerConn(conn, config)
 			if err != nil {
 				if err == io.EOF {
@@ -153,7 +153,7 @@ func listen(config *ssh.ServerConfig, host string, port int) {
 				return
 			}
 
-			log.Trace("SSH: Connection from %s (%s)", sConn.RemoteAddr(), sConn.ClientVersion())
+			log.Error("SSH: Connection from %s (%s)", sConn.RemoteAddr(), sConn.ClientVersion())
 			// The incoming Request channel must be serviced.
 			go ssh.DiscardRequests(reqs)
 			go handleServerConn(sConn.Permissions.Extensions["key-id"], chans)
@@ -186,7 +186,7 @@ func Listen(host string, port int, ciphers []string) {
 		if err != nil {
 			panic(fmt.Sprintf("Failed to generate private key: %v - %s", err, stderr))
 		}
-		log.Trace("SSH: New private key is generateed: %s", keyPath)
+		log.Error("SSH: New private key is generateed: %s", keyPath)
 	}
 
 	privateBytes, err := ioutil.ReadFile(keyPath)

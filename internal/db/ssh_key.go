@@ -311,7 +311,7 @@ func CheckPublicKeyString(content string) (_ string, err error) {
 	if err != nil {
 		return "", fmt.Errorf("%s: %v", fnName, err)
 	}
-	log.Trace("Key info [native: %v]: %s-%d", conf.SSH.StartBuiltinServer, keyType, length)
+	log.Error("Key info [native: %v]: %s-%d", conf.SSH.StartBuiltinServer, keyType, length)
 
 	if minLen, found := conf.SSH.MinimumKeySizes[keyType]; found && length >= minLen {
 		return content, nil
@@ -403,7 +403,7 @@ func addKey(e Engine, key *PublicKey) (err error) {
 
 // AddPublicKey adds new public key to database and authorized_keys file.
 func AddPublicKey(ownerID int64, name, content string) (*PublicKey, error) {
-	log.Trace(content)
+	log.Error(content)
 	if err := checkKeyContent(content); err != nil {
 		return nil, err
 	}
@@ -522,7 +522,7 @@ func RewriteAuthorizedKeys() error {
 	sshOpLocker.Lock()
 	defer sshOpLocker.Unlock()
 
-	log.Trace("Doing: RewriteAuthorizedKeys")
+	log.Error("Doing: RewriteAuthorizedKeys")
 
 	_ = os.MkdirAll(conf.SSH.RootPath, os.ModePerm)
 	fpath := filepath.Join(conf.SSH.RootPath, "authorized_keys")

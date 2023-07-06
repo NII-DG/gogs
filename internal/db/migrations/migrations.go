@@ -341,7 +341,7 @@ func convertDateToUnix(x *xorm.Engine) (err error) {
 				table.name, offset)).Find(&beans); err != nil {
 				return fmt.Errorf("select beans [table: %s, offset: %d]: %v", table.name, offset, err)
 			}
-			log.Trace("Table [%s]: offset: %d, beans: %d", table.name, offset, len(beans))
+			log.Error("Table [%s]: offset: %d, beans: %d", table.name, offset, len(beans))
 			if len(beans) == 0 {
 				break
 			}

@@ -76,7 +76,7 @@ func SettingsPost(c *context.Context, f form.RepoSetting) {
 				return
 			}
 
-			log.Trace("Repository name changed: %s/%s -> %s", c.Repo.Owner.Name, repo.Name, newRepoName)
+			log.Error("Repository name changed: %s/%s -> %s", c.Repo.Owner.Name, repo.Name, newRepoName)
 		}
 		// In case it's just a case change.
 		repo.Name = newRepoName
@@ -98,7 +98,7 @@ func SettingsPost(c *context.Context, f form.RepoSetting) {
 			c.Error(err, "update repository")
 			return
 		}
-		log.Trace("Repository basic settings updated: %s/%s", c.Repo.Owner.Name, repo.Name)
+		log.Error("Repository basic settings updated: %s/%s", c.Repo.Owner.Name, repo.Name)
 
 		if isNameChanged {
 			if err := db.RenameRepoAction(c.User, oldRepoName, repo); err != nil {
@@ -168,7 +168,7 @@ func SettingsPost(c *context.Context, f form.RepoSetting) {
 			c.Error(err, "update repository")
 			return
 		}
-		log.Trace("Repository advanced settings updated: %s/%s", c.Repo.Owner.Name, repo.Name)
+		log.Error("Repository advanced settings updated: %s/%s", c.Repo.Owner.Name, repo.Name)
 
 		c.Flash.Success(c.Tr("repo.settings.update_settings_success"))
 		c.Redirect(c.Repo.RepoLink + "/settings")
@@ -203,7 +203,7 @@ func SettingsPost(c *context.Context, f form.RepoSetting) {
 			c.Error(err, "delete mirror by repository ID")
 			return
 		}
-		log.Trace("Repository converted from mirror to regular: %s/%s", c.Repo.Owner.Name, repo.Name)
+		log.Error("Repository converted from mirror to regular: %s/%s", c.Repo.Owner.Name, repo.Name)
 		c.Flash.Success(c.Tr("repo.settings.convert_succeed"))
 		c.Redirect(conf.Server.Subpath + "/" + c.Repo.Owner.Name + "/" + repo.Name)
 
@@ -242,7 +242,7 @@ func SettingsPost(c *context.Context, f form.RepoSetting) {
 			}
 			return
 		}
-		log.Trace("Repository transfered: %s/%s -> %s", c.Repo.Owner.Name, repo.Name, newOwner)
+		log.Error("Repository transfered: %s/%s -> %s", c.Repo.Owner.Name, repo.Name, newOwner)
 		c.Flash.Success(c.Tr("repo.settings.transfer_succeed"))
 		c.Redirect(conf.Server.Subpath + "/" + newOwner + "/" + repo.Name)
 
@@ -267,7 +267,7 @@ func SettingsPost(c *context.Context, f form.RepoSetting) {
 			c.Error(err, "delete repository")
 			return
 		}
-		log.Trace("Repository deleted: %s/%s", c.Repo.Owner.Name, repo.Name)
+		log.Error("Repository deleted: %s/%s", c.Repo.Owner.Name, repo.Name)
 
 		c.Flash.Success(c.Tr("repo.settings.deletion_success"))
 		c.Redirect(c.Repo.Owner.DashboardLink())
@@ -290,7 +290,7 @@ func SettingsPost(c *context.Context, f form.RepoSetting) {
 		}
 
 		repo.DeleteWiki()
-		log.Trace("Repository wiki deleted: %s/%s", c.Repo.Owner.Name, repo.Name)
+		log.Error("Repository wiki deleted: %s/%s", c.Repo.Owner.Name, repo.Name)
 
 		repo.EnableWiki = false
 		if err := db.UpdateRepository(repo, false); err != nil {
@@ -710,7 +710,7 @@ func SettingsDeployKeysPost(c *context.Context, f form.AddSSHKey) {
 		return
 	}
 
-	log.Trace("Deploy key added: %d", c.Repo.Repository.ID)
+	log.Error("Deploy key added: %d", c.Repo.Repository.ID)
 	c.Flash.Success(c.Tr("repo.settings.add_key_success", key.Name))
 	c.Redirect(c.Repo.RepoLink + "/settings/keys")
 }

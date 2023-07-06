@@ -211,7 +211,7 @@ func renameRepoAction(e Engine, actUser *User, oldRepoName string, repo *Reposit
 		return fmt.Errorf("notify watchers: %v", err)
 	}
 
-	log.Trace("action.renameRepoAction: %s/%s", actUser.Name, repo.Name)
+	log.Error("action.renameRepoAction: %s/%s", actUser.Name, repo.Name)
 	return nil
 }
 

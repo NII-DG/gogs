@@ -412,14 +412,14 @@ func (pr *PullRequest) testPatch() (err error) {
 
 	// Fast fail if patch does not exist, this assumes data is cruppted.
 	if !osutil.IsFile(patchPath) {
-		log.Trace("PullRequest[%d].testPatch: ignored cruppted data", pr.ID)
+		log.Error("PullRequest[%d].testPatch: ignored cruppted data", pr.ID)
 		return nil
 	}
 
 	repoWorkingPool.CheckIn(com.ToStr(pr.BaseRepoID))
 	defer repoWorkingPool.CheckOut(com.ToStr(pr.BaseRepoID))
 
-	log.Trace("PullRequest[%d].testPatch (patchPath): %s", pr.ID, patchPath)
+	log.Error("PullRequest[%d].testPatch (patchPath): %s", pr.ID, patchPath)
 
 	if err := pr.BaseRepo.UpdateLocalCopyBranch(pr.BaseBranch); err != nil {
 		return fmt.Errorf("UpdateLocalCopy [%d]: %v", pr.BaseRepoID, err)
@@ -436,7 +436,7 @@ func (pr *PullRequest) testPatch() (err error) {
 		fmt.Sprintf("testPatch (git apply --check): %d", pr.BaseRepo.ID),
 		"git", args...)
 	if err != nil {
-		log.Trace("PullRequest[%d].testPatch (apply): has conflit\n%s", pr.ID, stderr)
+		log.Error("PullRequest[%d].testPatch (apply): has conflit\n%s", pr.ID, stderr)
 		pr.Status = PULL_REQUEST_STATUS_CONFLICT
 		return nil
 	}
@@ -622,7 +622,7 @@ func (pr *PullRequest) UpdateCols(cols ...string) error {
 // UpdatePatch generates and saves a new patch.
 func (pr *PullRequest) UpdatePatch() (err error) {
 	if pr.HeadRepo == nil {
-		log.Trace("PullRequest[%d].UpdatePatch: ignored cruppted data", pr.ID)
+		log.Error("PullRequest[%d].UpdatePatch: ignored cruppted data", pr.ID)
 		return nil
 	}
 
@@ -661,7 +661,7 @@ func (pr *PullRequest) UpdatePatch() (err error) {
 		return fmt.Errorf("save patch: %v", err)
 	}
 
-	log.Trace("PullRequest[%d].UpdatePatch: patch saved", pr.ID)
+	log.Error("PullRequest[%d].UpdatePatch: patch saved", pr.ID)
 	return nil
 }
 
@@ -669,7 +669,7 @@ func (pr *PullRequest) UpdatePatch() (err error) {
 // corresponding branches of base repository.
 // FIXME: Only push branches that are actually updates?
 func (pr *PullRequest) PushToBaseRepo() (err error) {
-	log.Trace("PushToBaseRepo[%d]: pushing commits to base repo 'refs/pull/%d/head'", pr.BaseRepoID, pr.Index)
+	log.Error("PushToBaseRepo[%d]: pushing commits to base repo 'refs/pull/%d/head'", pr.BaseRepoID, pr.Index)
 
 	headRepoPath := pr.HeadRepo.RepoPath()
 	headGitRepo, err := git.Open(headRepoPath)
@@ -759,7 +759,7 @@ func (prs PullRequestList) LoadAttributes() error {
 
 func addHeadRepoTasks(prs []*PullRequest) {
 	for _, pr := range prs {
-		log.Trace("addHeadRepoTasks[%d]: composing new test task", pr.ID)
+		log.Error("addHeadRepoTasks[%d]: composing new test task", pr.ID)
 		if err := pr.UpdatePatch(); err != nil {
 			log.Error("UpdatePatch: %v", err)
 			continue
@@ -775,7 +775,7 @@ func addHeadRepoTasks(prs []*PullRequest) {
 // AddTestPullRequestTask adds new test tasks by given head/base repository and head/base branch,
 // and generate new patch for testing as needed.
 func AddTestPullRequestTask(doer *User, repoID int64, branch string, isSync bool) {
-	log.Trace("AddTestPullRequestTask [head_repo_id: %d, head_branch: %s]: finding pull requests", repoID, branch)
+	log.Error("AddTestPullRequestTask [head_repo_id: %d, head_branch: %s]: finding pull requests", repoID, branch)
 	prs, err := GetUnmergedPullRequestsByHeadInfo(repoID, branch)
 	if err != nil {
 		log.Error("Find pull requests [head_repo_id: %d, head_branch: %s]: %v", repoID, branch, err)
@@ -810,7 +810,7 @@ func AddTestPullRequestTask(doer *User, repoID int64, branch string, isSync bool
 
 	addHeadRepoTasks(prs)
 
-	log.Trace("AddTestPullRequestTask [base_repo_id: %d, base_branch: %s]: finding pull requests", repoID, branch)
+	log.Error("AddTestPullRequestTask [base_repo_id: %d, base_branch: %s]: finding pull requests", repoID, branch)
 	prs, err = GetUnmergedPullRequestsByBaseInfo(repoID, branch)
 	if err != nil {
 		log.Error("Find pull requests [base_repo_id: %d, base_branch: %s]: %v", repoID, branch, err)
@@ -875,7 +875,7 @@ func TestPullRequests() {
 
 	// Start listening on new test requests.
 	for prID := range PullRequestQueue.Queue() {
-		log.Trace("TestPullRequests[%v]: processing test task", prID)
+		log.Error("TestPullRequests[%v]: processing test task", prID)
 		PullRequestQueue.Remove(prID)
 
 		pr, err := GetPullRequestByID(com.StrTo(prID).MustInt64())

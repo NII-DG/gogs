@@ -60,7 +60,7 @@ func SettingsPost(c *context.Context, f form.UpdateOrgSetting) {
 		}
 		// reset c.org.OrgLink with new name
 		c.Org.OrgLink = conf.Server.Subpath + "/org/" + f.Name
-		log.Trace("Organization name changed: %s -> %s", org.Name, f.Name)
+		log.Error("Organization name changed: %s -> %s", org.Name, f.Name)
 	}
 	// In case it's just a case change.
 	org.Name = f.Name
@@ -78,7 +78,7 @@ func SettingsPost(c *context.Context, f form.UpdateOrgSetting) {
 		c.Error(err, "update user")
 		return
 	}
-	log.Trace("Organization setting updated: %s", org.Name)
+	log.Error("Organization setting updated: %s", org.Name)
 	c.Flash.Success(c.Tr("org.settings.update_setting_success"))
 	c.Redirect(c.Org.OrgLink + "/settings")
 }
@@ -125,7 +125,7 @@ func SettingsDelete(c *context.Context) {
 				c.Error(err, "delete organization")
 			}
 		} else {
-			log.Trace("Organization deleted: %s", org.Name)
+			log.Error("Organization deleted: %s", org.Name)
 			c.Redirect(conf.Server.Subpath + "/")
 		}
 		return

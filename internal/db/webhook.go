@@ -721,9 +721,9 @@ func (t *HookTask) deliver() {
 	defer func() {
 		t.Delivered = time.Now().UnixNano()
 		if t.IsSucceed {
-			log.Trace("Hook delivered: %s", t.UUID)
+			log.Error("Hook delivered: %s", t.UUID)
 		} else {
-			log.Trace("Hook delivery failed: %s", t.UUID)
+			log.Error("Hook delivery failed: %s", t.UUID)
 		}
 
 		// Update webhook last delivery status.
@@ -786,7 +786,7 @@ func DeliverHooks() {
 
 	// Start listening on new hook requests.
 	for repoID := range HookQueue.Queue() {
-		log.Trace("DeliverHooks [repo_id: %v]", repoID)
+		log.Error("DeliverHooks [repo_id: %v]", repoID)
 		HookQueue.Remove(repoID)
 
 		tasks = make([]*HookTask, 0, 5)

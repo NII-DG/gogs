@@ -96,7 +96,7 @@ func authenticate() macaron.Handler {
 			}
 		}
 
-		log.Trace("[LFS] Authenticated user: %s", user.Name)
+		log.Error("[LFS] Authenticated user: %s", user.Name)
 
 		c.Map(user)
 	}
@@ -135,7 +135,7 @@ func authorize(mode db.AccessMode) macaron.Handler {
 			return
 		}
 
-		log.Trace("[LFS] Authorized user %q to %q", actor.Name, username+"/"+reponame)
+		log.Error("[LFS] Authorized user %q to %q", actor.Name, username+"/"+reponame)
 
 		c.Map(owner) // NOTE: Override actor
 		c.Map(repo)
@@ -153,7 +153,7 @@ func verifyHeader(key, value string, failCode int) macaron.Handler {
 			}
 		}
 
-		log.Trace("[LFS] HTTP header %q does not contain value %q", key, value)
+		log.Error("[LFS] HTTP header %q does not contain value %q", key, value)
 		c.Status(failCode)
 	}
 }
