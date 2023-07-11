@@ -723,7 +723,7 @@ func runWeb(c *cli.Context) error {
 			lfs.RegisterRoutes(m.Router)
 		})
 		m.Group("/data", func() {
-			m.Get("/raw/*", context.ServeGoGet(), repo.HTTPContexter(), repo.SingleDownload)
+			m.Get("/raw/*", context.ServeGoGet(), repo.HTTPContexter(), repo.SingleDataDownload)
 		})
 		m.Route("/*", "GET,POST,OPTIONS", context.ServeGoGet(), repo.HTTPContexter(), repo.HTTP)
 	})

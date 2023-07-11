@@ -15,6 +15,7 @@ import (
 	"github.com/NII-DG/gogs/internal/context"
 	"github.com/NII-DG/gogs/internal/gitutil"
 	"github.com/NII-DG/gogs/internal/tool"
+	log "unknwon.dev/clog/v2"
 )
 
 func serveData(c *context.Context, name string, data []byte) error {
@@ -52,6 +53,7 @@ func ServeBlob(c *context.Context, blob *git.Blob) error {
 }
 
 func SingleDownload(c *context.Context) {
+	log.Info("[DEBUG RCOS] entry SingleDownload()")
 	blob, err := getBlobByPath(c.Repo)
 	if err != nil {
 		c.NotFoundOrError(gitutil.NewError(err), "get blob")
@@ -62,6 +64,12 @@ func SingleDownload(c *context.Context) {
 		c.Error(err, "serve blob")
 		return
 	}
+}
+
+func SingleDataDownload(c *context.Context) {
+	log.Info("[DEBUG RCOS] entry SingleDataDownload()")
+	SingleDownload(c)
+	log.Info("[DEBUG RCOS] end SingleDataDownload()")
 }
 
 func getBlobByPath(repo *context.Repository) (*git.Blob, error) {
