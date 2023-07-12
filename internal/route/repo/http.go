@@ -21,6 +21,7 @@ import (
 	log "unknwon.dev/clog/v2"
 
 	"github.com/NII-DG/gogs/internal/conf"
+	"github.com/NII-DG/gogs/internal/context"
 	"github.com/NII-DG/gogs/internal/db"
 	"github.com/NII-DG/gogs/internal/lazyregexp"
 	"github.com/NII-DG/gogs/internal/tool"
@@ -33,6 +34,7 @@ type HTTPContext struct {
 	RepoID    int64
 	RepoName  string
 	AuthUser  *db.User
+	Repo      *context.Repository
 }
 
 // askCredentials responses HTTP header and status which informs client to provide credentials.
@@ -179,6 +181,11 @@ Please create and use personal access token on user settings page`)
 			return
 		}
 
+		// RCOS specific code
+		context_repo := &context.Repository{
+			Repository: repo,
+		}
+
 		c.Map(&HTTPContext{
 			Context:   c,
 			OwnerName: ownerName,
@@ -186,6 +193,7 @@ Please create and use personal access token on user settings page`)
 			RepoID:    repo.ID,
 			RepoName:  repoName,
 			AuthUser:  authUser,
+			Repo:      context_repo, // RCOS specific code
 		})
 	}
 }

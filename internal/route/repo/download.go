@@ -66,10 +66,12 @@ func SingleDownload(c *context.Context) {
 	}
 }
 
-func SingleDataDownload(c *context.Context) {
+func SingleDataDownload(c *HTTPContext) {
 	log.Info("[DEBUG RCOS] entry SingleDataDownload()")
-	SingleDownload(c)
+	log.Info("[DEBUG RCOS] c.Repo.TreePath : %s", c.Repo.TreePath)
+
 	log.Info("[DEBUG RCOS] end SingleDataDownload()")
+	return
 }
 
 func getBlobByPath(repo *context.Repository) (*git.Blob, error) {
