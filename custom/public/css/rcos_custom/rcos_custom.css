@@ -70,6 +70,15 @@ This css is be adapted to template files in custom>templates
     white-space: normal;
 }
 
+select.dmp-menu {
+    text-align: left !important;
+}
+
+select.dmp-menu option:disabled {
+    color: #d95c5c;
+}
+
+
 /*----------------
     logout form
 ------------------*/
