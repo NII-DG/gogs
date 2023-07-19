@@ -234,10 +234,6 @@ func Issues(c *context.Context) {
 	for _, repo := range repos {
 		userRepoIDs = append(userRepoIDs, repo.ID)
 
-		if filterMode != db.FILTER_MODE_YOUR_REPOS {
-			continue
-		}
-
 		if isPullList {
 			if isShowClosed && repo.NumClosedPulls == 0 ||
 				!isShowClosed && repo.NumOpenPulls == 0 {
