@@ -25,6 +25,7 @@
 	<div class="ui container">
 		<div class="ui grid">
 			<div class="ui eleven wide column">
+				{{template "base/alert" .}}
 				{{if .IsOrganizationOwner}}
 					<div class="text right">
 						<a class="ui green button" href="{{AppSubURL}}/repo/create?org={{.Org.ID}}"><i class="octicon octicon-repo-create"></i> {{.i18n.Tr "new_repo"}}</a>
