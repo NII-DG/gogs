@@ -296,7 +296,6 @@ func SettingsPost(c *context.Context, f form.RepoSetting) {
 		repo.DeleteWiki()
 		log.Trace("Repository wiki deleted: %s/%s", c.Repo.Owner.Name, repo.Name)
 
-		repo.EnableWiki = false
 		if err := db.UpdateRepository(repo, false); err != nil {
 			c.Error(err, "update repository")
 			return
