@@ -244,7 +244,11 @@ func SettingsPost(c *context.Context, f form.RepoSetting) {
 		}
 		log.Trace("Repository transfered: %s/%s -> %s", c.Repo.Owner.Name, repo.Name, newOwner)
 		c.Flash.Success(c.Tr("repo.settings.transfer_succeed"))
-		c.Redirect(conf.Server.Subpath + "/" + newOwner + "/" + repo.Name)
+		if repo.IsPrivate {
+			c.Redirect(conf.Server.Subpath + "/" + c.Repo.Owner.Name)
+		} else {
+			c.Redirect(conf.Server.Subpath + "/" + newOwner + "/" + repo.Name)
+		}
 
 	case "delete":
 		if !c.Repo.IsOwner() {
