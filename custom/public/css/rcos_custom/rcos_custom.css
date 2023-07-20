@@ -39,6 +39,7 @@ This css is be adapted to template files in custom>templates
 /*----------------
     custom>templates>repo>home.tmpl
 ------------------*/
+@import url(http://fonts.googleapis.com/earlyaccess/notosansjp.css);
 #branch_item {
     background: transparent none!important;
     color: rgba(0,0,0,.6)!important;
@@ -49,7 +50,7 @@ This css is be adapted to template files in custom>templates
     -webkit-box-shadow: 0 0 0 1px rgba(34,36,38,.15) inset;
     box-shadow: 0 0 0 1px rgba(34,36,38,.15) inset;
     font-size: .92857143rem;
-    font-family: "Helvetica Neue",Arial,Helvetica,"Meiryo UI",sans-serif!important;
+    font-family: "Helvetica Neue",Arial,Helvetica,"Noto Sans JP",sans-serif!important;
     align-items: center;
     margin: auto 0.5em auto 0;
     padding: 0.78571429em 1.5em 0.78571429em;
