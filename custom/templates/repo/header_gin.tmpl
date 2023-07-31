@@ -22,7 +22,7 @@
 								{{else}}
 									{{if $.SchemaList}}
 									{{if $.IsRepositoryAdmin}}
-										<select class="ui basic button" name="addDmp" onChange="location.href=value;">
+										<select class="ui basic button dmp-menu" name="addDmp" onChange="location.href=value;">
 											<option value="" selected disabled>Add DMP</option>
 											{{ range $v := $.SchemaList }}
 												<option value="{{$.RepoLink}}/_add/{{EscapePound $.BranchName}}/dmp.json/?schema={{$v}}">{{ $v }}</option>
