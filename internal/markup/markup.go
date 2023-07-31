@@ -182,7 +182,8 @@ func RenderSpecialLink(rawBytes []byte, urlPrefix string, metas map[string]strin
 
 	rawBytes = RenderIssueIndexPattern(rawBytes, urlPrefix, metas)
 	rawBytes = RenderCrossReferenceIssueIndexPattern(rawBytes, urlPrefix, metas)
-	rawBytes = RenderSha1CurrentPattern(rawBytes, metas["repoLink"])
+	// avoid 404 link
+	// rawBytes = RenderSha1CurrentPattern(rawBytes, metas["repoLink"])
 	return rawBytes
 }
 
