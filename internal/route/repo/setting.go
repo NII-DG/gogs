@@ -244,7 +244,11 @@ func SettingsPost(c *context.Context, f form.RepoSetting) {
 		}
 		log.Trace("Repository transfered: %s/%s -> %s", c.Repo.Owner.Name, repo.Name, newOwner)
 		c.Flash.Success(c.Tr("repo.settings.transfer_succeed"))
-		c.Redirect(conf.Server.Subpath + "/" + newOwner + "/" + repo.Name)
+		if repo.IsPrivate {
+			c.Redirect(conf.Server.Subpath + "/" + c.Repo.Owner.Name)
+		} else {
+			c.Redirect(conf.Server.Subpath + "/" + newOwner + "/" + repo.Name)
+		}
 
 	case "delete":
 		if !c.Repo.IsOwner() {
@@ -292,7 +296,6 @@ func SettingsPost(c *context.Context, f form.RepoSetting) {
 		repo.DeleteWiki()
 		log.Trace("Repository wiki deleted: %s/%s", c.Repo.Owner.Name, repo.Name)
 
-		repo.EnableWiki = false
 		if err := db.UpdateRepository(repo, false); err != nil {
 			c.Error(err, "update repository")
 			return
