@@ -100,6 +100,9 @@ func HTTPContexter() macaron.Handler {
 			!strings.Contains(action, "HEAD") &&
 			!strings.Contains(action, "objects/") {
 			c.NotFound()
+			c.Map(&HTTPContext{
+				Context: c,
+			})
 			return
 		}
 
@@ -434,5 +437,7 @@ func HTTP(c *HTTPContext) {
 		return
 	}
 
+	c.Data["Title"] = c.Tr("status.page_not_found")
+	c.HTML(http.StatusNotFound, fmt.Sprintf("status/%d", http.StatusNotFound))
 	c.NotFound()
 }

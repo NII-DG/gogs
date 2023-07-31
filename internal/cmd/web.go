@@ -689,6 +689,20 @@ func runWeb(c *cli.Context) error {
 		m.Group("/api", func() {
 			apiv1.RegisterRoutes(m)
 		}, ignSignIn)
+
+		// ***************************
+		// ----- HTTP Git routes -----
+		// ***************************
+
+		m.Group("/:username/:reponame", func() {
+			m.Get("/tasks/trigger", repo.TriggerTask)
+
+			m.Group("/info/lfs", func() {
+				lfs.RegisterRoutes(m.Router)
+			})
+
+			m.Route("/*", "GET,POST,OPTIONS", context.ServeGoGet(), repo.HTTPContexter(), repo.HTTP)
+		})
 	},
 		session.Sessioner(session.Options{
 			Provider:       conf.Session.Provider,
@@ -711,20 +725,6 @@ func runWeb(c *cli.Context) error {
 		}),
 		context.Contexter(),
 	)
-
-	// ***************************
-	// ----- HTTP Git routes -----
-	// ***************************
-
-	m.Group("/:username/:reponame", func() {
-		m.Get("/tasks/trigger", repo.TriggerTask)
-
-		m.Group("/info/lfs", func() {
-			lfs.RegisterRoutes(m.Router)
-		})
-
-		m.Route("/*", "GET,POST,OPTIONS", context.ServeGoGet(), repo.HTTPContexter(), repo.HTTP)
-	})
 
 	// ***************************
 	// ----- Internal routes -----
