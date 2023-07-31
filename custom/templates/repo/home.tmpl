@@ -95,11 +95,9 @@
 							<div id="download_modal" class="ui modal warning">
 								<i class="close icon"></i>
 								<div class="content">
-									<div class="ui header">Download repository archive</div>
-									<p>To download data without special tooling (e.g. git, git-annex or GIN) you can:</p>
-									<p>Download the small files and the file structure as an archive (.zip or .tar.gz). Annexed files (by default, files larger than 10 MB) will be
-									included as pointer files (stubs) but the data will not be included. To get the content of the big files you need to download them individually
-									from this web page.</p>
+									<div class="ui header">{{.i18n.Tr "repo.rcos.download.header"}}</div>
+									<p>{{.i18n.Tr "repo.rcos.download.body"}}</p>
+									<p>{{.i18n.Tr "repo.rcos.download.body2"}}</p>
 								</div>
 								<div class="actions">
 									<a class="ui positive button" href="{{$.RepoLink}}/archive/{{EscapePound $.BranchName}}.zip"><i class="octicon octicon-file-zip"></i> Download zip</a>
