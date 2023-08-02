@@ -384,7 +384,7 @@ func LaunchResearch(c *context.Context) {
 	} else {
 		url := fmt.Sprintf("%s://%s/%s/%s", c.Data["Scheme"], c.Data["Host"], c.Repo.Owner.Name, c.Repo.Repository.Name)
 		url = strings.NewReplacer("%", "%25", "#", "%23", " ", "%20", "?", "%3F", "/", "%2F").Replace(url)
-		c.RawRedirect("https://binder.cs.rcos.nii.ac.jp/v2/git/" + url + ".git/master?filepath=WORKFLOWS/base_FLOW.ipynb")
+		c.RawRedirect("https://binder.cs.rcos.nii.ac.jp/v2/git/" + url + ".git/master?filepath=WORKFLOWS/notebooks/research/base_FLOW.ipynb")
 	}
 }
 
@@ -396,7 +396,7 @@ func LaunchExperiment(c *context.Context) {
 	} else {
 		url := fmt.Sprintf("%s://%s/%s/%s", c.Data["Scheme"], c.Data["Host"], c.Repo.Owner.Name, c.Repo.Repository.Name)
 		url = strings.NewReplacer("%", "%25", "#", "%23", " ", "%20", "?", "%3F", "/", "%2F").Replace(url)
-		c.RawRedirect("https://binder.cs.rcos.nii.ac.jp/v2/git/" + url + ".git/HEAD?filepath=WORKFLOWS/EX-WORKFLOWS/util/required_rebuild_container.ipynb")
+		c.RawRedirect("https://binder.cs.rcos.nii.ac.jp/v2/git/" + url + ".git/HEAD?filepath=WORKFLOWS/notebooks/experiment/required_rebuild_container.ipynb")
 	}
 }
 
