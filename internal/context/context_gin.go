@@ -108,7 +108,7 @@ func HasFileInRepo(c AbstructContext, filePath string) bool {
 	return err == nil
 }
 
-// HasFileInRepo is RCOS specific code.
+// HasTreeInRepo is RCOS specific code.
 // This probably returns 'true' if a repository includes a file or directory with the name given as an argument.
 // Used by context.RepoAssignment.
 func HasTreeInRepo(c AbstructContext, filePath string) bool {
