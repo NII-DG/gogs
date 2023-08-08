@@ -377,6 +377,14 @@ func LaunchMadmp(c *context.Context) {
 }
 
 func LaunchResearch(c *context.Context) {
+	oldPath := "WORKFLOWS/base_FLOW.ipynb"
+	newPath := "WORKFLOWS/notebooks/research/base_FLOW.ipynb"
+	if !context.HasFileInRepo(c, oldPath) && !context.HasFileInRepo(c, newPath) {
+		c.Flash.Error(c.Tr("rcos.broken_flow"))
+		c.Redirect(c.GetRepo().GetRepoLink() + "/container")
+		return
+	}
+
 	if c.Repo.Repository.IsPrivate {
 		c.Title("launch binder")
 		c.Data["Dest"] = "research"
@@ -386,9 +394,9 @@ func LaunchResearch(c *context.Context) {
 		repoName = strings.NewReplacer("%", "%25", "#", "%23", " ", "%20", "?", "%3F", "/", "%2F").Replace(repoName)
 		binderUrl := "https://binder.cs.rcos.nii.ac.jp/v2/git"
 		branch := "master"
-		filepath := "WORKFLOWS/notebooks/research/base_FLOW.ipynb"
+		filepath := newPath
 		if !context.HasFileInRepo(c, filepath) {
-			filepath = "WORKFLOWS/base_FLOW.ipynb"
+			filepath = oldPath
 		}
 		redirectURL := fmt.Sprintf("%s/%s/%s?filepath=%s", binderUrl, repoName, branch, filepath)
 		c.RawRedirect(redirectURL)
@@ -396,6 +404,14 @@ func LaunchResearch(c *context.Context) {
 }
 
 func LaunchExperiment(c *context.Context) {
+	oldPath := "WORKFLOWS/EX-WORKFLOWS/util/required_rebuild_container.ipynb"
+	newPath := "WORKFLOWS/notebooks/experiment/required_rebuild_container.ipynb"
+	if !context.HasFileInRepo(c, oldPath) && !context.HasFileInRepo(c, newPath) {
+		c.Flash.Error(c.Tr("rcos.broken_flow"))
+		c.Redirect(c.GetRepo().GetRepoLink() + "/container")
+		return
+	}
+
 	if c.Repo.Repository.IsPrivate {
 		c.Title("launch binder")
 		c.Data["Dest"] = "experiment"
@@ -405,9 +421,9 @@ func LaunchExperiment(c *context.Context) {
 		repoName = strings.NewReplacer("%", "%25", "#", "%23", " ", "%20", "?", "%3F", "/", "%2F").Replace(repoName)
 		binderUrl := "https://binder.cs.rcos.nii.ac.jp/v2/git"
 		branch := "master"
-		filepath := "WORKFLOWS/notebooks/experiment/required_rebuild_container.ipynb"
+		filepath := newPath
 		if !context.HasFileInRepo(c, filepath) {
-			filepath = "WORKFLOWS/EX-WORKFLOWS/util/required_rebuild_container.ipynb"
+			filepath = oldPath
 		}
 		redirectURL := fmt.Sprintf("%s/%s/%s?filepath=%s", binderUrl, repoName, branch, filepath)
 		c.RawRedirect(redirectURL)
