@@ -389,13 +389,13 @@ func RepoAssignment(pages ...bool) macaron.Handler {
 
 		c.Data["IsGuest"] = !c.Repo.HasAccess()
 
-		hasDmp := hasFileInRepo(c, "/dmp.json")
+		hasDmp := HasFileInRepo(c, "/dmp.json")
 		c.Data["HasDmpJson"] = hasDmp
 		if hasDmp {
 			c.Data["IsDOIReady"] = isDOIReady(c)
 		}
 
-		c.Data["HasMaDmp"] = hasFileInRepo(c, "/maDMP.ipynb")
+		c.Data["HasMaDmp"] = HasFileInRepo(c, "/maDMP.ipynb")
 		c.Data["HasExperiments"] = HasTreeInRepo(c, "/experiments")
 
 		// if doi := getRepoDOI(c); doi != "" && libgin.IsRegisteredDOI(doi) {
