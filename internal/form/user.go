@@ -69,7 +69,7 @@ type Register struct {
 	UserName             string `binding:"Required;AlphaDashDot;MaxSize(35)"` //アカウント名（必須）
 	Email                string `binding:"Required;Email;MaxSize(254)"`       //メールアドレス（必須）
 	Telephone            string //電話番号（任意）
-	Password             string `binding:"Required;AlphaDash;MaxSize(255)"` //パスワード（必須）
+	Password             string `binding:"Required;MaxSize(255)"` //パスワード（必須）
 	Retype               string //パスワードの再入力（必須）
 	FirstName            string `binding:"Required;MaxSize(100)"` // 氏名(名)
 	LastName             string `binding:"Required;MaxSize(100)"` // 氏名(姓)
@@ -143,7 +143,7 @@ func (f *AddEmail) Validate(ctx *macaron.Context, errs binding.Errors) binding.E
 
 type ChangePassword struct {
 	OldPassword string `binding:"Required;MinSize(1);MaxSize(255)"`
-	Password    string `binding:"Required;AlphaDash;MaxSize(255)"`
+	Password    string `binding:"Required;MaxSize(255)"`
 	Retype      string
 }
 
@@ -169,7 +169,7 @@ func (f *NewAccessToken) Validate(ctx *macaron.Context, errs binding.Errors) bin
 }
 
 type Pass struct {
-	Password string `binding:"Required;AlphaDash;MaxSize(255)"`
+	Password string `binding:"Required;MaxSize(255)"`
 }
 
 func (f *Pass) Validate(ctx *macaron.Context, errs binding.Errors) binding.Errors {
