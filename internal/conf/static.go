@@ -391,6 +391,8 @@ var (
 		HealthFilePath                string `ini:"HEALTH_FILE_PATH"`
 		HealthFileName                string `ini:"HEALTH_FILE_NAME"`
 		BuildAccessTokenExpireMinutes int64  `ini:"BUILD_ACCESS_TOKEN_EXPIRE_MINUTES"`
+		BannerFilePath                string `ini:"BANNER_FILE_PATH"`
+		BannerFileName                string `ini:"BANNER_FILE_NAME"`
 	}
 )
 
