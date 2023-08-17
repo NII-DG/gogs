@@ -509,9 +509,11 @@ func RepoRef() macaron.Handler {
 
 		// RCOS specific code
 		// Under the experiments folder and under the input_data folder or 
-		// Under the experiments folder and output_data folder ) forbid edit file
+		// Under the experiments folder and output_data folder
+		// Forbid add/upd/del file
 		if strings.Contains( c.Repo.TreePath, "experiments/") && 
-		   ( strings.Contains( c.Repo.TreePath, "input_data/") || strings.Contains( c.Repo.TreePath, "output_data/") ) {
+		   ( strings.Contains( c.Repo.TreePath, "input_data/") || strings.Contains( c.Repo.TreePath, "output_data/") ||
+		     strings.HasSuffix( c.Repo.TreePath, "input_data") || strings.HasSuffix( c.Repo.TreePath, "output_data") ){
 			c.Repo.IsCanEditTreePath = false
 		}else{
 			c.Repo.IsCanEditTreePath = true
