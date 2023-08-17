@@ -38,7 +38,7 @@
 			<div id="branch_item">
 				<p>{{.i18n.Tr "rcos.branch.master"}}</p>
 			</div>
-			<div class="fitted item">
+			<div class="fitted item folding">
 				<div class="ui breadcrumb">
 					<a class="section" href="{{.RepoLink}}/src/{{EscapePound .BranchName}}">{{EllipsisString .Repository.Name 15}}</a>
 					{{ $n := len .TreeNames}}

@@ -7,7 +7,7 @@
 			{{.CSRFTokenHTML}}
 			<input type="hidden" name="last_commit" value="{{.last_commit}}">
 			<div class="ui secondary menu">
-				<div class="fitted item treepath">
+				<div class="fitted item treepath wrap">
 					<div class="ui breadcrumb field {{if .Err_TreePath}}error{{end}}">
 						<a class="section" href="{{EscapePound $.BranchLink}}">{{.Repository.Name}}</a>
 						{{ $n := len .TreeNames}}
