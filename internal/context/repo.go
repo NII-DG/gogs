@@ -60,6 +60,7 @@ type Repository struct {
 	BranchName   string
 	TagName      string
 	TreePath     string
+	IsCanEditTreePath bool
 	CommitID     string
 	RepoLink     string
 	CloneLink    db.CloneLink
@@ -139,7 +140,9 @@ func (r *Repository) HasAccess() bool {
 
 // CanEnableEditor returns true if repository is editable and user has proper access level.
 func (r *Repository) CanEnableEditor() bool {
-	return r.Repository.CanEnableEditor() && r.IsViewBranch && r.IsWriter() && !r.Repository.IsBranchRequirePullRequest(r.BranchName)
+	// RCOS specific code.
+	// Added determination of updatable Treepaths
+	return r.Repository.CanEnableEditor() && r.IsViewBranch && r.IsWriter() && !r.Repository.IsBranchRequirePullRequest(r.BranchName) && r.IsCanEditTreePath
 }
 
 // Editorconfig returns the ".editorconfig" definition if found in the HEAD of the default branch.
@@ -504,6 +507,16 @@ func RepoRef() macaron.Handler {
 			}
 		}
 
+		// RCOS specific code
+		// Under the experiments folder and under the input_data folder or 
+		// Under the experiments folder and output_data folder ) forbid edit file
+		if strings.Contains( c.Repo.TreePath, "experiments/") && 
+		   ( strings.Contains( c.Repo.TreePath, "input_data/") || strings.Contains( c.Repo.TreePath, "output_data/") ) {
+			c.Repo.IsCanEditTreePath = false
+		}else{
+			c.Repo.IsCanEditTreePath = true
+		}
+
 		c.Repo.BranchName = refName
 		c.Data["BranchName"] = c.Repo.BranchName
 		c.Data["CommitID"] = c.Repo.CommitID
@@ -511,6 +524,7 @@ func RepoRef() macaron.Handler {
 		c.Data["IsViewBranch"] = c.Repo.IsViewBranch
 		c.Data["IsViewTag"] = c.Repo.IsViewTag
 		c.Data["IsViewCommit"] = c.Repo.IsViewCommit
+		c.Data["IsCanEditTreePath"] = c.Repo.IsCanEditTreePath
 
 		// People who have push access or have fored repository can propose a new pull request.
 		if c.Repo.IsWriter() || (c.IsLogged && c.User.HasForkedRepo(c.Repo.Repository.ID)) {
