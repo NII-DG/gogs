@@ -717,7 +717,6 @@ func runWeb(c *cli.Context) error {
 			Secret:         conf.Security.SecretKey,
 			Header:         "X-CSRF-Token",
 			Cookie:         conf.Session.CSRFCookieName,
-			CookieDomain:   conf.Server.URL.Hostname(),
 			CookiePath:     conf.Server.Subpath,
 			CookieHttpOnly: true,
 			SetCookie:      true,
