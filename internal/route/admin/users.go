@@ -7,6 +7,7 @@ package admin
 import (
 	"fmt"
 	"strings"
+	"net/url"
 
 	"github.com/unknwon/com"
 	log "unknwon.dev/clog/v2"
@@ -213,11 +214,21 @@ func EditUserPost(c *context.Context, f form.AdminEditUser) {
 		c.RenderWithErr(c.Tr("form.enterred_invalid_telephone"), USER_EDIT, &f)
 		return
 	}
-	// check ORDIC URL
-	orcid_prefix := "https://orcid.org/"
-	if strings.HasPrefix(f.PersonalURL, orcid_prefix) {
-		value := f.PersonalURL[len(orcid_prefix):]
-		if !regex.CheckORCIDFormat(value) {
+	// check ORCID URL
+	orcid_domain := "orcid.org"
+	parsedURL, err := url.Parse(f.PersonalURL)
+	if err != nil {
+		c.FormErr("PersonalUrl")
+		c.RenderWithErr(c.Tr("form.enterred_invalid_personal_url"), USER_EDIT, &f)
+		return
+	}
+
+	urlDomain := parsedURL.Hostname()
+	if strings.EqualFold( urlDomain, orcid_domain ) {
+		value := parsedURL.Path
+		fmt.Println("value = ", value)
+		fmt.Println("value[1:] = ", value[1:])
+		if !regex.CheckORCIDFormat(value[1:]) {
 			c.FormErr("PersonalUrl")
 			c.RenderWithErr(c.Tr("form.enterred_invalid_orcid_url"), USER_EDIT, &f)
 			return
