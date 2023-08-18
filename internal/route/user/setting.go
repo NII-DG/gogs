@@ -128,13 +128,8 @@ func SettingsPost(c *context.Context, f form.UpdateProfile) {
 	// if PersonalURL is set
 	if len( f.PersonalURL ) > 0 {
 		orcid_domain := "orcid.org"
-		parsedURL, err := url.Parse(f.PersonalURL)
-		if err != nil {
-			c.FormErr("PersonalUrl")
-			c.RenderWithErr(c.Tr("form.enterred_invalid_personal_url"), SETTINGS_PROFILE, &f)
-			return
-		}
-
+		// No Error check  because Checked for URL format at bind time
+		parsedURL, _ := url.Parse(f.PersonalURL)
 		urlDomain := parsedURL.Hostname()
 		if strings.EqualFold( urlDomain, orcid_domain ) {
 			value := parsedURL.Path
@@ -142,7 +137,7 @@ func SettingsPost(c *context.Context, f form.UpdateProfile) {
 			fmt.Println("value[1:] = ", value[1:])
 			if !regex.CheckORCIDFormat(value[1:]) {
 				c.FormErr("PersonalUrl")
-				c.RenderWithErr(c.Tr("form.enterred_invalid_orcid_url"), SETTINGS_PROFILE, &f)
+				c.RenderWithErr(c.Tr("form.enterred_invalid_orcid_url"), SIGNUP, &f)
 				return
 			}
 		}

@@ -352,13 +352,8 @@ func SignUpPost(c *context.Context, cpt *captcha.Captcha, f form.Register) {
 	// if PersonalURL is set
 	if len( f.PersonalURL ) > 0 {
 		orcid_domain := "orcid.org"
-		parsedURL, err := url.Parse(f.PersonalURL)
-		if err != nil {
-			c.FormErr("PersonalUrl")
-			c.RenderWithErr(c.Tr("form.enterred_invalid_personal_url"), SIGNUP, &f)
-			return
-		}
-	
+		// No Error check  because Checked for URL format at bind time
+		parsedURL, _ := url.Parse(f.PersonalURL)
 		urlDomain := parsedURL.Hostname()
 		if strings.EqualFold( urlDomain, orcid_domain ) {
 			value := parsedURL.Path

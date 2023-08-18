@@ -218,13 +218,8 @@ func EditUserPost(c *context.Context, f form.AdminEditUser) {
 	// if PersonalURL is set
 	if len( f.PersonalURL ) > 0 {
 		orcid_domain := "orcid.org"
-		parsedURL, err := url.Parse(f.PersonalURL)
-		if err != nil {
-			c.FormErr("PersonalUrl")
-			c.RenderWithErr(c.Tr("form.enterred_invalid_personal_url"), USER_EDIT, &f)
-			return
-		}
-	
+		// No Error check  because Checked for URL format at bind time
+		parsedURL, _ := url.Parse(f.PersonalURL)
 		urlDomain := parsedURL.Hostname()
 		if strings.EqualFold( urlDomain, orcid_domain ) {
 			value := parsedURL.Path

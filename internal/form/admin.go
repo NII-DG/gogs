@@ -33,7 +33,7 @@ type AdminEditUser struct {
 	Telephone            string
 	Password             string `binding:"MaxSize(255);AlphaDash"`
 	ERadResearcherNumber string
-	PersonalURL          string
+	PersonalURL          string `binding:"Url"`
 	Website              string `binding:"MaxSize(50)"`
 	Location             string `binding:"MaxSize(50)"`
 	MaxRepoCreation      int
