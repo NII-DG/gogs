@@ -271,6 +271,8 @@ func renderFile(c *context.Context, entry *git.TreeEntry, treeLink, rawLink stri
 			c.Data["EditFileTooltip"] = c.Tr("repo.editor.must_be_on_a_branch")
 		} else if !c.Repo.IsWriter() {
 			c.Data["EditFileTooltip"] = c.Tr("repo.editor.fork_before_edit")
+		} else if !c.Repo.IsCanEditTreePath{
+			c.Data["EditFileTooltip"] = c.Tr("repo.editor.exppkg_forbid_updfile")
 		}
 
 	case tool.IsPDFFile(p) && (c.Data["FileSize"].(int64) < conf.Repository.RawCaptchaMinFileSize*annex.MEGABYTE ||
@@ -294,6 +296,8 @@ func renderFile(c *context.Context, entry *git.TreeEntry, treeLink, rawLink stri
 		c.Data["DeleteFileTooltip"] = c.Tr("repo.editor.must_be_on_a_branch")
 	} else if !c.Repo.IsWriter() {
 		c.Data["DeleteFileTooltip"] = c.Tr("repo.editor.must_have_write_access")
+	} else if !c.Repo.IsCanEditTreePath{
+		c.Data["DeleteFileTooltip"] = c.Tr("repo.editor.exppkg_forbid_delfile")
 	}
 }
 

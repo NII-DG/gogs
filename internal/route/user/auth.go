@@ -348,14 +348,20 @@ func SignUpPost(c *context.Context, cpt *captcha.Captcha, f form.Register) {
 		c.RenderWithErr(c.Tr("form.enterred_invalid_telephone"), SIGNUP, &f)
 		return
 	}
-	// check ORDIC URL
-	orcid_prefix := "https://orcid.org/"
-	if strings.HasPrefix(f.PersonalURL, orcid_prefix) {
-		value := f.PersonalURL[len(orcid_prefix):]
-		if !regex.CheckORCIDFormat(value) {
-			c.FormErr("PersonalUrl")
-			c.RenderWithErr(c.Tr("form.enterred_invalid_orcid_url"), SIGNUP, &f)
-			return
+	// check ORCID URL
+	// if PersonalURL is set
+	if len( f.PersonalURL ) > 0 {
+		orcid_domain := "orcid.org"
+		// No Error check  because Checked for URL format at bind time
+		parsedURL, _ := url.Parse(f.PersonalURL)
+		urlDomain := parsedURL.Hostname()
+		if strings.EqualFold( urlDomain, orcid_domain ) {
+			value := parsedURL.Path
+			if !regex.CheckORCIDFormat(value[1:]) {
+				c.FormErr("PersonalUrl")
+				c.RenderWithErr(c.Tr("form.enterred_invalid_orcid_url"), SIGNUP, &f)
+				return
+			}
 		}
 	}
 	// check e-Rad Rearcher Number
