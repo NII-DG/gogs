@@ -90,3 +90,16 @@ select.dmp-menu option:disabled {
 div[data-form="#logout-form"] {
     padding: .78571429em 1.14285714em!important;
 }
+
+/*----------------
+    folding long text
+------------------*/
+.folding {
+    max-width: 550px;
+    overflow-wrap: anywhere;
+    display: inline-block;
+}
+
+.wrap {
+    overflow-wrap: anywhere;
+}

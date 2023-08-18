@@ -9,7 +9,7 @@
 			{{end}}
 		{{else}}
 			<i class="octicon octicon-file-text ui left"></i>
-			<strong>{{.FileName}}</strong> <span class="text grey normal">{{FileSize .FileSize}}</span>
+			<strong class="folding">{{.FileName}}</strong> <span class="text grey normal">{{FileSize .FileSize}}</span>
 		{{end}}
 		{{if not .ReadmeInList}}
 			<div class="ui right file-actions">
