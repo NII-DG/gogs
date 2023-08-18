@@ -133,8 +133,6 @@ func SettingsPost(c *context.Context, f form.UpdateProfile) {
 		urlDomain := parsedURL.Hostname()
 		if strings.EqualFold( urlDomain, orcid_domain ) {
 			value := parsedURL.Path
-			fmt.Println("value = ", value)
-			fmt.Println("value[1:] = ", value[1:])
 			if !regex.CheckORCIDFormat(value[1:]) {
 				c.FormErr("PersonalUrl")
 				c.RenderWithErr(c.Tr("form.enterred_invalid_orcid_url"), SETTINGS_PROFILE, &f)
