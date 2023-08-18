@@ -137,7 +137,7 @@ func SettingsPost(c *context.Context, f form.UpdateProfile) {
 			fmt.Println("value[1:] = ", value[1:])
 			if !regex.CheckORCIDFormat(value[1:]) {
 				c.FormErr("PersonalUrl")
-				c.RenderWithErr(c.Tr("form.enterred_invalid_orcid_url"), SIGNUP, &f)
+				c.RenderWithErr(c.Tr("form.enterred_invalid_orcid_url"), SETTINGS_PROFILE, &f)
 				return
 			}
 		}
