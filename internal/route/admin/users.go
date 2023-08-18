@@ -215,23 +215,26 @@ func EditUserPost(c *context.Context, f form.AdminEditUser) {
 		return
 	}
 	// check ORCID URL
-	orcid_domain := "orcid.org"
-	parsedURL, err := url.Parse(f.PersonalURL)
-	if err != nil {
-		c.FormErr("PersonalUrl")
-		c.RenderWithErr(c.Tr("form.enterred_invalid_personal_url"), USER_EDIT, &f)
-		return
-	}
-
-	urlDomain := parsedURL.Hostname()
-	if strings.EqualFold( urlDomain, orcid_domain ) {
-		value := parsedURL.Path
-		fmt.Println("value = ", value)
-		fmt.Println("value[1:] = ", value[1:])
-		if !regex.CheckORCIDFormat(value[1:]) {
+	// if PersonalURL is set
+	if len( f.PersonalURL ) > 0 {
+		orcid_domain := "orcid.org"
+		parsedURL, err := url.Parse(f.PersonalURL)
+		if err != nil {
 			c.FormErr("PersonalUrl")
-			c.RenderWithErr(c.Tr("form.enterred_invalid_orcid_url"), USER_EDIT, &f)
+			c.RenderWithErr(c.Tr("form.enterred_invalid_personal_url"), USER_EDIT, &f)
 			return
+		}
+	
+		urlDomain := parsedURL.Hostname()
+		if strings.EqualFold( urlDomain, orcid_domain ) {
+			value := parsedURL.Path
+			fmt.Println("value = ", value)
+			fmt.Println("value[1:] = ", value[1:])
+			if !regex.CheckORCIDFormat(value[1:]) {
+				c.FormErr("PersonalUrl")
+				c.RenderWithErr(c.Tr("form.enterred_invalid_orcid_url"), USER_EDIT, &f)
+				return
+			}
 		}
 	}
 	// check e-Rad Rearcher Number
