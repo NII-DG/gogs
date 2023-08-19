@@ -472,24 +472,24 @@ func runWeb(c *cli.Context) error {
 				// Disable route to hooks settings in repository settings by RCOS
 				// m.Group("/hooks", func() {
 				// 	webhookRoutes()
-
+				//
 				// 	m.Group("/:id", func() {
 				// 		m.Post("/test", repo.TestWebhook)
 				// 		m.Post("/redelivery", repo.RedeliveryWebhook)
 				// 	})
-
+				//
 				// 	m.Group("/git", func() {
 				// 		m.Get("", repo.SettingsGitHooks)
 				// 		m.Combo("/:name").Get(repo.SettingsGitHooksEdit).
 				// 			Post(repo.SettingsGitHooksEditPost)
 				// 	}, context.GitHookService())
 				// })
-
-				m.Group("/keys", func() {
-					m.Combo("").Get(repo.SettingsDeployKeys).
-						Post(bindIgnErr(form.AddSSHKey{}), repo.SettingsDeployKeysPost)
-					m.Post("/delete", repo.DeleteDeployKey)
-				})
+				//
+				// 	m.Group("/keys", func() {
+				// 	m.Combo("").Get(repo.SettingsDeployKeys).
+				// 		Post(bindIgnErr(form.AddSSHKey{}), repo.SettingsDeployKeysPost)
+				// 	m.Post("/delete", repo.DeleteDeployKey)
+				// })
 
 			}, func(c *context.Context) {
 				c.Data["PageIsSettings"] = true
@@ -717,7 +717,6 @@ func runWeb(c *cli.Context) error {
 			Secret:         conf.Security.SecretKey,
 			Header:         "X-CSRF-Token",
 			Cookie:         conf.Session.CSRFCookieName,
-			CookieDomain:   conf.Server.URL.Hostname(),
 			CookiePath:     conf.Server.Subpath,
 			CookieHttpOnly: true,
 			SetCookie:      true,

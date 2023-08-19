@@ -19,7 +19,7 @@ import (
 // renderNoticeBanner checks if a notice banner file exists and loads the message to display
 // on all pages.
 func (c *Context) renderNoticeBanner() {
-	fpath := filepath.Join(conf.CustomDir(), "notice", "banner.md")
+	fpath := filepath.Join( conf.DG.BannerFilePath, conf.DG.BannerFileName )
 	if !com.IsExist(fpath) {
 		return
 	}
