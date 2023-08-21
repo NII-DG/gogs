@@ -106,6 +106,9 @@ func NewUserPost(c *context.Context, f form.AdminCrateUser) {
 		case db.IsErrNameNotAllowed(err):
 			c.Data["Err_UserName"] = true
 			c.RenderWithErr(c.Tr("user.form.name_not_allowed", err.(db.ErrNameNotAllowed).Value()), USER_NEW, &f)
+		case db.IsErrPasswordInvalid(err):
+			c.Data["Err_Passwd"] = true
+			c.RenderWithErr(c.Tr("user.form.invalid_password", USER_NEW, &f)
 		default:
 			c.Error(err, "create user")
 		}
@@ -207,11 +210,7 @@ func EditUserPost(c *context.Context, f form.AdminEditUser) {
 		matchingPattern := `^[a-zA-Z0-9!"#$%&'()*+,-./:;<=>?@[\]^_‘{|}~]+$`
 
 		// Check password 
-		matched, err := regexp.MatchString(matchingPattern, f.Password)
-		if err != nil {
-			fmt.Println("正規表現のエラー:", err)
-			return
-		}
+		matched, _ := regexp.MatchString(matchingPattern, f.Password)
 
 		if matched {
 			if u.Salt, err = db.GetUserSalt(); err != nil {

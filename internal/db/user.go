@@ -18,6 +18,7 @@ import (
 	"strings"
 	"time"
 	"unicode/utf8"
+	"regexp"
 
 	"github.com/gogs/git-module"
 	api "github.com/gogs/go-gogs-client"
@@ -606,6 +607,18 @@ func CreateUser(u *User) (err error) {
 	if u.Salt, err = GetUserSalt(); err != nil {
 		return err
 	}
+
+	// password check
+	if len(u.Passwd) > 0 {
+		// Allowed symbols
+		matchingPattern := `^[a-zA-Z0-9!"#$%&'()*+,-./:;<=>?@[\]^_‘{|}~]+$`
+		// Check password 
+		matched, _ := regexp.MatchString(matchingPattern, u.Passwd)
+		if !matched {
+			return ErrPasswordInvalid{u.Passwd}
+		}
+	}
+
 	u.EncodePassword()
 	u.MaxRepoCreation = -1
 
