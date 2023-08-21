@@ -14,7 +14,7 @@ type AdminCrateUser struct {
 	LoginName  string
 	UserName   string `binding:"Required;AlphaDashDot;MaxSize(35)"`
 	Email      string `binding:"Required;Email;MaxSize(254)"`
-	Password   string `binding:"MaxSize(255);AlphaDash"`
+	Password   string `binding:"MaxSize(255)"`
 	SendNotify bool
 }
 
@@ -31,9 +31,9 @@ type AdminEditUser struct {
 	AffiliationId        int64  `binding:"Required"`
 	Email                string `binding:"Required;Email;MaxSize(254)"`
 	Telephone            string
-	Password             string `binding:"MaxSize(255);AlphaDash"`
+	Password             string `binding:"MaxSize(255)"`
 	ERadResearcherNumber string
-	PersonalURL          string
+	PersonalURL          string `binding:"Url"`
 	Website              string `binding:"MaxSize(50)"`
 	Location             string `binding:"MaxSize(50)"`
 	MaxRepoCreation      int
