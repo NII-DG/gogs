@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"strings"
 	"net/url"
+	"regexp"
 
 	"github.com/unknwon/com"
 	log "unknwon.dev/clog/v2"
@@ -201,11 +202,29 @@ func EditUserPost(c *context.Context, f form.AdminEditUser) {
 	if len(f.Password) > 0 {
 		u.Passwd = f.Password
 		var err error
-		if u.Salt, err = db.GetUserSalt(); err != nil {
-			c.Error(err, "get user salt")
+		
+		// Allowed symbols
+		matchingPattern := `^[a-zA-Z0-9!"#$%&'()*+,-./:;<=>?@[\]^_‘{|}~]+$`
+
+		// Check password 
+		matched, err := regexp.MatchString(matchingPattern, f.Password)
+		if err != nil {
+			fmt.Println("正規表現のエラー:", err)
 			return
 		}
-		u.EncodePassword()
+
+		if matched {
+			if u.Salt, err = db.GetUserSalt(); err != nil {
+				c.Error(err, "get user salt")
+				return
+			}
+			u.EncodePassword()
+		} else {
+			c.FormErr("Password")
+			c.RenderWithErr(c.Tr("form.enterred_invalid_password"), USER_EDIT, &f)
+			return
+		}
+
 	}
 
 	// check telephone format

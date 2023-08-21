@@ -6,6 +6,7 @@ package admin
 
 import (
 	"net/http"
+	"regexp"
 
 	api "github.com/gogs/go-gogs-client"
 	log "unknwon.dev/clog/v2"
@@ -84,11 +85,22 @@ func EditUser(c *context.APIContext, form api.EditUserOption) {
 	if len(form.Password) > 0 {
 		u.Passwd = form.Password
 		var err error
-		if u.Salt, err = db.GetUserSalt(); err != nil {
-			c.Error(err, "get user salt")
+
+		// Allowed symbols
+		matchingPattern := `^[a-zA-Z0-9!"#$%&'()*+,-./:;<=>?@[\]^_‘{|}~]+$`
+
+		// Check password 
+		matched, _ := regexp.MatchString(matchingPattern, form.Password)
+		if matched {
+			if u.Salt, err = db.GetUserSalt(); err != nil {
+				c.Error(err, "get user salt")
+				return
+			}
+			u.EncodePassword()
+		} else {
+			c.Error(err, "Invalid password")
 			return
 		}
-		u.EncodePassword()
 	}
 
 	u.LoginName = form.LoginName
