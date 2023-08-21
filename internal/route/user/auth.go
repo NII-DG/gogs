@@ -415,6 +415,10 @@ func SignUpPost(c *context.Context, cpt *captcha.Captcha, f form.Register) {
 		// GIN specific code: case db.IsErrBlockedDomain
 		case db.IsErrBlockedDomain(err):
 			c.RenderWithErr(c.Tr("form.email_not_allowed"), SIGNUP, &f)
+		// RCOS specific code 
+		case db.IsErrPasswordInvalid(err):
+			c.FormErr("Password")
+			c.RenderWithErr( c.Tr("user.form.passward_is_invalid" ), SIGNUP, &f)
 		default:
 			c.Error(err, "create user")
 		}
