@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"strings"
 	"time"
+	"regexp"
 
 	"github.com/jinzhu/gorm"
 	"github.com/pkg/errors"
@@ -195,6 +196,17 @@ func (db *users) Create(opts CreateUserOpts) (*User, error) {
 		return nil, ErrEmailAlreadyUsed{args: errutil.Args{"email": opts.Email}}
 	} else if !IsErrUserNotExist(err) {
 		return nil, err
+	}
+
+	// password check
+	if len(opts.Password) > 0 {
+		// Allowed symbols
+		matchingPattern := `^[a-zA-Z0-9!"#$%&'()*+,-./:;<=>?@[\]^_‘{|}~]+$`
+		// Check password 
+		matched, _ := regexp.MatchString(matchingPattern, opts.Password)
+		if !matched {
+			return nil, ErrPasswordInvalid{opts.Password}
+		}
 	}
 
 	user := &User{
