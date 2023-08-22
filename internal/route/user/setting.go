@@ -13,6 +13,7 @@ import (
 	"image/png"
 	"io/ioutil"
 	"strings"
+	"regexp"
 
 	"github.com/pquerna/otp"
 	"github.com/pquerna/otp/totp"
@@ -276,17 +277,26 @@ func SettingsPasswordPost(c *context.Context, f form.ChangePassword) {
 		c.Flash.Error(c.Tr("form.password_not_match"))
 	} else {
 		c.User.Passwd = f.Password
-		var err error
-		if c.User.Salt, err = db.GetUserSalt(); err != nil {
-			c.Errorf(err, "get user salt")
-			return
+		matchingPattern := `^[a-zA-Z0-9!"#$%&'()*+,-./:;?@[\]^_‘{|}~]+$`
+		// Check password 
+		matched, _ := regexp.MatchString(matchingPattern, f.Password)
+		if matched {
+			var err error
+			if c.User.Salt, err = db.GetUserSalt(); err != nil {
+				c.Errorf(err, "get user salt")
+				return
+			}
+			c.User.EncodePassword()
+			if err := db.UpdateUser(c.User); err != nil {
+				c.Errorf(err, "update user")
+				return
+			}
+			c.Flash.Success(c.Tr("settings.change_password_success"))
+		}else{
+
+			c.Flash.Error(c.Tr("form.password_invalid"))
 		}
-		c.User.EncodePassword()
-		if err := db.UpdateUser(c.User); err != nil {
-			c.Errorf(err, "update user")
-			return
-		}
-		c.Flash.Success(c.Tr("settings.change_password_success"))
+
 	}
 
 	c.RedirectSubpath("/user/settings/password")
