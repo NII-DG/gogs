@@ -293,8 +293,7 @@ func SettingsPasswordPost(c *context.Context, f form.ChangePassword) {
 			}
 			c.Flash.Success(c.Tr("settings.change_password_success"))
 		}else{
-
-			c.Flash.Error(c.Tr("form.password_invalid"))
+			c.Flash.Error(c.Tr("user.form.password_invalid"))
 		}
 
 	}
