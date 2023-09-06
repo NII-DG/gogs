@@ -8,10 +8,12 @@ import (
 	"bytes"
 	"encoding/base64"
 	"fmt"
+	"net/url"
 	"html/template"
 	"image/png"
 	"io/ioutil"
 	"strings"
+	"regexp"
 
 	"github.com/pquerna/otp"
 	"github.com/pquerna/otp/totp"
@@ -123,14 +125,20 @@ func SettingsPost(c *context.Context, f form.UpdateProfile) {
 		c.RenderWithErr(c.Tr("form.enterred_invalid_telephone"), SETTINGS_PROFILE, &f)
 		return
 	}
-	// check ORDIC URL
-	orcid_prefix := "https://orcid.org/"
-	if strings.HasPrefix(f.PersonalURL, orcid_prefix) {
-		value := f.PersonalURL[len(orcid_prefix):]
-		if !regex.CheckORCIDFormat(value) {
-			c.FormErr("PersonalUrl")
-			c.RenderWithErr(c.Tr("form.enterred_invalid_orcid_url"), SETTINGS_PROFILE, &f)
-			return
+	// check ORCID URL
+	// if PersonalURL is set
+	if len( f.PersonalURL ) > 0 {
+		orcid_domain := "orcid.org"
+		// No Error check  because Checked for URL format at bind time
+		parsedURL, _ := url.Parse(f.PersonalURL)
+		urlDomain := parsedURL.Hostname()
+		if strings.EqualFold( urlDomain, orcid_domain ) {
+			value := parsedURL.Path
+			if !regex.CheckORCIDFormat(value[1:]) {
+				c.FormErr("PersonalUrl")
+				c.RenderWithErr(c.Tr("form.enterred_invalid_orcid_url"), SETTINGS_PROFILE, &f)
+				return
+			}
 		}
 	}
 	// check e-Rad Rearcher Number
@@ -269,17 +277,25 @@ func SettingsPasswordPost(c *context.Context, f form.ChangePassword) {
 		c.Flash.Error(c.Tr("form.password_not_match"))
 	} else {
 		c.User.Passwd = f.Password
-		var err error
-		if c.User.Salt, err = db.GetUserSalt(); err != nil {
-			c.Errorf(err, "get user salt")
-			return
+		matchingPattern := `^[a-zA-Z0-9!"#$%&'()*+,-./:;?@[\]^_‘{|}~]+$`
+		// Check password 
+		matched, _ := regexp.MatchString(matchingPattern, f.Password)
+		if matched {
+			var err error
+			if c.User.Salt, err = db.GetUserSalt(); err != nil {
+				c.Errorf(err, "get user salt")
+				return
+			}
+			c.User.EncodePassword()
+			if err := db.UpdateUser(c.User); err != nil {
+				c.Errorf(err, "update user")
+				return
+			}
+			c.Flash.Success(c.Tr("settings.change_password_success"))
+		}else{
+			c.Flash.Error(c.Tr("user.form.passward_is_invalid"))
 		}
-		c.User.EncodePassword()
-		if err := db.UpdateUser(c.User); err != nil {
-			c.Errorf(err, "update user")
-			return
-		}
-		c.Flash.Success(c.Tr("settings.change_password_success"))
+
 	}
 
 	c.RedirectSubpath("/user/settings/password")

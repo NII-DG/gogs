@@ -39,6 +39,7 @@ This css is be adapted to template files in custom>templates
 /*----------------
     custom>templates>repo>home.tmpl
 ------------------*/
+@import url(http://fonts.googleapis.com/earlyaccess/notosansjp.css);
 #branch_item {
     background: transparent none!important;
     color: rgba(0,0,0,.6)!important;
@@ -49,7 +50,7 @@ This css is be adapted to template files in custom>templates
     -webkit-box-shadow: 0 0 0 1px rgba(34,36,38,.15) inset;
     box-shadow: 0 0 0 1px rgba(34,36,38,.15) inset;
     font-size: .92857143rem;
-    font-family: "Helvetica Neue","Microsoft YaHei",Arial,Helvetica,sans-serif!important;
+    font-family: "Helvetica Neue",Arial,Helvetica,"Noto Sans JP",sans-serif!important;
     align-items: center;
     margin: auto 0.5em auto 0;
     padding: 0.78571429em 1.5em 0.78571429em;
@@ -70,6 +71,15 @@ This css is be adapted to template files in custom>templates
     white-space: normal;
 }
 
+select.dmp-menu {
+    text-align: left !important;
+}
+
+select.dmp-menu option:disabled {
+    color: #d95c5c;
+}
+
+
 /*----------------
     logout form
 ------------------*/
@@ -79,4 +89,17 @@ This css is be adapted to template files in custom>templates
 
 div[data-form="#logout-form"] {
     padding: .78571429em 1.14285714em!important;
+}
+
+/*----------------
+    folding long text
+------------------*/
+.folding {
+    max-width: 550px;
+    overflow-wrap: anywhere;
+    display: inline-block;
+}
+
+.wrap {
+    overflow-wrap: anywhere;
 }

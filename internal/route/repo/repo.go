@@ -377,26 +377,56 @@ func LaunchMadmp(c *context.Context) {
 }
 
 func LaunchResearch(c *context.Context) {
+	oldPath := "WORKFLOWS/base_FLOW.ipynb"
+	newPath := "WORKFLOWS/notebooks/research/base_FLOW.ipynb"
+	if !context.HasFileInRepo(c, oldPath) && !context.HasFileInRepo(c, newPath) {
+		c.Flash.Error(c.Tr("rcos.broken_flow"))
+		c.Redirect(c.GetRepo().GetRepoLink() + "/container")
+		return
+	}
+
 	if c.Repo.Repository.IsPrivate {
 		c.Title("launch binder")
 		c.Data["Dest"] = "research"
 		c.Success(LAUNCH)
 	} else {
-		url := fmt.Sprintf("%s://%s/%s/%s", c.Data["Scheme"], c.Data["Host"], c.Repo.Owner.Name, c.Repo.Repository.Name)
-		url = strings.NewReplacer("%", "%25", "#", "%23", " ", "%20", "?", "%3F", "/", "%2F").Replace(url)
-		c.RawRedirect("https://binder.cs.rcos.nii.ac.jp/v2/git/" + url + ".git/master?filepath=WORKFLOWS/base_FLOW.ipynb")
+		repoName := fmt.Sprintf("%s://%s/%s/%s.git", c.Data["Scheme"], c.Data["Host"], c.Repo.Owner.Name, c.Repo.Repository.Name)
+		repoName = strings.NewReplacer("%", "%25", "#", "%23", " ", "%20", "?", "%3F", "/", "%2F").Replace(repoName)
+		binderUrl := "https://binder.cs.rcos.nii.ac.jp/v2/git"
+		branch := "master"
+		filepath := newPath
+		if !context.HasFileInRepo(c, filepath) {
+			filepath = oldPath
+		}
+		redirectURL := fmt.Sprintf("%s/%s/%s?filepath=%s", binderUrl, repoName, branch, filepath)
+		c.RawRedirect(redirectURL)
 	}
 }
 
 func LaunchExperiment(c *context.Context) {
+	oldPath := "WORKFLOWS/EX-WORKFLOWS/util/required_rebuild_container.ipynb"
+	newPath := "WORKFLOWS/notebooks/experiment/required_rebuild_container.ipynb"
+	if !context.HasFileInRepo(c, oldPath) && !context.HasFileInRepo(c, newPath) {
+		c.Flash.Error(c.Tr("rcos.broken_flow"))
+		c.Redirect(c.GetRepo().GetRepoLink() + "/container")
+		return
+	}
+
 	if c.Repo.Repository.IsPrivate {
 		c.Title("launch binder")
 		c.Data["Dest"] = "experiment"
 		c.Success(LAUNCH)
 	} else {
-		url := fmt.Sprintf("%s://%s/%s/%s", c.Data["Scheme"], c.Data["Host"], c.Repo.Owner.Name, c.Repo.Repository.Name)
-		url = strings.NewReplacer("%", "%25", "#", "%23", " ", "%20", "?", "%3F", "/", "%2F").Replace(url)
-		c.RawRedirect("https://binder.cs.rcos.nii.ac.jp/v2/git/" + url + ".git/HEAD?filepath=WORKFLOWS/EX-WORKFLOWS/util/required_rebuild_container.ipynb")
+		repoName := fmt.Sprintf("%s://%s/%s/%s.git", c.Data["Scheme"], c.Data["Host"], c.Repo.Owner.Name, c.Repo.Repository.Name)
+		repoName = strings.NewReplacer("%", "%25", "#", "%23", " ", "%20", "?", "%3F", "/", "%2F").Replace(repoName)
+		binderUrl := "https://binder.cs.rcos.nii.ac.jp/v2/git"
+		branch := "master"
+		filepath := newPath
+		if !context.HasFileInRepo(c, filepath) {
+			filepath = oldPath
+		}
+		redirectURL := fmt.Sprintf("%s/%s/%s?filepath=%s", binderUrl, repoName, branch, filepath)
+		c.RawRedirect(redirectURL)
 	}
 }
 
@@ -462,11 +492,17 @@ func LaunchPost(c *context.Context, f form.Pass) {
 	binderUrl := "https://binder.cs.rcos.nii.ac.jp/v2/git"
 	branch := "master"
 	if dest == "research" {
-		filepath := "WORKFLOWS/base_FLOW.ipynb"
+		filepath := "WORKFLOWS/notebooks/research/base_FLOW.ipynb"
+		if !context.HasFileInRepo(c, filepath) {
+			filepath = "WORKFLOWS/base_FLOW.ipynb"
+		}
 		redirectURL := fmt.Sprintf("%s/%s/%s?filepath=%s", binderUrl, repoName, branch, filepath)
 		c.RawRedirect(redirectURL)
 	} else if dest == "experiment" {
-		filepath := "WORKFLOWS/EX-WORKFLOWS/util/required_rebuild_container.ipynb"
+		filepath := "WORKFLOWS/notebooks/experiment/required_rebuild_container.ipynb"
+		if !context.HasFileInRepo(c, filepath) {
+			filepath = "WORKFLOWS/EX-WORKFLOWS/util/required_rebuild_container.ipynb"
+		}
 		redirectURL := fmt.Sprintf("%s/%s/%s?filepath=%s", binderUrl, repoName, branch, filepath)
 		c.RawRedirect(redirectURL)
 	} else {

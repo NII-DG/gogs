@@ -25,6 +25,21 @@ func (err ErrBlockedDomain) Error() string {
 	return fmt.Sprintf("user sign up failed")
 }
 
+// RCOS spesfic Code
+// ErrPasswordInvalid,IsErrPasswordInvalid,Error is RCOS specific code.
+type ErrPasswordInvalid struct {
+	Password string
+}
+
+func IsErrPasswordInvalid(err error) bool {
+	_, ok := err.(ErrPasswordInvalid)
+	return ok
+}
+
+func (err ErrPasswordInvalid) Error() string {
+	return "Password is invalid"
+}
+
 //  ____ ___
 // |    |   \______ ___________
 // |    |   /  ___// __ \_  __ \

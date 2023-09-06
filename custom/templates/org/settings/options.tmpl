@@ -29,7 +29,7 @@
 							<label for="website">{{.i18n.Tr "org.settings.website"}}</label>
 							<input id="website" name="website" type="url" value="{{.Org.Website}}">
 						</div>
-						<div class="field">
+						<div class="field {{if .Err_Location}}error{{end}}">
 							<label for="location">{{.i18n.Tr "org.settings.location"}}</label>
 							<input id="location" name="location"  value="{{.Org.Location}}">
 						</div>

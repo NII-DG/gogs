@@ -94,10 +94,10 @@ func getRepoDOI(c *Context) string {
 	return doiBase + uuid[:6]
 }
 
-// hasFileInRepo is RCOS specific code.
+// HasFileInRepo is RCOS specific code.
 // This returns 'true' if a repository includes a file with the name given as an argument.
 // Used by context.RepoAssignment.
-func hasFileInRepo(c AbstructContext, filePath string) bool {
+func HasFileInRepo(c AbstructContext, filePath string) bool {
 	commit, err := c.GetRepo().GetGitRepo().BranchCommit(c.GetRepo().GetDbRepo().GetDefaultBranch())
 	if err != nil {
 		log.Trace("Couldn't get commit: %v", err)
@@ -108,7 +108,7 @@ func hasFileInRepo(c AbstructContext, filePath string) bool {
 	return err == nil
 }
 
-// hasFileInRepo is RCOS specific code.
+// HasTreeInRepo is RCOS specific code.
 // This probably returns 'true' if a repository includes a file or directory with the name given as an argument.
 // Used by context.RepoAssignment.
 func HasTreeInRepo(c AbstructContext, filePath string) bool {

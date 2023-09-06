@@ -16,7 +16,7 @@ INSERT INTO gf_db.affiliation (id,name,displayed_name,url,alias,description) VAL
 INSERT INTO gf_db.affiliation (id,name,displayed_name,url,alias,description) VALUES (16,'Kanazawa University','金沢大学','https://ror.org/02hwp6a56','','');
 INSERT INTO gf_db.affiliation (id,name,displayed_name,url,alias,description) VALUES (17,'Japan Advanced Institute of Science and Technology','北陸先端科学技術大学院大学','https://ror.org/03frj4r98','','');
 INSERT INTO gf_db.affiliation (id,name,displayed_name,url,alias,description) VALUES (18,'National Institute for Fusion Science','核融合科学研究所(extic)','https://ror.org/01t3wyv61','','');
-INSERT INTO gf_db.affiliation (id,name,displayed_name,url,alias,description) VALUES (19,'https://ror.org/02kpeqv85','京都大学','https://ror.org/02kpeqv85','','');
+INSERT INTO gf_db.affiliation (id,name,displayed_name,url,alias,description) VALUES (19,'Kyoto University','京都大学','https://ror.org/02kpeqv85','','');
 INSERT INTO gf_db.affiliation (id,name,displayed_name,url,alias,description) VALUES (20,'Kobe University','神戸大学','https://ror.org/03tgsfw79','','');
 INSERT INTO gf_db.affiliation (id,name,displayed_name,url,alias,description) VALUES (21,'Ritsumeikan University','立命館大学','https://ror.org/0197nmd03','','');
 INSERT INTO gf_db.affiliation (id,name,displayed_name,url,alias,description) VALUES (22,'Kansai University','関西大学','https://ror.org/03xg1f311','','');

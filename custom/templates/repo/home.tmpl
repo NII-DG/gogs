@@ -38,7 +38,7 @@
 			<div id="branch_item">
 				<p>{{.i18n.Tr "rcos.branch.master"}}</p>
 			</div>
-			<div class="fitted item">
+			<div class="fitted item folding">
 				<div class="ui breadcrumb">
 					<a class="section" href="{{.RepoLink}}/src/{{EscapePound .BranchName}}">{{EllipsisString .Repository.Name 15}}</a>
 					{{ $n := len .TreeNames}}
@@ -73,7 +73,8 @@
 				<!-- Only show clone panel in repository home page -->
 				{{if eq $n 0}}
 					<div class="ui action small input" id="clone-panel">
-						<button class="ui basic clone button" id="repo-clone-gin" data-link="{{.CloneLink.Gin}}">GIN</button>
+						<!-- Support for GIN button removal -->
+						<!-- <button class="ui basic clone button" id="repo-clone-gin" data-link="{{/*.CloneLink.Gin*/}}">GIN</button> -->
 						{{if not $.DisableHTTP}}
 							<button class="ui basic clone button" id="repo-clone-https" data-link="{{.CloneLink.HTTPS}}">
 								{{if UseHTTPS}}HTTPS{{else}}HTTP{{end}}
@@ -94,11 +95,9 @@
 							<div id="download_modal" class="ui modal warning">
 								<i class="close icon"></i>
 								<div class="content">
-									<div class="ui header">Download repository archive</div>
-									<p>To download data without special tooling (e.g. git, git-annex or GIN) you can:</p>
-									<p>Download the small files and the file structure as an archive (.zip or .tar.gz). Annexed files (by default, files larger than 10 MB) will be
-									included as pointer files (stubs) but the data will not be included. To get the content of the big files you need to download them individually
-									from this web page.</p>
+									<div class="ui header">{{.i18n.Tr "repo.rcos.download.header"}}</div>
+									<p>{{.i18n.Tr "repo.rcos.download.body"}}</p>
+									<p>{{.i18n.Tr "repo.rcos.download.body2"}}</p>
 								</div>
 								<div class="actions">
 									<a class="ui positive button" href="{{$.RepoLink}}/archive/{{EscapePound $.BranchName}}.zip"><i class="octicon octicon-file-zip"></i> Download zip</a>

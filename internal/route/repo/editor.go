@@ -133,6 +133,7 @@ func editFile(c *context.Context, isNewFile bool) {
 	c.Data["PreviewableFileModes"] = strings.Join(conf.Repository.Editor.PreviewableFileModes, ",")
 	c.Data["EditorconfigURLPrefix"] = fmt.Sprintf("%s/api/v1/repos/%s/editorconfig/", conf.Server.Subpath, c.Repo.Repository.FullName())
 
+	_, c.Data["CanEditFilePath"] = canEditFile(c.Repo.TreePath)
 	c.Success(tmplEditorEdit)
 }
 

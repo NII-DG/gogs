@@ -189,6 +189,7 @@ func renderFile(c *context.Context, entry *git.TreeEntry, treeLink, rawLink stri
 	}
 
 	canEnableEditor := c.Repo.CanEnableEditor()
+	canEditFile, canEditFilePath := canEditFile(c.Repo.TreePath)
 	switch {
 	case isTextFile:
 		// GIN mod: Use c.Data["FileSize"] which is replaced by annexed content
@@ -263,13 +264,15 @@ func renderFile(c *context.Context, entry *git.TreeEntry, treeLink, rawLink stri
 		}
 
 		isannex := tool.IsAnnexedFile(p)
-		if canEnableEditor && !isannex {
+		if canEnableEditor && !isannex && canEditFile {
 			c.Data["CanEditFile"] = true
 			c.Data["EditFileTooltip"] = c.Tr("repo.editor.edit_this_file")
 		} else if !c.Repo.IsViewBranch {
 			c.Data["EditFileTooltip"] = c.Tr("repo.editor.must_be_on_a_branch")
 		} else if !c.Repo.IsWriter() {
 			c.Data["EditFileTooltip"] = c.Tr("repo.editor.fork_before_edit")
+		} else if !c.Repo.IsCanEditTreePath{
+			c.Data["EditFileTooltip"] = c.Tr("repo.editor.exppkg_forbid_updfile")
 		}
 
 	case tool.IsPDFFile(p) && (c.Data["FileSize"].(int64) < conf.Repository.RawCaptchaMinFileSize*annex.MEGABYTE ||
@@ -286,13 +289,15 @@ func renderFile(c *context.Context, entry *git.TreeEntry, treeLink, rawLink stri
 		c.Data["IsAnnexedFile"] = true
 	}
 
-	if canEnableEditor {
+	if canEnableEditor && canEditFilePath {
 		c.Data["CanDeleteFile"] = true
 		c.Data["DeleteFileTooltip"] = c.Tr("repo.editor.delete_this_file")
 	} else if !c.Repo.IsViewBranch {
 		c.Data["DeleteFileTooltip"] = c.Tr("repo.editor.must_be_on_a_branch")
 	} else if !c.Repo.IsWriter() {
 		c.Data["DeleteFileTooltip"] = c.Tr("repo.editor.must_have_write_access")
+	} else if !c.Repo.IsCanEditTreePath{
+		c.Data["DeleteFileTooltip"] = c.Tr("repo.editor.exppkg_forbid_delfile")
 	}
 }
 

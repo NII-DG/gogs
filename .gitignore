@@ -16,6 +16,8 @@ output*
 *.sublime-project
 *.sublime-workspace
 /release
+Dockerfile.gf_op
+.dockerignore
 
 node_modules
 /internal/route/repo/dmp_schema

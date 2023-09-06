@@ -78,6 +78,7 @@
 				</div>
 			</div>
 			<div class="ui eleven wide column">
+				{{template "base/alert" .}}
 				<div class="ui secondary pointing menu">
 					<a class="{{if ne .TabName "activity"}}active{{end}} item" href="{{.Owner.HomeLink}}">
 						<i class="octicon octicon-repo"></i> {{.i18n.Tr "user.repositories"}}

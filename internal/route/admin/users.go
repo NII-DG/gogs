@@ -7,6 +7,8 @@ package admin
 import (
 	"fmt"
 	"strings"
+	"net/url"
+	"regexp"
 
 	"github.com/unknwon/com"
 	log "unknwon.dev/clog/v2"
@@ -104,6 +106,9 @@ func NewUserPost(c *context.Context, f form.AdminCrateUser) {
 		case db.IsErrNameNotAllowed(err):
 			c.Data["Err_UserName"] = true
 			c.RenderWithErr(c.Tr("user.form.name_not_allowed", err.(db.ErrNameNotAllowed).Value()), USER_NEW, &f)
+		case db.IsErrPasswordInvalid(err):
+			c.Data["Err_Password"] = true
+			c.RenderWithErr( c.Tr("user.form.passward_is_invalid" ), USER_NEW, &f)
 		default:
 			c.Error(err, "create user")
 		}
@@ -200,11 +205,25 @@ func EditUserPost(c *context.Context, f form.AdminEditUser) {
 	if len(f.Password) > 0 {
 		u.Passwd = f.Password
 		var err error
-		if u.Salt, err = db.GetUserSalt(); err != nil {
-			c.Error(err, "get user salt")
+		
+		// Allowed symbols
+		matchingPattern := `^[a-zA-Z0-9!"#$%&'()*+,-./:;<=>?@[\]^_‘{|}~]+$`
+
+		// Check password 
+		matched, _ := regexp.MatchString(matchingPattern, f.Password)
+
+		if matched {
+			if u.Salt, err = db.GetUserSalt(); err != nil {
+				c.Error(err, "get user salt")
+				return
+			}
+			u.EncodePassword()
+		} else {
+			c.FormErr("Password")
+			c.RenderWithErr(c.Tr("form.enterred_invalid_password"), USER_EDIT, &f)
 			return
 		}
-		u.EncodePassword()
+
 	}
 
 	// check telephone format
@@ -213,14 +232,20 @@ func EditUserPost(c *context.Context, f form.AdminEditUser) {
 		c.RenderWithErr(c.Tr("form.enterred_invalid_telephone"), USER_EDIT, &f)
 		return
 	}
-	// check ORDIC URL
-	orcid_prefix := "https://orcid.org/"
-	if strings.HasPrefix(f.PersonalURL, orcid_prefix) {
-		value := f.PersonalURL[len(orcid_prefix):]
-		if !regex.CheckORCIDFormat(value) {
-			c.FormErr("PersonalUrl")
-			c.RenderWithErr(c.Tr("form.enterred_invalid_orcid_url"), USER_EDIT, &f)
-			return
+	// check ORCID URL
+	// if PersonalURL is set
+	if len( f.PersonalURL ) > 0 {
+		orcid_domain := "orcid.org"
+		// No Error check  because Checked for URL format at bind time
+		parsedURL, _ := url.Parse(f.PersonalURL)
+		urlDomain := parsedURL.Hostname()
+		if strings.EqualFold( urlDomain, orcid_domain ) {
+			value := parsedURL.Path
+			if !regex.CheckORCIDFormat(value[1:]) {
+				c.FormErr("PersonalUrl")
+				c.RenderWithErr(c.Tr("form.enterred_invalid_orcid_url"), USER_EDIT, &f)
+				return
+			}
 		}
 	}
 	// check e-Rad Rearcher Number
