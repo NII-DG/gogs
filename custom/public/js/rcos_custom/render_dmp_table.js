@@ -17,7 +17,7 @@ function CreateTableFromJSON(tbodyEle, dmp) {
             let dmpUnitVal = dmptable[i][j]
             if (dmpUnitVal != ""){
                 let td = document.createElement("td");
-                td.innerHTML = dmpUnitVal
+                td.textContent = dmpUnitVal
                 let colspanNum = colspanTable[i][j]
                 if (colspanNum >1) {
                     td.colSpan = colspanNum
