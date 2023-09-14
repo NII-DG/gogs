@@ -15,13 +15,16 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+	"time"
 
 	log "unknwon.dev/clog/v2"
 
+	"github.com/unknwon/com"
 	"github.com/NII-DG/gogs/internal/conf"
 	"github.com/NII-DG/gogs/internal/context"
 	"github.com/NII-DG/gogs/internal/db"
 	"github.com/NII-DG/gogs/internal/tool"
+	"github.com/NII-DG/gogs/internal/process"
 	"github.com/gogs/git-module"
 )
 
@@ -604,4 +607,107 @@ func canEditFile(filePath string) (canEditFile bool, canEditFilePath bool) {
 	}
 
 	return canEditFile, canEditFilePath
+}
+
+
+
+
+// SetupResearchFlow is RCOS specific code.
+func SetupResearchFlow(c context.Context) {
+	setupResearchFlow(c)
+}
+
+// setupResearchFlow is RCOS specific code.
+// This setup Researchflow
+// Researchflow created by the user in the repository.
+func setupResearchFlow(c context.Context) {
+
+	// テンプレートの取得場所を決定する。
+	// テンプレートの取得場所は、custom/conf/app.iniに記載する
+	// RFTemplateRepoURL = ResearchFlowの取得先(リポジトリのURL)
+	// RFTemplateRepoBranch = リポジトリのブランチ
+	var err error
+	rfRepoUrl := conf.DG.RFTemplateRepoURL
+	rfRepoBranch := conf.DG.RFTemplateRepoBranch
+	repoPath := c.Repo.Repository.RepoPath()
+	tmpBasePath := filepath.Join(conf.Server.AppDataPath, "tmp", "repos", com.ToStr(time.Now().Nanosecond())+".git")
+	outputFilePath := repoPath + "file.zip"
+
+	//*******************************************************************
+	// git archiveコマンドを実行するとエラーとなる。
+	// 「GIT_PROXY_COMMAND environment variable are NOT set.」
+	// → git archiveはローカルリポジトリに発行するコマンドとのこと。
+	// そのため、tmpフォルダを作る方向で修正。
+	//*******************************************************************
+
+	// Create temporary directory to store temporary copy of the ResearchFlow
+	// and clean it up when operation finished regardless of succeed or not.
+	// this code is copy from internal->db->pull.go Merge()
+	if err = os.MkdirAll(filepath.Dir(tmpBasePath), os.ModePerm); err != nil {
+		log.Trace("Fail mkdir  Path=[%s] %s", tmpBasePath, err )
+		return
+	}
+	defer func() {
+		_ = os.RemoveAll(filepath.Dir(tmpBasePath))
+	}()
+
+	// Clone the Researchflow repository to the defined temporary directory,
+	var stderr string
+	if _, stderr, err = process.ExecTimeout(5*time.Minute,
+		fmt.Sprintf("git clone: %s %s", rfRepoUrl, tmpBasePath),
+		"git", "clone", "-b", rfRepoBranch, rfRepoUrl, tmpBasePath); err != nil {
+		log.Trace("Fail git clone Path=[%s] Branch=[%s] URL=[%s] %s", tmpBasePath, rfRepoBranch, rfRepoUrl, stderr )
+		return
+	}
+
+	// ".git" dir is unnecessary. 
+	if err := os.Remove( filepath.Join( tmpBasePath, ".git" )); err != nil {
+		log.Trace("Fail RemoveDir Path=[%s] %s", filepath.Join( tmpBasePath, ".git" ), err )
+		return
+	}
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+	if _, _, err := process.ExecDir(-1, repoPath,
+		fmt.Sprintf("ResearchFlow Download (git archive): %s", repoPath),
+		"git", "archive", "--remote=", rfRepoUrl, rfRepoBranch, "--format=zip --output= ",outputFilePath ); err != nil { 
+		return	
+	}
+
+
+
+	// Archive ResearchFlow on Github for installation in GIN-fork repositories.
+	if _, _, err := process.ExecDir(-1, repoPath,
+		fmt.Sprintf("ResearchFlow Download (git archive): %s", repoPath),
+		"git", "archive", "--remote=", rfRepoUrl, rfRepoBranch, "--format=zip --output= ",outputFilePath ); err != nil { 
+		return	
+	}
+	// 作業完了後にファイルを削除する(掃除)
+	defer os.Remove(outputFilePath)
+
+	// Unzip the archived file.
+	if _, _, err := process.ExecDir(-1, repoPath,
+		fmt.Sprintf("ResearchFlow Download (git archive): %s", repoPath),
+		"git", "archive", "--remote=", rfRepoUrl, rfRepoBranch, "--format=zip --output= ",outputFilePath ); err != nil { 
+		return	
+	}
+
+
+
+
+	c.GetFlash().Success(c.Tr("rcos.madmp.success"))
+
+	// リポジトリTOP画面
+	c.Redirect(c.GetRepo().GetRepoLink())
 }
