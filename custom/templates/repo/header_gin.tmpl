@@ -34,9 +34,10 @@
 							{{end}}
 						</div>
 						<br>
-						<button class="ui basic button" onClick="location.href=value;">
-							<option value="{{$.RepoLink}}">RFダウンロード</option>
-						</button>
+						<form method="post" name="rfsetup" action="{{$.RepoLink}}/rfsetup" onSubmit="return PreventionDbClick();">
+							{{.CSRFTokenHTML}}
+							<button class="ui basic button" data-position="bottom center"><i class="octicon octicon-file"></i>RFダウンロード</button>
+						</form>
 						{{/* {{end}}  End registration button */}}
 					{{end}} {{/* Admin section */}}
 					{{if $.DOI}} {{/* Registered repo: Show DOI badge */}}

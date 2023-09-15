@@ -619,6 +619,7 @@ func SetupResearchFlow(c context.Context) {
 // Researchflow created by the user in the repository.
 func setupResearchFlow(c context.Context) {
 
+	log.Trace("Start setupResearchFlow" )
 	// テンプレートの取得場所を決定する。
 	// テンプレートの取得場所は、custom/conf/app.iniに記載する
 	// RFTemplateRepoURL = ResearchFlowの取得先(リポジトリのURL)

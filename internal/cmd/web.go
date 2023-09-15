@@ -440,10 +440,6 @@ func runWeb(c *cli.Context) error {
 			// RCOS specific code.
 			// Generate machine actionable DMP based on DMP information
 			m.Post("/madmp", repo.GenerateMaDmp)
-			// RCOS specific code.
-			// setup ResearchFlow for Ver2.0
-			m.Post("/rfsetup", repo.SetupResearchFlow)
-
 			m.Group("/settings", func() {
 				m.Combo("").Get(repo.Settings).
 					Post(bindIgnErr(form.RepoSetting{}), repo.SettingsPost)
@@ -682,6 +678,12 @@ func runWeb(c *cli.Context) error {
 				m.Get("", repo.ViewContainer)
 			})
 		}, ignSignIn, context.RepoAssignment(), reqRepoWriter)
+
+		m.Group("/:username/:reponame", func() {
+			m.Group("/rfsetup", func() {
+				m.Post("", repo.SetupResearchFlow)
+			})
+		}, reqSignIn, context.RepoAssignment(), reqRepoWriter, context.RepoRef() )
 		// ***** END: Repository *****
 
 		// **********************
