@@ -609,9 +609,6 @@ func canEditFile(filePath string) (canEditFile bool, canEditFilePath bool) {
 	return canEditFile, canEditFilePath
 }
 
-
-
-
 // SetupResearchFlow is RCOS specific code.
 func SetupResearchFlow(c context.Context) {
 	setupResearchFlow(c)
@@ -631,7 +628,6 @@ func setupResearchFlow(c context.Context) {
 	rfRepoBranch := conf.DG.RFTemplateRepoBranch
 	repoPath := c.Repo.Repository.RepoPath()
 	tmpBasePath := filepath.Join(conf.Server.AppDataPath, "tmp", "repos", com.ToStr(time.Now().Nanosecond())+".git")
-	outputFilePath := repoPath + "file.zip"
 
 	//*******************************************************************
 	// git archiveコマンドを実行するとエラーとなる。
@@ -666,45 +662,69 @@ func setupResearchFlow(c context.Context) {
 		return
 	}
 
+	// Copy uploaded files into repository
+	srcDir := tmpBasePath
+	dstDir := repoPath
+	err = filepath.Walk( srcDir, func(path string, info os.FileInfo , err error ) error {
+		if err != nil {
+			return err
+		}
+
+		if !info.IsDir() {
+			relativePath, err := filepath.Rel(srcDir, path)
+			if err != nil {
+				return err
+			}
+
+			dstPath := filepath.Join( dstDir, relativePath)
+
+			if err := os.MkdirAll( filepath.Dir(dstPath), os.ModePerm); err != nil {
+				return err
+			}
+
+			if err = com.Copy( path, dstPath); err != nil {
+				return err
+			}
+
+			log.Trace("Copied %s to %s\n", path, dstPath)
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		log.Trace("Error: %s ", err)
+		return
+	}
+
+	// Repository commit
+	if err = git.RepoAdd( repoPath, git.AddOptions{All: true}); err != nil {
+		log.Trace("git add --all: %v", err)
+		return 
+	} 
 	
-
-
-
-
-
-
-
-
-
-
-
-
-	if _, _, err := process.ExecDir(-1, repoPath,
-		fmt.Sprintf("ResearchFlow Download (git archive): %s", repoPath),
-		"git", "archive", "--remote=", rfRepoUrl, rfRepoBranch, "--format=zip --output= ",outputFilePath ); err != nil { 
-		return	
+	if err = git.RepoCommit( repoPath, c.User.NewGitSig(), "ResearchFlow Download"); err != nil {
+		log.Trace("commit changes on %q: %v", repoPath, err)
+		return
 	}
 
 
+	envs := db.ComposeHookEnvs(db.ComposeHookEnvsOptions{
+		AuthUser:  c.User,
+		OwnerName: c.Repo.Repository.MustOwner().Name,
+		OwnerSalt: c.Repo.Repository.MustOwner().Salt,
+		RepoID:    c.Repo.Repository.ID,
+		RepoName:  c.Repo.Repository.Name,
+		RepoPath:  c.Repo.Repository.RepoPath(),
+	})
 
-	// Archive ResearchFlow on Github for installation in GIN-fork repositories.
-	if _, _, err := process.ExecDir(-1, repoPath,
-		fmt.Sprintf("ResearchFlow Download (git archive): %s", repoPath),
-		"git", "archive", "--remote=", rfRepoUrl, rfRepoBranch, "--format=zip --output= ",outputFilePath ); err != nil { 
-		return	
-	}
-	// 作業完了後にファイルを削除する(掃除)
-	defer os.Remove(outputFilePath)
-
-	// Unzip the archived file.
-	if _, _, err := process.ExecDir(-1, repoPath,
-		fmt.Sprintf("ResearchFlow Download (git archive): %s", repoPath),
-		"git", "archive", "--remote=", rfRepoUrl, rfRepoBranch, "--format=zip --output= ",outputFilePath ); err != nil { 
-		return	
+	if err = git.RepoPush( repoPath, "origin", "master", git.PushOptions{Envs: envs}); err != nil {
+		log.Trace("git push origin %s: %v", "master", err)
+		return
+		
 	}
 
-
-
+	// dockerfileもダウンロードする必要がある。
 
 	c.GetFlash().Success(c.Tr("rcos.madmp.success"))
 
