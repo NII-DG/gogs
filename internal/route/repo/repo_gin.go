@@ -639,7 +639,7 @@ func setupResearchFlow(c *context.Context) {
 	ginURL := fmt.Sprintf("%s://%s", u.Scheme, u.Host)
 
 	repoLink := ginURL + c.Repo.RepoLink + ".git"
-	//repoLink = "http://127.0.0.1" + c.Repo.RepoLink + ".git"
+	repoLink = "http://127.0.0.1" + c.Repo.RepoLink + ".git"
 	log.Trace("rfRepoUrl =[%s]", rfRepoUrl)
 	log.Trace("rfRepoBranch =[%s]", rfRepoBranch)
 	log.Trace("repoPath =[%s]", repoPath)
@@ -647,25 +647,35 @@ func setupResearchFlow(c *context.Context) {
 	log.Trace("repoWorkPath =[%s]", repoWorkPath)
 	log.Trace("repoLink =[%s]", repoLink)
 
+	if err = c.Repo.Repository.DiscardLocalRepoBranchChanges("master"); err != nil {
+		log.Trace("discard local repo branch[%s] changes: %v", "master", err)
+		return
+		
+	} else if err = c.Repo.Repository.UpdateLocalCopyBranch("master"); err != nil {
+		log.Trace("update local copy branch[%s]: %v", "master", err)
+		return 
+	}
+
+
 	// Create temporary directory to store temporary copy of the ResearchFlow
 	// and clean it up when operation finished regardless of succeed or not.
 	// this code is copy from internal->db->pull.go Merge()
-	if err = os.MkdirAll(filepath.Dir(repoWorkPath), os.ModePerm); err != nil {
-		log.Trace("Fail mkdir  Path=[%s] %s", repoWorkPath, err )
-		return
-	}
+	//if err = os.MkdirAll(filepath.Dir(repoWorkPath), os.ModePerm); err != nil {
+	//	log.Trace("Fail mkdir  Path=[%s] %s", repoWorkPath, err )
+	//	return
+	//}
 	//defer func() {
 	//	_ = os.RemoveAll(filepath.Dir(repoWorkPath))
 	//}()
 
 	// Clone the Researchflow repository to the defined temporary directory,
 	var stderr string
-	if _, stderr, err = process.ExecTimeout(5*time.Minute,
-		fmt.Sprintf("git clone: %s %s", repoLink, repoWorkPath),
-		"git", "clone", repoLink, repoWorkPath); err != nil {
-		log.Trace("Fail git clone Path=[%s] URL=[%s] %s", repoWorkPath, repoLink, stderr )
-		return
-	}
+	//if _, stderr, err = process.ExecTimeout(5*time.Minute,
+	//	fmt.Sprintf("git clone: %s %s", repoLink, repoWorkPath),
+	//	"git", "clone", repoLink, repoWorkPath); err != nil {
+	//	log.Trace("Fail git clone Path=[%s] URL=[%s] %s", repoWorkPath, repoLink, stderr )
+	//	return
+	//}
 
 
 	//*******************************************************************
@@ -675,6 +685,7 @@ func setupResearchFlow(c *context.Context) {
 	// そのため、tmpフォルダを作る方向で修正。
 	//*******************************************************************
 
+
 	// Create temporary directory to store temporary copy of the ResearchFlow
 	// and clean it up when operation finished regardless of succeed or not.
 	// this code is copy from internal->db->pull.go Merge()
@@ -682,9 +693,9 @@ func setupResearchFlow(c *context.Context) {
 		log.Trace("Fail mkdir  Path=[%s] %s", rfdownloadPath, err )
 		return
 	}
-	//defer func() {
-	//	_ = os.RemoveAll(filepath.Dir(rfdownloadPath))
-	//}()
+	defer func() {
+		_ = os.RemoveAll(filepath.Dir(rfdownloadPath))
+	}()
 
 	// Clone the Researchflow repository to the defined temporary directory,
 	if _, stderr, err = process.ExecTimeout(5*time.Minute,
@@ -709,6 +720,11 @@ func setupResearchFlow(c *context.Context) {
 		}
 
 		if !info.IsDir() {
+			// Copy only under the data_gorvernance folder
+			if !( strings.Contains(path, "data_gorvernance"+string(os.PathSeparator) )) {
+				return nil
+			}
+
 			relativePath, err := filepath.Rel(srcDir, path)
 			if err != nil {
 				return err
@@ -767,9 +783,10 @@ func setupResearchFlow(c *context.Context) {
 		return	
 	}
 
-	// dockerfileもダウンロードする必要がある。
+	// dockerfileをダウンロードする
+	fetchDockerfile(c)
 
-	c.GetFlash().Success(c.Tr("rcos.madmp.success"))
+	c.GetFlash().Success(c.Tr("rcos.rfdownload.success"))
 
 	// リポジトリTOP画面
 	c.Redirect(c.GetRepo().GetRepoLink())
