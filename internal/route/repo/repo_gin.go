@@ -610,16 +610,20 @@ func canEditFile(filePath string) (canEditFile bool, canEditFilePath bool) {
 }
 
 // SetupResearchFlow is RCOS specific code.
-func SetupResearchFlow(c context.Context) {
+func SetupResearchFlow(c *context.Context) {
 	setupResearchFlow(c)
 }
 
 // setupResearchFlow is RCOS specific code.
 // This setup Researchflow
 // Researchflow created by the user in the repository.
-func setupResearchFlow(c context.Context) {
+func setupResearchFlow(c *context.Context) {
 
 	log.Trace("Start setupResearchFlow" )
+
+	//repoWorkingPool.CheckIn(com.ToStr(repo.ID))
+	//defer repoWorkingPool.CheckOut(com.ToStr(repo.ID))
+
 	// テンプレートの取得場所を決定する。
 	// テンプレートの取得場所は、custom/conf/app.iniに記載する
 	// RFTemplateRepoURL = ResearchFlowの取得先(リポジトリのURL)
@@ -628,7 +632,41 @@ func setupResearchFlow(c context.Context) {
 	rfRepoUrl := conf.DG.RFTemplateRepoURL
 	rfRepoBranch := conf.DG.RFTemplateRepoBranch
 	repoPath := c.Repo.Repository.RepoPath()
-	tmpBasePath := filepath.Join(conf.Server.AppDataPath, "tmp", "repos", com.ToStr(time.Now().Nanosecond())+".git")
+	rfdownloadPath := filepath.Join(conf.Server.AppDataPath, "tmp", "repos", com.ToStr(time.Now().Nanosecond())+".git")
+	repoWorkPath :=  c.Repo.Repository.LocalCopyPath()
+
+	u, _ := url.Parse(conf.Server.ExternalURL)
+	ginURL := fmt.Sprintf("%s://%s", u.Scheme, u.Host)
+
+	repoLink := ginURL + c.Repo.RepoLink + ".git"
+	//repoLink = "http://127.0.0.1" + c.Repo.RepoLink + ".git"
+	log.Trace("rfRepoUrl =[%s]", rfRepoUrl)
+	log.Trace("rfRepoBranch =[%s]", rfRepoBranch)
+	log.Trace("repoPath =[%s]", repoPath)
+	log.Trace("rfdownloadPath =[%s]", rfdownloadPath)
+	log.Trace("repoWorkPath =[%s]", repoWorkPath)
+	log.Trace("repoLink =[%s]", repoLink)
+
+	// Create temporary directory to store temporary copy of the ResearchFlow
+	// and clean it up when operation finished regardless of succeed or not.
+	// this code is copy from internal->db->pull.go Merge()
+	if err = os.MkdirAll(filepath.Dir(repoWorkPath), os.ModePerm); err != nil {
+		log.Trace("Fail mkdir  Path=[%s] %s", repoWorkPath, err )
+		return
+	}
+	//defer func() {
+	//	_ = os.RemoveAll(filepath.Dir(repoWorkPath))
+	//}()
+
+	// Clone the Researchflow repository to the defined temporary directory,
+	var stderr string
+	if _, stderr, err = process.ExecTimeout(5*time.Minute,
+		fmt.Sprintf("git clone: %s %s", repoLink, repoWorkPath),
+		"git", "clone", repoLink, repoWorkPath); err != nil {
+		log.Trace("Fail git clone Path=[%s] URL=[%s] %s", repoWorkPath, repoLink, stderr )
+		return
+	}
+
 
 	//*******************************************************************
 	// git archiveコマンドを実行するとエラーとなる。
@@ -640,32 +678,31 @@ func setupResearchFlow(c context.Context) {
 	// Create temporary directory to store temporary copy of the ResearchFlow
 	// and clean it up when operation finished regardless of succeed or not.
 	// this code is copy from internal->db->pull.go Merge()
-	if err = os.MkdirAll(filepath.Dir(tmpBasePath), os.ModePerm); err != nil {
-		log.Trace("Fail mkdir  Path=[%s] %s", tmpBasePath, err )
+	if err = os.MkdirAll(filepath.Dir(rfdownloadPath), os.ModePerm); err != nil {
+		log.Trace("Fail mkdir  Path=[%s] %s", rfdownloadPath, err )
 		return
 	}
-	defer func() {
-		_ = os.RemoveAll(filepath.Dir(tmpBasePath))
-	}()
+	//defer func() {
+	//	_ = os.RemoveAll(filepath.Dir(rfdownloadPath))
+	//}()
 
 	// Clone the Researchflow repository to the defined temporary directory,
-	var stderr string
 	if _, stderr, err = process.ExecTimeout(5*time.Minute,
-		fmt.Sprintf("git clone: %s %s", rfRepoUrl, tmpBasePath),
-		"git", "clone", "-b", rfRepoBranch, rfRepoUrl, tmpBasePath); err != nil {
-		log.Trace("Fail git clone Path=[%s] Branch=[%s] URL=[%s] %s", tmpBasePath, rfRepoBranch, rfRepoUrl, stderr )
+		fmt.Sprintf("git clone: %s %s", rfRepoUrl, rfdownloadPath),
+		"git", "clone", "-b", rfRepoBranch, rfRepoUrl, rfdownloadPath); err != nil {
+		log.Trace("Fail git clone Path=[%s] Branch=[%s] URL=[%s] %s", rfdownloadPath, rfRepoBranch, rfRepoUrl, stderr )
 		return
 	}
 
 	// ".git" dir is unnecessary. 
-	if err := os.Remove( filepath.Join( tmpBasePath, ".git" )); err != nil {
-		log.Trace("Fail RemoveDir Path=[%s] %s", filepath.Join( tmpBasePath, ".git" ), err )
+	if err := os.RemoveAll( filepath.Join( rfdownloadPath, ".git" )); err != nil {
+		log.Trace("Fail RemoveDir Path=[%s] %s", filepath.Join( rfdownloadPath, ".git" ), err )
 		return
 	}
 
 	// Copy uploaded files into repository
-	srcDir := tmpBasePath
-	dstDir := repoPath
+	srcDir := rfdownloadPath
+	dstDir := repoWorkPath
 	err = filepath.Walk( srcDir, func(path string, info os.FileInfo , err error ) error {
 		if err != nil {
 			return err
@@ -699,16 +736,22 @@ func setupResearchFlow(c context.Context) {
 	}
 
 	// Repository commit
-	if err = git.RepoAdd( repoPath, git.AddOptions{All: true}); err != nil {
-		log.Trace("git add --all: %v", err)
+	if err = git.RepoAdd( repoWorkPath, git.AddOptions{All: true}); err != nil {
+		log.Trace("git add --all [%s]: %v", repoWorkPath, err)
 		return 
 	} 
 	
-	if err = git.RepoCommit( repoPath, c.User.NewGitSig(), "ResearchFlow Download"); err != nil {
-		log.Trace("commit changes on %q: %v", repoPath, err)
+	if err = git.RepoCommit( repoWorkPath, c.User.NewGitSig(), "ResearchFlow Download"); err != nil {
+		log.Trace("commit changes on %q: %v", repoWorkPath, err)
 		return
 	}
 
+	log.Trace("AuthUser =[%v]",  c.User)
+	log.Trace("OwnerName =[%s]", c.Repo.Repository.MustOwner().Name)
+	log.Trace("OwnerSalt =[%s]", c.Repo.Repository.MustOwner().Salt)
+	log.Trace("RepoID =[%v]", c.Repo.Repository.ID)
+	log.Trace("RepoName =[%s]", c.Repo.Repository.Name,)
+	log.Trace("RepoPath =[%s]", c.Repo.Repository.RepoPath())
 
 	envs := db.ComposeHookEnvs(db.ComposeHookEnvsOptions{
 		AuthUser:  c.User,
@@ -719,10 +762,9 @@ func setupResearchFlow(c context.Context) {
 		RepoPath:  c.Repo.Repository.RepoPath(),
 	})
 
-	if err = git.RepoPush( repoPath, "origin", "master", git.PushOptions{Envs: envs}); err != nil {
+	if err = git.RepoPush( repoWorkPath, "origin", "master", git.PushOptions{Envs: envs}); err != nil {
 		log.Trace("git push origin %s: %v", "master", err)
-		return
-		
+		return	
 	}
 
 	// dockerfileもダウンロードする必要がある。
