@@ -631,22 +631,11 @@ func setupResearchFlow(c *context.Context) {
 	var err error
 	rfRepoUrl := conf.DG.RFTemplateRepoURL
 	rfRepoBranch := conf.DG.RFTemplateRepoBranch
-	repoPath := c.Repo.Repository.RepoPath()
 	rfdownloadPath := filepath.Join(conf.Server.AppDataPath, "tmp", "repos", com.ToStr(time.Now().Nanosecond())+".git")
 	repoWorkPath :=  c.Repo.Repository.LocalCopyPath()
 
-	u, _ := url.Parse(conf.Server.ExternalURL)
-	ginURL := fmt.Sprintf("%s://%s", u.Scheme, u.Host)
-
-	repoLink := ginURL + c.Repo.RepoLink + ".git"
-	repoLink = "http://127.0.0.1" + c.Repo.RepoLink + ".git"
-	log.Trace("rfRepoUrl =[%s]", rfRepoUrl)
-	log.Trace("rfRepoBranch =[%s]", rfRepoBranch)
-	log.Trace("repoPath =[%s]", repoPath)
-	log.Trace("rfdownloadPath =[%s]", rfdownloadPath)
-	log.Trace("repoWorkPath =[%s]", repoWorkPath)
-	log.Trace("repoLink =[%s]", repoLink)
-
+	// Clone the Researchflow repository to the defined temporary directory,
+	// This code refers to internal->db->repo_editor.go UploadRepoFiles()
 	if err = c.Repo.Repository.DiscardLocalRepoBranchChanges("master"); err != nil {
 		log.Trace("discard local repo branch[%s] changes: %v", "master", err)
 		return
@@ -656,39 +645,11 @@ func setupResearchFlow(c *context.Context) {
 		return 
 	}
 
-
-	// Create temporary directory to store temporary copy of the ResearchFlow
-	// and clean it up when operation finished regardless of succeed or not.
-	// this code is copy from internal->db->pull.go Merge()
-	//if err = os.MkdirAll(filepath.Dir(repoWorkPath), os.ModePerm); err != nil {
-	//	log.Trace("Fail mkdir  Path=[%s] %s", repoWorkPath, err )
-	//	return
-	//}
-	//defer func() {
-	//	_ = os.RemoveAll(filepath.Dir(repoWorkPath))
-	//}()
-
-	// Clone the Researchflow repository to the defined temporary directory,
 	var stderr string
-	//if _, stderr, err = process.ExecTimeout(5*time.Minute,
-	//	fmt.Sprintf("git clone: %s %s", repoLink, repoWorkPath),
-	//	"git", "clone", repoLink, repoWorkPath); err != nil {
-	//	log.Trace("Fail git clone Path=[%s] URL=[%s] %s", repoWorkPath, repoLink, stderr )
-	//	return
-	//}
-
-
-	//*******************************************************************
-	// git archiveコマンドを実行するとエラーとなる。
-	// 「GIT_PROXY_COMMAND environment variable are NOT set.」
-	// → git archiveはローカルリポジトリに発行するコマンドとのこと。
-	// そのため、tmpフォルダを作る方向で修正。
-	//*******************************************************************
-
 
 	// Create temporary directory to store temporary copy of the ResearchFlow
 	// and clean it up when operation finished regardless of succeed or not.
-	// this code is copy from internal->db->pull.go Merge()
+	// this code refers to internal->db->pull.go Merge()
 	if err = os.MkdirAll(filepath.Dir(rfdownloadPath), os.ModePerm); err != nil {
 		log.Trace("Fail mkdir  Path=[%s] %s", rfdownloadPath, err )
 		return
@@ -702,12 +663,6 @@ func setupResearchFlow(c *context.Context) {
 		fmt.Sprintf("git clone: %s %s", rfRepoUrl, rfdownloadPath),
 		"git", "clone", "-b", rfRepoBranch, rfRepoUrl, rfdownloadPath); err != nil {
 		log.Trace("Fail git clone Path=[%s] Branch=[%s] URL=[%s] %s", rfdownloadPath, rfRepoBranch, rfRepoUrl, stderr )
-		return
-	}
-
-	// ".git" dir is unnecessary. 
-	if err := os.RemoveAll( filepath.Join( rfdownloadPath, ".git" )); err != nil {
-		log.Trace("Fail RemoveDir Path=[%s] %s", filepath.Join( rfdownloadPath, ".git" ), err )
 		return
 	}
 
@@ -740,7 +695,6 @@ func setupResearchFlow(c *context.Context) {
 				return err
 			}
 
-			log.Trace("Copied %s to %s\n", path, dstPath)
 		}
 
 		return nil
@@ -751,7 +705,7 @@ func setupResearchFlow(c *context.Context) {
 		return
 	}
 
-	// Repository commit
+	// Repository add + commit
 	if err = git.RepoAdd( repoWorkPath, git.AddOptions{All: true}); err != nil {
 		log.Trace("git add --all [%s]: %v", repoWorkPath, err)
 		return 
@@ -761,13 +715,6 @@ func setupResearchFlow(c *context.Context) {
 		log.Trace("commit changes on %q: %v", repoWorkPath, err)
 		return
 	}
-
-	log.Trace("AuthUser =[%v]",  c.User)
-	log.Trace("OwnerName =[%s]", c.Repo.Repository.MustOwner().Name)
-	log.Trace("OwnerSalt =[%s]", c.Repo.Repository.MustOwner().Salt)
-	log.Trace("RepoID =[%v]", c.Repo.Repository.ID)
-	log.Trace("RepoName =[%s]", c.Repo.Repository.Name,)
-	log.Trace("RepoPath =[%s]", c.Repo.Repository.RepoPath())
 
 	envs := db.ComposeHookEnvs(db.ComposeHookEnvsOptions{
 		AuthUser:  c.User,
@@ -783,11 +730,11 @@ func setupResearchFlow(c *context.Context) {
 		return	
 	}
 
-	// dockerfileをダウンロードする
+	// download Dockerfile
 	fetchDockerfile(c)
 
 	c.GetFlash().Success(c.Tr("rcos.rfdownload.success"))
 
-	// リポジトリTOP画面
+	// Redirect to Repository Top
 	c.Redirect(c.GetRepo().GetRepoLink())
 }
