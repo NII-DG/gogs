@@ -401,6 +401,9 @@ func RepoAssignment(pages ...bool) macaron.Handler {
 		c.Data["HasMaDmp"] = HasFileInRepo(c, "/maDMP.ipynb")
 		c.Data["HasExperiments"] = HasTreeInRepo(c, "/experiments")
 
+		hasRF := HasTreeInRepo(c, "/data_gorvernance")
+		c.Data["HasRFDir"] = hasRF
+
 		// if doi := getRepoDOI(c); doi != "" && libgin.IsRegisteredDOI(doi) {
 		// 	c.Data["DOI"] = doi
 		// }

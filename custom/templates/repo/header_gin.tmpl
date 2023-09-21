@@ -7,37 +7,41 @@
 							<!--a class="ui basic button" data-tooltip="Your repository does not fulfill all requirements for a DOI yet. Click to get instructions." data-position="bottom center" href="/G-Node/Info/wiki/DOI"><i class="octicon octicon-squirrel"></i> How to publish</!--a -->
 						<div style="display:flex;">
 							{{if $.IsRcosButton}}
-								{{if $.HasDmpJson }}
-									{{ if $.HasMaDmp }}
-										<a class="ui basic button" href="{{$.RepoLink}}/src/{{EscapePound $.BranchName}}/maDMP.ipynb" data-position="bottom center"><i class="octicon octicon-file"></i>View maDMP</a>
-									{{ else }}
+								{{if not $.HasRFDir }}
+									{{if $.HasDmpJson }}
+										{{ if $.HasMaDmp }}
+											<a class="ui basic button" href="{{$.RepoLink}}/src/{{EscapePound $.BranchName}}/maDMP.ipynb" data-position="bottom center"><i class="octicon octicon-file"></i>View maDMP</a>
+										{{ else }}
+											{{if $.IsRepositoryAdmin}}
+											<a class="ui basic button" href="{{$.RepoLink}}/_edit/{{EscapePound $.BranchName}}/dmp.json" data-position="bottom center"><i class="octicon octicon-file"></i>Edit DMP JSON</a>
+											<form method="post" name="generate_maDMP" action="{{$.RepoLink}}/madmp" onSubmit="return PreventionDbClick();">
+												{{.CSRFTokenHTML}}
+												<button class="ui basic button" data-position="bottom center"><i class="octicon octicon-file"></i>Generate maDMP</button>
+											</form>
+											{{end}}
+										{{ end }}
+									{{else}}
+										{{if $.SchemaList}}
 										{{if $.IsRepositoryAdmin}}
-										<a class="ui basic button" href="{{$.RepoLink}}/_edit/{{EscapePound $.BranchName}}/dmp.json" data-position="bottom center"><i class="octicon octicon-file"></i>Edit DMP JSON</a>
-										<form method="post" name="generate_maDMP" action="{{$.RepoLink}}/madmp" onSubmit="return PreventionDbClick();">
-											{{.CSRFTokenHTML}}
-											<button class="ui basic button" data-position="bottom center"><i class="octicon octicon-file"></i>Generate maDMP</button>
-										</form>
+											<select class="ui basic button dmp-menu" name="addDmp" onChange="location.href=value;">
+												<option value="" selected disabled>Add DMP</option>
+												{{ range $v := $.SchemaList }}
+													<option value="{{$.RepoLink}}/_add/{{EscapePound $.BranchName}}/dmp.json/?schema={{$v}}">{{ $v }}</option>
+												{{ end }}
+											</select>
 										{{end}}
-									{{ end }}
-								{{else}}
-									{{if $.SchemaList}}
-									{{if $.IsRepositoryAdmin}}
-										<select class="ui basic button dmp-menu" name="addDmp" onChange="location.href=value;">
-											<option value="" selected disabled>Add DMP</option>
-											{{ range $v := $.SchemaList }}
-												<option value="{{$.RepoLink}}/_add/{{EscapePound $.BranchName}}/dmp.json/?schema={{$v}}">{{ $v }}</option>
-											{{ end }}
-										</select>
-									{{end}}
+										{{end}}
 									{{end}}
 								{{end}}
 							{{end}}
 						</div>
 						<br>
-						<form method="post" name="rfsetup" action="{{$.RepoLink}}/rfsetup" onSubmit="return PreventionDbClick();">
-							{{.CSRFTokenHTML}}
-							<button class="ui basic button" data-position="bottom center"><i class="octicon octicon-file"></i>RFダウンロード</button>
-						</form>
+						{{if not $.HasRFDir }}
+							<form method="post" name="rfsetup" action="{{$.RepoLink}}/rfsetup" onSubmit="return PreventionDbClick();">
+								{{.CSRFTokenHTML}}
+								<button class="ui basic button" data-position="bottom center"><i class="octicon octicon-file"></i>RFダウンロード</button>
+							</form>
+						{{end}}
 						{{/* {{end}}  End registration button */}}
 					{{end}} {{/* Admin section */}}
 					{{if $.DOI}} {{/* Registered repo: Show DOI badge */}}

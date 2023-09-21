@@ -677,9 +677,12 @@ func setupResearchFlow(c *context.Context) {
 		if !info.IsDir() {
 			// Copy only under the data_gorvernance folder
 			if !( strings.Contains(path, "data_gorvernance"+string(os.PathSeparator) )) {
-				return nil
+				// Dockerfile is in the root directory, so copy it alone
+				if !( strings.HasSuffix(path, "Dockerfile") ) {
+					return nil
+				}
 			}
-
+			
 			relativePath, err := filepath.Rel(srcDir, path)
 			if err != nil {
 				return err
@@ -730,11 +733,9 @@ func setupResearchFlow(c *context.Context) {
 		return	
 	}
 
-	// download Dockerfile
-	fetchDockerfile(c)
-
 	c.GetFlash().Success(c.Tr("rcos.rfdownload.success"))
 
+	c.Data["HasRFDir"] = true
 	// Redirect to Repository Top
 	c.Redirect(c.GetRepo().GetRepoLink())
 }
