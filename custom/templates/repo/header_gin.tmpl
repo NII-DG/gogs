@@ -36,11 +36,13 @@
 							{{end}}
 						</div>
 						<br>
-						{{if not $.HasRFDir }}
-							<form method="post" name="rfsetup" action="{{$.RepoLink}}/rfsetup" onSubmit="return PreventionDbClick();">
-								{{.CSRFTokenHTML}}
-								<button class="ui basic button" data-position="bottom center"><i class="octicon octicon-file"></i>RFダウンロード</button>
-							</form>
+						{{if not $.HasDmpJson }}
+							{{if not $.HasRFDir }}
+								<form method="post" name="rfsetup" action="{{$.RepoLink}}/rfsetup" onSubmit="return PreventionDbClick();">
+									{{.CSRFTokenHTML}}
+									<button class="ui basic button" data-position="bottom center"><i class="octicon octicon-file"></i>RFダウンロード</button>
+								</form>
+							{{end}}
 						{{end}}
 						{{/* {{end}}  End registration button */}}
 					{{end}} {{/* Admin section */}}
